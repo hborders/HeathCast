@@ -7,9 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 
 /**
@@ -52,7 +55,16 @@ public class PodcastListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_podcast_list, container, false);
+        @Nullable View view = inflater.inflate(R.layout.fragment_podcast_list, container, false);
+
+        if (view != null) {
+            FloatingActionButton fab = view.findViewById(R.id.add_podcast_fab);
+            fab.setOnClickListener(
+                    Navigation.createNavigateOnClickListener(R.id.action_podcastListFragment_to_podcastSearchFragment)
+            );
+        }
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
