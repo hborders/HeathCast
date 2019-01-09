@@ -7,13 +7,22 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".PodcastSearchFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <SearchView
+        android:id="@+id/search_view"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/podcast_search_fragment_title"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:iconifiedByDefault="false"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_results_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

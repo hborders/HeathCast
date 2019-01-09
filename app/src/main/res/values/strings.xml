@@ -4,4 +4,5 @@
     <string name="add_podcast">Add Podcast</string>
     <string name="podcast_search_fragment_title">Search for Podcasts</string>
     <string name="podcast_list_fragment_title">Podcast List</string>
+    <string name="search_query_hint">Enter a podcast name to search</string>
 </resources>

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -37,7 +36,6 @@ public class PodcastListFragment extends Fragment {
      *
      * @return A new instance of fragment PodcastListFragment.
      */
-    @NonNull
     public static PodcastListFragment newInstance() {
         PodcastListFragment fragment = new PodcastListFragment();
         Bundle args = new Bundle();
@@ -52,7 +50,8 @@ public class PodcastListFragment extends Fragment {
 
     @Override
     @Nullable
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         @Nullable View view = inflater.inflate(R.layout.fragment_podcast_list, container, false);
@@ -75,7 +74,7 @@ public class PodcastListFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
+    public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnPodcastListFragmentInteractionListener) {
             mListener = (OnPodcastListFragmentInteractionListener) context;
