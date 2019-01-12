@@ -9,6 +9,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -23,6 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
+import com.github.hborders.heathcast.service.ITunesService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -45,6 +51,11 @@ public class PodcastSearchFragment extends Fragment {
     private SearchView mSearchView;
     @Nullable
     private RecyclerView mSearchResultsRecyclerView;
+
+    private final ITunesService iTunesService = new ITunesService(
+            new OkHttpClient(),
+            ReactivexOkHttpCallAdapter.createWithScheduler(Schedulers.io())
+    );
 
     public PodcastSearchFragment() {
         // Required empty public constructor
@@ -88,40 +99,20 @@ public class PodcastSearchFragment extends Fragment {
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
-                        // https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
-                        HttpUrl url = new HttpUrl.Builder()
-                                .scheme("https")
-                                .host("itunes.apple.com")
-                                .addPathSegments("search")
-                                // either titleTerm, languageTerm, authorTerm, genreIndex,
-                                // artistTerm, ratingIndex, keywordsTerm, descriptionTerm
-                                // .addQueryParameter("attribute", "titleTerm")
-                                .addQueryParameter("entity", "podcast")
-                                .addQueryParameter("explicit", "Yes")
-                                .addQueryParameter("limit", "200") // max is 200
-                                .addQueryParameter("media", "podcast")
-                                .addQueryParameter("term", query)
-                                .addQueryParameter("version", "2")
-                                .build();
-
-                        Request request = new Request.Builder().url(url).build();
-                        OkHttpClient okHttpClient = new OkHttpClient();
-                        okHttpClient.newCall(request).enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                Log.e(TAG, "Error when searching iTunes", e);
-                            }
-
-                            @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                ResponseBody body = response.body();
-                                if (body != null) {
-                                    String bodyString = body.string();
-                                    Log.d(TAG, "response:\n==========\n" + bodyString + "\n==========");
-                                }
-                                response.close();
-                            }
-                        });
+                        Disposable disposable =
+                                iTunesService.searchForPodcasts(query).subscribe(
+                                        response -> {
+                                            ResponseBody body = response.body();
+                                            if (body != null) {
+                                                String bodyString = body.string();
+                                                Log.d(TAG, "response:\n==========\n" + bodyString + "\n==========");
+                                            }
+                                            response.close();
+                                        },
+                                        throwable -> {
+                                            Log.e(TAG, "Error when searching iTunes", throwable);
+                                        }
+                                );
 
                         return true;
                     }
