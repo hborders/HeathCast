@@ -1,24 +1,15 @@
 package com.github.hborders.heathcast;
 
-import android.app.SearchableInfo;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import android.util.Log;
@@ -28,10 +19,9 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
-import com.github.hborders.heathcast.service.ITunesService;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.io.IOException;
+import com.github.hborders.heathcast.service.PodcastJson;
+import com.github.hborders.heathcast.service.PodcastService;
+import com.google.gson.Gson;
 
 
 /**
@@ -42,7 +32,7 @@ import java.io.IOException;
  * Use the {@link PodcastSearchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PodcastSearchFragment extends Fragment {
+public final class PodcastSearchFragment extends Fragment {
     private static final String TAG = "PodcastSearch";
 
     @Nullable
@@ -52,8 +42,9 @@ public class PodcastSearchFragment extends Fragment {
     @Nullable
     private RecyclerView mSearchResultsRecyclerView;
 
-    private final ITunesService iTunesService = new ITunesService(
+    private final PodcastService podcastService = new PodcastService(
             new OkHttpClient(),
+            new Gson(),
             ReactivexOkHttpCallAdapter.createWithScheduler(Schedulers.io())
     );
 
@@ -100,14 +91,13 @@ public class PodcastSearchFragment extends Fragment {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
                         Disposable disposable =
-                                iTunesService.searchForPodcasts(query).subscribe(
-                                        response -> {
-                                            ResponseBody body = response.body();
-                                            if (body != null) {
-                                                String bodyString = body.string();
-                                                Log.d(TAG, "response:\n==========\n" + bodyString + "\n==========");
+                                podcastService.searchForPodcasts(query).subscribe(
+                                        podcastJsons -> {
+
+                                            Log.d(TAG, "podcastJsons:\n==========\n");
+                                            for (PodcastJson podcastJson : podcastJsons) {
+                                                Log.d(TAG, podcastJson.toString());
                                             }
-                                            response.close();
                                         },
                                         throwable -> {
                                             Log.e(TAG, "Error when searching iTunes", throwable);

@@ -18,7 +18,8 @@ import javax.annotation.meta.TypeQualifierDefault;
 @TypeQualifierDefault({
         ElementType.FIELD,
         ElementType.METHOD,
-        ElementType.PARAMETER
+        ElementType.PARAMETER,
+        ElementType.LOCAL_VARIABLE
 })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EverythingIsNonNullByDefault {

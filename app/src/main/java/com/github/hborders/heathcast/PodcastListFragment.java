@@ -22,7 +22,7 @@ import androidx.navigation.Navigation;
  * Use the {@link PodcastListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PodcastListFragment extends Fragment {
+public final class PodcastListFragment extends Fragment {
     @Nullable
     private OnPodcastListFragmentInteractionListener mListener;
 
