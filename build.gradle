@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         // don't upgrade this because it requires Android Studio 3.4
-        classpath 'com.android.tools.build:gradle:3.3.0'
+        classpath 'com.android.tools.build:gradle:3.4.0-beta01'
 
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0-alpha09"
         
