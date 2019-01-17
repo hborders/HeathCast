@@ -1,2 +1,2 @@
 @com.github.hborders.heathcast.annotations.EverythingIsNonNullByDefault
-package com.github.hborders.heathcast.service;
+package com.github.hborders.heathcast.services;

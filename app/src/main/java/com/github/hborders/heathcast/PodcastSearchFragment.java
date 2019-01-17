@@ -7,10 +7,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,9 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
-import com.github.hborders.heathcast.service.PodcastJson;
-import com.github.hborders.heathcast.service.PodcastService;
+import com.github.hborders.heathcast.services.PodcastService;
 import com.google.gson.Gson;
 
 
@@ -91,18 +91,22 @@ public final class PodcastSearchFragment extends Fragment {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
                         Disposable disposable =
-                                podcastService.searchForPodcasts(query).subscribe(
-                                        podcastJsons -> {
+                                podcastService.
+                                        searchForPodcasts(query).
+                                        observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(
+                                                podcasts -> {
 
-                                            Log.d(TAG, "podcastJsons:\n==========\n");
-                                            for (PodcastJson podcastJson : podcastJsons) {
-                                                Log.d(TAG, podcastJson.toString());
-                                            }
-                                        },
-                                        throwable -> {
-                                            Log.e(TAG, "Error when searching iTunes", throwable);
-                                        }
-                                );
+                                                    Log.d(TAG, "podcasts:");
+                                                    for (Podcast podcast : podcasts) {
+                                                        Log.d(TAG, podcast.toString());
+                                                    }
+                                                    Log.d(TAG, "==========");
+                                                },
+                                                throwable -> {
+                                                    Log.e(TAG, "Error when searching iTunes", throwable);
+                                                }
+                                        );
 
                         return true;
                     }

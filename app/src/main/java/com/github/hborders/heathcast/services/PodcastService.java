@@ -1,12 +1,17 @@
-package com.github.hborders.heathcast.service;
+package com.github.hborders.heathcast.services;
 
+import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.reactivex.Single;
@@ -32,9 +37,9 @@ public final class PodcastService {
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
     }
 
-    public Single<List<PodcastJson>> searchForPodcasts(String query) {
+    public Single<List<Podcast>> searchForPodcasts(String query) {
         // https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
-        HttpUrl url = new HttpUrl.Builder()
+        final HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("itunes.apple.com")
                 .addPathSegments("search")
@@ -49,8 +54,8 @@ public final class PodcastService {
                 .addQueryParameter("version", "2")
                 .build();
 
-        Request request = new Request.Builder().url(url).build();
-        Call call = okHttpClient.newCall(request);
+        final Request request = new Request.Builder().url(url).build();
+        final Call call = okHttpClient.newCall(request);
         return reactivexOkHttpCallAdapter
                 .single(call)
                 .subscribeOn(Schedulers.io())
@@ -69,13 +74,16 @@ public final class PodcastService {
                                 responseBody.close();
                                 response.close();
 
-                                @Nullable
-                                List<PodcastJson> podcastJsons = podcastSearchResultsJson.results;
-                                if (podcastJsons == null) {
-                                    return Single.just(Collections.emptyList());
-                                } else {
-                                    return Single.just(podcastJsons);
-                                }
+                                final List<Podcast> podcasts =
+                                        Optional
+                                                .ofNullable(podcastSearchResultsJson.results)
+                                                .map(Stream::of)
+                                                .orElseGet(Stream::empty)
+                                                .flatMap(Collection::stream)
+                                                .map(PodcastJson::toPodcast)
+                                                .filter(Objects::nonNull)
+                                                .collect(Collectors.toList());
+                                return Single.just(podcasts);
                             }
                         }
                 );
