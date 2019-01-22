@@ -40,6 +40,10 @@ public final class PodcastSearchFragment extends Fragment {
 
     @Nullable
     private OnPodcastSearchFragmentInteractionListener mListener;
+    error
+    // TODO instead of putting the recyclerView in the fragment
+    // use the PodcastListFragment instead, and have it accept a
+    // List of Podcasts as its argument.
     @Nullable
     private RecyclerView mSearchResultsRecyclerView;
     @Nullable
@@ -71,6 +75,11 @@ public final class PodcastSearchFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -147,7 +156,6 @@ public final class PodcastSearchFragment extends Fragment {
 
                 searchResultsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             }
-
         }
         return view;
     }
