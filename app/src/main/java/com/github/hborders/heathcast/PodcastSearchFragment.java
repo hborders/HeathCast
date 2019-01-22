@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -18,9 +19,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import com.github.hborders.heathcast.adapters.PodcastRecyclerViewAdapter;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.github.hborders.heathcast.services.PodcastService;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 
@@ -38,9 +41,9 @@ public final class PodcastSearchFragment extends Fragment {
     @Nullable
     private OnPodcastSearchFragmentInteractionListener mListener;
     @Nullable
-    private SearchView mSearchView;
-    @Nullable
     private RecyclerView mSearchResultsRecyclerView;
+    @Nullable
+    private Disposable mPodcastSearchDisposable;
 
     private final PodcastService podcastService = new PodcastService(
             new OkHttpClient(),
@@ -84,36 +87,51 @@ public final class PodcastSearchFragment extends Fragment {
                 false
         );
         if (view != null) {
-            @Nullable SearchView searchView = view.findViewById(R.id.search_view);
+            @Nullable final SearchView searchView = view.findViewById(R.id.search_view);
             if (searchView != null) {
-                mSearchView = searchView;
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
-                        Disposable disposable =
-                                podcastService.
-                                        searchForPodcasts(query).
-                                        observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(
-                                                podcasts -> {
-
-                                                    Log.d(TAG, "podcasts:");
-                                                    for (Podcast podcast : podcasts) {
-                                                        Log.d(TAG, podcast.toString());
-                                                    }
-                                                    Log.d(TAG, "==========");
-                                                },
-                                                throwable -> {
-                                                    Log.e(TAG, "Error when searching iTunes", throwable);
-                                                }
-                                        );
+                        searchView.clearFocus();
+                        @Nullable final Disposable oldDisposable = mPodcastSearchDisposable;
+                        if (oldDisposable != null) {
+                            oldDisposable.dispose();
+                        }
+                        mPodcastSearchDisposable = podcastService.
+                                searchForPodcasts(query).
+                                observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        podcasts -> {
+                                            @Nullable final RecyclerView searchResultsRecyclerView =
+                                                    mSearchResultsRecyclerView;
+                                            if (searchResultsRecyclerView != null) {
+                                                searchResultsRecyclerView
+                                                        .setAdapter(new PodcastRecyclerViewAdapter(
+                                                                        podcasts
+                                                                )
+                                                        );
+                                            }
+                                        },
+                                        throwable -> {
+                                            Snackbar.make(
+                                                    searchView,
+                                                    "Error when searching iTunes",
+                                                    Snackbar.LENGTH_SHORT
+                                            );
+                                            Log.e(
+                                                    TAG,
+                                                    "Error when searching iTunes",
+                                                    throwable
+                                            );
+                                        }
+                                );
 
                         return true;
                     }
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        return false;
+                        return true;
                     }
                 });
 
@@ -122,15 +140,26 @@ public final class PodcastSearchFragment extends Fragment {
                     searchView.setQueryHint(context.getString(R.string.search_query_hint));
                 }
             }
-            mSearchResultsRecyclerView = view.findViewById(R.id.search_results_recycler_view);
+            @Nullable final RecyclerView searchResultsRecyclerView =
+                    view.findViewById(R.id.search_results_recycler_view);
+            if (searchResultsRecyclerView != null) {
+                mSearchResultsRecyclerView = searchResultsRecyclerView;
+
+                searchResultsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            }
+
         }
         return view;
     }
 
     @Override
     public void onDestroyView() {
-        mSearchView = null;
         mSearchResultsRecyclerView = null;
+
+        @Nullable final Disposable podcastSearchDisposable = mPodcastSearchDisposable;
+        if (podcastSearchDisposable != null) {
+            podcastSearchDisposable.dispose();
+        }
 
         super.onDestroyView();
     }
