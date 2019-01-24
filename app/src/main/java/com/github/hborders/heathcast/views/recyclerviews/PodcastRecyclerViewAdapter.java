@@ -1,4 +1,4 @@
-package com.github.hborders.heathcast.adapters;
+package com.github.hborders.heathcast.views.recyclerviews;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +12,6 @@ import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Podcast;
 
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecyclerViewAdapter.PodcastViewHolder> {
 

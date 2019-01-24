@@ -49,7 +49,7 @@ public final class PodcastService {
                 .addQueryParameter("entity", "podcast")
                 .addQueryParameter("explicit", "Yes")
                 .addQueryParameter("limit", "200") // max is 200
-                .addQueryParameter("media", "podcast")
+                .addQueryParameter("media", "mPodcast")
                 .addQueryParameter("term", query)
                 .addQueryParameter("version", "2")
                 .build();
@@ -61,29 +61,33 @@ public final class PodcastService {
                 .subscribeOn(Schedulers.io())
                 .flatMap(
                         response -> {
-                            @Nullable
-                            ResponseBody responseBody = response.body();
-                            if (responseBody == null) {
-                                return Single.error(new Exception("No responseBody"));
-                            } else {
-                                PodcastSearchResultsJson podcastSearchResultsJson =
-                                        gson.fromJson(
-                                                responseBody.charStream(),
-                                                PodcastSearchResultsJson.class
-                                        );
-                                responseBody.close();
-                                response.close();
+                            final int responseCode = response.code();
+                            if (responseCode == 200) {
+                                @Nullable final ResponseBody responseBody = response.body();
+                                if (responseBody == null) {
+                                    return Single.error(new Exception("No responseBody"));
+                                } else {
+                                    final PodcastSearchResultsJson podcastSearchResultsJson =
+                                            gson.fromJson(
+                                                    responseBody.charStream(),
+                                                    PodcastSearchResultsJson.class
+                                            );
+                                    responseBody.close();
+                                    response.close();
 
-                                final List<Podcast> podcasts =
-                                        Optional
-                                                .ofNullable(podcastSearchResultsJson.results)
-                                                .map(Stream::of)
-                                                .orElseGet(Stream::empty)
-                                                .flatMap(Collection::stream)
-                                                .map(PodcastJson::toPodcast)
-                                                .filter(Objects::nonNull)
-                                                .collect(Collectors.toList());
-                                return Single.just(podcasts);
+                                    final List<Podcast> podcasts =
+                                            Optional
+                                                    .ofNullable(podcastSearchResultsJson.results)
+                                                    .map(Stream::of)
+                                                    .orElseGet(Stream::empty)
+                                                    .flatMap(Collection::stream)
+                                                    .map(PodcastJson::toPodcast)
+                                                    .filter(Objects::nonNull)
+                                                    .collect(Collectors.toList());
+                                    return Single.just(podcasts);
+                                }
+                            } else {
+                                return Single.error(new Exception("HTTP Error: " + responseCode));
                             }
                         }
                 );

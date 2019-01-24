@@ -1,16 +1,15 @@
-package com.github.hborders.heathcast;
+package com.github.hborders.heathcast.activities;
 
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.fragments.PodcastListFragment;
+import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.navigation.Navigation;
 
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 

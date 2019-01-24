@@ -3,20 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/podcastListFragment">
-    <fragment
-        android:id="@+id/podcastListFragment"
-        android:name="com.github.hborders.heathcast.PodcastListFragment"
-        android:label="fragment_podcast_list"
-        tools:layout="@layout/fragment_podcast_list" >
-        <action
-            android:id="@+id/action_podcastListFragment_to_podcastSearchFragment"
-            app:destination="@id/podcastSearchFragment" />
-    </fragment>
+    app:startDestination="@id/mainFragment">
 
     <fragment
         android:id="@+id/podcastSearchFragment"
-        android:name="com.github.hborders.heathcast.PodcastSearchFragment"
+        android:name="com.github.hborders.heathcast.fragments.PodcastSearchFragment"
         android:label="fragment_podcast_search"
         tools:layout="@layout/fragment_podcast_search" />
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.github.hborders.heathcast.fragments.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_podcastSearchFragment"
+            app:destination="@id/podcastSearchFragment" />
+    </fragment>
 </navigation>

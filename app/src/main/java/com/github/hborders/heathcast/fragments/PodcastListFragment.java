@@ -1,17 +1,31 @@
-package com.github.hborders.heathcast;
+package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.parcelables.PodcastParcelable;
+import com.github.hborders.heathcast.utils.ArrayUtil;
+import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 
 /**
@@ -23,8 +37,13 @@ import androidx.navigation.Navigation;
  * create an instance of this fragment.
  */
 public final class PodcastListFragment extends Fragment {
+    private static final String PODCAST_PARCELABLES_KEY = "podcastParcelables";
+
     @Nullable
     private OnPodcastListFragmentInteractionListener mListener;
+
+    @Nullable
+    private RecyclerView mRecyclerView;
 
     public PodcastListFragment() {
         // Required empty public constructor
@@ -36,9 +55,13 @@ public final class PodcastListFragment extends Fragment {
      *
      * @return A new instance of fragment PodcastListFragment.
      */
-    public static PodcastListFragment newInstance() {
-        PodcastListFragment fragment = new PodcastListFragment();
-        Bundle args = new Bundle();
+    public static PodcastListFragment newInstance(List<PodcastParcelable> podcastParcelables) {
+        final PodcastListFragment fragment = new PodcastListFragment();
+        final Bundle args = new Bundle();
+        args.putParcelableArray(
+                PODCAST_PARCELABLES_KEY,
+                podcastParcelables.toArray(new PodcastParcelable[0])
+        );
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,24 +76,30 @@ public final class PodcastListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        @Nullable View view = inflater.inflate(R.layout.fragment_podcast_list, container, false);
-
+        @Nullable final View view = inflater.inflate(
+                R.layout.fragment_podcast_list,
+                container,
+                false
+        );
         if (view != null) {
-            FloatingActionButton fab = view.findViewById(R.id.add_podcast_fab);
-            fab.setOnClickListener(
-                    Navigation.createNavigateOnClickListener(R.id.action_podcastListFragment_to_podcastSearchFragment)
-            );
+            final RecyclerView podcastsRecyclerView = view.requireViewById(R.id.podcasts_recycler_view);
+            podcastsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+            @Nullable final Bundle arguments = getArguments();
+            if (arguments != null) {
+                @Nullable final PodcastParcelable[] podcastParcelables =
+                        (PodcastParcelable[]) arguments.getParcelableArray(PODCAST_PARCELABLES_KEY);
+                @Nonnull final List<Podcast> podcasts = ArrayUtil
+                        .asList(podcastParcelables)
+                        .stream()
+                        .map(PodcastParcelable::getPodcast)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(podcasts);
+                podcastsRecyclerView.setAdapter(adapter);
+            }
         }
 
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed() {
-        if (mListener != null) {
-            mListener.onPodcastListFragmentInteraction();
-        }
     }
 
     @Override

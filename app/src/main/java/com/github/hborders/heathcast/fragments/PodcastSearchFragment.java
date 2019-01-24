@@ -1,10 +1,10 @@
-package com.github.hborders.heathcast;
+package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,14 +17,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.SearchView;
 
-import com.github.hborders.heathcast.adapters.PodcastRecyclerViewAdapter;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.parcelables.PodcastParcelable;
+import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 
 /**
@@ -37,15 +44,10 @@ import com.google.gson.Gson;
  */
 public final class PodcastSearchFragment extends Fragment {
     private static final String TAG = "PodcastSearch";
+    private static final String PODCAST_LIST_FRAGMENT_TAG = "podcastList";
 
     @Nullable
     private OnPodcastSearchFragmentInteractionListener mListener;
-    error
-    // TODO instead of putting the recyclerView in the fragment
-    // use the PodcastListFragment instead, and have it accept a
-    // List of Podcasts as its argument.
-    @Nullable
-    private RecyclerView mSearchResultsRecyclerView;
     @Nullable
     private Disposable mPodcastSearchDisposable;
 
@@ -96,74 +98,76 @@ public final class PodcastSearchFragment extends Fragment {
                 false
         );
         if (view != null) {
-            @Nullable final SearchView searchView = view.findViewById(R.id.search_view);
-            if (searchView != null) {
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        searchView.clearFocus();
-                        @Nullable final Disposable oldDisposable = mPodcastSearchDisposable;
-                        if (oldDisposable != null) {
-                            oldDisposable.dispose();
-                        }
-                        mPodcastSearchDisposable = podcastService.
-                                searchForPodcasts(query).
-                                observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        podcasts -> {
-                                            @Nullable final RecyclerView searchResultsRecyclerView =
-                                                    mSearchResultsRecyclerView;
-                                            if (searchResultsRecyclerView != null) {
-                                                searchResultsRecyclerView
-                                                        .setAdapter(new PodcastRecyclerViewAdapter(
-                                                                        podcasts
-                                                                )
-                                                        );
-                                            }
-                                        },
-                                        throwable -> {
-                                            Snackbar.make(
-                                                    searchView,
-                                                    "Error when searching iTunes",
-                                                    Snackbar.LENGTH_SHORT
-                                            );
-                                            Log.e(
-                                                    TAG,
-                                                    "Error when searching iTunes",
-                                                    throwable
-                                            );
+            final SearchView searchView = view.requireViewById(R.id.search_view);
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    searchView.clearFocus();
+                    @Nullable final Disposable oldDisposable = mPodcastSearchDisposable;
+                    if (oldDisposable != null) {
+                        oldDisposable.dispose();
+                    }
+                    mPodcastSearchDisposable = podcastService.
+                            searchForPodcasts(query).
+                            observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    podcasts -> {
+                                        final List<PodcastParcelable> podcastParcelables =
+                                                podcasts
+                                                        .stream()
+                                                        .map(PodcastParcelable::new)
+                                                        .collect(Collectors.toList());
+                                        @Nullable final PodcastListFragment existingPodcastListFragment =
+                                                (PodcastListFragment) requireFragmentManager()
+                                                        .findFragmentByTag(PODCAST_LIST_FRAGMENT_TAG);
+                                        final FragmentTransaction fragmentTransaction =
+                                                requireFragmentManager()
+                                                        .beginTransaction();
+                                        if (existingPodcastListFragment != null) {
+                                            fragmentTransaction
+                                                    .remove(existingPodcastListFragment);
                                         }
-                                );
+                                        fragmentTransaction
+                                                .add(
+                                                        R.id.search_results_container_frame_layout,
+                                                        PodcastListFragment.newInstance(
+                                                                podcastParcelables
+                                                        ),
+                                                        PODCAST_LIST_FRAGMENT_TAG
+                                                )
+                                                .commit();
+                                    },
+                                    throwable -> {
+                                        Snackbar.make(
+                                                searchView,
+                                                "Error when searching iTunes",
+                                                Snackbar.LENGTH_SHORT
+                                        );
+                                        Log.e(
+                                                TAG,
+                                                "Error when searching iTunes",
+                                                throwable
+                                        );
+                                    }
+                            );
 
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        return true;
-                    }
-                });
-
-                @Nullable Context context = getContext();
-                if (context != null) {
-                    searchView.setQueryHint(context.getString(R.string.search_query_hint));
+                    return true;
                 }
-            }
-            @Nullable final RecyclerView searchResultsRecyclerView =
-                    view.findViewById(R.id.search_results_recycler_view);
-            if (searchResultsRecyclerView != null) {
-                mSearchResultsRecyclerView = searchResultsRecyclerView;
 
-                searchResultsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            }
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return true;
+                }
+            });
+            searchView.setQueryHint(inflater.getContext().getString(R.string.search_query_hint));
+
+
         }
         return view;
     }
 
     @Override
     public void onDestroyView() {
-        mSearchResultsRecyclerView = null;
-
         @Nullable final Disposable podcastSearchDisposable = mPodcastSearchDisposable;
         if (podcastSearchDisposable != null) {
             podcastSearchDisposable.dispose();
