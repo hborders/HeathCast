@@ -1,35 +1,30 @@
 package com.github.hborders.heathcast.models;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
 public final class Podcast {
     @Nullable
-    public final URL artworkURL;
+    public final URL mArtworkURL;
     @Nullable
-    public final String author;
+    public final String mAuthor;
 
-    public final URL feedURL;
+    public final URL mFeedURL;
 
-    public final List<String> genres;
-
-    public final String name;
+    public final String mName;
 
     public Podcast(
             @Nullable URL artworkURL,
             @Nullable String author,
             URL feedURL,
-            List<String> genres,
             String name
     ) {
-        this.artworkURL = artworkURL;
-        this.author = author;
-        this.feedURL = feedURL;
-        this.genres = genres;
-        this.name = name;
+        this.mArtworkURL = artworkURL;
+        this.mAuthor = author;
+        this.mFeedURL = feedURL;
+        this.mName = name;
     }
 
     @Override
@@ -37,26 +32,24 @@ public final class Podcast {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Podcast podcast = (Podcast) o;
-        return Objects.equals(artworkURL, podcast.artworkURL) &&
-                Objects.equals(author, podcast.author) &&
-                feedURL.equals(podcast.feedURL) &&
-                genres.equals(podcast.genres) &&
-                name.equals(podcast.name);
+        return Objects.equals(mArtworkURL, podcast.mArtworkURL) &&
+                Objects.equals(mAuthor, podcast.mAuthor) &&
+                mFeedURL.equals(podcast.mFeedURL) &&
+                mName.equals(podcast.mName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(artworkURL, author, feedURL, genres, name);
+        return Objects.hash(mArtworkURL, mAuthor, mFeedURL, mName);
     }
 
     @Override
     public String toString() {
         return "Podcast{" +
-                "artworkURL=" + artworkURL +
-                ", author='" + author + '\'' +
-                ", feedURL=" + feedURL +
-                ", genres=" + genres +
-                ", name='" + name + '\'' +
+                "mArtworkURL=" + mArtworkURL +
+                ", mAuthor='" + mAuthor + '\'' +
+                ", mFeedURL=" + mFeedURL +
+                ", mName='" + mName + '\'' +
                 '}';
     }
 }

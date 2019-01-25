@@ -1,12 +1,9 @@
 package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.utils.URLUtil;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -36,55 +33,40 @@ final class PodcastJson {
     public String feedUrl;
 
     @Nullable
-    public List<String> genres;
-
-    @Nullable
     public Podcast toPodcast() {
         @Nullable final String artistName = this.artistName;
-        @Nullable final String artworkUrl30 = this.artworkUrl30;
-        @Nullable final String artworkUrl60 = this.artworkUrl60;
-        @Nullable final String artworkUrl100 = this.artworkUrl100;
-        @Nullable final String artworkUrl600 = this.artworkUrl600;
+        @Nullable final String artwork30URLString = this.artworkUrl30;
+        @Nullable final String artwork60URLString = this.artworkUrl60;
+        @Nullable final String artwork100URLString = this.artworkUrl100;
+        @Nullable final String artwork600URLString = this.artworkUrl600;
         @Nullable final String collectionName = this.collectionName;
-        @Nullable final String feedUrl = this.feedUrl;
-        @Nullable final List<String> genres = this.genres;
+        @Nullable final String feedURLString = this.feedUrl;
 
         if (artistName == null ||
                 collectionName == null ||
-                feedUrl == null) {
+                feedURLString == null) {
             return null;
         } else {
-            Optional<URL> artworkURLOptional =
+            final Optional<URL> artworkURLOptional =
                     Stream.of(
-                            artworkUrl600,
-                            artworkUrl100,
-                            artworkUrl60,
-                            artworkUrl30
+                            artwork600URLString,
+                            artwork100URLString,
+                            artwork60URLString,
+                            artwork30URLString
                     )
-                            .map(artworkUrl -> {
-                                if (artworkUrl == null) {
-                                    return null;
-                                } else {
-                                    try {
-                                        return new URL(artworkUrl);
-                                    } catch (MalformedURLException e) {
-                                        return null;
-                                    }
-                                }
-                            })
+                            .map(URLUtil::fromString)
                             .filter(Objects::nonNull)
                             .findFirst();
-            try {
-                final URL feedURL = new URL(feedUrl);
+            final @Nullable URL feedURL = URLUtil.fromString(feedURLString);
+            if (feedURL == null) {
+                return null;
+            } else {
                 return new Podcast(
                         artworkURLOptional.orElse(null),
                         artistName,
                         feedURL,
-                        Optional.ofNullable(genres).orElse(Collections.emptyList()),
                         collectionName
                 );
-            } catch (MalformedURLException e) {
-                return null;
             }
         }
     }

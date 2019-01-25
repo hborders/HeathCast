@@ -3,8 +3,10 @@ package com.github.hborders.heathcast.activities;
 import android.os.Bundle;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastListFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
+import com.github.hborders.heathcast.models.Podcast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,8 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public final class MainActivity extends AppCompatActivity
-        implements PodcastSearchFragment.OnPodcastSearchFragmentInteractionListener,
-        PodcastListFragment.OnPodcastListFragmentInteractionListener {
+        implements PodcastSearchFragment.PodcastSearchFragmentListener,
+        PodcastFragment.PodcastFragmentListener {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,15 +51,5 @@ public final class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onPodcastSearchFragmentInteraction() {
-
-    }
-
-    @Override
-    public void onPodcastListFragmentInteraction() {
-
     }
 }

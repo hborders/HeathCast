@@ -5,8 +5,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.navigation.Navigation;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -17,14 +16,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.SearchView;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.parcelables.PodcastParcelable;
-import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.parcelables.PodcastHolder;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.github.hborders.heathcast.services.PodcastService;
+import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
@@ -33,21 +32,12 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PodcastSearchFragment.OnPodcastSearchFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PodcastSearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public final class PodcastSearchFragment extends Fragment {
+public final class PodcastSearchFragment extends Fragment implements PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
     private static final String PODCAST_LIST_FRAGMENT_TAG = "podcastList";
 
     @Nullable
-    private OnPodcastSearchFragmentInteractionListener mListener;
+    private PodcastSearchFragmentListener mListener;
     @Nullable
     private Disposable mPodcastSearchDisposable;
 
@@ -112,16 +102,11 @@ public final class PodcastSearchFragment extends Fragment {
                             observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     podcasts -> {
-                                        final List<PodcastParcelable> podcastParcelables =
-                                                podcasts
-                                                        .stream()
-                                                        .map(PodcastParcelable::new)
-                                                        .collect(Collectors.toList());
                                         @Nullable final PodcastListFragment existingPodcastListFragment =
-                                                (PodcastListFragment) requireFragmentManager()
+                                                (PodcastListFragment) getChildFragmentManager()
                                                         .findFragmentByTag(PODCAST_LIST_FRAGMENT_TAG);
                                         final FragmentTransaction fragmentTransaction =
-                                                requireFragmentManager()
+                                                getChildFragmentManager()
                                                         .beginTransaction();
                                         if (existingPodcastListFragment != null) {
                                             fragmentTransaction
@@ -131,7 +116,7 @@ public final class PodcastSearchFragment extends Fragment {
                                                 .add(
                                                         R.id.search_results_container_frame_layout,
                                                         PodcastListFragment.newInstance(
-                                                                podcastParcelables
+                                                                podcasts
                                                         ),
                                                         PODCAST_LIST_FRAGMENT_TAG
                                                 )
@@ -176,22 +161,13 @@ public final class PodcastSearchFragment extends Fragment {
         super.onDestroyView();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed() {
-        if (mListener != null) {
-            mListener.onPodcastSearchFragmentInteraction();
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnPodcastSearchFragmentInteractionListener) {
-            mListener = (OnPodcastSearchFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+
+        mListener = FragmentUtil.requireContextFragmentListener(
+                context,
+                PodcastSearchFragmentListener.class);
     }
 
     @Override
@@ -199,21 +175,22 @@ public final class PodcastSearchFragment extends Fragment {
         super.onDetach();
 
         mListener = null;
-
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnPodcastSearchFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onPodcastSearchFragmentInteraction();
+    @Override
+    public void onClick(Podcast podcast) {
+        @Nullable final View view = getView();
+        if (view != null) {
+            Navigation
+                    .findNavController(view)
+                    .navigate(
+                            R.id.action_podcastSearchFragment_to_podcastFragment,
+                            PodcastFragment.newArguments(podcast)
+                    );
+        }
+    }
+
+
+    public interface PodcastSearchFragmentListener {
     }
 }

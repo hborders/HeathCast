@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
@@ -15,12 +16,16 @@ import java.util.List;
 
 public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecyclerViewAdapter.PodcastViewHolder> {
 
-    private final List<Podcast> podcasts;
+    private final List<Podcast> mPodcasts;
+    private final PodcastRecyclerViewAdapterListener mListener;
 
-    public PodcastRecyclerViewAdapter(List<Podcast> podcasts) {
-        this.podcasts = podcasts;
+    public PodcastRecyclerViewAdapter(
+            List<Podcast> podcasts,
+            PodcastRecyclerViewAdapterListener listener
+    ) {
+        this.mPodcasts = podcasts;
+        this.mListener = listener;
     }
-
 
     @NonNull
     @Override
@@ -35,21 +40,28 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
 
     @Override
     public void onBindViewHolder(@NonNull PodcastViewHolder holder, int position) {
-        final Podcast podcast = podcasts.get(position);
-        holder.nameTextView.setText(podcast.name);
+        final Podcast podcast = mPodcasts.get(position);
+        holder.mNameTextView.setText(podcast.mName);
+        holder.itemView.setOnClickListener(itemView -> {
+            mListener.onClick(podcast);
+        });
     }
 
     @Override
     public int getItemCount() {
-        return podcasts.size();
+        return mPodcasts.size();
     }
 
     public static class PodcastViewHolder extends RecyclerView.ViewHolder {
-        public final TextView nameTextView;
+        final TextView mNameTextView;
 
-        public PodcastViewHolder(View itemView) {
+        PodcastViewHolder(View itemView) {
             super(itemView);
-            this.nameTextView = itemView.requireViewById(R.id.podcast_name);
+            this.mNameTextView = itemView.requireViewById(R.id.podcast_name);
         }
+    }
+
+    public interface PodcastRecyclerViewAdapterListener {
+        void onClick(Podcast podcast);
     }
 }

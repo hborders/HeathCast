@@ -9,7 +9,11 @@
         android:id="@+id/podcastSearchFragment"
         android:name="com.github.hborders.heathcast.fragments.PodcastSearchFragment"
         android:label="fragment_podcast_search"
-        tools:layout="@layout/fragment_podcast_search" />
+        tools:layout="@layout/fragment_podcast_search" >
+        <action
+            android:id="@+id/action_podcastSearchFragment_to_podcastFragment"
+            app:destination="@id/podcastFragment" />
+    </fragment>
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.github.hborders.heathcast.fragments.MainFragment"
@@ -18,5 +22,11 @@
         <action
             android:id="@+id/action_mainFragment_to_podcastSearchFragment"
             app:destination="@id/podcastSearchFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/podcastFragment"
+        android:name="com.github.hborders.heathcast.fragments.PodcastFragment"
+        android:label="fragment_podcast"
+        tools:layout="@layout/fragment_podcast" >
     </fragment>
 </navigation>
