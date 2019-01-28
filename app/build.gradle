@@ -37,9 +37,9 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    implementation "android.arch.navigation:navigation-fragment:1.0.0-alpha09"
+    implementation "android.arch.navigation:navigation-fragment:1.0.0-alpha11"
     // use -ktx for Kotlin
-    implementation "android.arch.navigation:navigation-ui:1.0.0-alpha09" // use -ktx for Kotlin
+    implementation "android.arch.navigation:navigation-ui:1.0.0-alpha11" // use -ktx for Kotlin
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.12'
