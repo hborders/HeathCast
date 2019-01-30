@@ -33,7 +33,7 @@ final class PodcastJson {
     public String feedUrl;
 
     @Nullable
-    public Podcast toPodcast() {
+    Podcast toPodcast() {
         @Nullable final String artistName = this.artistName;
         @Nullable final String artwork30URLString = this.artworkUrl30;
         @Nullable final String artwork60URLString = this.artworkUrl60;

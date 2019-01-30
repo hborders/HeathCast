@@ -11,6 +11,9 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import static com.github.hborders.heathcast.utils.ParcelUtil.readURL;
+import static com.github.hborders.heathcast.utils.ParcelUtil.writeURL;
+
 public final class PodcastHolder implements Parcelable, UnparcelableHolder<Podcast> {
     @Nullable
     public final Podcast mPodcast;
@@ -24,9 +27,9 @@ public final class PodcastHolder implements Parcelable, UnparcelableHolder<Podca
         if (zeroIsNull == (byte) 0) {
             mPodcast = null;
         } else {
-            @Nullable final URL artworkURL = URLUtil.fromString(in.readString());
+            @Nullable final URL artworkURL = readURL(in);
             @Nullable final String author = in.readString();
-            @Nullable final URL feedURL = URLUtil.fromString(in.readString());
+            @Nullable final URL feedURL = readURL(in);
             @Nullable final String name = in.readString();
 
             if (feedURL != null && name != null) {
@@ -73,12 +76,8 @@ public final class PodcastHolder implements Parcelable, UnparcelableHolder<Podca
             dest.writeByte((byte) 0);
         } else {
             dest.writeByte((byte) 1);
-            @Nullable final URL artworkURL = mPodcast.mArtworkURL;
-            if (artworkURL == null) {
-                dest.writeString(null);
-            } else {
-                dest.writeString(artworkURL.toExternalForm());
-            }
+
+            writeURL(dest, mPodcast.mArtworkURL);
             dest.writeString(mPodcast.mAuthor);
             dest.writeString(mPodcast.mFeedURL.toExternalForm());
             dest.writeString(mPodcast.mName);

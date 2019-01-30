@@ -11,35 +11,37 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.parcelables.EpisodeHolder;
 import com.github.hborders.heathcast.parcelables.PodcastHolder;
 import com.github.hborders.heathcast.utils.FragmentUtil;
+import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-public final class PodcastListFragment extends Fragment {
-    private static final String PODCAST_PARCELABLES_KEY = "podcastParcelables";
+public final class EpisodeListFragment extends Fragment {
+    private static final String EPISODE_PARCELABLES_KEY = "episodeParcelables";
 
     @Nullable
-    private PodcastListFragmentListener mListener;
+    private EpisodeListFragmentListener mListener;
 
-    public PodcastListFragment() {
+    public EpisodeListFragment() {
         // Required empty public constructor
     }
 
-    public static PodcastListFragment newInstance(List<Podcast> podcasts) {
-        final PodcastListFragment fragment = new PodcastListFragment();
+    public static EpisodeListFragment newInstance(List<Episode> episodes) {
+        final EpisodeListFragment fragment = new EpisodeListFragment();
         final Bundle args = new Bundle();
         args.putParcelableArray(
-                PODCAST_PARCELABLES_KEY,
-                podcasts
-                        .stream()
-                .map(PodcastHolder::new)
-                .toArray(PodcastHolder[]::new)
-        );
+                EPISODE_PARCELABLES_KEY,
+                episodes
+        .stream()
+        .map(EpisodeHolder::new)
+        .toArray(EpisodeHolder[]::new));
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,25 +62,25 @@ public final class PodcastListFragment extends Fragment {
                 false
         );
         if (view != null) {
-            final RecyclerView podcastsRecyclerView = view.requireViewById(R.id.podcasts_recycler_view);
-            podcastsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-            @Nullable final List<Podcast> podcasts =
+            final RecyclerView episodessRecyclerView = view.requireViewById(R.id.episodes_recycler_view);
+            episodessRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+            @Nullable final List<Episode> episodes =
                     FragmentUtil.getUnparcelableHolderListArgument(
                             this,
-                            PodcastHolder.class,
-                            PODCAST_PARCELABLES_KEY
+                            EpisodeHolder.class,
+                            EPISODE_PARCELABLES_KEY
                     );
-            if (podcasts != null) {
-                final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
-                        podcasts,
-                        podcast -> {
-                            @Nullable final PodcastListFragmentListener listener = mListener;
+            if (episodes != null) {
+                final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(
+                        episodes,
+                        episode -> {
+                            @Nullable final EpisodeListFragment.EpisodeListFragmentListener listener = mListener;
                             if (listener != null) {
-                                listener.onClick(podcast);
+                                listener.onClick(episode);
                             }
                         }
                 );
-                podcastsRecyclerView.setAdapter(adapter);
+                episodessRecyclerView.setAdapter(adapter);
             }
         }
 
@@ -92,7 +94,7 @@ public final class PodcastListFragment extends Fragment {
         mListener = FragmentUtil.requireFragmentListener(
                 this,
                 context,
-                PodcastListFragmentListener.class
+                EpisodeListFragment.EpisodeListFragmentListener.class
         );
     }
 
@@ -103,7 +105,7 @@ public final class PodcastListFragment extends Fragment {
         mListener = null;
     }
 
-    public interface PodcastListFragmentListener {
-        void onClick(Podcast podcast);
+    public interface EpisodeListFragmentListener {
+        void onClick(Episode episode);
     }
 }

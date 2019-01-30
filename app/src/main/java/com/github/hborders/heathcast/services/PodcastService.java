@@ -1,9 +1,17 @@
 package com.github.hborders.heathcast.services;
 
+import android.util.Xml;
+
+import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
+import org.xml.sax.XMLReader;
+import org.xmlpull.v1.XmlPullParser;
+
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +29,16 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
+import simplexml.SimpleXml;
+import simplexml.model.XmlElement;
 
 public final class PodcastService {
+    public static final PodcastService instance = new PodcastService(
+            new OkHttpClient(),
+            new Gson(),
+            ReactivexOkHttpCallAdapter.createWithScheduler(Schedulers.io())
+    );
+
     private final OkHttpClient okHttpClient;
     private final Gson gson;
     private final ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter;
@@ -67,24 +83,71 @@ public final class PodcastService {
                                 if (responseBody == null) {
                                     return Single.error(new Exception("No responseBody"));
                                 } else {
-                                    final PodcastSearchResultsJson podcastSearchResultsJson =
-                                            gson.fromJson(
-                                                    responseBody.charStream(),
-                                                    PodcastSearchResultsJson.class
-                                            );
-                                    responseBody.close();
-                                    response.close();
+                                    final PodcastSearchResultsJson podcastSearchResultsJson;
+                                    try {
+                                        podcastSearchResultsJson = gson.fromJson(
+                                                responseBody.charStream(),
+                                                PodcastSearchResultsJson.class
+                                        );
+                                    } finally {
+                                        responseBody.close();
+                                        response.close();
+                                    }
 
                                     final List<Podcast> podcasts =
                                             Optional
                                                     .ofNullable(podcastSearchResultsJson.results)
-                                                    .map(Stream::of)
+                                                    .filter(Objects::nonNull)
+                                                    .map(List::stream)
                                                     .orElseGet(Stream::empty)
-                                                    .flatMap(Collection::stream)
                                                     .map(PodcastJson::toPodcast)
                                                     .filter(Objects::nonNull)
                                                     .collect(Collectors.toList());
                                     return Single.just(podcasts);
+                                }
+                            } else {
+                                return Single.error(new Exception("HTTP Error: " + responseCode));
+                            }
+                        }
+                );
+    }
+
+    public Single<List<Episode>> fetchEpisodes(URL url) {
+        final Request request = new Request.Builder().url(url).build();
+        final Call call = okHttpClient.newCall(request);
+
+        return reactivexOkHttpCallAdapter
+                .single(call)
+                .subscribeOn(Schedulers.io())
+                .flatMap(
+                        response -> {
+                            final int responseCode = response.code();
+                            if (responseCode == 200) {
+                                @Nullable final ResponseBody responseBody = response.body();
+                                if (responseBody == null) {
+                                    return Single.error(new Exception("No responseBody"));
+                                } else {
+                                    @Nullable final RssJson rssJson;
+                                    try {
+                                        SimpleXml simpleXml = new SimpleXml();
+                                        rssJson = simpleXml.fromXml(responseBody.byteStream(), RssJson.class);
+                                    } finally {
+                                        responseBody.close();
+                                        response.close();
+                                    }
+                                    final List<Episode> episodes =
+                                            Optional
+                                                    .ofNullable(rssJson)
+                                                    .map(RssJson::getChannel)
+                                                    .filter(Objects::nonNull)
+                                                    .map(RssJson.Channel::getItems)
+                                                    .filter(Objects::nonNull)
+                                                    .map(List::stream)
+                                                    .orElseGet(Stream::empty)
+                                                    .map(RssJson.Channel.Item::toEpisode)
+                                                    .filter(Objects::nonNull)
+                                                    .collect(Collectors.toList());
+                                    return Single.just(episodes);
                                 }
                             } else {
                                 return Single.error(new Exception("HTTP Error: " + responseCode));

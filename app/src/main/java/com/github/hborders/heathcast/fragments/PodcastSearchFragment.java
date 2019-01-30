@@ -2,35 +2,30 @@ package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.Navigation;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.Navigation;
+
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.parcelables.PodcastHolder;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.annotation.Nullable;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
 
 public final class PodcastSearchFragment extends Fragment implements PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
@@ -40,12 +35,6 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     private PodcastSearchFragmentListener mListener;
     @Nullable
     private Disposable mPodcastSearchDisposable;
-
-    private final PodcastService podcastService = new PodcastService(
-            new OkHttpClient(),
-            new Gson(),
-            ReactivexOkHttpCallAdapter.createWithScheduler(Schedulers.io())
-    );
 
     public PodcastSearchFragment() {
         // Required empty public constructor
@@ -97,7 +86,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                     if (oldDisposable != null) {
                         oldDisposable.dispose();
                     }
-                    mPodcastSearchDisposable = podcastService.
+                    mPodcastSearchDisposable = PodcastService.instance.
                             searchForPodcasts(query).
                             observeOn(AndroidSchedulers.mainThread())
                             .subscribe(

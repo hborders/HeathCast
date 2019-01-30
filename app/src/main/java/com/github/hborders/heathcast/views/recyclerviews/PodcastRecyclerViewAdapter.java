@@ -42,9 +42,7 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
     public void onBindViewHolder(@NonNull PodcastViewHolder holder, int position) {
         final Podcast podcast = mPodcasts.get(position);
         holder.mNameTextView.setText(podcast.mName);
-        holder.itemView.setOnClickListener(itemView -> {
-            mListener.onClick(podcast);
-        });
+        holder.itemView.setOnClickListener(itemView -> mListener.onClick(podcast));
     }
 
     @Override
@@ -52,7 +50,7 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
         return mPodcasts.size();
     }
 
-    public static class PodcastViewHolder extends RecyclerView.ViewHolder {
+    public static final class PodcastViewHolder extends RecyclerView.ViewHolder {
         final TextView mNameTextView;
 
         PodcastViewHolder(View itemView) {
