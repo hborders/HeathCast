@@ -127,27 +127,28 @@ public final class PodcastService {
                                 if (responseBody == null) {
                                     return Single.error(new Exception("No responseBody"));
                                 } else {
-                                    @Nullable final RssJson rssJson;
-                                    try {
-                                        SimpleXml simpleXml = new SimpleXml();
-                                        rssJson = simpleXml.fromXml(responseBody.byteStream(), RssJson.class);
-                                    } finally {
-                                        responseBody.close();
-                                        response.close();
-                                    }
-                                    final List<Episode> episodes =
-                                            Optional
-                                                    .ofNullable(rssJson)
-                                                    .map(RssJson::getChannel)
-                                                    .filter(Objects::nonNull)
-                                                    .map(RssJson.Channel::getItems)
-                                                    .filter(Objects::nonNull)
-                                                    .map(List::stream)
-                                                    .orElseGet(Stream::empty)
-                                                    .map(RssJson.Channel.Item::toEpisode)
-                                                    .filter(Objects::nonNull)
-                                                    .collect(Collectors.toList());
-                                    return Single.just(episodes);
+//                                    @Nullable final RssJson rssJson;
+//                                    try {
+//                                        SimpleXml simpleXml = new SimpleXml();
+//                                        rssJson = simpleXml.fromXml(responseBody.byteStream(), RssJson.class);
+//                                    } finally {
+//                                        responseBody.close();
+//                                        response.close();
+//                                    }
+//                                    final List<Episode> episodes =
+//                                            Optional
+//                                                    .ofNullable(rssJson)
+//                                                    .map(RssJson::getChannel)
+//                                                    .filter(Objects::nonNull)
+//                                                    .map(RssJson.Channel::getItems)
+//                                                    .filter(Objects::nonNull)
+//                                                    .map(List::stream)
+//                                                    .orElseGet(Stream::empty)
+//                                                    .map(RssJson.Channel.Item::toEpisode)
+//                                                    .filter(Objects::nonNull)
+//                                                    .collect(Collectors.toList());
+//                                    return Single.just(episodes);
+                                    return Single.just(Collections.emptyList());
                                 }
                             } else {
                                 return Single.error(new Exception("HTTP Error: " + responseCode));
