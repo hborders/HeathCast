@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/artwork_image_view"
+        android:id="@+id/fragment_podcast_artwork_image_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="10dp"
@@ -19,35 +19,37 @@
         tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/name_text_view"
+        android:id="@+id/fragment_podcast_name_text_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="10dp"
         android:autoSizeTextType="uniform"
+        android:gravity="center"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_default="percent"
         app:layout_constraintHeight_percent=".1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/artwork_image_view"
+        app:layout_constraintTop_toBottomOf="@id/fragment_podcast_artwork_image_view"
         tools:text="Name" />
 
     <TextView
-        android:id="@+id/author_text_view"
+        android:id="@+id/fragment_podcast_author_text_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="10dp"
         android:autoSizeTextType="uniform"
+        android:gravity="center"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintHeight_default="percent"
         app:layout_constraintHeight_percent=".1"
-        app:layout_constraintTop_toBottomOf="@id/name_text_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_podcast_name_text_view"
         tools:text="Author" />
 
     <Button
-        android:id="@+id/subscribed_button"
+        android:id="@+id/fragment_podcast_subscribed_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="10dp"
@@ -56,19 +58,19 @@
         app:layout_constraintHeight_default="percent"
         app:layout_constraintHeight_percent=".1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/author_text_view"
+        app:layout_constraintTop_toBottomOf="@id/fragment_podcast_author_text_view"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent=".8"
         tools:text="Subscribed" />
 
     <FrameLayout
-        android:id="@+id/episode_list_fragment_container_frame_layout"
+        android:id="@+id/fragment_podcast_episode_list_fragment_container_frame_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/subscribed_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_podcast_subscribed_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,14 +3,15 @@ package com.github.hborders.heathcast.views.recyclerviews;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Podcast;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -43,6 +44,11 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
         final Podcast podcast = mPodcasts.get(position);
         holder.mNameTextView.setText(podcast.mName);
         holder.itemView.setOnClickListener(itemView -> mListener.onClick(podcast));
+        Picasso.get().cancelRequest(holder.mArtworkImageView);
+        if (podcast.mArtworkURL != null) {
+            final String artworkUrlString = podcast.mArtworkURL.toExternalForm();
+            Picasso.get().load(artworkUrlString).into(holder.mArtworkImageView);
+        }
     }
 
     @Override
@@ -50,12 +56,14 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
         return mPodcasts.size();
     }
 
-    public static final class PodcastViewHolder extends RecyclerView.ViewHolder {
+    static final class PodcastViewHolder extends RecyclerView.ViewHolder {
+        final ImageView mArtworkImageView;
         final TextView mNameTextView;
 
         PodcastViewHolder(View itemView) {
             super(itemView);
-            this.mNameTextView = itemView.requireViewById(R.id.podcast_name);
+            this.mArtworkImageView = itemView.requireViewById(R.id.item_podcast_artwork_image_view);
+            this.mNameTextView = itemView.requireViewById(R.id.item_podcast_name_text_view);
         }
     }
 

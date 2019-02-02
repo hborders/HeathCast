@@ -73,7 +73,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                 false
         );
         if (view != null) {
-            final SearchView searchView = view.requireViewById(R.id.search_view);
+            final SearchView searchView = view.requireViewById(R.id.fragment_podcast_search_search_view);
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
@@ -99,7 +99,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                                         }
                                         fragmentTransaction
                                                 .add(
-                                                        R.id.podcast_list_fragment_container_frame_layout,
+                                                        R.id.fragment_podcast_search_podcast_list_fragment_container_frame_layout,
                                                         PodcastListFragment.newInstance(
                                                                 podcasts
                                                         ),

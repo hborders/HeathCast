@@ -31,7 +31,7 @@ public class MainFragment extends Fragment {
         );
 
         if (view != null) {
-            FloatingActionButton fab = view.findViewById(R.id.add_podcast_fab);
+            FloatingActionButton fab = view.findViewById(R.id.fragment_main_add_podcast_fab);
             fab.setOnClickListener(
                     Navigation.createNavigateOnClickListener(R.id.action_mainFragment_to_podcastSearchFragment)
             );

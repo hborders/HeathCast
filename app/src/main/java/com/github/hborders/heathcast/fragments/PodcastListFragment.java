@@ -60,7 +60,8 @@ public final class PodcastListFragment extends Fragment {
                 false
         );
         if (view != null) {
-            final RecyclerView podcastsRecyclerView = view.requireViewById(R.id.podcasts_recycler_view);
+            final RecyclerView podcastsRecyclerView =
+                    view.requireViewById(R.id.fragment_podcast_list_podcasts_recycler_view);
             podcastsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
             @Nullable final List<Podcast> podcasts =
                     FragmentUtil.getUnparcelableHolderListArgument(

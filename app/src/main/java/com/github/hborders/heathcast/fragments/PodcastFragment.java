@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -18,6 +19,7 @@ import com.github.hborders.heathcast.parcelables.PodcastHolder;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.google.android.material.snackbar.Snackbar;
+import com.squareup.picasso.Picasso;
 
 import javax.annotation.Nullable;
 
@@ -69,8 +71,9 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                 false
         );
         if (view != null) {
-            final TextView nameTextView = view.requireViewById(R.id.name_text_view);
-            final TextView authorTextView = view.requireViewById(R.id.author_text_view);
+            final ImageView artworkImageView = view.requireViewById(R.id.fragment_podcast_artwork_image_view);
+            final TextView nameTextView = view.requireViewById(R.id.fragment_podcast_name_text_view);
+            final TextView authorTextView = view.requireViewById(R.id.fragment_podcast_author_text_view);
 
             @Nullable final Podcast podcast = FragmentUtil.getUnparcelableHolderArgument(
                     this,
@@ -80,6 +83,10 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
             if (podcast != null) {
                 nameTextView.setText(podcast.mName);
                 authorTextView.setText(podcast.mAuthor);
+                if (podcast.mArtworkURL != null) {
+                    final String artworkURLString = podcast.mArtworkURL.toExternalForm();
+                    Picasso.get().load(artworkURLString).into(artworkImageView);
+                }
 
                 @Nullable final Disposable oldDisposable = mFetchEpisodesDisposable;
                 if (oldDisposable != null) {
@@ -103,7 +110,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                             }
                                             fragmentTransaction
                                                     .add(
-                                                            R.id.episode_list_fragment_container_frame_layout,
+                                                            R.id.fragment_podcast_episode_list_fragment_container_frame_layout,
                                                             EpisodeListFragment.newInstance(
                                                                     episodes
                                                             ),

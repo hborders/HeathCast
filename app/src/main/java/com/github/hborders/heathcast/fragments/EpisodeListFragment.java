@@ -59,7 +59,7 @@ public final class EpisodeListFragment extends Fragment {
                 false
         );
         if (view != null) {
-            final RecyclerView episodessRecyclerView = view.requireViewById(R.id.episodes_recycler_view);
+            final RecyclerView episodessRecyclerView = view.requireViewById(R.id.fragment_episode_list_episodes_recycler_view);
             episodessRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
             @Nullable final List<Episode> episodes =
                     FragmentUtil.getUnparcelableHolderListArgument(

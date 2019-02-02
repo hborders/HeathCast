@@ -37,6 +37,7 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.github.codemonstur:simplexml:2.0.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation "android.arch.navigation:navigation-fragment:1.0.0-alpha11"
     // use -ktx for Kotlin
