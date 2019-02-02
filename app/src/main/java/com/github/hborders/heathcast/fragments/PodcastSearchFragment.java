@@ -14,18 +14,14 @@ import androidx.navigation.Navigation;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
 
 public final class PodcastSearchFragment extends Fragment implements PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
@@ -71,7 +67,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
             @Nullable Bundle savedInstanceState
     ) {
         // Inflate the layout for this fragment
-        @Nullable View view = inflater.inflate(
+        @Nullable final View view = inflater.inflate(
                 R.layout.fragment_podcast_search,
                 container,
                 false
@@ -103,7 +99,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                                         }
                                         fragmentTransaction
                                                 .add(
-                                                        R.id.search_results_container_frame_layout,
+                                                        R.id.podcast_list_fragment_container_frame_layout,
                                                         PodcastListFragment.newInstance(
                                                                 podcasts
                                                         ),

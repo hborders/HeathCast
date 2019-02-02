@@ -1,19 +1,11 @@
 package com.github.hborders.heathcast.services;
 
-import android.util.Xml;
-
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-import org.xml.sax.XMLReader;
-import org.xmlpull.v1.XmlPullParser;
-
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,8 +21,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
-import simplexml.SimpleXml;
-import simplexml.model.XmlElement;
 
 public final class PodcastService {
     public static final PodcastService instance = new PodcastService(
@@ -121,37 +111,26 @@ public final class PodcastService {
                 .subscribeOn(Schedulers.io())
                 .flatMap(
                         response -> {
-                            final int responseCode = response.code();
-                            if (responseCode == 200) {
-                                @Nullable final ResponseBody responseBody = response.body();
-                                if (responseBody == null) {
-                                    return Single.error(new Exception("No responseBody"));
+                            try {
+                                final int responseCode = response.code();
+                                if (responseCode == 200) {
+                                    @Nullable final ResponseBody responseBody = response.body();
+                                    if (responseBody == null) {
+                                        return Single.error(new Exception("No responseBody"));
+                                    } else {
+                                        try {
+                                            final List<Episode> episodes =
+                                                    XmlParser.parseEpisodeList(responseBody.byteStream());
+                                            return Single.just(episodes);
+                                        } finally {
+                                            responseBody.close();
+                                        }
+                                    }
                                 } else {
-//                                    @Nullable final RssJson rssJson;
-//                                    try {
-//                                        SimpleXml simpleXml = new SimpleXml();
-//                                        rssJson = simpleXml.fromXml(responseBody.byteStream(), RssJson.class);
-//                                    } finally {
-//                                        responseBody.close();
-//                                        response.close();
-//                                    }
-//                                    final List<Episode> episodes =
-//                                            Optional
-//                                                    .ofNullable(rssJson)
-//                                                    .map(RssJson::getChannel)
-//                                                    .filter(Objects::nonNull)
-//                                                    .map(RssJson.Channel::getItems)
-//                                                    .filter(Objects::nonNull)
-//                                                    .map(List::stream)
-//                                                    .orElseGet(Stream::empty)
-//                                                    .map(RssJson.Channel.Item::toEpisode)
-//                                                    .filter(Objects::nonNull)
-//                                                    .collect(Collectors.toList());
-//                                    return Single.just(episodes);
-                                    return Single.just(Collections.emptyList());
+                                    return Single.error(new Exception("HTTP Error: " + responseCode));
                                 }
-                            } else {
-                                return Single.error(new Exception("HTTP Error: " + responseCode));
+                            } finally {
+                                response.close();
                             }
                         }
                 );

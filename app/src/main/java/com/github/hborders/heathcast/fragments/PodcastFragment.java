@@ -9,30 +9,25 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.parcelables.PodcastHolder;
 import com.github.hborders.heathcast.services.PodcastService;
-import com.github.hborders.heathcast.utils.ArrayUtil;
 import com.github.hborders.heathcast.utils.FragmentUtil;
-import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
-public final class PodcastFragment extends Fragment {
+public final class PodcastFragment extends Fragment implements EpisodeListFragment.EpisodeListFragmentListener {
     private static final String TAG = "podcast";
     private static final String PODCAST_PARCELABLE_KEY = "podcast";
+    private static final String EPISODE_LIST_FRAGMENT_TAG = "episodeList";
 
     @Nullable
     private PodcastFragmentListener mListener;
@@ -76,7 +71,6 @@ public final class PodcastFragment extends Fragment {
         if (view != null) {
             final TextView nameTextView = view.requireViewById(R.id.name_text_view);
             final TextView authorTextView = view.requireViewById(R.id.author_text_view);
-            final RecyclerView episodesRecyclerView = view.requireViewById(R.id.episodes_recycler_view);
 
             @Nullable final Podcast podcast = FragmentUtil.getUnparcelableHolderArgument(
                     this,
@@ -97,11 +91,29 @@ public final class PodcastFragment extends Fragment {
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         episodes -> {
-                                            System.out.println("Episodes:\n" + episodes + "\n=====");
+                                            @Nullable final EpisodeListFragment existingEpisodeListFragment =
+                                                    (EpisodeListFragment) getChildFragmentManager()
+                                                            .findFragmentByTag(EPISODE_LIST_FRAGMENT_TAG);
+                                            final FragmentTransaction fragmentTransaction =
+                                                    getChildFragmentManager()
+                                                            .beginTransaction();
+                                            if (existingEpisodeListFragment != null) {
+                                                fragmentTransaction
+                                                        .remove(existingEpisodeListFragment);
+                                            }
+                                            fragmentTransaction
+                                                    .add(
+                                                            R.id.episode_list_fragment_container_frame_layout,
+                                                            EpisodeListFragment.newInstance(
+                                                                    episodes
+                                                            ),
+                                                            EPISODE_LIST_FRAGMENT_TAG
+                                                    )
+                                                    .commit();
                                         },
                                         throwable -> {
                                             Snackbar.make(
-                                                    episodesRecyclerView,
+                                                    view,
                                                     "Error when fetching episodes",
                                                     Snackbar.LENGTH_SHORT
                                             );
@@ -144,6 +156,11 @@ public final class PodcastFragment extends Fragment {
         super.onDetach();
 
         mListener = null;
+    }
+
+    @Override
+    public void onClick(Episode episode) {
+
     }
 
     public interface PodcastFragmentListener {

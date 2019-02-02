@@ -12,12 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.parcelables.EpisodeHolder;
-import com.github.hborders.heathcast.parcelables.PodcastHolder;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
-import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
 import java.util.List;
 
@@ -57,7 +54,7 @@ public final class EpisodeListFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         @Nullable final View view = inflater.inflate(
-                R.layout.fragment_podcast_list,
+                R.layout.fragment_episode_list,
                 container,
                 false
         );
