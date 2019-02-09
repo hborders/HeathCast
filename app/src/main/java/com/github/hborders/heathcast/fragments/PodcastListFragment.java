@@ -11,8 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.parcelables.PodcastHolder;
+import com.github.hborders.heathcast.parcelables.IdentifiedPodcastHolder;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
@@ -30,15 +31,15 @@ public final class PodcastListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static PodcastListFragment newInstance(List<Podcast> podcasts) {
+    public static PodcastListFragment newInstance(List<Identified<Podcast>> podcasts) {
         final PodcastListFragment fragment = new PodcastListFragment();
         final Bundle args = new Bundle();
         args.putParcelableArray(
                 PODCAST_PARCELABLES_KEY,
                 podcasts
                         .stream()
-                .map(PodcastHolder::new)
-                .toArray(PodcastHolder[]::new)
+                .map(IdentifiedPodcastHolder::new)
+                .toArray(IdentifiedPodcastHolder[]::new)
         );
         fragment.setArguments(args);
         return fragment;
@@ -63,19 +64,19 @@ public final class PodcastListFragment extends Fragment {
             final RecyclerView podcastsRecyclerView =
                     view.requireViewById(R.id.fragment_podcast_list_podcasts_recycler_view);
             podcastsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-            @Nullable final List<Podcast> podcasts =
+            @Nullable final List<Identified<Podcast>> identifiedPodcasts =
                     FragmentUtil.getUnparcelableHolderListArgument(
                             this,
-                            PodcastHolder.class,
+                            IdentifiedPodcastHolder.class,
                             PODCAST_PARCELABLES_KEY
                     );
-            if (podcasts != null) {
+            if (identifiedPodcasts != null) {
                 final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
-                        podcasts,
-                        podcast -> {
+                        identifiedPodcasts,
+                        identifiedPodcast -> {
                             @Nullable final PodcastListFragmentListener listener = mListener;
                             if (listener != null) {
-                                listener.onClick(podcast);
+                                listener.onClick(identifiedPodcast);
                             }
                         }
                 );
@@ -105,6 +106,6 @@ public final class PodcastListFragment extends Fragment {
     }
 
     public interface PodcastListFragmentListener {
-        void onClick(Podcast podcast);
+        void onClick(Identified<Podcast> identifiedPodcast);
     }
 }

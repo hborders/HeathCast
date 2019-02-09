@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.squareup.picasso.Picasso;
 
@@ -17,14 +18,14 @@ import java.util.List;
 
 public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecyclerViewAdapter.PodcastViewHolder> {
 
-    private final List<Podcast> mPodcasts;
+    private final List<Identified<Podcast>> mIdentifiedPodcasts;
     private final PodcastRecyclerViewAdapterListener mListener;
 
     public PodcastRecyclerViewAdapter(
-            List<Podcast> podcasts,
+            List<Identified<Podcast>> identifiedPodcasts,
             PodcastRecyclerViewAdapterListener listener
     ) {
-        this.mPodcasts = podcasts;
+        this.mIdentifiedPodcasts = identifiedPodcasts;
         this.mListener = listener;
     }
 
@@ -41,9 +42,10 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
 
     @Override
     public void onBindViewHolder(@NonNull PodcastViewHolder holder, int position) {
-        final Podcast podcast = mPodcasts.get(position);
+        final Identified<Podcast> identifiedPodcast = mIdentifiedPodcasts.get(position);
+        final Podcast podcast = identifiedPodcast.mModel;
         holder.mNameTextView.setText(podcast.mName);
-        holder.itemView.setOnClickListener(itemView -> mListener.onClick(podcast));
+        holder.itemView.setOnClickListener(itemView -> mListener.onClick(identifiedPodcast));
         Picasso.get().cancelRequest(holder.mArtworkImageView);
         if (podcast.mArtworkURL != null) {
             final String artworkUrlString = podcast.mArtworkURL.toExternalForm();
@@ -53,7 +55,7 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
 
     @Override
     public int getItemCount() {
-        return mPodcasts.size();
+        return mIdentifiedPodcasts.size();
     }
 
     static final class PodcastViewHolder extends RecyclerView.ViewHolder {
@@ -68,6 +70,6 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
     }
 
     public interface PodcastRecyclerViewAdapterListener {
-        void onClick(Podcast podcast);
+        void onClick(Identified<Podcast> identifiedPodcast);
     }
 }

@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.utils.FragmentUtil;
@@ -163,14 +164,14 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     }
 
     @Override
-    public void onClick(Podcast podcast) {
+    public void onClick(Identified<Podcast> identifiedPodcast) {
         @Nullable final View view = getView();
         if (view != null) {
             Navigation
                     .findNavController(view)
                     .navigate(
                             R.id.action_podcastSearchFragment_to_podcastFragment,
-                            PodcastFragment.newArguments(podcast)
+                            PodcastFragment.newArguments(identifiedPodcast)
                     );
         }
     }

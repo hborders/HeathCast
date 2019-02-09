@@ -10,20 +10,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.Identified;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecyclerViewAdapter.EpisodeViewHolder> {
 
-    private final List<Episode> mEpisodes;
+    private final List<Identified<Episode>> mIdentifiedEpisodes;
     private final EpisodeRecyclerViewAdapterListener mListener;
 
     public EpisodeRecyclerViewAdapter(
-            List<Episode> episodes,
+            List<Identified<Episode>> identifiedEpisodes,
             EpisodeRecyclerViewAdapterListener listener
     ) {
-        this.mEpisodes = episodes;
+        this.mIdentifiedEpisodes = identifiedEpisodes;
         this.mListener = listener;
     }
 
@@ -39,9 +40,10 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
 
     @Override
     public void onBindViewHolder(EpisodeViewHolder holder, int position) {
-        final Episode episode = mEpisodes.get(position);
+        Identified<Episode> identifiedEpisode = mIdentifiedEpisodes.get(position);
+        final Episode episode = identifiedEpisode.mModel;
         holder.mTitleTextView.setText(episode.mTitle);
-        holder.itemView.setOnClickListener(itemView -> mListener.onClick(episode));
+        holder.itemView.setOnClickListener(itemView -> mListener.onClick(identifiedEpisode));
         Picasso.get().cancelRequest(holder.mArtworkImageView);
         if (episode.mArtworkURL != null) {
             final String artworkUrlString = episode.mArtworkURL.toExternalForm();
@@ -51,7 +53,7 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
 
     @Override
     public int getItemCount() {
-        return mEpisodes.size();
+        return mIdentifiedEpisodes.size();
     }
 
     static final class EpisodeViewHolder extends RecyclerView.ViewHolder {
@@ -67,6 +69,6 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
     }
 
     public interface EpisodeRecyclerViewAdapterListener {
-        void onClick(Episode episode);
+        void onClick(Identified<Episode> identifiedEpisode);
     }
 }

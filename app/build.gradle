@@ -21,6 +21,11 @@ android {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
+
+    // required to use robolectric
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
 }
 
 dependencies {
@@ -53,6 +58,8 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.test:core:1.1.0'
+    testImplementation "org.robolectric:robolectric:4.1"
     testImplementation 'net.sf.kxml:kxml2:2.3.0'
 
     androidTestImplementation 'androidx.test:runner:1.1.1'

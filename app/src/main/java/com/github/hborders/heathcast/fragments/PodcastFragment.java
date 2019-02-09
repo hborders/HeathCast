@@ -14,8 +14,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.parcelables.PodcastHolder;
+import com.github.hborders.heathcast.parcelables.IdentifiedPodcastHolder;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.google.android.material.snackbar.Snackbar;
@@ -40,17 +41,17 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
         // Required empty public constructor
     }
 
-    public static PodcastFragment newInstance(Podcast podcast) {
+    public static PodcastFragment newInstance(Identified<Podcast> identifiedPodcast) {
         final PodcastFragment fragment = new PodcastFragment();
-        fragment.setArguments(newArguments(podcast));
+        fragment.setArguments(newArguments(identifiedPodcast));
         return fragment;
     }
 
-    public static Bundle newArguments(Podcast podcast) {
+    public static Bundle newArguments(Identified<Podcast> identifiedPodcast) {
         final Bundle args = new Bundle();
         args.putParcelable(
                 PODCAST_PARCELABLE_KEY,
-                new PodcastHolder(podcast)
+                new IdentifiedPodcastHolder(identifiedPodcast)
         );
         return args;
     }
@@ -75,12 +76,13 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
             final TextView nameTextView = view.requireViewById(R.id.fragment_podcast_name_text_view);
             final TextView authorTextView = view.requireViewById(R.id.fragment_podcast_author_text_view);
 
-            @Nullable final Podcast podcast = FragmentUtil.getUnparcelableHolderArgument(
+            @Nullable final Identified<Podcast> identifiedPodcast = FragmentUtil.getUnparcelableHolderArgument(
                     this,
-                    PodcastHolder.class,
+                    IdentifiedPodcastHolder.class,
                     PODCAST_PARCELABLE_KEY
             );
-            if (podcast != null) {
+            if (identifiedPodcast != null) {
+                final Podcast podcast = identifiedPodcast.mModel;
                 nameTextView.setText(podcast.mName);
                 authorTextView.setText(podcast.mAuthor);
                 if (podcast.mArtworkURL != null) {
@@ -97,7 +99,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                 .fetchEpisodes(podcast.mFeedURL)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
-                                        episodes -> {
+                                        identifiedEpisodes -> {
                                             @Nullable final EpisodeListFragment existingEpisodeListFragment =
                                                     (EpisodeListFragment) getChildFragmentManager()
                                                             .findFragmentByTag(EPISODE_LIST_FRAGMENT_TAG);
@@ -112,7 +114,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                                     .add(
                                                             R.id.fragment_podcast_episode_list_fragment_container_frame_layout,
                                                             EpisodeListFragment.newInstance(
-                                                                    episodes
+                                                                    identifiedEpisodes
                                                             ),
                                                             EPISODE_LIST_FRAGMENT_TAG
                                                     )
@@ -166,7 +168,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     }
 
     @Override
-    public void onClick(Episode episode) {
+    public void onClick(Identified<Episode> identifiedEpisode) {
 
     }
 

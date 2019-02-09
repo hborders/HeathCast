@@ -1,6 +1,7 @@
 package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
@@ -43,7 +44,7 @@ public final class PodcastService {
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
     }
 
-    public Single<List<Podcast>> searchForPodcasts(String query) {
+    public Single<List<Identified<Podcast>>> searchForPodcasts(String query) {
         // https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
         final HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
@@ -84,13 +85,13 @@ public final class PodcastService {
                                         response.close();
                                     }
 
-                                    final List<Podcast> podcasts =
+                                    final List<Identified<Podcast>> podcasts =
                                             Optional
                                                     .ofNullable(podcastSearchResultsJson.results)
                                                     .filter(Objects::nonNull)
                                                     .map(List::stream)
                                                     .orElseGet(Stream::empty)
-                                                    .map(PodcastJson::toPodcast)
+                                                    .map(PodcastJson::toIdentifiedPodcast)
                                                     .filter(Objects::nonNull)
                                                     .collect(Collectors.toList());
                                     return Single.just(podcasts);
@@ -102,7 +103,7 @@ public final class PodcastService {
                 );
     }
 
-    public Single<List<Episode>> fetchEpisodes(URL url) {
+    public Single<List<Identified<Episode>>> fetchEpisodes(URL url) {
         final Request request = new Request.Builder().url(url).build();
         final Call call = okHttpClient.newCall(request);
 
@@ -119,9 +120,9 @@ public final class PodcastService {
                                         return Single.error(new Exception("No responseBody"));
                                     } else {
                                         try {
-                                            final List<Episode> episodes =
+                                            final List<Identified<Episode>> identifiedEpisodes =
                                                     XmlParser.parseEpisodeList(responseBody.byteStream());
-                                            return Single.just(episodes);
+                                            return Single.just(identifiedEpisodes);
                                         } finally {
                                             responseBody.close();
                                         }
