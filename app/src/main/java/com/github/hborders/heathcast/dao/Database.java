@@ -27,7 +27,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Scheduler;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
 import static com.github.hborders.heathcast.dao.Database.Schema.EpisodeTable.CREATE_FOREIGN_KEY_EPISODE;
@@ -53,7 +53,8 @@ public final class Database {
 
     public Database(
             Context context,
-            @Nullable String name
+            @Nullable String name,
+            Scheduler scheduler
     ) {
         final Configuration configuration = Configuration
                 .builder(context)
@@ -63,12 +64,20 @@ public final class Database {
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
         final SupportSQLiteOpenHelper supportSQLiteOpenHelper = factory.create(configuration);
         final SqlBrite sqlBrite = new SqlBrite.Builder().build();
-        this.mBriteDatabase = sqlBrite.wrapDatabaseHelper(supportSQLiteOpenHelper, Schedulers.io());
+        this.mBriteDatabase = sqlBrite.wrapDatabaseHelper(
+                supportSQLiteOpenHelper,
+                scheduler
+        );
     }
 
     @Nullable
     public Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
         return Schema.PodcastSearchTable.insertPodcastSearch(mBriteDatabase, podcastSearch);
+    }
+
+    @Nullable
+    public Identified<PodcastSearch> readPodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+        return Schema.PodcastSearchTable.readPodcastSearch(mBriteDatabase, podcastSearchIdentifier);
     }
 
     public Observable<Optional<Identified<PodcastSearch>>> observeQueryForPodcastSearch(
@@ -139,7 +148,7 @@ public final class Database {
                 if (id == -1) {
                     return null;
                 } else {
-                    return new Identifier<PodcastSearch>(
+                    return new Identifier<>(
                             PodcastSearch.class,
                             id
                     );
@@ -168,6 +177,33 @@ public final class Database {
                 return briteDatabase
                         .createQuery(TABLE_PODCAST_SEARCH, query)
                         .mapToOptional(PodcastSearchTable::getIdentifiedPodcastSearch);
+            }
+
+            @Nullable
+            public static Identified<PodcastSearch> readPodcastSearch(
+                    BriteDatabase mBriteDatabase,
+                    Identifier<PodcastSearch> podcastSearchIdentifier
+            ) {
+                final SupportSQLiteQuery query =
+                        SupportSQLiteQueryBuilder
+                                .builder(TABLE_PODCAST_SEARCH)
+                                .columns(new String[]{
+                                                ID,
+                                                SEARCH
+                                        }
+                                )
+                                .selection(
+                                        ID + "= ?",
+                                        new Object[]{
+                                                podcastSearchIdentifier.mId
+                                        }
+                                ).create();
+
+                final Cursor cursor = mBriteDatabase.query(query);
+                cursor.moveToFirst();
+                final Identified<PodcastSearch> identifiedPodcastSearch = getIdentifiedPodcastSearch(cursor);
+                cursor.close();
+                return identifiedPodcastSearch;
             }
 
             static Identified<PodcastSearch> getIdentifiedPodcastSearch(Cursor cursor) {

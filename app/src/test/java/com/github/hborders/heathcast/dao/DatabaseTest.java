@@ -16,8 +16,9 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
-import io.reactivex.schedulers.TestScheduler;
+import io.reactivex.schedulers.Schedulers;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -28,7 +29,8 @@ public final class DatabaseTest {
     public void setup() {
         testObject = new Database(
                 ApplicationProvider.getApplicationContext(),
-                null // in-memory
+                null, // in-memory
+                Schedulers.trampoline()
         );
     }
 
@@ -39,15 +41,25 @@ public final class DatabaseTest {
         if (podcastSearchIdentifier == null) {
             fail();
         } else {
-            final TestObserver podcastSearchTestObserver = new TestObserver();
+            @Nullable final Identified<PodcastSearch> actual =
+                    testObject.readPodcastSearch(podcastSearchIdentifier);
+            assertEquals(
+                    new Identified<>(
+                            podcastSearchIdentifier,
+                            new PodcastSearch("Planet Money")
+                    ),
+                    actual
+            );
+
+
+            final TestObserver<Optional<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
             testObject
                     .observeQueryForPodcastSearch(podcastSearchIdentifier)
-                    .observeOn(new TestScheduler())
-                    .subscribeWith(podcastSearchTestObserver);
+                    .subscribe(podcastSearchTestObserver);
 
             podcastSearchTestObserver.assertValue(
                     Optional.of(
-                            new Identified<PodcastSearch>(
+                            new Identified<>(
                                     podcastSearchIdentifier,
                                     new PodcastSearch("Planet Money")
                             )
