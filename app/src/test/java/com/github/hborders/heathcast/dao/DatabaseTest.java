@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -37,23 +36,13 @@ public final class DatabaseTest {
     @Test
     public void testInsertPodcastSearch() {
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier =
-                testObject.insertPodcastSearch(new PodcastSearch("Planet Money"));
+                testObject.mPodcastSearchTable.insertPodcastSearch(new PodcastSearch("Planet Money"));
         if (podcastSearchIdentifier == null) {
             fail();
         } else {
-            @Nullable final Identified<PodcastSearch> actual =
-                    testObject.readPodcastSearch(podcastSearchIdentifier);
-            assertEquals(
-                    new Identified<>(
-                            podcastSearchIdentifier,
-                            new PodcastSearch("Planet Money")
-                    ),
-                    actual
-            );
-
-
             final TestObserver<Optional<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
             testObject
+                    .mPodcastSearchTable
                     .observeQueryForPodcastSearch(podcastSearchIdentifier)
                     .subscribe(podcastSearchTestObserver);
 

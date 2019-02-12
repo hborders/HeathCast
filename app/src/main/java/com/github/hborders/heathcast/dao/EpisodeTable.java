@@ -1,0 +1,105 @@
+package com.github.hborders.heathcast.dao;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.Podcast;
+import com.squareup.sqlbrite3.BriteDatabase;
+
+import javax.annotation.Nullable;
+
+import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
+import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
+import static com.github.hborders.heathcast.utils.ContentValuesUtil.putDurationAsLong;
+import static com.github.hborders.heathcast.utils.ContentValuesUtil.putURLAsString;
+import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
+import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
+import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullURLFromString;
+import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDurationFromLong;
+import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
+import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
+
+final class EpisodeTable {
+    private static final String TABLE_EPISODE = "episode";
+
+    private static final String ARTWORK_URL = "artwork_url";
+    private static final String DURATION = "duration";
+    private static final String ID = "_id";
+    private static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
+    private static final String SUMMARY = "summary";
+    private static final String TITLE = "title";
+    private static final String URL = "url";
+
+    static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
+    static final String CREATE_FOREIGN_KEY_EPISODE =
+            "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
+
+    private final BriteDatabase mBriteDatabase;
+
+    EpisodeTable(BriteDatabase briteDatabase) {
+        mBriteDatabase = briteDatabase;
+    }
+
+    static void createEpisodeTable(SupportSQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
+                + ARTWORK_URL + " TEXT, "
+                + DURATION + " INTEGER, "
+                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                + PODCAST_ID + " INTEGER NOT NULL, "
+                + SUMMARY + " TEXT, "
+                + TITLE + " TEXT NOT NULL, "
+                + URL + " TEXT NOT NULL, "
+                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE "
+                + ")"
+        );
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PODCAST_ID
+                + " ON " + TABLE_EPISODE + "(" + PODCAST_ID + ")");
+    }
+
+    static Identified<Episode> getIdentifiedEpisode(Cursor cursor) {
+        return new Identified<>(
+                new Identifier<>(
+                        Episode.class,
+                        getNonnullInt(cursor, ID)
+                ),
+                new Episode(
+                        getNullableURLFromString(cursor, ARTWORK_URL),
+                        getNullableDurationFromLong(cursor, DURATION),
+                        getNullableString(cursor, SUMMARY),
+                        getNonnullString(cursor, TITLE),
+                        getNonnullURLFromString(cursor, URL)
+                )
+        );
+    }
+
+    static ContentValues getEpisodeContentValues(Episode episode) {
+        final ContentValues values = new ContentValues(7);
+
+        putURLAsString(values, ARTWORK_URL, episode.mArtworkURL);
+        putDurationAsLong(values, DURATION, episode.mDuration);
+        values.put(SUMMARY, episode.mSummary);
+        values.put(TITLE, episode.mTitle);
+        putURLAsString(values, URL, episode.mURL);
+
+        return values;
+    }
+
+    static ContentValues getIdentifiedEpisodeContentValues(
+            Identified<Episode> identifiedEpisode,
+            @Nullable Identifier<Podcast> podcastIdentifier
+    ) {
+        final ContentValues values = getEpisodeContentValues(identifiedEpisode.mModel);
+
+        Database.putIdentifier(values, ID, identifiedEpisode);
+        if (podcastIdentifier != null) {
+            Database.putIdentifier(values, PODCAST_ID, podcastIdentifier);
+        }
+
+        return values;
+    }
+}
