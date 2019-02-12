@@ -1,6 +1,5 @@
 package com.github.hborders.heathcast.dao;
 
-import android.content.ContentValues;
 import android.content.Context;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -10,16 +9,19 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastSearch;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
+
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.Scheduler;
 
 public final class Database {
+    private final BriteDatabase mBriteDatabase;
     public final PodcastSearchTable mPodcastSearchTable;
     public final PodcastTable mPodcastTable;
     public final EpisodeTable mEpisodeTable;
@@ -39,23 +41,28 @@ public final class Database {
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
         final SupportSQLiteOpenHelper supportSQLiteOpenHelper = factory.create(configuration);
         final SqlBrite sqlBrite = new SqlBrite.Builder().build();
-        BriteDatabase briteDatabase = sqlBrite.wrapDatabaseHelper(
+        mBriteDatabase = sqlBrite.wrapDatabaseHelper(
                 supportSQLiteOpenHelper,
                 scheduler
         );
-        mPodcastSearchTable = new PodcastSearchTable(briteDatabase);
-        mPodcastTable = new PodcastTable(briteDatabase);
-        mEpisodeTable = new EpisodeTable(briteDatabase);
-        mPodcastSearchResultTable = new PodcastSearchResultTable(briteDatabase);
-        mPodcastEpisodeListTable = new PodcastEpisodeListTable(briteDatabase);
+        mPodcastSearchTable = new PodcastSearchTable(mBriteDatabase);
+        mPodcastTable = new PodcastTable(mBriteDatabase);
+        mEpisodeTable = new EpisodeTable(mBriteDatabase);
+        mPodcastSearchResultTable = new PodcastSearchResultTable(mBriteDatabase);
+        mPodcastEpisodeListTable = new PodcastEpisodeListTable(mBriteDatabase);
     }
 
-    static void putIdentifier(ContentValues contentValues, String key, Identified<?> identified) {
-        putIdentifier(contentValues, key, identified.mIdentifier);
-    }
+    public void replacePodcastSearchResults(
+            PodcastSearch podcastSearch,
+            List<Podcast> podcasts
+    ) {
+        mBriteDatabase.getWritableDatabase().beginTransaction();
+        mPodcastSearchTable.insertPodcastSearch(podcastSearch);
+        for (Podcast podcast : podcasts) {
 
-    static void putIdentifier(ContentValues contentValues, String key, Identifier<?> identifier) {
-        contentValues.put(key, identifier.mId);
+        }
+
+        mBriteDatabase.getWritableDatabase().endTransaction();
     }
 
     static final class Schema extends Callback {

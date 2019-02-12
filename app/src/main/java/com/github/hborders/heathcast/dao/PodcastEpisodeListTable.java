@@ -9,7 +9,7 @@ import static com.github.hborders.heathcast.dao.EpisodeTable.FOREIGN_KEY_EPISODE
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 
-final class PodcastEpisodeListTable {
+final class PodcastEpisodeListTable extends Table {
     private static final String TABLE_PODCAST_EPISODE_LIST = "podcast_episode_list";
 
     private static final String ID = "_id";
@@ -19,6 +19,8 @@ final class PodcastEpisodeListTable {
     private final BriteDatabase mBriteDatabase;
 
     PodcastEpisodeListTable(BriteDatabase briteDatabase) {
+        super(briteDatabase);
+
         mBriteDatabase = briteDatabase;
     }
 

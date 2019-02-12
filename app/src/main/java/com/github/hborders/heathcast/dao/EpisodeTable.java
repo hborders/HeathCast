@@ -24,7 +24,7 @@ import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDuration
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
 
-final class EpisodeTable {
+final class EpisodeTable extends Table {
     private static final String TABLE_EPISODE = "episode";
 
     private static final String ARTWORK_URL = "artwork_url";
@@ -42,6 +42,8 @@ final class EpisodeTable {
     private final BriteDatabase mBriteDatabase;
 
     EpisodeTable(BriteDatabase briteDatabase) {
+        super(briteDatabase);
+
         mBriteDatabase = briteDatabase;
     }
 
@@ -95,9 +97,9 @@ final class EpisodeTable {
     ) {
         final ContentValues values = getEpisodeContentValues(identifiedEpisode.mModel);
 
-        Database.putIdentifier(values, ID, identifiedEpisode);
+        putIdentifier(values, ID, identifiedEpisode);
         if (podcastIdentifier != null) {
-            Database.putIdentifier(values, PODCAST_ID, podcastIdentifier);
+            putIdentifier(values, PODCAST_ID, podcastIdentifier);
         }
 
         return values;

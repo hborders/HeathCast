@@ -18,11 +18,11 @@ import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 
-import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
 
-final class PodcastSearchTable {
+final class PodcastSearchTable extends Table {
     private static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
     private static final String ID = "_id";
@@ -35,23 +35,16 @@ final class PodcastSearchTable {
     private final BriteDatabase mBriteDatabase;
 
     PodcastSearchTable(BriteDatabase briteDatabase) {
-        mBriteDatabase = briteDatabase;
-    }
+        super(briteDatabase);
 
-    static void createPodcastSearchTable(SupportSQLiteDatabase db) {
-        db.execSQL(
-                "CREATE TABLE " + TABLE_PODCAST_SEARCH + " ("
-                        + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                        + SEARCH + " TEXT NOT NULL "
-                        + ")"
-        );
+        mBriteDatabase = briteDatabase;
     }
 
     @Nullable
     public Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
         final long id = mBriteDatabase.insert(
                 TABLE_PODCAST_SEARCH,
-                CONFLICT_ABORT,
+                CONFLICT_IGNORE,
                 getPodcastSearchContentValues(podcastSearch)
         );
         if (id == -1) {
@@ -87,6 +80,15 @@ final class PodcastSearchTable {
                 .mapToOptional(PodcastSearchTable::getIdentifiedPodcastSearch);
     }
 
+    static void createPodcastSearchTable(SupportSQLiteDatabase db) {
+        db.execSQL(
+                "CREATE TABLE " + TABLE_PODCAST_SEARCH + " ("
+                        + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                        + SEARCH + " TEXT NOT NULL UNIQUE"
+                        + ")"
+        );
+    }
+
     static Identified<PodcastSearch> getIdentifiedPodcastSearch(Cursor cursor) {
         return new Identified<>(new Identifier<>(
                 PodcastSearch.class,
@@ -107,7 +109,7 @@ final class PodcastSearchTable {
     static ContentValues getIdentifiedPodcastSearchContentValues(Identified<PodcastSearch> identifiedPodcastSearch) {
         final ContentValues values = getPodcastSearchContentValues(identifiedPodcastSearch.mModel);
 
-        Database.putIdentifier(values, ID, identifiedPodcastSearch);
+        putIdentifier(values, ID, identifiedPodcastSearch);
 
         return values;
     }
