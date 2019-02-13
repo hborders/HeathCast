@@ -35,4 +35,12 @@ public final class NonnullPair<F, S> {
                 ", mSecond=" + mSecond +
                 '}';
     }
+
+    public F getFirst() {
+        return mFirst;
+    }
+
+    public S getSecond() {
+        return mSecond;
+    }
 }
