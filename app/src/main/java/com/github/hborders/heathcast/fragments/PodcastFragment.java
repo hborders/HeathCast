@@ -16,7 +16,7 @@ import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.parcelables.IdentifiedPodcastHolder;
+import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.google.android.material.snackbar.Snackbar;
@@ -33,9 +33,9 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     private static final String EPISODE_LIST_FRAGMENT_TAG = "episodeList";
 
     @Nullable
-    private PodcastFragmentListener mListener;
+    private PodcastFragmentListener listener;
     @Nullable
-    private Disposable mFetchEpisodesDisposable;
+    private Disposable fetchEpisodesDisposable;
 
     public PodcastFragment() {
         // Required empty public constructor
@@ -51,7 +51,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
         final Bundle args = new Bundle();
         args.putParcelable(
                 PODCAST_PARCELABLE_KEY,
-                new IdentifiedPodcastHolder(identifiedPodcast)
+                new PodcastIdentifiedHolder(identifiedPodcast)
         );
         return args;
     }
@@ -78,25 +78,25 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
 
             @Nullable final Identified<Podcast> identifiedPodcast = FragmentUtil.getUnparcelableHolderArgument(
                     this,
-                    IdentifiedPodcastHolder.class,
+                    PodcastIdentifiedHolder.class,
                     PODCAST_PARCELABLE_KEY
             );
             if (identifiedPodcast != null) {
-                final Podcast podcast = identifiedPodcast.mModel;
-                nameTextView.setText(podcast.mName);
-                authorTextView.setText(podcast.mAuthor);
-                if (podcast.mArtworkURL != null) {
-                    final String artworkURLString = podcast.mArtworkURL.toExternalForm();
+                final Podcast podcast = identifiedPodcast.model;
+                nameTextView.setText(podcast.name);
+                authorTextView.setText(podcast.author);
+                if (podcast.artworkURL != null) {
+                    final String artworkURLString = podcast.artworkURL.toExternalForm();
                     Picasso.get().load(artworkURLString).into(artworkImageView);
                 }
 
-                @Nullable final Disposable oldDisposable = mFetchEpisodesDisposable;
+                @Nullable final Disposable oldDisposable = fetchEpisodesDisposable;
                 if (oldDisposable != null) {
                     oldDisposable.dispose();
                 }
-                mFetchEpisodesDisposable =
+                fetchEpisodesDisposable =
                         PodcastService.instance
-                                .fetchEpisodes(podcast.mFeedURL)
+                                .fetchEpisodes(podcast.feedURL)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         identifiedEpisodes -> {
@@ -143,7 +143,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     public void onDestroyView() {
         super.onDestroyView();
 
-        @Nullable final Disposable fetchEpisodesDisposable = mFetchEpisodesDisposable;
+        @Nullable final Disposable fetchEpisodesDisposable = this.fetchEpisodesDisposable;
         if (fetchEpisodesDisposable != null) {
             fetchEpisodesDisposable.dispose();
         }
@@ -153,7 +153,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        mListener = FragmentUtil.requireFragmentListener(
+        listener = FragmentUtil.requireFragmentListener(
                 this,
                 context,
                 PodcastFragment.PodcastFragmentListener.class
@@ -164,7 +164,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     public void onDetach() {
         super.onDetach();
 
-        mListener = null;
+        listener = null;
     }
 
     @Override

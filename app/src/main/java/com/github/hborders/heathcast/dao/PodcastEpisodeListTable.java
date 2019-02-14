@@ -16,12 +16,8 @@ final class PodcastEpisodeListTable extends Table {
     private static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
     private static final String EPISODE_ID = FOREIGN_KEY_EPISODE;
 
-    private final BriteDatabase mBriteDatabase;
-
     PodcastEpisodeListTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
-
-        mBriteDatabase = briteDatabase;
     }
 
     static void createPodcastEpisodeListTable(SupportSQLiteDatabase db) {

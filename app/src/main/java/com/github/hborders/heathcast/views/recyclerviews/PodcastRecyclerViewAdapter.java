@@ -18,15 +18,15 @@ import java.util.List;
 
 public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecyclerViewAdapter.PodcastViewHolder> {
 
-    private final List<Identified<Podcast>> mIdentifiedPodcasts;
-    private final PodcastRecyclerViewAdapterListener mListener;
+    private final List<Identified<Podcast>> podcastIdentifieds;
+    private final PodcastRecyclerViewAdapterListener listener;
 
     public PodcastRecyclerViewAdapter(
             List<Identified<Podcast>> identifiedPodcasts,
             PodcastRecyclerViewAdapterListener listener
     ) {
-        this.mIdentifiedPodcasts = identifiedPodcasts;
-        this.mListener = listener;
+        this.podcastIdentifieds = identifiedPodcasts;
+        this.listener = listener;
     }
 
     @NonNull
@@ -42,30 +42,30 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
 
     @Override
     public void onBindViewHolder(@NonNull PodcastViewHolder holder, int position) {
-        final Identified<Podcast> identifiedPodcast = mIdentifiedPodcasts.get(position);
-        final Podcast podcast = identifiedPodcast.mModel;
-        holder.mNameTextView.setText(podcast.mName);
-        holder.itemView.setOnClickListener(itemView -> mListener.onClick(identifiedPodcast));
-        Picasso.get().cancelRequest(holder.mArtworkImageView);
-        if (podcast.mArtworkURL != null) {
-            final String artworkUrlString = podcast.mArtworkURL.toExternalForm();
-            Picasso.get().load(artworkUrlString).into(holder.mArtworkImageView);
+        final Identified<Podcast> identifiedPodcast = podcastIdentifieds.get(position);
+        final Podcast podcast = identifiedPodcast.model;
+        holder.nameTextView.setText(podcast.name);
+        holder.itemView.setOnClickListener(itemView -> listener.onClick(identifiedPodcast));
+        Picasso.get().cancelRequest(holder.artworkImageView);
+        if (podcast.artworkURL != null) {
+            final String artworkUrlString = podcast.artworkURL.toExternalForm();
+            Picasso.get().load(artworkUrlString).into(holder.artworkImageView);
         }
     }
 
     @Override
     public int getItemCount() {
-        return mIdentifiedPodcasts.size();
+        return podcastIdentifieds.size();
     }
 
     static final class PodcastViewHolder extends RecyclerView.ViewHolder {
-        final ImageView mArtworkImageView;
-        final TextView mNameTextView;
+        final ImageView artworkImageView;
+        final TextView nameTextView;
 
         PodcastViewHolder(View itemView) {
             super(itemView);
-            this.mArtworkImageView = itemView.requireViewById(R.id.item_podcast_artwork_image_view);
-            this.mNameTextView = itemView.requireViewById(R.id.item_podcast_name_text_view);
+            this.artworkImageView = itemView.requireViewById(R.id.item_podcast_artwork_image_view);
+            this.nameTextView = itemView.requireViewById(R.id.item_podcast_name_text_view);
         }
     }
 

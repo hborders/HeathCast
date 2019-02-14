@@ -17,15 +17,15 @@ import java.util.List;
 
 public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecyclerViewAdapter.EpisodeViewHolder> {
 
-    private final List<Identified<Episode>> mIdentifiedEpisodes;
-    private final EpisodeRecyclerViewAdapterListener mListener;
+    private final List<Identified<Episode>> episodeIdentifieds;
+    private final EpisodeRecyclerViewAdapterListener listener;
 
     public EpisodeRecyclerViewAdapter(
-            List<Identified<Episode>> identifiedEpisodes,
+            List<Identified<Episode>> episodeIdentifieds,
             EpisodeRecyclerViewAdapterListener listener
     ) {
-        this.mIdentifiedEpisodes = identifiedEpisodes;
-        this.mListener = listener;
+        this.episodeIdentifieds = episodeIdentifieds;
+        this.listener = listener;
     }
 
     @Override
@@ -40,31 +40,31 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
 
     @Override
     public void onBindViewHolder(EpisodeViewHolder holder, int position) {
-        Identified<Episode> identifiedEpisode = mIdentifiedEpisodes.get(position);
-        final Episode episode = identifiedEpisode.mModel;
-        holder.mTitleTextView.setText(episode.mTitle);
-        holder.itemView.setOnClickListener(itemView -> mListener.onClick(identifiedEpisode));
-        Picasso.get().cancelRequest(holder.mArtworkImageView);
-        if (episode.mArtworkURL != null) {
-            final String artworkUrlString = episode.mArtworkURL.toExternalForm();
-            Picasso.get().load(artworkUrlString).into(holder.mArtworkImageView);
+        Identified<Episode> identifiedEpisode = episodeIdentifieds.get(position);
+        final Episode episode = identifiedEpisode.model;
+        holder.titleTextView.setText(episode.title);
+        holder.itemView.setOnClickListener(itemView -> listener.onClick(identifiedEpisode));
+        Picasso.get().cancelRequest(holder.artworkImageView);
+        if (episode.artworkURL != null) {
+            final String artworkUrlString = episode.artworkURL.toExternalForm();
+            Picasso.get().load(artworkUrlString).into(holder.artworkImageView);
         }
     }
 
     @Override
     public int getItemCount() {
-        return mIdentifiedEpisodes.size();
+        return episodeIdentifieds.size();
     }
 
     static final class EpisodeViewHolder extends RecyclerView.ViewHolder {
-        final ImageView mArtworkImageView;
-        final TextView mTitleTextView;
+        final ImageView artworkImageView;
+        final TextView titleTextView;
 
         EpisodeViewHolder(View itemView) {
             super(itemView);
 
-            this.mArtworkImageView = itemView.requireViewById(R.id.item_episode_artwork_image_view);
-            this.mTitleTextView = itemView.requireViewById(R.id.item_episode_title_text_view);
+            this.artworkImageView = itemView.requireViewById(R.id.item_episode_artwork_image_view);
+            this.titleTextView = itemView.requireViewById(R.id.item_episode_title_text_view);
         }
     }
 

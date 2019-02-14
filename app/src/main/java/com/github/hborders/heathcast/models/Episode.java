@@ -8,17 +8,17 @@ import javax.annotation.Nullable;
 
 public final class Episode {
     @Nullable
-    public final URL mArtworkURL;
+    public final URL artworkURL;
 
     @Nullable
-    public final Duration mDuration;
+    public final Duration duration;
 
     @Nullable
-    public final String mSummary;
+    public final String summary;
 
-    public final String mTitle;
+    public final String title;
 
-    public final URL mURL;
+    public final URL url;
 
     public Episode(
             @Nullable URL artworkURL,
@@ -27,11 +27,11 @@ public final class Episode {
             String title,
             URL url
     ) {
-        this.mArtworkURL = artworkURL;
-        this.mDuration = duration;
-        this.mSummary = summary;
-        this.mTitle = title;
-        this.mURL = url;
+        this.artworkURL = artworkURL;
+        this.duration = duration;
+        this.summary = summary;
+        this.title = title;
+        this.url = url;
     }
 
     @Override
@@ -39,26 +39,26 @@ public final class Episode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Episode episode = (Episode) o;
-        return Objects.equals(mArtworkURL, episode.mArtworkURL) &&
-                Objects.equals(mDuration, episode.mDuration) &&
-                Objects.equals(mSummary, episode.mSummary) &&
-                mTitle.equals(episode.mTitle) &&
-                mURL.equals(episode.mURL);
+        return Objects.equals(artworkURL, episode.artworkURL) &&
+                Objects.equals(duration, episode.duration) &&
+                Objects.equals(summary, episode.summary) &&
+                title.equals(episode.title) &&
+                url.equals(episode.url);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mArtworkURL, mDuration, mSummary, mTitle, mURL);
+        return Objects.hash(artworkURL, duration, summary, title, url);
     }
 
     @Override
     public String toString() {
         return "Episode{" +
-                "mArtworkURL=" + mArtworkURL +
-                ", mDuration=" + mDuration +
-                ", mSummary='" + mSummary + '\'' +
-                ", mTitle='" + mTitle + '\'' +
-                ", mURL=" + mURL +
+                "artworkURL=" + artworkURL +
+                ", duration=" + duration +
+                ", summary='" + summary + '\'' +
+                ", title='" + title + '\'' +
+                ", url=" + url +
                 '}';
     }
 }

@@ -3,10 +3,10 @@ package com.github.hborders.heathcast.models;
 import java.util.Objects;
 
 public class PodcastSearch {
-    public final String mSearch;
+    public final String search;
 
     public PodcastSearch(String search) {
-        this.mSearch = search;
+        this.search = search;
     }
 
     @Override
@@ -14,18 +14,18 @@ public class PodcastSearch {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PodcastSearch that = (PodcastSearch) o;
-        return mSearch.equals(that.mSearch);
+        return search.equals(that.search);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mSearch);
+        return Objects.hash(search);
     }
 
     @Override
     public String toString() {
         return "PodcastSearch{" +
-                "mSearch='" + mSearch + '\'' +
+                "search='" + search + '\'' +
                 '}';
     }
 }

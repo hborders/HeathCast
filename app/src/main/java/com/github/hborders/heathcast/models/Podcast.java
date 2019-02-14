@@ -7,13 +7,13 @@ import javax.annotation.Nullable;
 
 public final class Podcast {
     @Nullable
-    public final URL mArtworkURL;
+    public final URL artworkURL;
     @Nullable
-    public final String mAuthor;
+    public final String author;
 
-    public final URL mFeedURL;
+    public final URL feedURL;
 
-    public final String mName;
+    public final String name;
 
     public Podcast(
             @Nullable URL artworkURL,
@@ -21,10 +21,10 @@ public final class Podcast {
             URL feedURL,
             String name
     ) {
-        this.mArtworkURL = artworkURL;
-        this.mAuthor = author;
-        this.mFeedURL = feedURL;
-        this.mName = name;
+        this.artworkURL = artworkURL;
+        this.author = author;
+        this.feedURL = feedURL;
+        this.name = name;
     }
 
     @Override
@@ -32,24 +32,24 @@ public final class Podcast {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Podcast podcast = (Podcast) o;
-        return Objects.equals(mArtworkURL, podcast.mArtworkURL) &&
-                Objects.equals(mAuthor, podcast.mAuthor) &&
-                mFeedURL.equals(podcast.mFeedURL) &&
-                mName.equals(podcast.mName);
+        return Objects.equals(artworkURL, podcast.artworkURL) &&
+                Objects.equals(author, podcast.author) &&
+                feedURL.equals(podcast.feedURL) &&
+                name.equals(podcast.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mArtworkURL, mAuthor, mFeedURL, mName);
+        return Objects.hash(artworkURL, author, feedURL, name);
     }
 
     @Override
     public String toString() {
         return "Podcast{" +
-                "mArtworkURL=" + mArtworkURL +
-                ", mAuthor='" + mAuthor + '\'' +
-                ", mFeedURL=" + mFeedURL +
-                ", mName='" + mName + '\'' +
+                "artworkURL=" + artworkURL +
+                ", author='" + author + '\'' +
+                ", feedURL=" + feedURL +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

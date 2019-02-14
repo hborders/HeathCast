@@ -39,12 +39,8 @@ final class EpisodeTable extends Table {
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
 
-    private final BriteDatabase mBriteDatabase;
-
     EpisodeTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
-
-        mBriteDatabase = briteDatabase;
     }
 
     static void createEpisodeTable(SupportSQLiteDatabase db) {
@@ -82,11 +78,11 @@ final class EpisodeTable extends Table {
     static ContentValues getEpisodeContentValues(Episode episode) {
         final ContentValues values = new ContentValues(7);
 
-        putURLAsString(values, ARTWORK_URL, episode.mArtworkURL);
-        putDurationAsLong(values, DURATION, episode.mDuration);
-        values.put(SUMMARY, episode.mSummary);
-        values.put(TITLE, episode.mTitle);
-        putURLAsString(values, URL, episode.mURL);
+        putURLAsString(values, ARTWORK_URL, episode.artworkURL);
+        putDurationAsLong(values, DURATION, episode.duration);
+        values.put(SUMMARY, episode.summary);
+        values.put(TITLE, episode.title);
+        putURLAsString(values, URL, episode.url);
 
         return values;
     }
@@ -95,7 +91,7 @@ final class EpisodeTable extends Table {
             Identified<Episode> identifiedEpisode,
             @Nullable Identifier<Podcast> podcastIdentifier
     ) {
-        final ContentValues values = getEpisodeContentValues(identifiedEpisode.mModel);
+        final ContentValues values = getEpisodeContentValues(identifiedEpisode.model);
 
         putIdentifier(values, ID, identifiedEpisode);
         if (podcastIdentifier != null) {

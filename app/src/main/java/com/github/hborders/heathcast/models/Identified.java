@@ -3,15 +3,15 @@ package com.github.hborders.heathcast.models;
 import java.util.Objects;
 
 public final class Identified<M> {
-    public final Identifier<M> mIdentifier;
-    public final M mModel;
+    public final Identifier<M> identifier;
+    public final M model;
 
     public Identified(
-            Identifier<M> mIdentifier,
-            M mModel
+            Identifier<M> identifier,
+            M model
     ) {
-        this.mIdentifier = mIdentifier;
-        this.mModel = mModel;
+        this.identifier = identifier;
+        this.model = model;
     }
 
     @Override
@@ -19,20 +19,20 @@ public final class Identified<M> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Identified<?> that = (Identified<?>) o;
-        return mIdentifier.equals(that.mIdentifier) &&
-                mModel.equals(that.mModel);
+        return identifier.equals(that.identifier) &&
+                model.equals(that.model);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIdentifier, mModel);
+        return Objects.hash(identifier, model);
     }
 
     @Override
     public String toString() {
         return "Identified{" +
-                "mIdentifier=" + mIdentifier +
-                ", mModel=" + mModel +
+                "identifier=" + identifier +
+                ", model=" + model +
                 '}';
     }
 }

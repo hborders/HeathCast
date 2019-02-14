@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.parcelables.IdentifiedPodcastHolder;
+import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
@@ -25,7 +25,7 @@ public final class PodcastListFragment extends Fragment {
     private static final String PODCAST_PARCELABLES_KEY = "podcastParcelables";
 
     @Nullable
-    private PodcastListFragmentListener mListener;
+    private PodcastListFragmentListener listener;
 
     public PodcastListFragment() {
         // Required empty public constructor
@@ -38,8 +38,8 @@ public final class PodcastListFragment extends Fragment {
                 PODCAST_PARCELABLES_KEY,
                 podcasts
                         .stream()
-                .map(IdentifiedPodcastHolder::new)
-                .toArray(IdentifiedPodcastHolder[]::new)
+                .map(PodcastIdentifiedHolder::new)
+                .toArray(PodcastIdentifiedHolder[]::new)
         );
         fragment.setArguments(args);
         return fragment;
@@ -67,14 +67,14 @@ public final class PodcastListFragment extends Fragment {
             @Nullable final List<Identified<Podcast>> identifiedPodcasts =
                     FragmentUtil.getUnparcelableHolderListArgument(
                             this,
-                            IdentifiedPodcastHolder.class,
+                            PodcastIdentifiedHolder.class,
                             PODCAST_PARCELABLES_KEY
                     );
             if (identifiedPodcasts != null) {
                 final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
                         identifiedPodcasts,
                         identifiedPodcast -> {
-                            @Nullable final PodcastListFragmentListener listener = mListener;
+                            @Nullable final PodcastListFragmentListener listener = this.listener;
                             if (listener != null) {
                                 listener.onClick(identifiedPodcast);
                             }
@@ -91,7 +91,7 @@ public final class PodcastListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        mListener = FragmentUtil.requireFragmentListener(
+        listener = FragmentUtil.requireFragmentListener(
                 this,
                 context,
                 PodcastListFragmentListener.class
@@ -102,7 +102,7 @@ public final class PodcastListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
 
-        mListener = null;
+        listener = null;
     }
 
     public interface PodcastListFragmentListener {

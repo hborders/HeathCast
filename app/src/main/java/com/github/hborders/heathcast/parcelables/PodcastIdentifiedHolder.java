@@ -15,18 +15,18 @@ import javax.annotation.Nullable;
 import static com.github.hborders.heathcast.utils.ParcelUtil.readURL;
 import static com.github.hborders.heathcast.utils.ParcelUtil.writeURL;
 
-public final class IdentifiedPodcastHolder implements Parcelable, UnparcelableHolder<Identified<Podcast>> {
+public final class PodcastIdentifiedHolder implements Parcelable, UnparcelableHolder<Identified<Podcast>> {
     @Nullable
-    public final Identified<Podcast> mIdentifiedPodcast;
+    public final Identified<Podcast> podcastIdentified;
 
-    public IdentifiedPodcastHolder(Identified<Podcast> identifiedPodcast) {
-        this.mIdentifiedPodcast = identifiedPodcast;
+    public PodcastIdentifiedHolder(Identified<Podcast> podcastIdentified) {
+        this.podcastIdentified = podcastIdentified;
     }
 
-    private IdentifiedPodcastHolder(Parcel in) {
+    private PodcastIdentifiedHolder(Parcel in) {
         byte zeroIsNull = in.readByte();
         if (zeroIsNull == (byte) 0) {
-            mIdentifiedPodcast = null;
+            podcastIdentified = null;
         } else {
             @Nullable final URL artworkURL = readURL(in);
             @Nullable final String author = in.readString();
@@ -35,7 +35,7 @@ public final class IdentifiedPodcastHolder implements Parcelable, UnparcelableHo
             @Nullable final String name = in.readString();
 
             if (feedURL != null && name != null) {
-                mIdentifiedPodcast = new Identified<>(
+                podcastIdentified = new Identified<>(
                         new Identifier<>(
                                 Podcast.class,
                                 id
@@ -48,7 +48,7 @@ public final class IdentifiedPodcastHolder implements Parcelable, UnparcelableHo
                         )
                 );
             } else {
-                mIdentifiedPodcast = null;
+                podcastIdentified = null;
             }
         }
     }
@@ -57,19 +57,19 @@ public final class IdentifiedPodcastHolder implements Parcelable, UnparcelableHo
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IdentifiedPodcastHolder that = (IdentifiedPodcastHolder) o;
-        return Objects.equals(mIdentifiedPodcast, that.mIdentifiedPodcast);
+        PodcastIdentifiedHolder that = (PodcastIdentifiedHolder) o;
+        return Objects.equals(podcastIdentified, that.podcastIdentified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIdentifiedPodcast);
+        return Objects.hash(podcastIdentified);
     }
 
     @Override
     public String toString() {
-        return "IdentifiedPodcastHolder{" +
-                "mIdentifiedPodcast=" + mIdentifiedPodcast +
+        return "PodcastIdentifiedHolder{" +
+                "podcastIdentified=" + podcastIdentified +
                 '}';
     }
 
@@ -80,34 +80,34 @@ public final class IdentifiedPodcastHolder implements Parcelable, UnparcelableHo
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (mIdentifiedPodcast == null) {
+        if (podcastIdentified == null) {
             dest.writeByte((byte) 0);
         } else {
             dest.writeByte((byte) 1);
 
-            writeURL(dest, mIdentifiedPodcast.mModel.mArtworkURL);
-            dest.writeString(mIdentifiedPodcast.mModel.mAuthor);
-            dest.writeLong(mIdentifiedPodcast.mIdentifier.mId);
-            writeURL(dest, mIdentifiedPodcast.mModel.mFeedURL);
-            dest.writeString(mIdentifiedPodcast.mModel.mName);
+            writeURL(dest, podcastIdentified.model.artworkURL);
+            dest.writeString(podcastIdentified.model.author);
+            dest.writeLong(podcastIdentified.identifier.id);
+            writeURL(dest, podcastIdentified.model.feedURL);
+            dest.writeString(podcastIdentified.model.name);
         }
     }
 
     @Nullable
     @Override
     public Identified<Podcast> getUnparcelable() {
-        return mIdentifiedPodcast;
+        return podcastIdentified;
     }
 
-    public static final Creator<IdentifiedPodcastHolder> CREATOR = new Creator<IdentifiedPodcastHolder>() {
+    public static final Creator<PodcastIdentifiedHolder> CREATOR = new Creator<PodcastIdentifiedHolder>() {
         @Override
-        public IdentifiedPodcastHolder createFromParcel(Parcel in) {
-            return new IdentifiedPodcastHolder(in);
+        public PodcastIdentifiedHolder createFromParcel(Parcel in) {
+            return new PodcastIdentifiedHolder(in);
         }
 
         @Override
-        public IdentifiedPodcastHolder[] newArray(int size) {
-            return new IdentifiedPodcastHolder[size];
+        public PodcastIdentifiedHolder[] newArray(int size) {
+            return new PodcastIdentifiedHolder[size];
         }
     };
 }

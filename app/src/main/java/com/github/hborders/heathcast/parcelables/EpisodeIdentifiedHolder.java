@@ -18,18 +18,18 @@ import static com.github.hborders.heathcast.utils.ParcelUtil.readURL;
 import static com.github.hborders.heathcast.utils.ParcelUtil.writeDuration;
 import static com.github.hborders.heathcast.utils.ParcelUtil.writeURL;
 
-public final class IdentifiedEpisodeHolder implements Parcelable, UnparcelableHolder<Identified<Episode>> {
+public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHolder<Identified<Episode>> {
     @Nullable
-    public final Identified<Episode> mIdentifiedEpisode;
+    public final Identified<Episode> episodeIdentified;
 
-    public IdentifiedEpisodeHolder(Identified<Episode> identifiedEpisode) {
-        this.mIdentifiedEpisode = identifiedEpisode;
+    public EpisodeIdentifiedHolder(Identified<Episode> episodeIdentified) {
+        this.episodeIdentified = episodeIdentified;
     }
 
-    private IdentifiedEpisodeHolder(Parcel in) {
+    private EpisodeIdentifiedHolder(Parcel in) {
         byte zeroIsNull = in.readByte();
         if (zeroIsNull == (byte) 0) {
-            mIdentifiedEpisode = null;
+            episodeIdentified = null;
         } else {
             @Nullable final URL artworkURL = readURL(in);
             @Nullable final Duration duration = readDuration(in);
@@ -38,7 +38,7 @@ public final class IdentifiedEpisodeHolder implements Parcelable, UnparcelableHo
             @Nullable final String title = in.readString();
             @Nullable final URL url = readURL(in);
             if (title != null && url != null) {
-                mIdentifiedEpisode = new Identified<>(
+                episodeIdentified = new Identified<>(
                         new Identifier<>(
                                 Episode.class,
                                 id
@@ -52,7 +52,7 @@ public final class IdentifiedEpisodeHolder implements Parcelable, UnparcelableHo
                         )
                 );
             } else {
-                mIdentifiedEpisode = null;
+                episodeIdentified = null;
             }
         }
     }
@@ -61,19 +61,19 @@ public final class IdentifiedEpisodeHolder implements Parcelable, UnparcelableHo
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IdentifiedEpisodeHolder that = (IdentifiedEpisodeHolder) o;
-        return Objects.equals(mIdentifiedEpisode, that.mIdentifiedEpisode);
+        EpisodeIdentifiedHolder that = (EpisodeIdentifiedHolder) o;
+        return Objects.equals(episodeIdentified, that.episodeIdentified);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIdentifiedEpisode);
+        return Objects.hash(episodeIdentified);
     }
 
     @Override
     public String toString() {
-        return "IdentifiedEpisodeHolder{" +
-                "mIdentifiedEpisode=" + mIdentifiedEpisode +
+        return "EpisodeIdentifiedHolder{" +
+                "episodeIdentified=" + episodeIdentified +
                 '}';
     }
 
@@ -84,35 +84,35 @@ public final class IdentifiedEpisodeHolder implements Parcelable, UnparcelableHo
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (mIdentifiedEpisode == null) {
+        if (episodeIdentified == null) {
             dest.writeByte((byte) 0);
         } else {
             dest.writeByte((byte) 1);
 
-            writeURL(dest, mIdentifiedEpisode.mModel.mArtworkURL);
-            writeDuration(dest, mIdentifiedEpisode.mModel.mDuration);
-            dest.writeLong(mIdentifiedEpisode.mIdentifier.mId);
-            dest.writeString(mIdentifiedEpisode.mModel.mSummary);
-            dest.writeString(mIdentifiedEpisode.mModel.mTitle);
-            writeURL(dest, mIdentifiedEpisode.mModel.mURL);
+            writeURL(dest, episodeIdentified.model.artworkURL);
+            writeDuration(dest, episodeIdentified.model.duration);
+            dest.writeLong(episodeIdentified.identifier.id);
+            dest.writeString(episodeIdentified.model.summary);
+            dest.writeString(episodeIdentified.model.title);
+            writeURL(dest, episodeIdentified.model.url);
         }
     }
 
     @Nullable
     @Override
     public Identified<Episode> getUnparcelable() {
-        return mIdentifiedEpisode;
+        return episodeIdentified;
     }
 
-    public static final Creator<IdentifiedEpisodeHolder> CREATOR = new Creator<IdentifiedEpisodeHolder>() {
+    public static final Creator<EpisodeIdentifiedHolder> CREATOR = new Creator<EpisodeIdentifiedHolder>() {
         @Override
-        public IdentifiedEpisodeHolder createFromParcel(Parcel in) {
-            return new IdentifiedEpisodeHolder(in);
+        public EpisodeIdentifiedHolder createFromParcel(Parcel in) {
+            return new EpisodeIdentifiedHolder(in);
         }
 
         @Override
-        public IdentifiedEpisodeHolder[] newArray(int size) {
-            return new IdentifiedEpisodeHolder[size];
+        public EpisodeIdentifiedHolder[] newArray(int size) {
+            return new EpisodeIdentifiedHolder[size];
         }
     };
 }

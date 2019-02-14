@@ -23,12 +23,8 @@ final class PodcastSearchResultTable extends Table {
     private static final String PODCAST_SEARCH_ID = FOREIGN_KEY_PODCAST_SEARCH;
     private static final String SORT = "sort";
 
-    private final BriteDatabase mBriteDatabase;
-
     PodcastSearchResultTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
-
-        mBriteDatabase = briteDatabase;
     }
 
     static void createPodcastSearchResultTable(SupportSQLiteDatabase db) {
@@ -52,11 +48,11 @@ final class PodcastSearchResultTable extends Table {
             int sort
     ) {
         final ContentValues values = new ContentValues(3);
-        values.put(PODCAST_ID, podcast.mId);
-        values.put(PODCAST_SEARCH_ID, podcastSearchIdentifier.mId);
+        values.put(PODCAST_ID, podcast.id);
+        values.put(PODCAST_SEARCH_ID, podcastSearchIdentifier.id);
         values.put(SORT, sort);
 
-        return mBriteDatabase.insert(
+        return briteDatabase.insert(
                 TABLE_PODCAST_SEARCH_RESULT,
                 CONFLICT_ABORT,
                 values

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.parcelables.IdentifiedEpisodeHolder;
+import com.github.hborders.heathcast.parcelables.EpisodeIdentifiedHolder;
 import com.github.hborders.heathcast.utils.FragmentUtil;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
 
@@ -25,7 +25,7 @@ public final class EpisodeListFragment extends Fragment {
     private static final String EPISODE_PARCELABLES_KEY = "episodeParcelables";
 
     @Nullable
-    private EpisodeListFragmentListener mListener;
+    private EpisodeListFragmentListener listener;
 
     public EpisodeListFragment() {
         // Required empty public constructor
@@ -38,8 +38,8 @@ public final class EpisodeListFragment extends Fragment {
                 EPISODE_PARCELABLES_KEY,
                 identifiedEpisodes
         .stream()
-        .map(IdentifiedEpisodeHolder::new)
-        .toArray(IdentifiedEpisodeHolder[]::new));
+        .map(EpisodeIdentifiedHolder::new)
+        .toArray(EpisodeIdentifiedHolder[]::new));
         fragment.setArguments(args);
         return fragment;
     }
@@ -65,14 +65,14 @@ public final class EpisodeListFragment extends Fragment {
             @Nullable final List<Identified<Episode>> identifiedEpisodes =
                     FragmentUtil.getUnparcelableHolderListArgument(
                             this,
-                            IdentifiedEpisodeHolder.class,
+                            EpisodeIdentifiedHolder.class,
                             EPISODE_PARCELABLES_KEY
                     );
             if (identifiedEpisodes != null) {
                 final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(
                         identifiedEpisodes,
                         identifiedEpisode -> {
-                            @Nullable final EpisodeListFragment.EpisodeListFragmentListener listener = mListener;
+                            @Nullable final EpisodeListFragment.EpisodeListFragmentListener listener = this.listener;
                             if (listener != null) {
                                 listener.onClick(identifiedEpisode);
                             }
@@ -89,7 +89,7 @@ public final class EpisodeListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        mListener = FragmentUtil.requireFragmentListener(
+        listener = FragmentUtil.requireFragmentListener(
                 this,
                 context,
                 EpisodeListFragment.EpisodeListFragmentListener.class
@@ -100,7 +100,7 @@ public final class EpisodeListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
 
-        mListener = null;
+        listener = null;
     }
 
     public interface EpisodeListFragmentListener {

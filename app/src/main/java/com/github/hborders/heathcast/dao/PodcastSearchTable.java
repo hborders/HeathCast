@@ -32,17 +32,13 @@ final class PodcastSearchTable extends Table {
     static final String CREATE_FOREIGN_KEY_PODCAST_SEARCH =
             "FOREIGN KEY(" + FOREIGN_KEY_PODCAST_SEARCH + ") REFERENCES " + TABLE_PODCAST_SEARCH + "(" + ID + ")";
 
-    private final BriteDatabase mBriteDatabase;
-
     PodcastSearchTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
-
-        mBriteDatabase = briteDatabase;
     }
 
     @Nullable
     public Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
-        final long id = mBriteDatabase.insert(
+        final long id = briteDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_IGNORE,
                 getPodcastSearchContentValues(podcastSearch)
@@ -71,11 +67,11 @@ final class PodcastSearchTable extends Table {
                         .selection(
                                 ID + "= ?",
                                 new Object[]{
-                                        podcastSearchIdentifier.mId
+                                        podcastSearchIdentifier.id
                                 }
                         ).create();
 
-        return mBriteDatabase
+        return briteDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
                 .mapToOptional(PodcastSearchTable::getIdentifiedPodcastSearch);
     }
@@ -102,12 +98,12 @@ final class PodcastSearchTable extends Table {
 
     static ContentValues getPodcastSearchContentValues(PodcastSearch podcastSearch) {
         final ContentValues values = new ContentValues(2);
-        values.put(SEARCH, podcastSearch.mSearch);
+        values.put(SEARCH, podcastSearch.search);
         return values;
     }
 
     static ContentValues getIdentifiedPodcastSearchContentValues(Identified<PodcastSearch> identifiedPodcastSearch) {
-        final ContentValues values = getPodcastSearchContentValues(identifiedPodcastSearch.mModel);
+        final ContentValues values = getPodcastSearchContentValues(identifiedPodcastSearch.model);
 
         putIdentifier(values, ID, identifiedPodcastSearch);
 

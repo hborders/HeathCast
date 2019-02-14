@@ -29,9 +29,9 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     private static final String PODCAST_LIST_FRAGMENT_TAG = "podcastList";
 
     @Nullable
-    private PodcastSearchFragmentListener mListener;
+    private PodcastSearchFragmentListener listener;
     @Nullable
-    private Disposable mPodcastSearchDisposable;
+    private Disposable podcastSearchDisposable;
 
     public PodcastSearchFragment() {
         // Required empty public constructor
@@ -79,11 +79,11 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     searchView.clearFocus();
-                    @Nullable final Disposable oldDisposable = mPodcastSearchDisposable;
+                    @Nullable final Disposable oldDisposable = podcastSearchDisposable;
                     if (oldDisposable != null) {
                         oldDisposable.dispose();
                     }
-                    mPodcastSearchDisposable = PodcastService.instance.
+                    podcastSearchDisposable = PodcastService.instance.
                             searchForPodcasts(query).
                             observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
@@ -139,7 +139,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
 
     @Override
     public void onDestroyView() {
-        @Nullable final Disposable podcastSearchDisposable = mPodcastSearchDisposable;
+        @Nullable final Disposable podcastSearchDisposable = this.podcastSearchDisposable;
         if (podcastSearchDisposable != null) {
             podcastSearchDisposable.dispose();
         }
@@ -151,7 +151,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        mListener = FragmentUtil.requireContextFragmentListener(
+        listener = FragmentUtil.requireContextFragmentListener(
                 context,
                 PodcastSearchFragmentListener.class);
     }
@@ -160,7 +160,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     public void onDetach() {
         super.onDetach();
 
-        mListener = null;
+        listener = null;
     }
 
     @Override

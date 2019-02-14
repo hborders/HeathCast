@@ -3,15 +3,15 @@ package com.github.hborders.heathcast.models;
 import java.util.Objects;
 
 public final class Identifier<T> {
-    public final Class<T> mClass;
-    public final long mId;
+    public final Class<T> reifiedClass;
+    public final long id;
 
     public Identifier(
-            Class<T> mClass,
-            long mId
+            Class<T> reifiedClass,
+            long id
     ) {
-        this.mClass = mClass;
-        this.mId = mId;
+        this.reifiedClass = reifiedClass;
+        this.id = id;
     }
 
     @Override
@@ -19,20 +19,20 @@ public final class Identifier<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Identifier<?> that = (Identifier<?>) o;
-        return mId == that.mId &&
-                mClass.equals(that.mClass);
+        return id == that.id &&
+                reifiedClass.equals(that.reifiedClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mClass, mId);
+        return Objects.hash(reifiedClass, id);
     }
 
     @Override
     public String toString() {
         return "Identifier{" +
-                "mClass=" + mClass +
-                ", mId=" + mId +
+                "reifiedClass=" + reifiedClass +
+                ", id=" + id +
                 '}';
     }
 }

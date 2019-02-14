@@ -41,13 +41,13 @@ public final class DatabaseTest {
     public void testInsertPodcastSearch() {
         final PodcastSearch podcastSearch = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
-                testObject.mPodcastSearchTable.insertPodcastSearch(podcastSearch);
+                testObject.podcastSearchTable.insertPodcastSearch(podcastSearch);
         if (podcastSearchIdentifier1 == null) {
             fail();
         } else {
             final TestObserver<Optional<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
             testObject
-                    .mPodcastSearchTable
+                    .podcastSearchTable
                     .observeQueryForPodcastSearch(podcastSearchIdentifier1)
                     .subscribe(podcastSearchTestObserver);
 
@@ -66,12 +66,12 @@ public final class DatabaseTest {
     public void testInsertPodcastSearchTwiceIgnoresSecondInsertAndReturnsFirstIdentifier() {
         final PodcastSearch podcastSearch = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
-                testObject.mPodcastSearchTable.insertPodcastSearch(podcastSearch);
+                testObject.podcastSearchTable.insertPodcastSearch(podcastSearch);
         if (podcastSearchIdentifier1 == null) {
             fail();
         } else {
             @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
-                    testObject.mPodcastSearchTable.insertPodcastSearch(podcastSearch);
+                    testObject.podcastSearchTable.insertPodcastSearch(podcastSearch);
             assertEquals(
                     podcastSearchIdentifier1,
                     podcastSearchIdentifier2
@@ -79,7 +79,7 @@ public final class DatabaseTest {
 
             final TestObserver<Optional<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
             testObject
-                    .mPodcastSearchTable
+                    .podcastSearchTable
                     .observeQueryForPodcastSearch(podcastSearchIdentifier1)
                     .subscribe(podcastSearchTestObserver);
             podcastSearchTestObserver.assertValue(
@@ -102,7 +102,7 @@ public final class DatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                testObject.mPodcastTable.insertPodcast(
+                testObject.podcastTable.insertPodcast(
                         podcast
                 );
         if (podcastIdentifier == null) {
@@ -110,7 +110,7 @@ public final class DatabaseTest {
         } else {
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             testObject
-                    .mPodcastTable
+                    .podcastTable
                     .observeQueryForPodcast(podcastIdentifier)
                     .subscribe(podcastTestObserver);
 
@@ -128,7 +128,7 @@ public final class DatabaseTest {
     @Test
     public void testInsertPodcastWithSameFeedUpdatesFirstPodcast() throws Exception {
         @Nullable final Identifier<Podcast> podcastIdentifier1 =
-                testObject.mPodcastTable.insertPodcast(
+                testObject.podcastTable.insertPodcast(
                         new Podcast(
                                 new URL("http://example.com/artwork"),
                                 "author",
@@ -146,7 +146,7 @@ public final class DatabaseTest {
                     "name2"
             );
             @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                    testObject.mPodcastTable.insertPodcast(
+                    testObject.podcastTable.insertPodcast(
                             podcast2
                     );
 //            assertEquals(
@@ -156,7 +156,7 @@ public final class DatabaseTest {
 
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             testObject
-                    .mPodcastTable
+                    .podcastTable
                     .observeQueryForPodcast(podcastIdentifier1)
                     .subscribe(podcastTestObserver);
 

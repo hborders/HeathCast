@@ -54,16 +54,12 @@ final class PodcastTable extends Table {
             FEED_URL,
     };
 
-    private final BriteDatabase mBriteDatabase;
-
     PodcastTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
-
-        mBriteDatabase = briteDatabase;
     }
 
     public Identifier<Podcast> insertPodcast(Podcast podcast) {
-        final long id = mBriteDatabase.insert(
+        final long id = briteDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastContentValues(podcast)
@@ -79,12 +75,12 @@ final class PodcastTable extends Table {
     }
 
     public int updateIdentifiedPodcast(Identified<Podcast> identifiedPodcast) {
-        return mBriteDatabase.update(
+        return briteDatabase.update(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getIdentifiedPodcastContentValues(identifiedPodcast),
                 ID + " = ?",
-                Long.toString(identifiedPodcast.mIdentifier.mId)
+                Long.toString(identifiedPodcast.identifier.id)
         );
     }
 
@@ -92,13 +88,13 @@ final class PodcastTable extends Table {
         if (podcasts.isEmpty()) {
             return Collections.emptyList();
         } else {
-            mBriteDatabase.getWritableDatabase().beginTransaction();
+            briteDatabase.getWritableDatabase().beginTransaction();
 
             final Map<String, Set<NonnullPair<Integer, Podcast>>> indexPodcastSetsByFeedURLString =
                     indexedStream(podcasts)
                             .collect(
                                     Collectors.toMap(
-                                            indexedPodcast -> indexedPodcast.mSecond.mFeedURL.toExternalForm(),
+                                            indexedPodcast -> indexedPodcast.mSecond.feedURL.toExternalForm(),
                                             indexedPodcast -> Collections.singleton(
                                                     new NonnullPair<>(
                                                             indexedPodcast.mFirst,
@@ -119,7 +115,7 @@ final class PodcastTable extends Table {
                                     EMPTY_BIND_ARGS
                             )
                             .create();
-            final Cursor podcastIdAndFeedURLCursor = mBriteDatabase.getWritableDatabase().query(query);
+            final Cursor podcastIdAndFeedURLCursor = briteDatabase.getWritableDatabase().query(query);
             final HashSet<String> insertingPodcastFeedURLStrings = new HashSet<>(indexPodcastSetsByFeedURLString.keySet());
             final List<Identified<Podcast>> updatingIdentifiedPodcasts = new ArrayList<>(podcasts.size());
             while (podcastIdAndFeedURLCursor.moveToNext()) {
@@ -137,7 +133,7 @@ final class PodcastTable extends Table {
                     throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
                 } else {
                     final Podcast podcast = indexPodcastSet.iterator().next().mSecond;
-                    insertingPodcastFeedURLStrings.remove(podcast.mFeedURL.toExternalForm());
+                    insertingPodcastFeedURLStrings.remove(podcast.feedURL.toExternalForm());
                     updatingIdentifiedPodcasts.add(
                             new Identified<>(
                                     new Identifier<>(
@@ -176,7 +172,7 @@ final class PodcastTable extends Table {
             for (final Identified<Podcast> updatingIdentifiedPodcast : updatingIdentifiedPodcasts) {
                 final int rowCount = updateIdentifiedPodcast(updatingIdentifiedPodcast);
                 if (rowCount == 1) {
-                    final String feedURLString = updatingIdentifiedPodcast.mModel.mFeedURL.toExternalForm();
+                    final String feedURLString = updatingIdentifiedPodcast.model.feedURL.toExternalForm();
                     @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
                             indexPodcastSetsByFeedURLString.get(feedURLString);
                     if (indexedPodcastSet == null) {
@@ -185,14 +181,14 @@ final class PodcastTable extends Table {
                         for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
                             upsertedPodcastIdentifiers.set(
                                     indexedPodcast.mFirst,
-                                    Optional.of(updatingIdentifiedPodcast.mIdentifier)
+                                    Optional.of(updatingIdentifiedPodcast.identifier)
                             );
                         }
                     }
                 }
             }
 
-            mBriteDatabase.getWritableDatabase().endTransaction();
+            briteDatabase.getWritableDatabase().endTransaction();
 
             return upsertedPodcastIdentifiers;
         }
@@ -216,11 +212,11 @@ final class PodcastTable extends Table {
                         .selection(
                                 ID + "= ?",
                                 new Object[]{
-                                        podcastIdentifier.mId
+                                        podcastIdentifier.id
                                 }
                         ).create();
 
-        return mBriteDatabase
+        return briteDatabase
                 .createQuery(TABLE_PODCAST, query)
                 .mapToOptional(PodcastTable::getIdentifiedPodcast);
     }
@@ -254,16 +250,16 @@ final class PodcastTable extends Table {
     static ContentValues getPodcastContentValues(Podcast podcast) {
         final ContentValues values = new ContentValues(5);
 
-        putURLAsString(values, ARTWORK_URL, podcast.mArtworkURL);
-        values.put(AUTHOR, podcast.mAuthor);
-        putURLAsString(values, FEED_URL, podcast.mFeedURL);
-        values.put(NAME, podcast.mName);
+        putURLAsString(values, ARTWORK_URL, podcast.artworkURL);
+        values.put(AUTHOR, podcast.author);
+        putURLAsString(values, FEED_URL, podcast.feedURL);
+        values.put(NAME, podcast.name);
 
         return values;
     }
 
     static ContentValues getIdentifiedPodcastContentValues(Identified<Podcast> identifiedPodcast) {
-        final ContentValues values = getPodcastContentValues(identifiedPodcast.mModel);
+        final ContentValues values = getPodcastContentValues(identifiedPodcast.model);
         putIdentifier(values, ID, identifiedPodcast);
         return values;
     }

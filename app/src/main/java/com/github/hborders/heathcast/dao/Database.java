@@ -21,12 +21,12 @@ import javax.annotation.Nullable;
 import io.reactivex.Scheduler;
 
 public final class Database {
-    private final BriteDatabase mBriteDatabase;
-    public final PodcastSearchTable mPodcastSearchTable;
-    public final PodcastTable mPodcastTable;
-    public final EpisodeTable mEpisodeTable;
-    public final PodcastSearchResultTable mPodcastSearchResultTable;
-    public final PodcastEpisodeListTable mPodcastEpisodeListTable;
+    private final BriteDatabase briteDatabase;
+    public final PodcastSearchTable podcastSearchTable;
+    public final PodcastTable podcastTable;
+    public final EpisodeTable episodeTable;
+    public final PodcastSearchResultTable podcastSearchResultTable;
+    public final PodcastEpisodeListTable podcastEpisodeListTable;
 
     public Database(
             Context context,
@@ -41,28 +41,28 @@ public final class Database {
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
         final SupportSQLiteOpenHelper supportSQLiteOpenHelper = factory.create(configuration);
         final SqlBrite sqlBrite = new SqlBrite.Builder().build();
-        mBriteDatabase = sqlBrite.wrapDatabaseHelper(
+        briteDatabase = sqlBrite.wrapDatabaseHelper(
                 supportSQLiteOpenHelper,
                 scheduler
         );
-        mPodcastSearchTable = new PodcastSearchTable(mBriteDatabase);
-        mPodcastTable = new PodcastTable(mBriteDatabase);
-        mEpisodeTable = new EpisodeTable(mBriteDatabase);
-        mPodcastSearchResultTable = new PodcastSearchResultTable(mBriteDatabase);
-        mPodcastEpisodeListTable = new PodcastEpisodeListTable(mBriteDatabase);
+        podcastSearchTable = new PodcastSearchTable(briteDatabase);
+        podcastTable = new PodcastTable(briteDatabase);
+        episodeTable = new EpisodeTable(briteDatabase);
+        podcastSearchResultTable = new PodcastSearchResultTable(briteDatabase);
+        podcastEpisodeListTable = new PodcastEpisodeListTable(briteDatabase);
     }
 
     public void replacePodcastSearchResults(
             PodcastSearch podcastSearch,
             List<Podcast> podcasts
     ) {
-        mBriteDatabase.getWritableDatabase().beginTransaction();
-        mPodcastSearchTable.insertPodcastSearch(podcastSearch);
+        briteDatabase.getWritableDatabase().beginTransaction();
+        podcastSearchTable.insertPodcastSearch(podcastSearch);
         for (Podcast podcast : podcasts) {
 
         }
 
-        mBriteDatabase.getWritableDatabase().endTransaction();
+        briteDatabase.getWritableDatabase().endTransaction();
     }
 
     static final class Schema extends Callback {

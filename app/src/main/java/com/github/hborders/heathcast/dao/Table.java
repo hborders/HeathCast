@@ -9,17 +9,17 @@ import com.squareup.sqlbrite3.BriteDatabase;
 abstract class Table {
     protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
 
-    protected final BriteDatabase mBriteDatabase;
+    protected final BriteDatabase briteDatabase;
 
     protected Table(BriteDatabase briteDatabase) {
-        this.mBriteDatabase = briteDatabase;
+        this.briteDatabase = briteDatabase;
     }
 
     protected static void putIdentifier(ContentValues contentValues, String key, Identified<?> identified) {
-        putIdentifier(contentValues, key, identified.mIdentifier);
+        putIdentifier(contentValues, key, identified.identifier);
     }
 
     protected static void putIdentifier(ContentValues contentValues, String key, Identifier<?> identifier) {
-        contentValues.put(key, identifier.mId);
+        contentValues.put(key, identifier.id);
     }
 }
