@@ -14,7 +14,10 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 import javax.annotation.Nullable;
 
@@ -22,6 +25,7 @@ import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -126,7 +130,56 @@ public final class DatabaseTest {
     }
 
     @Test
-    public void testInsertPodcastWithSameFeedUpdatesFirstPodcast() throws Exception {
+    public void testInsertPodcasTwiceThrowsAndDoesntModifyPodcasts() throws Exception {
+        Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork"),
+                "author",
+                new URL("http://example.com/feed"),
+                "name"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                testObject.podcastTable.insertPodcast(
+                        podcast1
+                );
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else {
+            @Nullable final Identifier<Podcast> podcastIdentifier2 =
+                    ((Callable<Identifier<Podcast>>) () -> {
+                        final Podcast podcast2 = new Podcast(
+                                new URL("http://example.com/artwork2"),
+                                "author2",
+                                new URL("http://example.com/feed"),
+                                "name2"
+                        );
+                        try {
+                            return testObject.podcastTable.insertPodcast(podcast2);
+                        } catch (Throwable t) {
+                            return null;
+                        }
+                    }).call();
+
+            assertNull(podcastIdentifier2);
+
+            final TestObserver<List<Identified<Podcast>>> allPodcastsTestObserver = new TestObserver<>();
+            testObject
+                    .podcastTable
+                    .observeQueryForAllPodcasts()
+                    .subscribe(allPodcastsTestObserver);
+
+            allPodcastsTestObserver.assertValue(
+                    Collections.singletonList(
+                            new Identified<>(
+                                    podcastIdentifier1,
+                                    podcast1
+                            )
+                    )
+            );
+        }
+    }
+
+    @Test
+    public void testUpsertPodcastWithSameFeedUpdatesFirstPodcast() throws Exception {
         @Nullable final Identifier<Podcast> podcastIdentifier1 =
                 testObject.podcastTable.insertPodcast(
                         new Podcast(
@@ -146,13 +199,11 @@ public final class DatabaseTest {
                     "name2"
             );
             @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                    testObject.podcastTable.insertPodcast(
-                            podcast2
-                    );
-//            assertEquals(
-//                    podcastIdentifier1,
-//                    podcastIdentifier2
-//            );
+                    testObject.podcastTable.upsertPodcast(podcast2);
+            assertEquals(
+                    podcastIdentifier1,
+                    podcastIdentifier2
+            );
 
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             testObject
@@ -163,7 +214,65 @@ public final class DatabaseTest {
             podcastTestObserver.assertValue(
                     Optional.of(
                             new Identified<>(
-                                    podcastIdentifier2,
+                                    podcastIdentifier1,
+                                    podcast2
+                            )
+                    )
+            );
+        }
+    }
+
+    @Test
+    public void testUpsertPodcastWithSameFeedTwiceTogetherUpdatesFirstPodcastWithFirstUpsert() throws Exception {
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                testObject.podcastTable.insertPodcast(
+                        new Podcast(
+                                new URL("http://example.com/artwork"),
+                                "author",
+                                new URL("http://example.com/feed"),
+                                "name"
+                        )
+                );
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else {
+            final Podcast podcast2 = new Podcast(
+                    new URL("http://example.com/artwork2"),
+                    "author2",
+                    new URL("http://example.com/feed"),
+                    "name2"
+            );
+            final Podcast podcast3 = new Podcast(
+                    new URL("http://example.com/artwork3"),
+                    "author3",
+                    new URL("http://example.com/feed"),
+                    "name3"
+            );
+            final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
+                    testObject.podcastTable.upsertPodcasts(
+                            Arrays.asList(
+                                    podcast2,
+                                    podcast3
+                            )
+                    );
+            assertEquals(
+                    Arrays.asList(
+                            Optional.of(podcastIdentifier1),
+                            Optional.of(podcastIdentifier1)
+                    ),
+                    upsertedPodcastIdentifiers
+            );
+
+            final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            testObject
+                    .podcastTable
+                    .observeQueryForPodcast(podcastIdentifier1)
+                    .subscribe(podcastTestObserver);
+
+            podcastTestObserver.assertValue(
+                    Optional.of(
+                            new Identified<>(
+                                    podcastIdentifier1,
                                     podcast2
                             )
                     )

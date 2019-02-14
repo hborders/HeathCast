@@ -2,6 +2,7 @@ package com.github.hborders.heathcast.dao;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
@@ -58,6 +59,7 @@ final class PodcastTable extends Table {
         super(briteDatabase);
     }
 
+    @Nullable
     public Identifier<Podcast> insertPodcast(Podcast podcast) {
         final long id = briteDatabase.insert(
                 TABLE_PODCAST,
@@ -84,114 +86,154 @@ final class PodcastTable extends Table {
         );
     }
 
-    public List<Optional<Identifier<Podcast>>> insertOrUpdatePodcasts(List<Podcast> podcasts) {
+    @Nullable
+    public Identifier<Podcast> upsertPodcast(Podcast podcast) {
+        final List<Optional<Identifier<Podcast>>> podcastIdentifierOptionals =
+                upsertPodcasts(Collections.singletonList(podcast));
+        if (podcastIdentifierOptionals.size() == 1) {
+            return podcastIdentifierOptionals.get(0).orElse(null);
+        } else {
+            throw new IllegalStateException("upsertPodcasts should always return the same number of elements as given, but returned: " + podcastIdentifierOptionals);
+        }
+    }
+
+    public List<Optional<Identifier<Podcast>>> upsertPodcasts(List<Podcast> podcasts) {
         if (podcasts.isEmpty()) {
             return Collections.emptyList();
         } else {
-            briteDatabase.getWritableDatabase().beginTransaction();
-
-            final Map<String, Set<NonnullPair<Integer, Podcast>>> indexPodcastSetsByFeedURLString =
-                    indexedStream(podcasts)
-                            .collect(
-                                    Collectors.toMap(
-                                            indexedPodcast -> indexedPodcast.mSecond.feedURL.toExternalForm(),
-                                            indexedPodcast -> Collections.singleton(
-                                                    new NonnullPair<>(
-                                                            indexedPodcast.mFirst,
-                                                            indexedPodcast.mSecond
-                                                    )
-                                            ),
-                                            SetUtil::union
-                                    )
-                            );
-            final String selection =
-                    FEED_URL + " IN (" + String.join(",", indexPodcastSetsByFeedURLString.keySet()) + ")";
-            final SupportSQLiteQuery query =
-                    SupportSQLiteQueryBuilder
-                            .builder(TABLE_PODCAST)
-                            .columns(COLUMNS_ID_FEED_URL)
-                            .selection(
-                                    selection,
-                                    EMPTY_BIND_ARGS
-                            )
-                            .create();
-            final Cursor podcastIdAndFeedURLCursor = briteDatabase.getWritableDatabase().query(query);
-            final HashSet<String> insertingPodcastFeedURLStrings = new HashSet<>(indexPodcastSetsByFeedURLString.keySet());
-            final List<Identified<Podcast>> updatingIdentifiedPodcasts = new ArrayList<>(podcasts.size());
-            while (podcastIdAndFeedURLCursor.moveToNext()) {
-                final long id = CursorUtil.getNonnullLong(
-                        podcastIdAndFeedURLCursor,
-                        ID
-                );
-                final String feedURLString = CursorUtil.getNonnullString(
-                        podcastIdAndFeedURLCursor,
-                        FEED_URL
-                );
-                @Nullable final Set<NonnullPair<Integer, Podcast>> indexPodcastSet =
-                        indexPodcastSetsByFeedURLString.get(feedURLString);
-                if (indexPodcastSet == null) {
-                    throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
-                } else {
-                    final Podcast podcast = indexPodcastSet.iterator().next().mSecond;
-                    insertingPodcastFeedURLStrings.remove(podcast.feedURL.toExternalForm());
-                    updatingIdentifiedPodcasts.add(
-                            new Identified<>(
-                                    new Identifier<>(
-                                            Podcast.class,
-                                            id
-                                    ),
-                                    podcast
-                            )
+            try(final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+                final Map<String, Set<NonnullPair<Integer, Podcast>>> indexPodcastSetsByFeedURLString =
+                        indexedStream(podcasts)
+                                .collect(
+                                        Collectors.toMap(
+                                                indexedPodcast -> indexedPodcast.mSecond.feedURL.toExternalForm(),
+                                                indexedPodcast -> Collections.singleton(
+                                                        new NonnullPair<>(
+                                                                indexedPodcast.mFirst,
+                                                                indexedPodcast.mSecond
+                                                        )
+                                                ),
+                                                SetUtil::union
+                                        )
+                                );
+                final List<String> escapedFeedURLStrings =
+                        indexPodcastSetsByFeedURLString
+                                .keySet()
+                                .stream()
+                                .map(DatabaseUtils::sqlEscapeString)
+                                .collect(Collectors.toList());
+                final String selection =
+                        FEED_URL + " IN (" + String.join(",", escapedFeedURLStrings) + ")";
+                final SupportSQLiteQuery idAndFeedUrlQuery =
+                        SupportSQLiteQueryBuilder
+                                .builder(TABLE_PODCAST)
+                                .columns(COLUMNS_ID_FEED_URL)
+                                .selection(
+                                        selection,
+                                        EMPTY_BIND_ARGS
+                                )
+                                .create();
+                final Cursor podcastIdAndFeedURLCursor = briteDatabase.query(idAndFeedUrlQuery);
+                final HashSet<String> insertingPodcastFeedURLStrings = new HashSet<>(indexPodcastSetsByFeedURLString.keySet());
+                final List<Identified<Podcast>> updatingIdentifiedPodcasts = new ArrayList<>(podcasts.size());
+                while (podcastIdAndFeedURLCursor.moveToNext()) {
+                    final long id = CursorUtil.getNonnullLong(
+                            podcastIdAndFeedURLCursor,
+                            ID
                     );
-                }
-            }
-            podcastIdAndFeedURLCursor.close();
-
-            List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
-                    new ArrayList<>(podcasts.size());
-            Collections.fill(upsertedPodcastIdentifiers, Optional.empty());
-            for (final String feedURLString : insertingPodcastFeedURLStrings) {
-                @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
-                        indexPodcastSetsByFeedURLString.get(feedURLString);
-                if (indexedPodcastSet == null) {
-                    throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
-                } else {
-                    final Podcast podcast = indexedPodcastSet.iterator().next().mSecond;
-                    final @Nullable Identifier<Podcast> podcastIdentifier = insertPodcast(podcast);
-                    if (podcastIdentifier != null) {
-                        for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
-                            upsertedPodcastIdentifiers.set(
-                                    indexedPodcast.mFirst,
-                                    Optional.of(podcastIdentifier)
-                            );
-                        }
+                    final String feedURLString = CursorUtil.getNonnullString(
+                            podcastIdAndFeedURLCursor,
+                            FEED_URL
+                    );
+                    @Nullable final Set<NonnullPair<Integer, Podcast>> indexPodcastSet =
+                            indexPodcastSetsByFeedURLString.get(feedURLString);
+                    if (indexPodcastSet == null) {
+                        throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
+                    } else {
+                        final Podcast podcast = indexPodcastSet.iterator().next().mSecond;
+                        insertingPodcastFeedURLStrings.remove(podcast.feedURL.toExternalForm());
+                        updatingIdentifiedPodcasts.add(
+                                new Identified<>(
+                                        new Identifier<>(
+                                                Podcast.class,
+                                                id
+                                        ),
+                                        podcast
+                                )
+                        );
                     }
                 }
-            }
+                podcastIdAndFeedURLCursor.close();
 
-            for (final Identified<Podcast> updatingIdentifiedPodcast : updatingIdentifiedPodcasts) {
-                final int rowCount = updateIdentifiedPodcast(updatingIdentifiedPodcast);
-                if (rowCount == 1) {
-                    final String feedURLString = updatingIdentifiedPodcast.model.feedURL.toExternalForm();
+                List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
+                        new ArrayList<>(
+                                Collections.nCopies(
+                                        podcasts.size(),
+                                        Optional.empty()
+                                )
+                        );
+                for (final String feedURLString : insertingPodcastFeedURLStrings) {
                     @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
                             indexPodcastSetsByFeedURLString.get(feedURLString);
                     if (indexedPodcastSet == null) {
                         throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
                     } else {
-                        for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
-                            upsertedPodcastIdentifiers.set(
-                                    indexedPodcast.mFirst,
-                                    Optional.of(updatingIdentifiedPodcast.identifier)
-                            );
+                        final Podcast podcast = indexedPodcastSet.iterator().next().mSecond;
+                        final @Nullable Identifier<Podcast> podcastIdentifier = insertPodcast(podcast);
+                        if (podcastIdentifier != null) {
+                            for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
+                                upsertedPodcastIdentifiers.set(
+                                        indexedPodcast.mFirst,
+                                        Optional.of(podcastIdentifier)
+                                );
+                            }
                         }
                     }
                 }
+
+                for (final Identified<Podcast> updatingIdentifiedPodcast : updatingIdentifiedPodcasts) {
+                    final int rowCount = updateIdentifiedPodcast(updatingIdentifiedPodcast);
+                    if (rowCount == 1) {
+                        final String feedURLString = updatingIdentifiedPodcast.model.feedURL.toExternalForm();
+                        @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
+                                indexPodcastSetsByFeedURLString.get(feedURLString);
+                        if (indexedPodcastSet == null) {
+                            throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
+                        } else {
+                            for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
+                                upsertedPodcastIdentifiers.set(
+                                        indexedPodcast.mFirst,
+                                        Optional.of(updatingIdentifiedPodcast.identifier)
+                                );
+                            }
+                        }
+                    }
+                }
+
+                transaction.markSuccessful();
+
+                return upsertedPodcastIdentifiers;
             }
-
-            briteDatabase.getWritableDatabase().endTransaction();
-
-            return upsertedPodcastIdentifiers;
         }
+    }
+
+    public Observable<List<Identified<Podcast>>> observeQueryForAllPodcasts() {
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_PODCAST)
+                        .columns(new String[]{
+                                        ID,
+                                        ARTWORK_URL,
+                                        AUTHOR,
+                                        FEED_URL,
+                                        ID,
+                                        NAME,
+                                }
+                        ).create();
+
+        return briteDatabase
+                .createQuery(TABLE_PODCAST, query)
+                .mapToList(PodcastTable::getIdentifiedPodcast);
     }
 
     public Observable<Optional<Identified<Podcast>>> observeQueryForPodcast(
