@@ -2,7 +2,6 @@ package com.github.hborders.heathcast.dao;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
@@ -17,6 +16,7 @@ import com.github.hborders.heathcast.utils.SetUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +37,7 @@ import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullURLFromSt
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.utils.ListUtil.indexedStream;
+import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
 final class PodcastTable extends Table {
     private static final String TABLE_PODCAST = "podcast";
@@ -54,13 +55,21 @@ final class PodcastTable extends Table {
             ID,
             FEED_URL,
     };
+    private static final String[] COLUMNS_ID = new String[]{ID};
+    private static final String[] COLUMNS_ALL = new String[]{
+            ID,
+            ARTWORK_URL,
+            AUTHOR,
+            FEED_URL,
+            NAME,
+    };
 
     PodcastTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
     }
 
     @Nullable
-    public Identifier<Podcast> insertPodcast(Podcast podcast) {
+    Identifier<Podcast> insertPodcast(Podcast podcast) {
         final long id = briteDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
@@ -76,7 +85,7 @@ final class PodcastTable extends Table {
         }
     }
 
-    public int updateIdentifiedPodcast(Identified<Podcast> identifiedPodcast) {
+    int updateIdentifiedPodcast(Identified<Podcast> identifiedPodcast) {
         return briteDatabase.update(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
@@ -87,21 +96,45 @@ final class PodcastTable extends Table {
     }
 
     @Nullable
-    public Identifier<Podcast> upsertPodcast(Podcast podcast) {
-        final List<Optional<Identifier<Podcast>>> podcastIdentifierOptionals =
-                upsertPodcasts(Collections.singletonList(podcast));
-        if (podcastIdentifierOptionals.size() == 1) {
-            return podcastIdentifierOptionals.get(0).orElse(null);
-        } else {
-            throw new IllegalStateException("upsertPodcasts should always return the same number of elements as given, but returned: " + podcastIdentifierOptionals);
+    Identifier<Podcast> upsertPodcast(Podcast podcast) {
+        try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+            final SupportSQLiteQuery idAndFeedUrlQuery =
+                    SupportSQLiteQueryBuilder
+                            .builder(TABLE_PODCAST)
+                            .columns(COLUMNS_ID)
+                            .selection(
+                                    FEED_URL + " = ?",
+                                    new Object[]{podcast.feedURL.toExternalForm()})
+                            .create();
+            final Cursor cursor = briteDatabase.query(idAndFeedUrlQuery);
+            @Nullable final Identifier<Podcast> podcastIdentifier;
+            if (cursor.moveToNext()) {
+                podcastIdentifier = new Identifier<>(
+                        Podcast.class,
+                        cursor.getLong(0)
+                );
+
+                updateIdentifiedPodcast(
+                        new Identified<>(
+                                podcastIdentifier,
+                                podcast
+                        )
+                );
+            } else {
+                podcastIdentifier = insertPodcast(podcast);
+            }
+
+            transaction.markSuccessful();
+
+            return podcastIdentifier;
         }
     }
 
-    public List<Optional<Identifier<Podcast>>> upsertPodcasts(List<Podcast> podcasts) {
+    List<Optional<Identifier<Podcast>>> upsertPodcasts(List<Podcast> podcasts) {
         if (podcasts.isEmpty()) {
             return Collections.emptyList();
         } else {
-            try(final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+            try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
                 final Map<String, Set<NonnullPair<Integer, Podcast>>> indexPodcastSetsByFeedURLString =
                         indexedStream(podcasts)
                                 .collect(
@@ -116,21 +149,15 @@ final class PodcastTable extends Table {
                                                 SetUtil::union
                                         )
                                 );
-                final List<String> escapedFeedURLStrings =
-                        indexPodcastSetsByFeedURLString
-                                .keySet()
-                                .stream()
-                                .map(DatabaseUtils::sqlEscapeString)
-                                .collect(Collectors.toList());
                 final String selection =
-                        FEED_URL + " IN (" + String.join(",", escapedFeedURLStrings) + ")";
+                        FEED_URL + inPlaceholderClause(indexPodcastSetsByFeedURLString.keySet().size());
                 final SupportSQLiteQuery idAndFeedUrlQuery =
                         SupportSQLiteQueryBuilder
                                 .builder(TABLE_PODCAST)
                                 .columns(COLUMNS_ID_FEED_URL)
                                 .selection(
                                         selection,
-                                        EMPTY_BIND_ARGS
+                                        indexPodcastSetsByFeedURLString.keySet().toArray()
                                 )
                                 .create();
                 final Cursor podcastIdAndFeedURLCursor = briteDatabase.query(idAndFeedUrlQuery);
@@ -217,45 +244,50 @@ final class PodcastTable extends Table {
         }
     }
 
-    public Observable<List<Identified<Podcast>>> observeQueryForAllPodcasts() {
+    int deletePodcast(Identifier<Podcast> podcastIdentifier) {
+        return briteDatabase.delete(
+                TABLE_PODCAST,
+                ID + " = ?",
+                Long.toString(podcastIdentifier.id)
+        );
+    }
+
+    int deletePodcasts(Collection<Identifier<Podcast>> podcastIdentifiers) {
+        final String[] idStrings = new String[podcastIdentifiers.size()];
+        int i = 0;
+        for (Identifier<Podcast> podcastIdentifier : podcastIdentifiers) {
+            idStrings[i] = Long.toString(podcastIdentifier.id);
+            i++;
+        }
+        return briteDatabase.delete(
+                TABLE_PODCAST,
+                ID + inPlaceholderClause(podcastIdentifiers.size()),
+                idStrings
+        );
+    }
+
+    Observable<Set<Identified<Podcast>>> observeQueryForAllPodcasts() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST)
-                        .columns(new String[]{
-                                        ID,
-                                        ARTWORK_URL,
-                                        AUTHOR,
-                                        FEED_URL,
-                                        ID,
-                                        NAME,
-                                }
-                        ).create();
+                        .columns(COLUMNS_ALL).create();
 
         return briteDatabase
                 .createQuery(TABLE_PODCAST, query)
-                .mapToList(PodcastTable::getIdentifiedPodcast);
+                .mapToList(PodcastTable::getIdentifiedPodcast)
+                .map(HashSet::new);
     }
 
-    public Observable<Optional<Identified<Podcast>>> observeQueryForPodcast(
+    Observable<Optional<Identified<Podcast>>> observeQueryForPodcast(
             Identifier<Podcast> podcastIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST)
-                        .columns(new String[]{
-                                        ID,
-                                        ARTWORK_URL,
-                                        AUTHOR,
-                                        FEED_URL,
-                                        ID,
-                                        NAME,
-                                }
-                        )
+                        .columns(COLUMNS_ALL)
                         .selection(
                                 ID + "= ?",
-                                new Object[]{
-                                        podcastIdentifier.id
-                                }
+                                new Object[]{podcastIdentifier.id}
                         ).create();
 
         return briteDatabase

@@ -12,7 +12,9 @@ import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.squareup.sqlbrite3.BriteDatabase;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -32,12 +34,17 @@ final class PodcastSearchTable extends Table {
     static final String CREATE_FOREIGN_KEY_PODCAST_SEARCH =
             "FOREIGN KEY(" + FOREIGN_KEY_PODCAST_SEARCH + ") REFERENCES " + TABLE_PODCAST_SEARCH + "(" + ID + ")";
 
+    private static final String[] COLUMNS_ALL = new String[]{
+            ID,
+            SEARCH,
+    };
+
     PodcastSearchTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
     }
 
     @Nullable
-    public Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
+    Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
         final long id = briteDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_IGNORE,
@@ -53,22 +60,28 @@ final class PodcastSearchTable extends Table {
         }
     }
 
-    public Observable<Optional<Identified<PodcastSearch>>> observeQueryForPodcastSearch(
+    Observable<Set<Identified<PodcastSearch>>> observeQueryForAllPodcastSearches() {
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_PODCAST_SEARCH)
+                        .columns(COLUMNS_ALL).create();
+
+        return briteDatabase
+                .createQuery(TABLE_PODCAST_SEARCH, query)
+                .mapToList(PodcastSearchTable::getIdentifiedPodcastSearch)
+                .map(HashSet::new);
+    }
+
+    Observable<Optional<Identified<PodcastSearch>>> observeQueryForPodcastSearch(
             Identifier<PodcastSearch> podcastSearchIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST_SEARCH)
-                        .columns(new String[]{
-                                        ID,
-                                        SEARCH
-                                }
-                        )
+                        .columns(COLUMNS_ALL)
                         .selection(
                                 ID + "= ?",
-                                new Object[]{
-                                        podcastSearchIdentifier.id
-                                }
+                                new Object[]{podcastSearchIdentifier.id}
                         ).create();
 
         return briteDatabase

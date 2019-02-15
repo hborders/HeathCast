@@ -22,11 +22,11 @@ import io.reactivex.Scheduler;
 
 public final class Database {
     private final BriteDatabase briteDatabase;
-    public final PodcastSearchTable podcastSearchTable;
-    public final PodcastTable podcastTable;
-    public final EpisodeTable episodeTable;
-    public final PodcastSearchResultTable podcastSearchResultTable;
-    public final PodcastEpisodeListTable podcastEpisodeListTable;
+    final PodcastSearchTable podcastSearchTable;
+    final PodcastTable podcastTable;
+    final EpisodeTable episodeTable;
+    final PodcastSearchResultTable podcastSearchResultTable;
+    final PodcastEpisodeListTable podcastEpisodeListTable;
 
     public Database(
             Context context,
