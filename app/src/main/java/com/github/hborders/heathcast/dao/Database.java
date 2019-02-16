@@ -56,13 +56,14 @@ public final class Database {
             PodcastSearch podcastSearch,
             List<Podcast> podcasts
     ) {
-        briteDatabase.getWritableDatabase().beginTransaction();
-        podcastSearchTable.insertPodcastSearch(podcastSearch);
-        for (Podcast podcast : podcasts) {
+        try (BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+            podcastSearchTable.insertPodcastSearch(podcastSearch);
+            for (Podcast podcast : podcasts) {
 
+            }
+
+            transaction.markSuccessful();
         }
-
-        briteDatabase.getWritableDatabase().endTransaction();
     }
 
     static final class Schema extends Callback {

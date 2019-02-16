@@ -62,7 +62,7 @@ final class PodcastSearchTable extends Table {
         }
     }
 
-    int deletePodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+    int deletePodcastSearchById(Identifier<PodcastSearch> podcastSearchIdentifier) {
         return briteDatabase.delete(
                 TABLE_PODCAST_SEARCH,
                 ID + " = ?",
@@ -70,7 +70,15 @@ final class PodcastSearchTable extends Table {
         );
     }
 
-    int deletePodcastSearches(Collection<Identifier<PodcastSearch>> podcastSearchIdentifiers) {
+    int deletePodcastSearch(PodcastSearch podcastSearch) {
+        return briteDatabase.delete(
+                TABLE_PODCAST_SEARCH,
+                SEARCH + " = ?",
+                podcastSearch.search
+        );
+    }
+
+    int deletePodcastSearchesByIds(Collection<Identifier<PodcastSearch>> podcastSearchIdentifiers) {
         final String[] idStrings = new String[podcastSearchIdentifiers.size()];
         int i = 0;
         for (Identifier<PodcastSearch> podcastSearchIdentifier : podcastSearchIdentifiers) {
@@ -81,6 +89,20 @@ final class PodcastSearchTable extends Table {
                 TABLE_PODCAST_SEARCH,
                 ID + inPlaceholderClause(podcastSearchIdentifiers.size()),
                 idStrings
+        );
+    }
+
+    int deletePodcastSearches(Collection<PodcastSearch> podcastSearches) {
+        final String[] searches = new String[podcastSearches.size()];
+        int i = 0;
+        for (PodcastSearch podcastSearch : podcastSearches) {
+            searches[i] = podcastSearch.search;
+            i++;
+        }
+        return briteDatabase.delete(
+                TABLE_PODCAST_SEARCH,
+                SEARCH + inPlaceholderClause(podcastSearches.size()),
+                searches
         );
     }
 
