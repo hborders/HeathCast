@@ -12,6 +12,7 @@ import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.squareup.sqlbrite3.BriteDatabase;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +24,7 @@ import io.reactivex.Observable;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
+import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
 final class PodcastSearchTable extends Table {
     private static final String TABLE_PODCAST_SEARCH = "podcast_search";
@@ -58,6 +60,28 @@ final class PodcastSearchTable extends Table {
                     id
             );
         }
+    }
+
+    int deletePodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+        return briteDatabase.delete(
+                TABLE_PODCAST_SEARCH,
+                ID + " = ?",
+                Long.toString(podcastSearchIdentifier.id)
+        );
+    }
+
+    int deletePodcastSearches(Collection<Identifier<PodcastSearch>> podcastSearchIdentifiers) {
+        final String[] idStrings = new String[podcastSearchIdentifiers.size()];
+        int i = 0;
+        for (Identifier<PodcastSearch> podcastSearchIdentifier : podcastSearchIdentifiers) {
+            idStrings[i] = Long.toString(podcastSearchIdentifier.id);
+            i++;
+        }
+        return briteDatabase.delete(
+                TABLE_PODCAST_SEARCH,
+                ID + inPlaceholderClause(podcastSearchIdentifiers.size()),
+                idStrings
+        );
     }
 
     Observable<Set<Identified<PodcastSearch>>> observeQueryForAllPodcastSearches() {

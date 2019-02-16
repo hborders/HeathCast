@@ -379,6 +379,52 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
         }
     }
 
+    public void testUpdatePodcast() throws Exception {
+        final Podcast podcast11 = new Podcast(
+                new URL("http://example.com/artwork11"),
+                "author11",
+                new URL("http://example.com/feed11"),
+                "name11"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier11 =
+                getTestObject().insertPodcast(podcast11);
+        if (podcastIdentifier11 == null) {
+            fail();
+        } else {
+
+            final Podcast podcast12 = new Podcast(
+                    new URL("http://example.com/artwork12"),
+                    "author12",
+                    new URL("http://example.com/feed11"),
+                    "name12"
+            );
+            final int updatedRowCount = getTestObject().updateIdentifiedPodcast(new Identified<>(
+                            podcastIdentifier11,
+                            podcast12
+                    )
+            );
+            assertEquals(
+                    1,
+                    updatedRowCount
+            );
+
+            final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            getTestObject()
+                    .observeQueryForPodcast(podcastIdentifier11)
+                    .subscribe(podcastTestObserver);
+            podcastTestObserver.assertValueSequence(
+                    Collections.singleton(
+                            Optional.of(
+                                    new Identified<>(
+                                            podcastIdentifier11,
+                                            podcast12
+                                    )
+                            )
+                    )
+            );
+        }
+    }
+
     @Test
     public void testObserveQueryForPodcast() throws Exception {
         final Podcast podcast11 = new Podcast(
@@ -423,14 +469,10 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                     new URL("http://example.com/feed11"),
                     "name12"
             );
-            final int updatedRowCount = getTestObject().updateIdentifiedPodcast(new Identified<>(
+            getTestObject().updateIdentifiedPodcast(new Identified<>(
                             podcastIdentifier11,
                             podcast12
                     )
-            );
-            assertEquals(
-                    1,
-                    updatedRowCount
             );
 
             podcastTestObserver.assertValueSequence(
@@ -441,7 +483,6 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                                             podcast11
                                     )
                             ),
-
                             Optional.of(
                                     new Identified<>(
                                             podcastIdentifier11,
