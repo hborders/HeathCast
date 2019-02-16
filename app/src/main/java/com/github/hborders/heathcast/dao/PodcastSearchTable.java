@@ -13,15 +13,14 @@ import com.github.hborders.heathcast.models.PodcastSearch;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 
-import static android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE;
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
 import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
@@ -31,12 +30,16 @@ final class PodcastSearchTable extends Table {
 
     private static final String ID = "_id";
     private static final String SEARCH = "search";
+    private static final String UPDATE_DATE = "updateDate";
 
     static final String FOREIGN_KEY_PODCAST_SEARCH = TABLE_PODCAST_SEARCH + "_id";
     static final String CREATE_FOREIGN_KEY_PODCAST_SEARCH =
             "FOREIGN KEY(" + FOREIGN_KEY_PODCAST_SEARCH + ") REFERENCES " + TABLE_PODCAST_SEARCH + "(" + ID + ")";
 
-    private static final String[] COLUMNS_ALL = new String[]{
+    private static final String[] COLUMNS_ID = new String[]{
+            ID
+    };
+    private static final String[] COLUMNS_ALL_BUT_UPDATE_DATE = new String[]{
             ID,
             SEARCH,
     };
@@ -46,10 +49,45 @@ final class PodcastSearchTable extends Table {
     }
 
     @Nullable
-    Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
+    Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
+        try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+            final SupportSQLiteQuery idQuery =
+                    SupportSQLiteQueryBuilder
+                            .builder(TABLE_PODCAST_SEARCH)
+                            .columns(COLUMNS_ID)
+                            .selection(
+                                    SEARCH + " = ?",
+                                    new Object[]{podcastSearch.search})
+                            .create();
+            final Cursor cursor = briteDatabase.query(idQuery);
+            @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier;
+            if (cursor.moveToNext()) {
+                podcastSearchIdentifier = new Identifier<>(
+                        PodcastSearch.class,
+                        cursor.getLong(0)
+                );
+
+                updatePodcastSearchIdentified(
+                        new Identified<>(
+                                podcastSearchIdentifier,
+                                podcastSearch
+                        )
+                );
+            } else {
+                podcastSearchIdentifier = insertPodcastSearch(podcastSearch);
+            }
+
+            transaction.markSuccessful();
+
+            return podcastSearchIdentifier;
+        }
+    }
+
+    @Nullable
+    private Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
         final long id = briteDatabase.insert(
                 TABLE_PODCAST_SEARCH,
-                CONFLICT_IGNORE,
+                CONFLICT_ABORT,
                 getPodcastSearchContentValues(podcastSearch)
         );
         if (id == -1) {
@@ -60,6 +98,16 @@ final class PodcastSearchTable extends Table {
                     id
             );
         }
+    }
+
+    private int updatePodcastSearchIdentified(Identified<PodcastSearch> podcastSearchIdentified) {
+        return briteDatabase.update(
+                TABLE_PODCAST_SEARCH,
+                CONFLICT_ABORT,
+                getPodcastSearchIdentifiedContentValues(podcastSearchIdentified),
+                ID + " = ?",
+                Long.toString(podcastSearchIdentified.identifier.id)
+        );
     }
 
     int deletePodcastSearchById(Identifier<PodcastSearch> podcastSearchIdentifier) {
@@ -106,25 +154,30 @@ final class PodcastSearchTable extends Table {
         );
     }
 
-    Observable<Set<Identified<PodcastSearch>>> observeQueryForAllPodcastSearches() {
+    Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
         final SupportSQLiteQuery query =
-                SupportSQLiteQueryBuilder
+                SupportSQLiteQueryBuilder2
                         .builder(TABLE_PODCAST_SEARCH)
-                        .columns(COLUMNS_ALL).create();
+                        // including UPDATE_DATE didn't help
+                        .columns(COLUMNS_ALL_BUT_UPDATE_DATE)
+                        .orderBy(
+                                UPDATE_DATE,
+                                true
+                        )
+                        .create();
 
         return briteDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
-                .mapToList(PodcastSearchTable::getIdentifiedPodcastSearch)
-                .map(HashSet::new);
+                .mapToList(PodcastSearchTable::getPodcastSearchIdentified);
     }
 
-    Observable<Optional<Identified<PodcastSearch>>> observeQueryForPodcastSearch(
+    Observable<Optional<Identified<PodcastSearch>>> observeQueryForPodcastSearchIdentified(
             Identifier<PodcastSearch> podcastSearchIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST_SEARCH)
-                        .columns(COLUMNS_ALL)
+                        .columns(COLUMNS_ALL_BUT_UPDATE_DATE)
                         .selection(
                                 ID + "= ?",
                                 new Object[]{podcastSearchIdentifier.id}
@@ -132,19 +185,29 @@ final class PodcastSearchTable extends Table {
 
         return briteDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
-                .mapToOptional(PodcastSearchTable::getIdentifiedPodcastSearch);
+                .mapToOptional(PodcastSearchTable::getPodcastSearchIdentified);
     }
 
     static void createPodcastSearchTable(SupportSQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + TABLE_PODCAST_SEARCH + " ("
                         + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                        + SEARCH + " TEXT NOT NULL UNIQUE"
+                        + SEARCH + " TEXT NOT NULL UNIQUE, "
+                        + UPDATE_DATE + " TIMESTAMP NOT NULL DEFAULT current_timestamp"
                         + ")"
+        );
+        db.execSQL(
+                "CREATE TRIGGER update_date_update_trigger"
+                        + "  AFTER UPDATE ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW"
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_PODCAST_SEARCH
+                        + "        SET " + UPDATE_DATE + " = current_timestamp"
+                        + "        WHERE " + ID + " = old." + ID + ";"
+                        + "    END"
         );
     }
 
-    static Identified<PodcastSearch> getIdentifiedPodcastSearch(Cursor cursor) {
+    static Identified<PodcastSearch> getPodcastSearchIdentified(Cursor cursor) {
         return new Identified<>(new Identifier<>(
                 PodcastSearch.class,
                 getNonnullInt(cursor, ID)
@@ -161,7 +224,7 @@ final class PodcastSearchTable extends Table {
         return values;
     }
 
-    static ContentValues getIdentifiedPodcastSearchContentValues(Identified<PodcastSearch> identifiedPodcastSearch) {
+    static ContentValues getPodcastSearchIdentifiedContentValues(Identified<PodcastSearch> identifiedPodcastSearch) {
         final ContentValues values = getPodcastSearchContentValues(identifiedPodcastSearch.model);
 
         putIdentifier(values, ID, identifiedPodcastSearch);

@@ -18,13 +18,44 @@ import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST
 final class PodcastSearchResultTable extends Table {
     private static final String TABLE_PODCAST_SEARCH_RESULT = "podcast_search_result";
 
-    private static final String ID = "_id";
-    private static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
-    private static final String PODCAST_SEARCH_ID = FOREIGN_KEY_PODCAST_SEARCH;
-    private static final String SORT = "sort";
+    static final String ID = "_id";
+    static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
+    static final String PODCAST_SEARCH_ID = FOREIGN_KEY_PODCAST_SEARCH;
+    static final String SORT = "sort";
+
+    private static final String[] COLUMNS_ALL_BUT_SORT = new String[] {
+            ID,
+            PODCAST_ID,
+            PODCAST_SEARCH_ID
+    };
 
     PodcastSearchResultTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
+    }
+
+    long insertPodcastSearchResult(
+            Identifier<Podcast> podcast,
+            Identifier<PodcastSearch> podcastSearchIdentifier,
+            int sort
+    ) {
+        final ContentValues values = new ContentValues(3);
+        values.put(PODCAST_ID, podcast.id);
+        values.put(PODCAST_SEARCH_ID, podcastSearchIdentifier.id);
+        values.put(SORT, sort);
+
+        return briteDatabase.insert(
+                TABLE_PODCAST_SEARCH_RESULT,
+                CONFLICT_ABORT,
+                values
+        );
+    }
+
+    int deletePodcastSearchResultsByPodcastSearchIdentifier(Identifier<PodcastSearch> podcastSearchIdentifier) {
+        return briteDatabase.delete(
+                TABLE_PODCAST_SEARCH_RESULT,
+                PODCAST_SEARCH_ID + " = ?",
+                Long.toString(podcastSearchIdentifier.id)
+        );
     }
 
     static void createPodcastSearchResultTable(SupportSQLiteDatabase db) {
@@ -40,22 +71,5 @@ final class PodcastSearchResultTable extends Table {
                 + " ON " + TABLE_PODCAST_SEARCH_RESULT + "(" + PODCAST_ID + ")");
         db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH_RESULT + "__" + PODCAST_SEARCH_ID
                 + " ON " + TABLE_PODCAST_SEARCH_RESULT + "(" + PODCAST_SEARCH_ID + ")");
-    }
-
-    final long insertPodcastSearchResult(
-            Identifier<Podcast> podcast,
-            Identifier<PodcastSearch> podcastSearchIdentifier,
-            int sort
-    ) {
-        final ContentValues values = new ContentValues(3);
-        values.put(PODCAST_ID, podcast.id);
-        values.put(PODCAST_SEARCH_ID, podcastSearchIdentifier.id);
-        values.put(SORT, sort);
-
-        return briteDatabase.insert(
-                TABLE_PODCAST_SEARCH_RESULT,
-                CONFLICT_ABORT,
-                values
-        );
     }
 }

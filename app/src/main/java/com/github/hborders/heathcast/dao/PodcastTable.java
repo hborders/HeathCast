@@ -85,11 +85,11 @@ final class PodcastTable extends Table {
         }
     }
 
-    int updateIdentifiedPodcast(Identified<Podcast> identifiedPodcast) {
+    int updatePodcastIdentified(Identified<Podcast> identifiedPodcast) {
         return briteDatabase.update(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
-                getIdentifiedPodcastContentValues(identifiedPodcast),
+                getPodcastIdentifiedContentValues(identifiedPodcast),
                 ID + " = ?",
                 Long.toString(identifiedPodcast.identifier.id)
         );
@@ -98,7 +98,7 @@ final class PodcastTable extends Table {
     @Nullable
     Identifier<Podcast> upsertPodcast(Podcast podcast) {
         try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            final SupportSQLiteQuery idAndFeedUrlQuery =
+            final SupportSQLiteQuery idQuery =
                     SupportSQLiteQueryBuilder
                             .builder(TABLE_PODCAST)
                             .columns(COLUMNS_ID)
@@ -106,7 +106,7 @@ final class PodcastTable extends Table {
                                     FEED_URL + " = ?",
                                     new Object[]{podcast.feedURL.toExternalForm()})
                             .create();
-            final Cursor cursor = briteDatabase.query(idAndFeedUrlQuery);
+            final Cursor cursor = briteDatabase.query(idQuery);
             @Nullable final Identifier<Podcast> podcastIdentifier;
             if (cursor.moveToNext()) {
                 podcastIdentifier = new Identifier<>(
@@ -114,7 +114,7 @@ final class PodcastTable extends Table {
                         cursor.getLong(0)
                 );
 
-                updateIdentifiedPodcast(
+                updatePodcastIdentified(
                         new Identified<>(
                                 podcastIdentifier,
                                 podcast
@@ -219,7 +219,7 @@ final class PodcastTable extends Table {
                 }
 
                 for (final Identified<Podcast> updatingIdentifiedPodcast : updatingIdentifiedPodcasts) {
-                    final int rowCount = updateIdentifiedPodcast(updatingIdentifiedPodcast);
+                    final int rowCount = updatePodcastIdentified(updatingIdentifiedPodcast);
                     if (rowCount == 1) {
                         final String feedURLString = updatingIdentifiedPodcast.model.feedURL.toExternalForm();
                         @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
@@ -266,7 +266,7 @@ final class PodcastTable extends Table {
         );
     }
 
-    Observable<Set<Identified<Podcast>>> observeQueryForAllPodcasts() {
+    Observable<Set<Identified<Podcast>>> observeQueryForAllPodcastIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST)
@@ -274,11 +274,11 @@ final class PodcastTable extends Table {
 
         return briteDatabase
                 .createQuery(TABLE_PODCAST, query)
-                .mapToList(PodcastTable::getIdentifiedPodcast)
+                .mapToList(PodcastTable::getPodcastIdentified)
                 .map(HashSet::new);
     }
 
-    Observable<Optional<Identified<Podcast>>> observeQueryForPodcast(
+    Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
             Identifier<Podcast> podcastIdentifier
     ) {
         final SupportSQLiteQuery query =
@@ -292,7 +292,7 @@ final class PodcastTable extends Table {
 
         return briteDatabase
                 .createQuery(TABLE_PODCAST, query)
-                .mapToOptional(PodcastTable::getIdentifiedPodcast);
+                .mapToOptional(PodcastTable::getPodcastIdentified);
     }
 
     static void createPodcastTable(SupportSQLiteDatabase db) {
@@ -306,7 +306,7 @@ final class PodcastTable extends Table {
         );
     }
 
-    static Identified<Podcast> getIdentifiedPodcast(Cursor cursor) {
+    static Identified<Podcast> getPodcastIdentified(Cursor cursor) {
         return new Identified<>(
                 new Identifier<>(
                         Podcast.class,
@@ -332,7 +332,7 @@ final class PodcastTable extends Table {
         return values;
     }
 
-    static ContentValues getIdentifiedPodcastContentValues(Identified<Podcast> identifiedPodcast) {
+    static ContentValues getPodcastIdentifiedContentValues(Identified<Podcast> identifiedPodcast) {
         final ContentValues values = getPodcastContentValues(identifiedPodcast.model);
         putIdentifier(values, ID, identifiedPodcast);
         return values;

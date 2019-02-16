@@ -47,7 +47,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
         } else {
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForAllPodcasts()
+                    .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
@@ -93,7 +93,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
             final TestObserver<Set<Identified<Podcast>>> allPodcastsTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForAllPodcasts()
+                    .observeQueryForAllPodcastIdentifieds()
                     .subscribe(allPodcastsTestObserver);
 
             allPodcastsTestObserver.assertValue(
@@ -122,7 +122,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
         } else {
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForAllPodcasts()
+                    .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
@@ -165,7 +165,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForAllPodcasts()
+                    .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
@@ -222,7 +222,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForAllPodcasts()
+                    .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
@@ -271,7 +271,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
                 final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
                 getTestObject()
-                        .observeQueryForAllPodcasts()
+                        .observeQueryForAllPodcastIdentifieds()
                         .subscribe(podcastTestObserver);
 
                 podcastTestObserver.assertValue(
@@ -353,7 +353,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
                     final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
                     getTestObject()
-                            .observeQueryForAllPodcasts()
+                            .observeQueryForAllPodcastIdentifieds()
                             .subscribe(podcastTestObserver);
 
                     podcastTestObserver.assertValue(
@@ -398,7 +398,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                     new URL("http://example.com/feed11"),
                     "name12"
             );
-            final int updatedRowCount = getTestObject().updateIdentifiedPodcast(new Identified<>(
+            final int updatedRowCount = getTestObject().updatePodcastIdentified(new Identified<>(
                             podcastIdentifier11,
                             podcast12
                     )
@@ -410,7 +410,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForPodcast(podcastIdentifier11)
+                    .observeQueryForPodcastIdentified(podcastIdentifier11)
                     .subscribe(podcastTestObserver);
             podcastTestObserver.assertValueSequence(
                     Collections.singleton(
@@ -445,7 +445,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                     new URL("http://example.com/feed11"),
                     "name12"
             );
-            final int updatedRowCount = getTestObject().updateIdentifiedPodcast(new Identified<>(
+            final int updatedRowCount = getTestObject().updatePodcastIdentified(new Identified<>(
                             podcastIdentifier11,
                             podcast12
                     )
@@ -458,7 +458,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testObserveQueryForPodcast() throws Exception {
+    public void testObserveQueryForPodcastIdentified() throws Exception {
         final Podcast podcast11 = new Podcast(
                 new URL("http://example.com/artwork11"),
                 "author11",
@@ -483,7 +483,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
         } else {
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForPodcast(podcastIdentifier11)
+                    .observeQueryForPodcastIdentified(podcastIdentifier11)
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
@@ -501,7 +501,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                     new URL("http://example.com/feed11"),
                     "name12"
             );
-            getTestObject().updateIdentifiedPodcast(new Identified<>(
+            getTestObject().updatePodcastIdentified(new Identified<>(
                             podcastIdentifier11,
                             podcast12
                     )
@@ -578,7 +578,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForAllPodcasts()
+                    .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
@@ -640,7 +640,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
             getTestObject()
-                    .observeQueryForAllPodcasts()
+                    .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(

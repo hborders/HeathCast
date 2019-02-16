@@ -9,12 +9,14 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
+import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -52,19 +54,53 @@ public final class Database {
         podcastEpisodeListTable = new PodcastEpisodeListTable(briteDatabase);
     }
 
+    @Nullable
+    public Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
+        return podcastSearchTable.upsertPodcastSearch(podcastSearch);
+    }
+
     public void replacePodcastSearchResults(
-            PodcastSearch podcastSearch,
+            Identifier<PodcastSearch> podcastSearchIdentifier,
             List<Podcast> podcasts
     ) {
         try (BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            podcastSearchTable.insertPodcastSearch(podcastSearch);
-            for (Podcast podcast : podcasts) {
+            podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentifier);
 
+            final List<Optional<Identifier<Podcast>>> podcastIdentifierOptionals =
+                    podcastTable.upsertPodcasts(podcasts);
+            for (int i = 0; i < podcastIdentifierOptionals.size(); i++) {
+                final Optional<Identifier<Podcast>> podcastIdentifierOptional =
+                        podcastIdentifierOptionals.get(i);
+                if (podcastIdentifierOptional.isPresent()) {
+                    final Identifier<Podcast> podcastIdentifier = podcastIdentifierOptional.get();
+                    podcastSearchResultTable.insertPodcastSearchResult(
+                            podcastIdentifier,
+                            podcastSearchIdentifier,
+                            i
+                    );
+                }
             }
 
             transaction.markSuccessful();
         }
     }
+
+//    public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
+//            PodcastSearch podcastSearch
+//    ) {
+//        final SupportSQLiteQuery query =
+//                SupportSQLiteQueryBuilder
+//                        .builder(TABLE_PODCAST_SEARCH)
+//                        .columns(COLUMNS_ALL)
+//                        .selection(
+//                                ID + "= ?",
+//                                new Object[]{podcastSearchIdentifier.id}
+//                        ).create();
+//
+//        return briteDatabase
+//                .createQuery(TABLE_PODCAST_SEARCH, query)
+//                .mapToOptional(PodcastSearchTable::getPodcastSearchIdentified);
+//    }
 
     static final class Schema extends Callback {
         Schema() {
