@@ -52,20 +52,15 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testUpsertNewPodcastSearchSortsItFirst() throws Exception {
-        // Must use Thread.sleep because we can't mock SQLite's current_timestamp
-
         final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-        Thread.sleep(10);
         final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
-        Thread.sleep(10);
         final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3);
-        Thread.sleep(10);
         if (podcastSearchIdentifier1 == null) {
             fail();
         } else if (podcastSearchIdentifier2 == null) {
@@ -99,20 +94,15 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testUpsertExistingPodcastSearchReturnsExistingIdentifierAndSortsIfFirst() throws Exception {
-        // Must use Thread.sleep because we can't mock SQLite's current_timestamp
-
         final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-        Thread.sleep(10);
         final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
-        Thread.sleep(10);
         final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3);
-        Thread.sleep(10);
         if (podcastSearchIdentifier1 == null) {
             fail();
         } else if (podcastSearchIdentifier2 == null) {
