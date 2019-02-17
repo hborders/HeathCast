@@ -51,7 +51,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testUpsertNewPodcastSearchSortsItFirst() throws Exception {
+    public void testUpsertNewPodcastSearchSortsItFirst() {
         final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
@@ -93,7 +93,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testUpsertExistingPodcastSearchReturnsExistingIdentifierAndSortsIfFirst() throws Exception {
+    public void testUpsertExistingPodcastSearchReturnsExistingIdentifierAndSortsIfFirst() {
         final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
@@ -138,6 +138,41 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
                             )
                     )
             );
+        }
+    }
+
+    @Test
+    public void testUpsertExistingFirstPodcastSearchKeepsPreviousSortValue() {
+        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
+        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+                getTestObject().upsertPodcastSearch(podcastSearch1);
+        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
+        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+                getTestObject().upsertPodcastSearch(podcastSearch2);
+        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
+        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
+                getTestObject().upsertPodcastSearch(podcastSearch3);
+        if (podcastSearchIdentifier1 == null) {
+            fail();
+        } else if (podcastSearchIdentifier2 == null) {
+            fail();
+        } else if (podcastSearchIdentifier3 == null) {
+            fail();
+        } else {
+            final @Nullable Long initialPodcastSearch3Sort =
+                    getTestObject().sortForPodcastSearch(podcastSearchIdentifier3);
+            if (initialPodcastSearch3Sort == null) {
+                fail();
+            } else {
+                getTestObject().upsertPodcastSearch(podcastSearch3);
+                final @Nullable Long updatedPodcastSearch3Sort =
+                        getTestObject().sortForPodcastSearch(podcastSearchIdentifier3);
+
+                assertEquals(
+                        initialPodcastSearch3Sort,
+                        updatedPodcastSearch3Sort
+                );
+            }
         }
     }
 

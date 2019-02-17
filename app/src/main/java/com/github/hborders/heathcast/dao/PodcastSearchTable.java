@@ -54,23 +54,6 @@ final class PodcastSearchTable extends Table {
     @Nullable
     Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
         try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            final SupportSQLiteQuery sortQuery =
-                    SupportSQLiteQueryBuilder2
-                            .builder(TABLE_PODCAST_SEARCH)
-                            .columns(COLUMNS_SORT)
-                            .orderBy(
-                                    SORT,
-                                    true
-                            )
-                            .create();
-            final Cursor sortCursor = briteDatabase.query(sortQuery);
-            final long sort;
-            if (sortCursor.moveToNext()) {
-                final long oldBiggestSort = sortCursor.getLong(0);
-                sort = oldBiggestSort + 1;
-            } else {
-                sort = 0;
-            }
             final SupportSQLiteQuery idQuery =
                     SupportSQLiteQueryBuilder
                             .builder(TABLE_PODCAST_SEARCH)
@@ -79,45 +62,37 @@ final class PodcastSearchTable extends Table {
                                     SEARCH + " = ?",
                                     new Object[]{podcastSearch.search})
                             .create();
-            final Cursor idCursor = briteDatabase.query(idQuery);
-            @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier;
-            if (idCursor.moveToNext()) {
-                podcastSearchIdentifier = new Identifier<>(
-                        PodcastSearch.class,
-                        idCursor.getLong(0)
-                );
+            try (final Cursor idCursor = briteDatabase.query(idQuery)) {
+                @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier;
+                if (idCursor.moveToNext()) {
+                    podcastSearchIdentifier = new Identifier<>(
+                            PodcastSearch.class,
+                            idCursor.getLong(0)
+                    );
 
-                updatePodcastSearchIdentified(
-                        new Identified<>(
-                                podcastSearchIdentifier,
-                                podcastSearch
-                        ),
-                        sort
-                );
-            } else {
-                podcastSearchIdentifier = insertPodcastSearch(
-                        podcastSearch,
-                        sort
-                );
+                    updatePodcastSearchIdentified(
+                            new Identified<>(
+                                    podcastSearchIdentifier,
+                                    podcastSearch
+                            )
+                    );
+                } else {
+                    podcastSearchIdentifier = insertPodcastSearch(podcastSearch);
+                }
+
+                transaction.markSuccessful();
+
+                return podcastSearchIdentifier;
             }
-
-            transaction.markSuccessful();
-
-            return podcastSearchIdentifier;
         }
     }
 
     @Nullable
-    private Identifier<PodcastSearch> insertPodcastSearch(
-            PodcastSearch podcastSearch,
-            long sort) {
+    private Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
         final long id = briteDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
-                getPodcastSearchContentValues(
-                        podcastSearch,
-                        sort
-                )
+                getPodcastSearchContentValues(podcastSearch)
         );
         if (id == -1) {
             return null;
@@ -130,15 +105,11 @@ final class PodcastSearchTable extends Table {
     }
 
     private int updatePodcastSearchIdentified(
-            Identified<PodcastSearch> podcastSearchIdentified,
-            long sort) {
+            Identified<PodcastSearch> podcastSearchIdentified) {
         return briteDatabase.update(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
-                getPodcastSearchIdentifiedContentValues(
-                        podcastSearchIdentified,
-                        sort
-                ),
+                getPodcastSearchIdentifiedContentValues(podcastSearchIdentified),
                 ID + " = ?",
                 Long.toString(podcastSearchIdentified.identifier.id)
         );
@@ -188,6 +159,25 @@ final class PodcastSearchTable extends Table {
         );
     }
 
+    @Nullable
+    Long sortForPodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder2
+                        .builder(TABLE_PODCAST_SEARCH)
+                        .columns(COLUMNS_SORT)
+                        .selection(
+                                ID + " = ?",
+                                new Object[]{podcastSearchIdentifier.id})
+                        .create();
+        try (final Cursor sortCursor = briteDatabase.query(query)) {
+            if (sortCursor.moveToNext()) {
+                return sortCursor.getLong(0);
+            } else {
+                return null;
+            }
+        }
+    }
+
     Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
@@ -227,9 +217,41 @@ final class PodcastSearchTable extends Table {
                 "CREATE TABLE " + TABLE_PODCAST_SEARCH + " ("
                         + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
                         + SEARCH + " TEXT NOT NULL UNIQUE, "
-                        + SORT + " INTEGER NOT NULL UNIQUE"
+                        + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0"
                         + ")"
         );
+        db.execSQL(
+                "CREATE TRIGGER sort_after_insert_trigger"
+                        + "  AFTER INSERT ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_PODCAST_SEARCH
+                        + "      SET " + SORT + " = (" +
+                        "          SELECT" +
+                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
+                        "          FROM " + TABLE_PODCAST_SEARCH
+                        + "      )"
+                        + "      WHERE " + ID + " = NEW." + ID + ";"
+                        + "    END"
+        );
+        db.execSQL(
+                "CREATE TRIGGER sort_after_update_trigger"
+                        + "  AFTER UPDATE ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_PODCAST_SEARCH
+                        + "      SET " + SORT + " = (" +
+                        "          SELECT" +
+                        "            MAX(" + SORT + ") + 1 " +
+                        "          FROM " + TABLE_PODCAST_SEARCH
+                        + "      )"
+                        + "      WHERE " + ID + " = OLD." + ID + " AND" +
+                        "          " + SORT + " != (" +
+                        "            SELECT MAX(" + SORT + ") " +
+                        "            FROM " + TABLE_PODCAST_SEARCH +
+                        "          );"
+                        + "    END"
+        );
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH + "__" + SORT
+                + " ON " + TABLE_PODCAST_SEARCH + "(" + SORT + ")");
     }
 
     static Identified<PodcastSearch> getPodcastSearchIdentified(Cursor cursor) {
@@ -243,24 +265,14 @@ final class PodcastSearchTable extends Table {
         );
     }
 
-    static ContentValues getPodcastSearchContentValues(
-            PodcastSearch podcastSearch,
-            long sort
-    ) {
+    static ContentValues getPodcastSearchContentValues(PodcastSearch podcastSearch) {
         final ContentValues values = new ContentValues(3);
         values.put(SEARCH, podcastSearch.search);
-        values.put(SORT, sort);
         return values;
     }
 
-    static ContentValues getPodcastSearchIdentifiedContentValues(
-            Identified<PodcastSearch> identifiedPodcastSearch,
-            long sort
-    ) {
-        final ContentValues values = getPodcastSearchContentValues(
-                identifiedPodcastSearch.model,
-                sort
-        );
+    static ContentValues getPodcastSearchIdentifiedContentValues(Identified<PodcastSearch> identifiedPodcastSearch) {
+        final ContentValues values = getPodcastSearchContentValues(identifiedPodcastSearch.model);
 
         putIdentifier(values, ID, identifiedPodcastSearch);
 

@@ -106,27 +106,28 @@ final class PodcastTable extends Table {
                                     FEED_URL + " = ?",
                                     new Object[]{podcast.feedURL.toExternalForm()})
                             .create();
-            final Cursor cursor = briteDatabase.query(idQuery);
-            @Nullable final Identifier<Podcast> podcastIdentifier;
-            if (cursor.moveToNext()) {
-                podcastIdentifier = new Identifier<>(
-                        Podcast.class,
-                        cursor.getLong(0)
-                );
+            try (final Cursor cursor = briteDatabase.query(idQuery)) {
+                @Nullable final Identifier<Podcast> podcastIdentifier;
+                if (cursor.moveToNext()) {
+                    podcastIdentifier = new Identifier<>(
+                            Podcast.class,
+                            cursor.getLong(0)
+                    );
 
-                updatePodcastIdentified(
-                        new Identified<>(
-                                podcastIdentifier,
-                                podcast
-                        )
-                );
-            } else {
-                podcastIdentifier = insertPodcast(podcast);
+                    updatePodcastIdentified(
+                            new Identified<>(
+                                    podcastIdentifier,
+                                    podcast
+                            )
+                    );
+                } else {
+                    podcastIdentifier = insertPodcast(podcast);
+                }
+
+                transaction.markSuccessful();
+
+                return podcastIdentifier;
             }
-
-            transaction.markSuccessful();
-
-            return podcastIdentifier;
         }
     }
 
@@ -160,86 +161,87 @@ final class PodcastTable extends Table {
                                         indexPodcastSetsByFeedURLString.keySet().toArray()
                                 )
                                 .create();
-                final Cursor podcastIdAndFeedURLCursor = briteDatabase.query(idAndFeedUrlQuery);
-                final HashSet<String> insertingPodcastFeedURLStrings = new HashSet<>(indexPodcastSetsByFeedURLString.keySet());
-                final List<Identified<Podcast>> updatingIdentifiedPodcasts = new ArrayList<>(podcasts.size());
-                while (podcastIdAndFeedURLCursor.moveToNext()) {
-                    final long id = CursorUtil.getNonnullLong(
-                            podcastIdAndFeedURLCursor,
-                            ID
-                    );
-                    final String feedURLString = CursorUtil.getNonnullString(
-                            podcastIdAndFeedURLCursor,
-                            FEED_URL
-                    );
-                    @Nullable final Set<NonnullPair<Integer, Podcast>> indexPodcastSet =
-                            indexPodcastSetsByFeedURLString.get(feedURLString);
-                    if (indexPodcastSet == null) {
-                        throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
-                    } else {
-                        final Podcast podcast = indexPodcastSet.iterator().next().mSecond;
-                        insertingPodcastFeedURLStrings.remove(podcast.feedURL.toExternalForm());
-                        updatingIdentifiedPodcasts.add(
-                                new Identified<>(
-                                        new Identifier<>(
-                                                Podcast.class,
-                                                id
-                                        ),
-                                        podcast
-                                )
+                try (final Cursor podcastIdAndFeedURLCursor = briteDatabase.query(idAndFeedUrlQuery)) {
+                    final HashSet<String> insertingPodcastFeedURLStrings = new HashSet<>(indexPodcastSetsByFeedURLString.keySet());
+                    final List<Identified<Podcast>> updatingIdentifiedPodcasts = new ArrayList<>(podcasts.size());
+                    while (podcastIdAndFeedURLCursor.moveToNext()) {
+                        final long id = CursorUtil.getNonnullLong(
+                                podcastIdAndFeedURLCursor,
+                                ID
                         );
-                    }
-                }
-                podcastIdAndFeedURLCursor.close();
-
-                List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
-                        new ArrayList<>(
-                                Collections.nCopies(
-                                        podcasts.size(),
-                                        Optional.empty()
-                                )
+                        final String feedURLString = CursorUtil.getNonnullString(
+                                podcastIdAndFeedURLCursor,
+                                FEED_URL
                         );
-                for (final String feedURLString : insertingPodcastFeedURLStrings) {
-                    @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
-                            indexPodcastSetsByFeedURLString.get(feedURLString);
-                    if (indexedPodcastSet == null) {
-                        throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
-                    } else {
-                        final Podcast podcast = indexedPodcastSet.iterator().next().mSecond;
-                        final @Nullable Identifier<Podcast> podcastIdentifier = insertPodcast(podcast);
-                        if (podcastIdentifier != null) {
-                            for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
-                                upsertedPodcastIdentifiers.set(
-                                        indexedPodcast.mFirst,
-                                        Optional.of(podcastIdentifier)
-                                );
-                            }
+                        @Nullable final Set<NonnullPair<Integer, Podcast>> indexPodcastSet =
+                                indexPodcastSetsByFeedURLString.get(feedURLString);
+                        if (indexPodcastSet == null) {
+                            throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
+                        } else {
+                            final Podcast podcast = indexPodcastSet.iterator().next().mSecond;
+                            insertingPodcastFeedURLStrings.remove(podcast.feedURL.toExternalForm());
+                            updatingIdentifiedPodcasts.add(
+                                    new Identified<>(
+                                            new Identifier<>(
+                                                    Podcast.class,
+                                                    id
+                                            ),
+                                            podcast
+                                    )
+                            );
                         }
                     }
-                }
+                    podcastIdAndFeedURLCursor.close();
 
-                for (final Identified<Podcast> updatingIdentifiedPodcast : updatingIdentifiedPodcasts) {
-                    final int rowCount = updatePodcastIdentified(updatingIdentifiedPodcast);
-                    if (rowCount == 1) {
-                        final String feedURLString = updatingIdentifiedPodcast.model.feedURL.toExternalForm();
+                    List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
+                            new ArrayList<>(
+                                    Collections.nCopies(
+                                            podcasts.size(),
+                                            Optional.empty()
+                                    )
+                            );
+                    for (final String feedURLString : insertingPodcastFeedURLStrings) {
                         @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
                                 indexPodcastSetsByFeedURLString.get(feedURLString);
                         if (indexedPodcastSet == null) {
                             throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
                         } else {
-                            for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
-                                upsertedPodcastIdentifiers.set(
-                                        indexedPodcast.mFirst,
-                                        Optional.of(updatingIdentifiedPodcast.identifier)
-                                );
+                            final Podcast podcast = indexedPodcastSet.iterator().next().mSecond;
+                            final @Nullable Identifier<Podcast> podcastIdentifier = insertPodcast(podcast);
+                            if (podcastIdentifier != null) {
+                                for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
+                                    upsertedPodcastIdentifiers.set(
+                                            indexedPodcast.mFirst,
+                                            Optional.of(podcastIdentifier)
+                                    );
+                                }
                             }
                         }
                     }
+
+                    for (final Identified<Podcast> updatingIdentifiedPodcast : updatingIdentifiedPodcasts) {
+                        final int rowCount = updatePodcastIdentified(updatingIdentifiedPodcast);
+                        if (rowCount == 1) {
+                            final String feedURLString = updatingIdentifiedPodcast.model.feedURL.toExternalForm();
+                            @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
+                                    indexPodcastSetsByFeedURLString.get(feedURLString);
+                            if (indexedPodcastSet == null) {
+                                throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
+                            } else {
+                                for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
+                                    upsertedPodcastIdentifiers.set(
+                                            indexedPodcast.mFirst,
+                                            Optional.of(updatingIdentifiedPodcast.identifier)
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    transaction.markSuccessful();
+
+                    return upsertedPodcastIdentifiers;
                 }
-
-                transaction.markSuccessful();
-
-                return upsertedPodcastIdentifiers;
             }
         }
     }
@@ -304,6 +306,8 @@ final class PodcastTable extends Table {
                 + NAME + " TEXT NOT NULL "
                 + ")"
         );
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST + "__" + FEED_URL
+                + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
     }
 
     static Identified<Podcast> getPodcastIdentified(Cursor cursor) {
