@@ -9,17 +9,20 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
+import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
 public final class Database {
@@ -85,22 +88,21 @@ public final class Database {
         }
     }
 
-//    public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
-//            PodcastSearch podcastSearch
-//    ) {
-//        final SupportSQLiteQuery query =
-//                SupportSQLiteQueryBuilder
-//                        .builder(TABLE_PODCAST_SEARCH)
-//                        .columns(COLUMNS_ALL)
-//                        .selection(
-//                                ID + "= ?",
-//                                new Object[]{podcastSearchIdentifier.id}
-//                        ).create();
-//
-//        return briteDatabase
-//                .createQuery(TABLE_PODCAST_SEARCH, query)
-//                .mapToOptional(PodcastSearchTable::getPodcastSearchIdentified);
-//    }
+    public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
+            PodcastSearch podcastSearch
+    ) {
+        return briteDatabase.createQuery(
+                Arrays.asList(
+                        PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
+                        PodcastTable.TABLE_PODCAST,
+                        PodcastSearchTable.TABLE_PODCAST_SEARCH
+                ),
+                "SELECT " + PodcastSearchResultTable.PODCAST_ID
+                        + "FROM " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + " "
+                +"WHERE ",
+                null
+        ).mapToList(PodcastTable::getPodcastIdentified);
+    }
 
     static final class Schema extends Callback {
         Schema() {

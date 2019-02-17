@@ -16,7 +16,7 @@ import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 
 final class PodcastSearchResultTable extends Table {
-    private static final String TABLE_PODCAST_SEARCH_RESULT = "podcast_search_result";
+    static final String TABLE_PODCAST_SEARCH_RESULT = "podcast_search_result";
 
     static final String ID = "_id";
     static final String PODCAST_ID = FOREIGN_KEY_PODCAST;

@@ -40,7 +40,7 @@ import static com.github.hborders.heathcast.utils.ListUtil.indexedStream;
 import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
 final class PodcastTable extends Table {
-    private static final String TABLE_PODCAST = "podcast";
+    static final String TABLE_PODCAST = "podcast";
 
     private static final String ARTWORK_URL = "artwork_url";
     private static final String AUTHOR = "author";

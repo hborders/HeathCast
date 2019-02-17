@@ -26,7 +26,7 @@ import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
 import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
 final class PodcastSearchTable extends Table {
-    private static final String TABLE_PODCAST_SEARCH = "podcast_search";
+    static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
     private static final String ID = "_id";
     private static final String SEARCH = "search";
