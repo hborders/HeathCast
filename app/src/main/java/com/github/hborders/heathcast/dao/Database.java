@@ -62,7 +62,7 @@ public final class Database {
         return podcastSearchTable.upsertPodcastSearch(podcastSearch);
     }
 
-    public void replacePodcastSearchResults(
+    public void outerReplacePodcastSearchResults(
             Identifier<PodcastSearch> podcastSearchIdentifier,
             List<Podcast> podcasts
     ) {

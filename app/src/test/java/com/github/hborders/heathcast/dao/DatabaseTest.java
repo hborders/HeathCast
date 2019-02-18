@@ -83,7 +83,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testReplacePodcastSearchResultsForFirstPodcastSearch() {
+    public void testOuterReplacePodcastSearchResultsForFirstPodcastSearch() {
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(new PodcastSearch("Search1"));
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
@@ -108,7 +108,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
             podcastTestObserver1.assertValue(Collections.emptyList());
             podcastTestObserver2.assertValue(Collections.emptyList());
 
-            getTestObject().replacePodcastSearchResults(
+            getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier1,
                     Arrays.asList(
                             podcast1,
@@ -137,7 +137,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testReplacePodcastSearchResultsUpdatesExistingPodcastSearchResults() {
+    public void testOuterReplacePodcastSearchResultsUpdatesExistingPodcastSearchResults() {
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(new PodcastSearch("Search1"));
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
@@ -147,7 +147,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
         } else if (podcastSearchIdentifier2 == null) {
             fail();
         } else {
-            getTestObject().replacePodcastSearchResults(
+            getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier1,
                     Arrays.asList(
                             podcast11,
@@ -155,7 +155,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             podcast3
                     )
             );
-            getTestObject().replacePodcastSearchResults(
+            getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier1,
                     Arrays.asList(
                             podcast12,
@@ -190,7 +190,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testReplacePodcastSearchResultsCanIncludePodcastsFromOtherSearchResults() {
+    public void testOuterReplacePodcastSearchResultsCanIncludePodcastsFromOtherSearchResults() {
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(new PodcastSearch("Search1"));
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
@@ -200,7 +200,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
         } else if (podcastSearchIdentifier2 == null) {
             fail();
         } else {
-            getTestObject().replacePodcastSearchResults(
+            getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier1,
                     Arrays.asList(
                             podcast1,
@@ -209,7 +209,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             podcast4
                     )
             );
-            getTestObject().replacePodcastSearchResults(
+            getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier2,
                     Arrays.asList(
                             podcast5,
@@ -262,7 +262,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
         } else if (podcastSearchIdentifier2 == null) {
             fail();
         } else {
-            getTestObject().replacePodcastSearchResults(
+            getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier1,
                     Arrays.asList(
                             podcast1,
@@ -271,7 +271,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             podcast4
                     )
             );
-            getTestObject().replacePodcastSearchResults(
+            getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier2,
                     Arrays.asList(
                             podcast5,

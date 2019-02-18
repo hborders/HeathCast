@@ -5,11 +5,14 @@ import android.database.Cursor;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.github.hborders.heathcast.core.Ranged;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.squareup.sqlbrite3.BriteDatabase;
+
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -31,6 +34,7 @@ final class EpisodeTable extends Table {
     private static final String DURATION = "duration";
     private static final String ID = "_id";
     private static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
+    private static final String SORT = "sort";
     private static final String SUMMARY = "summary";
     private static final String TITLE = "title";
     private static final String URL = "url";
@@ -43,12 +47,28 @@ final class EpisodeTable extends Table {
         super(briteDatabase);
     }
 
+    @Nullable
+    List<Identifier<Episode>> leftOuterReplaceEpisodes(
+            Identifier<Podcast> podcastIdentifier,
+            List<Episode> episodes
+    ) {
+
+    }
+
+    Ranged<Integer> findEpisodeSortRanged(
+            Identifier<Podcast> podcastIdentifier,
+            List<Episode> episodes
+    ) {
+
+    }
+
     static void createEpisodeTable(SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
                 + ARTWORK_URL + " TEXT, "
                 + DURATION + " INTEGER, "
                 + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
                 + PODCAST_ID + " INTEGER NOT NULL, "
+                + SORT + " INTEGER NOT NULL DEFAULT 0, "
                 + SUMMARY + " TEXT, "
                 + TITLE + " TEXT NOT NULL, "
                 + URL + " TEXT NOT NULL, "
@@ -57,6 +77,10 @@ final class EpisodeTable extends Table {
         );
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PODCAST_ID
                 + " ON " + TABLE_EPISODE + "(" + PODCAST_ID + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + SORT
+                + " ON " + TABLE_EPISODE + "(" + SORT + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + URL
+                + " ON " + TABLE_EPISODE + "(" + URL + ")");
     }
 
     static Identified<Episode> getIdentifiedEpisode(Cursor cursor) {

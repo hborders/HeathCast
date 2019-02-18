@@ -98,35 +98,46 @@ final class PodcastTable extends Table {
     @Nullable
     Identifier<Podcast> upsertPodcast(Podcast podcast) {
         try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            final SupportSQLiteQuery idQuery =
-                    SupportSQLiteQueryBuilder
-                            .builder(TABLE_PODCAST)
-                            .columns(COLUMNS_ID)
-                            .selection(
-                                    FEED_URL + " = ?",
-                                    new Object[]{podcast.feedURL.toExternalForm()})
-                            .create();
-            try (final Cursor cursor = briteDatabase.query(idQuery)) {
-                @Nullable final Identifier<Podcast> podcastIdentifier;
-                if (cursor.moveToNext()) {
-                    podcastIdentifier = new Identifier<>(
-                            Podcast.class,
-                            cursor.getLong(0)
-                    );
+            @Nullable final Identifier<Podcast> existingPodcastIdentifier =
+                    findPodcastIdentifier(podcast);
+            @Nullable final Identifier<Podcast> upsertedPodcastIdentifier;
+            if (existingPodcastIdentifier == null) {
+                upsertedPodcastIdentifier = insertPodcast(podcast);
+            } else {
+                upsertedPodcastIdentifier = existingPodcastIdentifier;
+                updatePodcastIdentified(
+                        new Identified<>(
+                                existingPodcastIdentifier,
+                                podcast
+                        )
+                );
+            }
 
-                    updatePodcastIdentified(
-                            new Identified<>(
-                                    podcastIdentifier,
-                                    podcast
-                            )
-                    );
-                } else {
-                    podcastIdentifier = insertPodcast(podcast);
-                }
+            transaction.markSuccessful();
 
-                transaction.markSuccessful();
+            return upsertedPodcastIdentifier;
+        }
+    }
 
-                return podcastIdentifier;
+    @Nullable
+    private Identifier<Podcast> findPodcastIdentifier(Podcast podcast) {
+        final SupportSQLiteQuery idQuery =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_PODCAST)
+                        .columns(COLUMNS_ID)
+                        .selection(
+                                FEED_URL + " = ?",
+                                new Object[]{podcast.feedURL.toExternalForm()})
+                        .create();
+        try (final Cursor cursor = briteDatabase.query(idQuery)) {
+            @Nullable final Identifier<Podcast> podcastIdentifier;
+            if (cursor.moveToNext()) {
+                return new Identifier<>(
+                        Podcast.class,
+                        cursor.getLong(0)
+                );
+            } else {
+                return null;
             }
         }
     }

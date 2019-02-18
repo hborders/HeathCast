@@ -54,36 +54,47 @@ final class PodcastSearchTable extends Table {
     @Nullable
     Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
         try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            final SupportSQLiteQuery idQuery =
-                    SupportSQLiteQueryBuilder
-                            .builder(TABLE_PODCAST_SEARCH)
-                            .columns(COLUMNS_ID)
-                            .limit("1")
-                            .selection(
-                                    SEARCH + " = ?",
-                                    new Object[]{podcastSearch.search})
-                            .create();
-            try (final Cursor idCursor = briteDatabase.query(idQuery)) {
-                @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier;
-                if (idCursor.moveToNext()) {
-                    podcastSearchIdentifier = new Identifier<>(
-                            PodcastSearch.class,
-                            idCursor.getLong(0)
-                    );
+            @Nullable final Identifier<PodcastSearch> existingPodcastSearchIdentifier =
+                    findPodcastSearchIdentifier(podcastSearch);
+            @Nullable final Identifier<PodcastSearch> upsertedPodcastSearchIdentifier;
+            if (existingPodcastSearchIdentifier == null) {
+                upsertedPodcastSearchIdentifier = insertPodcastSearch(podcastSearch);
+            } else {
+                upsertedPodcastSearchIdentifier = existingPodcastSearchIdentifier;
+                updatePodcastSearchIdentified(
+                        new Identified<>(
+                                upsertedPodcastSearchIdentifier,
+                                podcastSearch
+                        )
+                );
+            }
 
-                    updatePodcastSearchIdentified(
-                            new Identified<>(
-                                    podcastSearchIdentifier,
-                                    podcastSearch
-                            )
-                    );
-                } else {
-                    podcastSearchIdentifier = insertPodcastSearch(podcastSearch);
-                }
+            transaction.markSuccessful();
 
-                transaction.markSuccessful();
+            return upsertedPodcastSearchIdentifier;
+        }
+    }
 
-                return podcastSearchIdentifier;
+    @Nullable
+    private Identifier<PodcastSearch> findPodcastSearchIdentifier(PodcastSearch podcastSearch) {
+        final SupportSQLiteQuery idQuery =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_PODCAST_SEARCH)
+                        .columns(COLUMNS_ID)
+                        .limit("1")
+                        .selection(
+                                SEARCH + " = ?",
+                                new Object[]{podcastSearch.search})
+                        .create();
+        try (final Cursor idCursor = briteDatabase.query(idQuery)) {
+            @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier;
+            if (idCursor.moveToNext()) {
+                return new Identifier<>(
+                        PodcastSearch.class,
+                        idCursor.getLong(0)
+                );
+            } else {
+                return null;
             }
         }
     }
@@ -229,6 +240,8 @@ final class PodcastSearchTable extends Table {
                         "          );"
                         + "    END"
         );
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH + "__" + SEARCH
+                + " ON " + TABLE_PODCAST_SEARCH + "(" + SEARCH + ")");
         db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH + "__" + SORT
                 + " ON " + TABLE_PODCAST_SEARCH + "(" + SORT + ")");
     }
