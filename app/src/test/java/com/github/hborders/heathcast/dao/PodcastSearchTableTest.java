@@ -22,15 +22,19 @@ import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
 public final class PodcastSearchTableTest extends AbstractDatabaseTest {
+
+    private final PodcastSearch podcastSearch1 = new PodcastSearch("Search1");
+    private final PodcastSearch podcastSearch2 = new PodcastSearch("Search2");
+    private final PodcastSearch podcastSearch3 = new PodcastSearch("Search3");
+
     private PodcastSearchTable getTestObject() {
         return getDatabase().podcastSearchTable;
     }
 
     @Test
     public void testUpsertPodcastSearch() {
-        final PodcastSearch podcastSearch = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
-                getTestObject().upsertPodcastSearch(podcastSearch);
+                getTestObject().upsertPodcastSearch(podcastSearch1);
         if (podcastSearchIdentifier1 == null) {
             fail();
         } else {
@@ -43,7 +47,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
                     Collections.singletonList(
                             new Identified<>(
                                     podcastSearchIdentifier1,
-                                    podcastSearch
+                                    podcastSearch1
                             )
                     )
             );
@@ -52,13 +56,10 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testUpsertNewPodcastSearchSortsItFirst() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
-        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3);
         if (podcastSearchIdentifier1 == null) {
@@ -94,13 +95,10 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testUpsertExistingPodcastSearchReturnsExistingIdentifierAndSortsIfFirst() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
-        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3);
         if (podcastSearchIdentifier1 == null) {
@@ -143,13 +141,10 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testUpsertExistingFirstPodcastSearchKeepsPreviousSortValue() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
-        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3);
         if (podcastSearchIdentifier1 == null) {
@@ -178,11 +173,8 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testDeleteExistingPodcastSearchById() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
         if (podcastSearchIdentifier1 == null) {
@@ -214,11 +206,8 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testDeleteMissingPodcastSearchById() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
         if (podcastSearchIdentifier1 == null) {
@@ -237,89 +226,11 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testDeleteExistingPodcastSearch() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
-                getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
-                getTestObject().upsertPodcastSearch(podcastSearch2);
-        if (podcastSearchIdentifier1 == null) {
-            fail();
-        } else if (podcastSearchIdentifier2 == null) {
-            fail();
-        } else {
-            final int deleteCount = getTestObject().deletePodcastSearch(podcastSearch1);
-            assertEquals(
-                    1,
-                    deleteCount
-            );
-
-            final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
-            getTestObject()
-                    .observeQueryForAllPodcastSearchIdentifieds()
-                    .subscribe(podcastTestObserver);
-
-            podcastTestObserver.assertValue(
-                    Collections.singletonList(
-                            new Identified<>(
-                                    podcastSearchIdentifier2,
-                                    podcastSearch2
-                            )
-                    )
-            );
-        }
-    }
-
-    @Test
-    public void testDeleteMissingPodcastSearch() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
-                getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
-                getTestObject().upsertPodcastSearch(podcastSearch2);
-        if (podcastSearchIdentifier1 == null) {
-            fail();
-        } else if (podcastSearchIdentifier2 == null) {
-            fail();
-        } else {
-            getTestObject().deletePodcastSearch(podcastSearch1);
-            final int deleteCount = getTestObject().deletePodcastSearch(podcastSearch1);
-            assertEquals(
-                    0,
-                    deleteCount
-            );
-
-            final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
-            getTestObject()
-                    .observeQueryForAllPodcastSearchIdentifieds()
-                    .subscribe(podcastTestObserver);
-
-            podcastTestObserver.assertValue(
-                    Collections.singletonList(
-                            new Identified<>(
-                                    podcastSearchIdentifier2,
-                                    podcastSearch2
-                            )
-                    )
-            );
-        }
-    }
-
-    @Test
     public void testDeleteExistingPodcastSearchesByIds() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
-
-        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3);
         if (podcastSearchIdentifier1 == null) {
@@ -358,15 +269,10 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
 
     @Test
     public void testDeleteMissingPodcastSearchesByIds() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
-
-        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3);
         if (podcastSearchIdentifier1 == null) {
@@ -396,112 +302,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testDeleteExistingPodcastSearches() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
-                getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
-                getTestObject().upsertPodcastSearch(podcastSearch2);
-
-        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
-                getTestObject().upsertPodcastSearch(podcastSearch3);
-        if (podcastSearchIdentifier1 == null) {
-            fail();
-        } else if (podcastSearchIdentifier2 == null) {
-            fail();
-        } else if (podcastSearchIdentifier3 == null) {
-            fail();
-        } else {
-            final int deleteCount = getTestObject().deletePodcastSearches(
-                    Arrays.asList(
-                            podcastSearch1,
-                            podcastSearch2
-                    )
-            );
-            assertEquals(
-                    2,
-                    deleteCount
-            );
-
-            final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
-            getTestObject()
-                    .observeQueryForAllPodcastSearchIdentifieds()
-                    .subscribe(podcastTestObserver);
-
-            podcastTestObserver.assertValue(
-                    Collections.singletonList(
-                            new Identified<>(
-                                    podcastSearchIdentifier3,
-                                    podcastSearch3
-                            )
-                    )
-            );
-        }
-    }
-
-    @Test
-    public void testDeleteMissingPodcastSearches() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
-                getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
-                getTestObject().upsertPodcastSearch(podcastSearch2);
-
-        final PodcastSearch podcastSearch3 = new PodcastSearch("Modern Love");
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
-                getTestObject().upsertPodcastSearch(podcastSearch3);
-        if (podcastSearchIdentifier1 == null) {
-            fail();
-        } else if (podcastSearchIdentifier2 == null) {
-            fail();
-        } else if (podcastSearchIdentifier3 == null) {
-            fail();
-        } else {
-            getTestObject().deletePodcastSearches(
-                    Arrays.asList(
-                            podcastSearch1,
-                            podcastSearch2
-                    )
-            );
-            final int deleteCount = getTestObject().deletePodcastSearches(
-                    Arrays.asList(
-                            podcastSearch1,
-                            podcastSearch2
-                    )
-            );
-            assertEquals(
-                    0,
-                    deleteCount
-            );
-
-            final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
-            getTestObject()
-                    .observeQueryForAllPodcastSearchIdentifieds()
-                    .subscribe(podcastTestObserver);
-
-            podcastTestObserver.assertValue(
-                    Collections.singletonList(
-                            new Identified<>(
-                                    podcastSearchIdentifier3,
-                                    podcastSearch3
-                            )
-                    )
-            );
-        }
-    }
-
-    @Test
     public void testObserveQueryForPodcastSearchIdentified() {
-        final PodcastSearch podcastSearch1 = new PodcastSearch("Planet Money");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1);
-
-        final PodcastSearch podcastSearch2 = new PodcastSearch("The Indicator");
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2);
 

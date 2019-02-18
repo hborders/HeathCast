@@ -42,11 +42,11 @@ import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 final class PodcastTable extends Table {
     static final String TABLE_PODCAST = "podcast";
 
-    private static final String ARTWORK_URL = "artwork_url";
-    private static final String AUTHOR = "author";
-    private static final String FEED_URL = "feed_url";
-    private static final String ID = "_id";
-    private static final String NAME = "name";
+    static final String ARTWORK_URL = "artwork_url";
+    static final String AUTHOR = "author";
+    static final String FEED_URL = "feed_url";
+    static final String ID = "_id";
+    static final String NAME = "name";
 
     static final String FOREIGN_KEY_PODCAST = TABLE_PODCAST + "_id";
     static final String CREATE_FOREIGN_KEY_PODCAST =

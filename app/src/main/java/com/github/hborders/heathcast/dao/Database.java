@@ -30,8 +30,8 @@ public final class Database {
     final PodcastSearchTable podcastSearchTable;
     final PodcastTable podcastTable;
     final EpisodeTable episodeTable;
-    final PodcastSearchResultTable podcastSearchResultTable;
-    final PodcastEpisodeListTable podcastEpisodeListTable;
+    private final PodcastSearchResultTable podcastSearchResultTable;
+    private final PodcastEpisodeListTable podcastEpisodeListTable;
 
     public Database(
             Context context,
@@ -58,7 +58,7 @@ public final class Database {
     }
 
     @Nullable
-    public Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
+    public Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
         return podcastSearchTable.upsertPodcastSearch(podcastSearch);
     }
 
@@ -88,8 +88,12 @@ public final class Database {
         }
     }
 
+    public Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
+        return podcastSearchTable.observeQueryForAllPodcastSearchIdentifieds();
+    }
+
     public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
-            PodcastSearch podcastSearch
+            Identifier<PodcastSearch> podcastSearchIdentifier
     ) {
         return briteDatabase.createQuery(
                 Arrays.asList(
@@ -97,11 +101,23 @@ public final class Database {
                         PodcastTable.TABLE_PODCAST,
                         PodcastSearchTable.TABLE_PODCAST_SEARCH
                 ),
-                "SELECT " + PodcastSearchResultTable.PODCAST_ID
-                        + "FROM " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + " "
-                +"WHERE ",
-                null
+                "SELECT "
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ARTWORK_URL + " AS " + PodcastTable.ARTWORK_URL + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.AUTHOR + " AS " + PodcastTable.AUTHOR + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.FEED_URL + " AS " + PodcastTable.FEED_URL + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " AS " + PodcastTable.ID + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.NAME + " AS " + PodcastTable.NAME + " "
+                        + "FROM " + PodcastTable.TABLE_PODCAST + " "
+                        + "INNER JOIN " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + " "
+                        + "  ON " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_ID + " "
+                        + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
+                        + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
+                podcastSearchIdentifier.id
         ).mapToList(PodcastTable::getPodcastIdentified);
+    }
+
+    public int deletePodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+        return podcastSearchTable.deletePodcastSearchById(podcastSearchIdentifier);
     }
 
     static final class Schema extends Callback {
@@ -111,13 +127,15 @@ public final class Database {
 
         @Override
         public void onCreate(SupportSQLiteDatabase db) {
-            db.execSQL("PRAGMA foreign_keys=ON");
-
             PodcastSearchTable.createPodcastSearchTable(db);
             PodcastTable.createPodcastTable(db);
             EpisodeTable.createEpisodeTable(db);
             PodcastSearchResultTable.createPodcastSearchResultTable(db);
             PodcastEpisodeListTable.createPodcastEpisodeListTable(db);
+        }
+
+        public void onConfigure(SupportSQLiteDatabase db) {
+            db.execSQL("PRAGMA foreign_keys=ON");
         }
 
         @Override

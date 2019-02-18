@@ -28,9 +28,9 @@ import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 final class PodcastSearchTable extends Table {
     static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
-    private static final String ID = "_id";
-    private static final String SEARCH = "search";
-    private static final String SORT = "sort";
+    static final String ID = "_id";
+    static final String SEARCH = "search";
+    static final String SORT = "sort";
 
     static final String FOREIGN_KEY_PODCAST_SEARCH = TABLE_PODCAST_SEARCH + "_id";
     static final String CREATE_FOREIGN_KEY_PODCAST_SEARCH =
@@ -58,6 +58,7 @@ final class PodcastSearchTable extends Table {
                     SupportSQLiteQueryBuilder
                             .builder(TABLE_PODCAST_SEARCH)
                             .columns(COLUMNS_ID)
+                            .limit("1")
                             .selection(
                                     SEARCH + " = ?",
                                     new Object[]{podcastSearch.search})
@@ -104,9 +105,9 @@ final class PodcastSearchTable extends Table {
         }
     }
 
-    private int updatePodcastSearchIdentified(
+    private void updatePodcastSearchIdentified(
             Identified<PodcastSearch> podcastSearchIdentified) {
-        return briteDatabase.update(
+        briteDatabase.update(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchIdentifiedContentValues(podcastSearchIdentified),
@@ -123,14 +124,6 @@ final class PodcastSearchTable extends Table {
         );
     }
 
-    int deletePodcastSearch(PodcastSearch podcastSearch) {
-        return briteDatabase.delete(
-                TABLE_PODCAST_SEARCH,
-                SEARCH + " = ?",
-                podcastSearch.search
-        );
-    }
-
     int deletePodcastSearchesByIds(Collection<Identifier<PodcastSearch>> podcastSearchIdentifiers) {
         final String[] idStrings = new String[podcastSearchIdentifiers.size()];
         int i = 0;
@@ -142,20 +135,6 @@ final class PodcastSearchTable extends Table {
                 TABLE_PODCAST_SEARCH,
                 ID + inPlaceholderClause(podcastSearchIdentifiers.size()),
                 idStrings
-        );
-    }
-
-    int deletePodcastSearches(Collection<PodcastSearch> podcastSearches) {
-        final String[] searches = new String[podcastSearches.size()];
-        int i = 0;
-        for (PodcastSearch podcastSearch : podcastSearches) {
-            searches[i] = podcastSearch.search;
-            i++;
-        }
-        return briteDatabase.delete(
-                TABLE_PODCAST_SEARCH,
-                SEARCH + inPlaceholderClause(podcastSearches.size()),
-                searches
         );
     }
 
