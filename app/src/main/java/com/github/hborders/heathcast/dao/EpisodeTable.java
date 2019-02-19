@@ -5,24 +5,23 @@ import android.database.Cursor;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.github.hborders.heathcast.core.Ranged;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.squareup.sqlbrite3.BriteDatabase;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
+import static com.github.hborders.heathcast.utils.ContentValuesUtil.putDateAsLong;
 import static com.github.hborders.heathcast.utils.ContentValuesUtil.putDurationAsLong;
 import static com.github.hborders.heathcast.utils.ContentValuesUtil.putURLAsString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullURLFromString;
+import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDateFromLong;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDurationFromLong;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
@@ -34,6 +33,7 @@ final class EpisodeTable extends Table {
     private static final String DURATION = "duration";
     private static final String ID = "_id";
     private static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
+    private static final String PUBLISH_TIME_MILLIS = "publish_times_millis";
     private static final String SORT = "sort";
     private static final String SUMMARY = "summary";
     private static final String TITLE = "title";
@@ -47,20 +47,13 @@ final class EpisodeTable extends Table {
         super(briteDatabase);
     }
 
-    @Nullable
-    List<Identifier<Episode>> leftOuterReplaceEpisodes(
-            Identifier<Podcast> podcastIdentifier,
-            List<Episode> episodes
-    ) {
-
-    }
-
-    Ranged<Integer> findEpisodeSortRanged(
-            Identifier<Podcast> podcastIdentifier,
-            List<Episode> episodes
-    ) {
-
-    }
+//    @Nullable
+//    List<Identifier<Episode>> upsertEpisodes(
+//            Identifier<Podcast> podcastIdentifier,
+//            List<Episode> episodes
+//    ) {
+//
+//    }
 
     static void createEpisodeTable(SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
@@ -68,6 +61,7 @@ final class EpisodeTable extends Table {
                 + DURATION + " INTEGER, "
                 + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
                 + PODCAST_ID + " INTEGER NOT NULL, "
+                + PUBLISH_TIME_MILLIS + " INTEGER NOT NULL, "
                 + SORT + " INTEGER NOT NULL DEFAULT 0, "
                 + SUMMARY + " TEXT, "
                 + TITLE + " TEXT NOT NULL, "
@@ -77,6 +71,8 @@ final class EpisodeTable extends Table {
         );
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PODCAST_ID
                 + " ON " + TABLE_EPISODE + "(" + PODCAST_ID + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PUBLISH_TIME_MILLIS
+                + " ON " + TABLE_EPISODE + "(" + PUBLISH_TIME_MILLIS + ")");
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + SORT
                 + " ON " + TABLE_EPISODE + "(" + SORT + ")");
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + URL
@@ -92,6 +88,7 @@ final class EpisodeTable extends Table {
                 new Episode(
                         getNullableURLFromString(cursor, ARTWORK_URL),
                         getNullableDurationFromLong(cursor, DURATION),
+                        getNullableDateFromLong(cursor, PUBLISH_TIME_MILLIS),
                         getNullableString(cursor, SUMMARY),
                         getNonnullString(cursor, TITLE),
                         getNonnullURLFromString(cursor, URL)
@@ -100,10 +97,11 @@ final class EpisodeTable extends Table {
     }
 
     static ContentValues getEpisodeContentValues(Episode episode) {
-        final ContentValues values = new ContentValues(7);
+        final ContentValues values = new ContentValues(8);
 
         putURLAsString(values, ARTWORK_URL, episode.artworkURL);
         putDurationAsLong(values, DURATION, episode.duration);
+        putDateAsLong(values, PUBLISH_TIME_MILLIS, episode.publishDate);
         values.put(SUMMARY, episode.summary);
         values.put(TITLE, episode.title);
         putURLAsString(values, URL, episode.url);

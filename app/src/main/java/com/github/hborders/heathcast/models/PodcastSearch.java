@@ -2,11 +2,15 @@ package com.github.hborders.heathcast.models;
 
 import java.util.Objects;
 
-public class PodcastSearch {
+public final class PodcastSearch {
     public final String search;
 
     public PodcastSearch(String search) {
         this.search = search;
+    }
+
+    public String getSearch() {
+        return search;
     }
 
     @Override

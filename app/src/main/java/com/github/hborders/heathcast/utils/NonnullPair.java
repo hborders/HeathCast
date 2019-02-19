@@ -3,15 +3,15 @@ package com.github.hborders.heathcast.utils;
 import java.util.Objects;
 
 public final class NonnullPair<F, S> {
-    public final F mFirst;
-    public final S mSecond;
+    public final F first;
+    public final S second;
 
     public NonnullPair(
             F first,
             S second
     ) {
-        this.mFirst = first;
-        this.mSecond = second;
+        this.first = first;
+        this.second = second;
     }
 
     @Override
@@ -19,28 +19,28 @@ public final class NonnullPair<F, S> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NonnullPair<?, ?> that = (NonnullPair<?, ?>) o;
-        return mFirst.equals(that.mFirst) &&
-                mSecond.equals(that.mSecond);
+        return first.equals(that.first) &&
+                second.equals(that.second);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mFirst, mSecond);
+        return Objects.hash(first, second);
     }
 
     @Override
     public String toString() {
         return "NonnullPair{" +
-                "mFirst=" + mFirst +
-                ", mSecond=" + mSecond +
+                "first=" + first +
+                ", second=" + second +
                 '}';
     }
 
     public F getFirst() {
-        return mFirst;
+        return first;
     }
 
     public S getSecond() {
-        return mSecond;
+        return second;
     }
 }

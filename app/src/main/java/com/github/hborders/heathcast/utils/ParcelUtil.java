@@ -4,6 +4,7 @@ import android.os.Parcel;
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.Date;
 
 import javax.annotation.Nullable;
 
@@ -31,7 +32,8 @@ public final class ParcelUtil {
 
     public static void writeDuration(
             Parcel dest,
-            @Nullable Duration duration) {
+            @Nullable Duration duration
+    ) {
         if (duration == null) {
             dest.writeLong(-1);
         } else {
@@ -51,6 +53,31 @@ public final class ParcelUtil {
                     seconds,
                     nano
             );
+        }
+    }
+
+    public static void writeDate(
+            Parcel dest,
+            @Nullable Date date
+    ) {
+        if (date == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(date.getTime());
+        }
+    }
+
+    @Nullable
+    public static Date readDate(
+        Parcel in
+    ) {
+        final byte exists = in.readByte();
+        if (exists == 0) {
+            return null;
+        } else {
+            final long time = in.readLong();
+            return new Date(time);
         }
     }
 }

@@ -11,19 +11,13 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.utils.CursorUtil;
-import com.github.hborders.heathcast.utils.NonnullPair;
-import com.github.hborders.heathcast.utils.SetUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -36,7 +30,6 @@ import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullURLFromString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
-import static com.github.hborders.heathcast.utils.ListUtil.indexedStream;
 import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
 final class PodcastTable extends Table {
@@ -68,19 +61,20 @@ final class PodcastTable extends Table {
         super(briteDatabase);
     }
 
-    @Nullable
-    Identifier<Podcast> insertPodcast(Podcast podcast) {
+    Optional<Identifier<Podcast>> insertPodcast(Podcast podcast) {
         final long id = briteDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastContentValues(podcast)
         );
         if (id == -1) {
-            return null;
+            return Optional.empty();
         } else {
-            return new Identifier<>(
-                    Podcast.class,
-                    id
+            return Optional.of(
+                    new Identifier<>(
+                            Podcast.class,
+                            id
+                    )
             );
         }
     }
@@ -97,164 +91,31 @@ final class PodcastTable extends Table {
 
     @Nullable
     Identifier<Podcast> upsertPodcast(Podcast podcast) {
-        try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            @Nullable final Identifier<Podcast> existingPodcastIdentifier =
-                    findPodcastIdentifier(podcast);
-            @Nullable final Identifier<Podcast> upsertedPodcastIdentifier;
-            if (existingPodcastIdentifier == null) {
-                upsertedPodcastIdentifier = insertPodcast(podcast);
-            } else {
-                upsertedPodcastIdentifier = existingPodcastIdentifier;
-                updatePodcastIdentified(
-                        new Identified<>(
-                                existingPodcastIdentifier,
-                                podcast
-                        )
-                );
-            }
-
-            transaction.markSuccessful();
-
-            return upsertedPodcastIdentifier;
-        }
-    }
-
-    @Nullable
-    private Identifier<Podcast> findPodcastIdentifier(Podcast podcast) {
-        final SupportSQLiteQuery idQuery =
-                SupportSQLiteQueryBuilder
-                        .builder(TABLE_PODCAST)
-                        .columns(COLUMNS_ID)
-                        .selection(
-                                FEED_URL + " = ?",
-                                new Object[]{podcast.feedURL.toExternalForm()})
-                        .create();
-        try (final Cursor cursor = briteDatabase.query(idQuery)) {
-            @Nullable final Identifier<Podcast> podcastIdentifier;
-            if (cursor.moveToNext()) {
-                return new Identifier<>(
-                        Podcast.class,
-                        cursor.getLong(0)
-                );
-            } else {
-                return null;
-            }
-        }
+        return upsertModel(
+                TABLE_PODCAST,
+                ID,
+                FEED_URL,
+                Podcast.class,
+                podcast,
+                podcast_ -> podcast_.feedURL.toExternalForm(),
+                cursor -> CursorUtil.getNonnullString(cursor, FEED_URL),
+                this::insertPodcast,
+                this::updatePodcastIdentified
+        );
     }
 
     List<Optional<Identifier<Podcast>>> upsertPodcasts(List<Podcast> podcasts) {
-        if (podcasts.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-                final Map<String, Set<NonnullPair<Integer, Podcast>>> indexPodcastSetsByFeedURLString =
-                        indexedStream(podcasts)
-                                .collect(
-                                        Collectors.toMap(
-                                                indexedPodcast -> indexedPodcast.mSecond.feedURL.toExternalForm(),
-                                                indexedPodcast -> Collections.singleton(
-                                                        new NonnullPair<>(
-                                                                indexedPodcast.mFirst,
-                                                                indexedPodcast.mSecond
-                                                        )
-                                                ),
-                                                SetUtil::union
-                                        )
-                                );
-                final String selection =
-                        FEED_URL + inPlaceholderClause(indexPodcastSetsByFeedURLString.keySet().size());
-                final SupportSQLiteQuery idAndFeedUrlQuery =
-                        SupportSQLiteQueryBuilder
-                                .builder(TABLE_PODCAST)
-                                .columns(COLUMNS_ID_FEED_URL)
-                                .selection(
-                                        selection,
-                                        indexPodcastSetsByFeedURLString.keySet().toArray()
-                                )
-                                .create();
-                try (final Cursor podcastIdAndFeedURLCursor = briteDatabase.query(idAndFeedUrlQuery)) {
-                    final HashSet<String> insertingPodcastFeedURLStrings = new HashSet<>(indexPodcastSetsByFeedURLString.keySet());
-                    final List<Identified<Podcast>> updatingIdentifiedPodcasts = new ArrayList<>(podcasts.size());
-                    while (podcastIdAndFeedURLCursor.moveToNext()) {
-                        final long id = CursorUtil.getNonnullLong(
-                                podcastIdAndFeedURLCursor,
-                                ID
-                        );
-                        final String feedURLString = CursorUtil.getNonnullString(
-                                podcastIdAndFeedURLCursor,
-                                FEED_URL
-                        );
-                        @Nullable final Set<NonnullPair<Integer, Podcast>> indexPodcastSet =
-                                indexPodcastSetsByFeedURLString.get(feedURLString);
-                        if (indexPodcastSet == null) {
-                            throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
-                        } else {
-                            final Podcast podcast = indexPodcastSet.iterator().next().mSecond;
-                            insertingPodcastFeedURLStrings.remove(podcast.feedURL.toExternalForm());
-                            updatingIdentifiedPodcasts.add(
-                                    new Identified<>(
-                                            new Identifier<>(
-                                                    Podcast.class,
-                                                    id
-                                            ),
-                                            podcast
-                                    )
-                            );
-                        }
-                    }
-                    podcastIdAndFeedURLCursor.close();
-
-                    List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
-                            new ArrayList<>(
-                                    Collections.nCopies(
-                                            podcasts.size(),
-                                            Optional.empty()
-                                    )
-                            );
-                    for (final String feedURLString : insertingPodcastFeedURLStrings) {
-                        @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
-                                indexPodcastSetsByFeedURLString.get(feedURLString);
-                        if (indexedPodcastSet == null) {
-                            throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
-                        } else {
-                            final Podcast podcast = indexedPodcastSet.iterator().next().mSecond;
-                            final @Nullable Identifier<Podcast> podcastIdentifier = insertPodcast(podcast);
-                            if (podcastIdentifier != null) {
-                                for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
-                                    upsertedPodcastIdentifiers.set(
-                                            indexedPodcast.mFirst,
-                                            Optional.of(podcastIdentifier)
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    for (final Identified<Podcast> updatingIdentifiedPodcast : updatingIdentifiedPodcasts) {
-                        final int rowCount = updatePodcastIdentified(updatingIdentifiedPodcast);
-                        if (rowCount == 1) {
-                            final String feedURLString = updatingIdentifiedPodcast.model.feedURL.toExternalForm();
-                            @Nullable final Set<NonnullPair<Integer, Podcast>> indexedPodcastSet =
-                                    indexPodcastSetsByFeedURLString.get(feedURLString);
-                            if (indexedPodcastSet == null) {
-                                throw new IllegalStateException("Found unexpected feedURL: " + feedURLString);
-                            } else {
-                                for (final NonnullPair<Integer, Podcast> indexedPodcast : indexedPodcastSet) {
-                                    upsertedPodcastIdentifiers.set(
-                                            indexedPodcast.mFirst,
-                                            Optional.of(updatingIdentifiedPodcast.identifier)
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    transaction.markSuccessful();
-
-                    return upsertedPodcastIdentifiers;
-                }
-            }
-        }
+        return upsertModels(
+                TABLE_PODCAST,
+                ID,
+                FEED_URL,
+                Podcast.class,
+                podcasts,
+                podcast -> podcast.feedURL.toExternalForm(),
+                cursor -> CursorUtil.getNonnullString(cursor, FEED_URL),
+                this::insertPodcast,
+                this::updatePodcastIdentified
+        );
     }
 
     int deletePodcast(Identifier<Podcast> podcastIdentifier) {

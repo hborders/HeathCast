@@ -13,10 +13,15 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -26,6 +31,10 @@ import static com.github.hborders.heathcast.utils.StringUtil.isEmpty;
 
 final class XmlParser {
     private static final String ITUNES_NAMESPACE = "http://www.itunes.com/dtds/podcast-1.0.dtd";
+    private static final DateFormat PUB_DATE_DATE_FORMAT = new SimpleDateFormat(
+            "EEE, dd MMM yyyy HH:mm:ss zzz",
+            Locale.US
+    );
 
     static List<Identified<Episode>> parseEpisodeList(InputStream in) throws XmlPullParserException, IOException {
         try {
@@ -107,6 +116,7 @@ final class XmlParser {
 
         @Nullable URL artworkURL = null;
         @Nullable Duration duration = null;
+        @Nullable Date publishDate = null;
         @Nullable String summary = null;
         @Nullable String title = null;
         @Nullable URL url = null;
@@ -132,6 +142,16 @@ final class XmlParser {
             } else if ("title".equals(tagName) &&
                     "".equals(tagNamespace)) {
                 title = readText(parser);
+            } else if ("pubDate".equals(tagName) &&
+                    "".equals(tagNamespace)) {
+                @Nullable final String dateString = readText(parser);
+                if (dateString != null) {
+                    try {
+                        publishDate = PUB_DATE_DATE_FORMAT.parse(dateString);
+                    } catch (ParseException e) {
+                        // ignore
+                    }
+                }
             } else {
                 skip(parser);
             }
@@ -142,6 +162,7 @@ final class XmlParser {
             return new Episode(
                     artworkURL,
                     duration,
+                    publishDate,
                     summary,
                     title,
                     url

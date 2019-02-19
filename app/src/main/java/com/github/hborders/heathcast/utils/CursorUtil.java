@@ -4,6 +4,7 @@ import android.database.Cursor;
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.Date;
 
 import javax.annotation.Nullable;
 
@@ -81,7 +82,7 @@ public final class CursorUtil {
         if (cursor.isNull(columnIndex)) {
             return null;
         }
-        final long value = getNonnullLong(cursor, columnName);
+        final long value = cursor.getLong(columnIndex);
         return Duration.ofSeconds(value);
     }
 
@@ -92,5 +93,23 @@ public final class CursorUtil {
         }
 
         return value;
+    }
+
+    @Nullable
+    public static Date getNullableDateFromLong(Cursor cursor, String columnName) {
+        final int columnIndex = cursor.getColumnIndexOrThrow(columnName);
+        if (cursor.isNull(columnIndex)) {
+            return null;
+        }
+        final long time = cursor.getLong(columnIndex);
+        return new Date(time);
+    }
+
+    public static Date getNonnullDateFromLong(Cursor cursor, String columnName) {
+        @Nullable final Date date = getNullableDateFromLong(cursor, columnName);
+        if (date == null) {
+            throw new NullPointerException(columnName);
+        }
+        return date;
     }
 }

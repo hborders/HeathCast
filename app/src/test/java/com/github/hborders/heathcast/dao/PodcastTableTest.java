@@ -41,7 +41,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getTestObject().insertPodcast(podcast);
+                getTestObject().insertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -70,7 +70,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier1 =
-                getTestObject().insertPodcast(podcast1);
+                getTestObject().insertPodcast(podcast1).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
         } else {
@@ -83,7 +83,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                                 "name2"
                         );
                         try {
-                            return getTestObject().insertPodcast(podcast2);
+                            return getTestObject().insertPodcast(podcast2).orElse(null);
                         } catch (Throwable t) {
                             return null;
                         }
@@ -146,7 +146,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                                 new URL("http://example.com/feed"),
                                 "name"
                         )
-                );
+                ).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
         } else {
@@ -189,7 +189,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                                 new URL("http://example.com/feed"),
                                 "name"
                         )
-                );
+                ).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
         } else {
@@ -300,7 +300,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                                 new URL("http://example.com/feedB"),
                                 "name1"
                         )
-                );
+                ).orElse(null);
         if (existingPodcastIdentifier == null) {
             fail();
         } else {
@@ -387,7 +387,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name11"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier11 =
-                getTestObject().insertPodcast(podcast11);
+                getTestObject().insertPodcast(podcast11).orElse(null);
         if (podcastIdentifier11 == null) {
             fail();
         } else {
@@ -433,7 +433,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name11"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier11 =
-                getTestObject().insertPodcast(podcast11);
+                getTestObject().insertPodcast(podcast11).orElse(null);
         if (podcastIdentifier11 == null) {
             fail();
         } else {
@@ -466,7 +466,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name11"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier11 =
-                getTestObject().insertPodcast(podcast11);
+                getTestObject().insertPodcast(podcast11).orElse(null);
 
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -475,7 +475,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name2"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                getTestObject().insertPodcast(podcast2);
+                getTestObject().insertPodcast(podcast2).orElse(null);
         if (podcastIdentifier11 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {
@@ -555,7 +555,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name1"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier1 =
-                getTestObject().insertPodcast(podcast1);
+                getTestObject().insertPodcast(podcast1).orElse(null);
 
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -564,7 +564,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name2"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                getTestObject().insertPodcast(podcast2);
+                getTestObject().insertPodcast(podcast2).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {
@@ -601,7 +601,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name1"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier1 =
-                getTestObject().insertPodcast(podcast1);
+                getTestObject().insertPodcast(podcast1).orElse(null);
 
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -610,7 +610,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name2"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                getTestObject().insertPodcast(podcast2);
+                getTestObject().insertPodcast(podcast2).orElse(null);
 
         final Podcast podcast3 = new Podcast(
                 new URL("http://example.com/artwork3"),
@@ -619,7 +619,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name3"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier3 =
-                getTestObject().insertPodcast(podcast3);
+                getTestObject().insertPodcast(podcast3).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {

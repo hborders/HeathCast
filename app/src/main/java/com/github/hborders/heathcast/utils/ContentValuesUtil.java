@@ -4,6 +4,7 @@ import android.content.ContentValues;
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.Date;
 
 import javax.annotation.Nullable;
 
@@ -25,9 +26,19 @@ public final class ContentValuesUtil {
             ContentValues contentValues,
             String key,
             @Nullable Duration duration
-            ) {
+    ) {
         if (duration != null) {
             contentValues.put(key, duration.getSeconds());
+        }
+    }
+
+    public static void putDateAsLong(
+            ContentValues contentValues,
+            String key,
+            @Nullable Date date
+    ) {
+        if (date != null) {
+            contentValues.put(key, date.getTime());
         }
     }
 }

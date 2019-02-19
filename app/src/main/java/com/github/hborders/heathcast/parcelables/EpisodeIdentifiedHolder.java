@@ -9,12 +9,15 @@ import com.github.hborders.heathcast.models.Identifier;
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.Date;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import static com.github.hborders.heathcast.utils.ParcelUtil.readDate;
 import static com.github.hborders.heathcast.utils.ParcelUtil.readDuration;
 import static com.github.hborders.heathcast.utils.ParcelUtil.readURL;
+import static com.github.hborders.heathcast.utils.ParcelUtil.writeDate;
 import static com.github.hborders.heathcast.utils.ParcelUtil.writeDuration;
 import static com.github.hborders.heathcast.utils.ParcelUtil.writeURL;
 
@@ -34,6 +37,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
             @Nullable final URL artworkURL = readURL(in);
             @Nullable final Duration duration = readDuration(in);
             final long id = in.readLong();
+            @Nullable final Date pubishDate = readDate(in);
             @Nullable final String summary = in.readString();
             @Nullable final String title = in.readString();
             @Nullable final URL url = readURL(in);
@@ -46,6 +50,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
                         new Episode(
                                 artworkURL,
                                 duration,
+                                pubishDate,
                                 summary,
                                 title,
                                 url
@@ -92,6 +97,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
             writeURL(dest, episodeIdentified.model.artworkURL);
             writeDuration(dest, episodeIdentified.model.duration);
             dest.writeLong(episodeIdentified.identifier.id);
+            writeDate(dest, episodeIdentified.model.publishDate);
             dest.writeString(episodeIdentified.model.summary);
             dest.writeString(episodeIdentified.model.title);
             writeURL(dest, episodeIdentified.model.url);

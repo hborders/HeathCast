@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.utils.CursorUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.Collection;
@@ -53,72 +54,39 @@ final class PodcastSearchTable extends Table {
 
     @Nullable
     Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
-        try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            @Nullable final Identifier<PodcastSearch> existingPodcastSearchIdentifier =
-                    findPodcastSearchIdentifier(podcastSearch);
-            @Nullable final Identifier<PodcastSearch> upsertedPodcastSearchIdentifier;
-            if (existingPodcastSearchIdentifier == null) {
-                upsertedPodcastSearchIdentifier = insertPodcastSearch(podcastSearch);
-            } else {
-                upsertedPodcastSearchIdentifier = existingPodcastSearchIdentifier;
-                updatePodcastSearchIdentified(
-                        new Identified<>(
-                                upsertedPodcastSearchIdentifier,
-                                podcastSearch
-                        )
-                );
-            }
-
-            transaction.markSuccessful();
-
-            return upsertedPodcastSearchIdentifier;
-        }
+        return upsertModel(
+                TABLE_PODCAST_SEARCH,
+                ID,
+                SEARCH,
+                PodcastSearch.class,
+                podcastSearch,
+                PodcastSearch::getSearch,
+                cursor -> CursorUtil.getNonnullString(cursor, SEARCH),
+                this::insertPodcastSearch,
+                this::updatePodcastSearchIdentified);
     }
 
-    @Nullable
-    private Identifier<PodcastSearch> findPodcastSearchIdentifier(PodcastSearch podcastSearch) {
-        final SupportSQLiteQuery idQuery =
-                SupportSQLiteQueryBuilder
-                        .builder(TABLE_PODCAST_SEARCH)
-                        .columns(COLUMNS_ID)
-                        .limit("1")
-                        .selection(
-                                SEARCH + " = ?",
-                                new Object[]{podcastSearch.search})
-                        .create();
-        try (final Cursor idCursor = briteDatabase.query(idQuery)) {
-            @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier;
-            if (idCursor.moveToNext()) {
-                return new Identifier<>(
-                        PodcastSearch.class,
-                        idCursor.getLong(0)
-                );
-            } else {
-                return null;
-            }
-        }
-    }
-
-    @Nullable
-    private Identifier<PodcastSearch> insertPodcastSearch(PodcastSearch podcastSearch) {
+    private Optional<Identifier<PodcastSearch>> insertPodcastSearch(PodcastSearch podcastSearch) {
         final long id = briteDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchContentValues(podcastSearch)
         );
         if (id == -1) {
-            return null;
+            return Optional.empty();
         } else {
-            return new Identifier<>(
-                    PodcastSearch.class,
-                    id
+            return Optional.of(
+                    new Identifier<>(
+                            PodcastSearch.class,
+                            id
+                    )
             );
         }
     }
 
-    private void updatePodcastSearchIdentified(
+    private int updatePodcastSearchIdentified(
             Identified<PodcastSearch> podcastSearchIdentified) {
-        briteDatabase.update(
+        return briteDatabase.update(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchIdentifiedContentValues(podcastSearchIdentified),
