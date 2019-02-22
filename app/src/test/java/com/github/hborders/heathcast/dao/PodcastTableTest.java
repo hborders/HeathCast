@@ -237,12 +237,12 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testUpsertNewPodcastWithSameFeedTwiceTogetherInsertsFirstPodcastAndIgnoresSecond() throws Exception {
+    public void testUpsertNewPodcastWithSameFeedThriceTogetherInsertsFirstPodcastAndOthers() throws Exception {
         final Podcast podcast1 = new Podcast(
-                new URL("http://example.com/artwork"),
-                "author",
+                new URL("http://example.com/artwork1"),
+                "author1",
                 new URL("http://example.com/feed"),
-                "name"
+                "name1"
         );
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -250,23 +250,31 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 new URL("http://example.com/feed"),
                 "name2"
         );
-        final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
+        final Podcast podcast3 = new Podcast(
+                new URL("http://example.com/artwork3"),
+                "author3",
+                new URL("http://example.com/feed"),
+                "name3"
+        );
+        final List<Podcast> upsertingPodcasts = Arrays.asList(
+                podcast1,
+                podcast2,
+                podcast3
+        );
+        final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifierOptionals =
                 getTestObject().upsertPodcasts(
-                        Arrays.asList(
-                                podcast1,
-                                podcast2
-                        )
+                        upsertingPodcasts
                 );
-        if (upsertedPodcastIdentifiers.size() == 2) {
+        if (upsertedPodcastIdentifierOptionals.size() == upsertingPodcasts.size()) {
             @Nullable final Identifier<Podcast> podcastIdentifier =
-                    upsertedPodcastIdentifiers.get(0).orElse(null);
+                    upsertedPodcastIdentifierOptionals.get(0).orElse(null);
             if (podcastIdentifier != null) {
                 assertEquals(
-                        Arrays.asList(
-                                Optional.of(podcastIdentifier),
+                        Collections.nCopies(
+                                upsertingPodcasts.size(),
                                 Optional.of(podcastIdentifier)
                         ),
-                        upsertedPodcastIdentifiers
+                        upsertedPodcastIdentifierOptionals
                 );
 
                 final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -283,10 +291,10 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                         )
                 );
             } else {
-                fail("Expected 2 identifiers, but got: " + upsertedPodcastIdentifiers);
+                fail("Expected " + upsertingPodcasts.size() + " identifiers, but got: " + upsertedPodcastIdentifierOptionals);
             }
         } else {
-            fail("Expected 2 identifiers, but got: " + upsertedPodcastIdentifiers);
+            fail("Expected " + upsertingPodcasts.size() + " identifiers, but got: " + upsertedPodcastIdentifierOptionals);
         }
     }
 
@@ -328,18 +336,19 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                     new URL("http://example.com/feedB"),
                     "name5"
             );
-            final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
+            final List<Podcast> upsertingPodcasts = Arrays.asList(
+                    podcast2,
+                    podcast3,
+                    podcast4,
+                    podcast5
+            );
+            final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifierOptionals =
                     getTestObject().upsertPodcasts(
-                            Arrays.asList(
-                                    podcast2,
-                                    podcast3,
-                                    podcast4,
-                                    podcast5
-                            )
+                            upsertingPodcasts
                     );
-            if (!upsertedPodcastIdentifiers.isEmpty()) {
+            if (upsertedPodcastIdentifierOptionals.size() == upsertingPodcasts.size()) {
                 @Nullable final Identifier<Podcast> insertedPodcastIdentifier =
-                        upsertedPodcastIdentifiers.get(0).orElse(null);
+                        upsertedPodcastIdentifierOptionals.get(0).orElse(null);
                 if (insertedPodcastIdentifier != null) {
                     assertEquals(
                             Arrays.asList(
@@ -348,7 +357,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                                     Optional.of(existingPodcastIdentifier),
                                     Optional.of(existingPodcastIdentifier)
                             ),
-                            upsertedPodcastIdentifiers
+                            upsertedPodcastIdentifierOptionals
                     );
 
                     final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -371,10 +380,10 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                             )
                     );
                 } else {
-                    fail("Expected 4 podcast identifiers, but got: " + upsertedPodcastIdentifiers);
+                    fail("Expected " + upsertingPodcasts.size() + " podcast identifiers, but got: " + upsertedPodcastIdentifierOptionals);
                 }
             } else {
-                fail("Expected 4 podcast identifiers, but got: " + upsertedPodcastIdentifiers);
+                fail("Expected " + upsertingPodcasts.size() + " podcast identifiers, but got: " + upsertedPodcastIdentifierOptionals);
             }
         }
     }

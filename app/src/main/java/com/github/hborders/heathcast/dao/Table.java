@@ -10,16 +10,18 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.utils.CursorUtil;
 import com.github.hborders.heathcast.utils.NonnullPair;
-import com.github.hborders.heathcast.utils.SetUtil;
+import com.github.hborders.heathcast.utils.SortedSetUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -117,13 +119,20 @@ abstract class Table {
             return Collections.emptyList();
         } else {
             try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-                final Map<S, Set<NonnullPair<Integer, M>>> indexedModelSetsBySecondaryKey =
+                final SortedSetUtil<NonnullPair<Integer, M>> indexedModelSortedSetUtil =
+                        new SortedSetUtil<>(
+                                Comparator.comparing(
+                                        indexedModel ->
+                                                indexedModel.first
+                                )
+                        );
+                final Map<S, SortedSet<NonnullPair<Integer, M>>> indexedModelSetsBySecondaryKey =
                         indexedStream(models)
                                 .collect(
                                         Collectors.toMap(
                                                 modelSecondaryKeyGetter.compose(NonnullPair::getSecond),
-                                                Collections::singleton,
-                                                SetUtil::union
+                                                indexedModelSortedSetUtil::singletonSortedSet,
+                                                indexedModelSortedSetUtil::union
                                         )
                                 );
 

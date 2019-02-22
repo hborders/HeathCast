@@ -4,17 +4,28 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.utils.CursorUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
-import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
+import io.reactivex.Observable;
+
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
+import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 import static com.github.hborders.heathcast.utils.ContentValuesUtil.putDateAsLong;
 import static com.github.hborders.heathcast.utils.ContentValuesUtil.putDurationAsLong;
 import static com.github.hborders.heathcast.utils.ContentValuesUtil.putURLAsString;
@@ -39,6 +50,17 @@ final class EpisodeTable extends Table {
     private static final String TITLE = "title";
     private static final String URL = "url";
 
+    private static final String[] COLUMNS_ALL_BUT_PODCAST_ID = new String[]{
+            ARTWORK_URL,
+            DURATION,
+            ID,
+            PUBLISH_TIME_MILLIS,
+            SORT,
+            SUMMARY,
+            TITLE,
+            URL,
+    };
+
     static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
@@ -47,13 +69,134 @@ final class EpisodeTable extends Table {
         super(briteDatabase);
     }
 
-//    @Nullable
-//    List<Identifier<Episode>> upsertEpisodes(
-//            Identifier<Podcast> podcastIdentifier,
-//            List<Episode> episodes
-//    ) {
-//
-//    }
+    List<Optional<Identifier<Episode>>> upsertEpisodes(
+            Identifier<Podcast> podcastIdentifier,
+            List<Episode> episodes
+    ) {
+        return super.upsertModels(
+                TABLE_EPISODE,
+                ID,
+                URL,
+                Episode.class,
+                episodes,
+                episode -> episode.url.toExternalForm(),
+                cursor -> CursorUtil.getNonnullURLFromString(
+                        cursor,
+                        URL
+                ),
+                episode -> insertEpisode(
+                        podcastIdentifier,
+                        episode
+                ),
+                episodeIdentified -> updateEpisodeIdentified(
+                        podcastIdentifier,
+                        episodeIdentified
+                )
+        );
+    }
+
+    Observable<Set<Identified<Episode>>> observeQueryForAllEpisodeIdentifieds() {
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_EPISODE)
+                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
+                        .create();
+
+        return briteDatabase
+                .createQuery(
+                        Arrays.asList(
+                                TABLE_PODCAST,
+                                TABLE_EPISODE
+                        ),
+                        query
+                )
+                .mapToList(EpisodeTable::getEpisodeIdentified)
+                .map(HashSet::new);
+    }
+
+    Observable<Set<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(Identifier<Podcast> podcastIdentifier) {
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_EPISODE)
+                        .selection(
+                                PODCAST_ID + " = ?",
+                                new Object[]{podcastIdentifier.id}
+                        )
+                        .columns(COLUMNS_ALL_BUT_PODCAST_ID).create();
+
+        return briteDatabase
+                .createQuery(
+                        Arrays.asList(
+                                TABLE_PODCAST,
+                                TABLE_EPISODE
+                        ),
+                        query
+                )
+                .mapToList(EpisodeTable::getEpisodeIdentified)
+                .map(HashSet::new);
+    }
+
+    Observable<Optional<Identified<Episode>>> observeQueryForEpisodeIdentified(
+            Identifier<Episode> episodeIdentifier
+    ) {
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_EPISODE)
+                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
+                        .selection(
+                                ID + "= ?",
+                                new Object[]{episodeIdentifier.id}
+                        ).create();
+
+        return briteDatabase
+                .createQuery(
+                        Arrays.asList(
+                                TABLE_PODCAST,
+                                TABLE_EPISODE
+                        ),
+                        query
+                )
+                .mapToOptional(EpisodeTable::getEpisodeIdentified);
+    }
+
+    private Optional<Identifier<Episode>> insertEpisode(
+            Identifier<Podcast> podcastIdentifier,
+            Episode episode
+    ) {
+        final long id = briteDatabase.insert(
+                TABLE_EPISODE,
+                CONFLICT_ROLLBACK,
+                getEpisodeContentValues(
+                        podcastIdentifier,
+                        episode
+                )
+        );
+        if (id == -1) {
+            return Optional.empty();
+        } else {
+            return Optional.of(
+                    new Identifier<>(
+                            Episode.class,
+                            id
+                    )
+            );
+        }
+    }
+
+    private int updateEpisodeIdentified(
+            Identifier<Podcast> podcastIdentifier,
+            Identified<Episode> episodeIdentified) {
+        return briteDatabase.update(
+                TABLE_EPISODE,
+                CONFLICT_ROLLBACK,
+                getEpisodeIdentifiedContentValues(
+                        podcastIdentifier,
+                        episodeIdentified
+                ),
+                ID + " = ?",
+                Long.toString(episodeIdentified.identifier.id)
+        );
+    }
 
     static void createEpisodeTable(SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
@@ -79,7 +222,7 @@ final class EpisodeTable extends Table {
                 + " ON " + TABLE_EPISODE + "(" + URL + ")");
     }
 
-    static Identified<Episode> getIdentifiedEpisode(Cursor cursor) {
+    static Identified<Episode> getEpisodeIdentified(Cursor cursor) {
         return new Identified<>(
                 new Identifier<>(
                         Episode.class,
@@ -96,11 +239,15 @@ final class EpisodeTable extends Table {
         );
     }
 
-    static ContentValues getEpisodeContentValues(Episode episode) {
+    static ContentValues getEpisodeContentValues(
+            Identifier<Podcast> podcastIdentifier,
+            Episode episode
+    ) {
         final ContentValues values = new ContentValues(8);
 
         putURLAsString(values, ARTWORK_URL, episode.artworkURL);
         putDurationAsLong(values, DURATION, episode.duration);
+        putIdentifier(values, PODCAST_ID, podcastIdentifier);
         putDateAsLong(values, PUBLISH_TIME_MILLIS, episode.publishDate);
         values.put(SUMMARY, episode.summary);
         values.put(TITLE, episode.title);
@@ -109,16 +256,16 @@ final class EpisodeTable extends Table {
         return values;
     }
 
-    static ContentValues getIdentifiedEpisodeContentValues(
-            Identified<Episode> identifiedEpisode,
-            @Nullable Identifier<Podcast> podcastIdentifier
+    static ContentValues getEpisodeIdentifiedContentValues(
+            Identifier<Podcast> podcastIdentifier,
+            Identified<Episode> identifiedEpisode
     ) {
-        final ContentValues values = getEpisodeContentValues(identifiedEpisode.model);
+        final ContentValues values = getEpisodeContentValues(
+                podcastIdentifier,
+                identifiedEpisode.model
+        );
 
         putIdentifier(values, ID, identifiedEpisode);
-        if (podcastIdentifier != null) {
-            putIdentifier(values, PODCAST_ID, podcastIdentifier);
-        }
 
         return values;
     }

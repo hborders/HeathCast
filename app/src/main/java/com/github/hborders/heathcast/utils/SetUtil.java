@@ -11,8 +11,8 @@ public final class SetUtil {
         final HashSet<E> union = new HashSet<>(
                 set1.size() + set2.size(),
                 1);
-        union.addAll(set1);
         union.addAll(set2);
+        union.addAll(set1);
         return union;
     }
 }

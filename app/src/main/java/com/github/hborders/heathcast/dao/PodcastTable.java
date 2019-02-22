@@ -44,11 +44,6 @@ final class PodcastTable extends Table {
     static final String FOREIGN_KEY_PODCAST = TABLE_PODCAST + "_id";
     static final String CREATE_FOREIGN_KEY_PODCAST =
             "FOREIGN KEY(" + FOREIGN_KEY_PODCAST + ") REFERENCES " + TABLE_PODCAST + "(" + ID + ")";
-    private static final String[] COLUMNS_ID_FEED_URL = new String[]{
-            ID,
-            FEED_URL,
-    };
-    private static final String[] COLUMNS_ID = new String[]{ID};
     private static final String[] COLUMNS_ALL = new String[]{
             ID,
             ARTWORK_URL,
@@ -144,10 +139,14 @@ final class PodcastTable extends Table {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST)
-                        .columns(COLUMNS_ALL).create();
+                        .columns(COLUMNS_ALL)
+                        .create();
 
         return briteDatabase
-                .createQuery(TABLE_PODCAST, query)
+                .createQuery(
+                        TABLE_PODCAST,
+                        query
+                )
                 .mapToList(PodcastTable::getPodcastIdentified)
                 .map(HashSet::new);
     }
@@ -165,7 +164,10 @@ final class PodcastTable extends Table {
                         ).create();
 
         return briteDatabase
-                .createQuery(TABLE_PODCAST, query)
+                .createQuery(
+                        TABLE_PODCAST,
+                        query
+                )
                 .mapToOptional(PodcastTable::getPodcastIdentified);
     }
 
