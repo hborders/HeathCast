@@ -3,11 +3,12 @@ package com.github.hborders.heathcast;
 import android.content.Context;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -22,6 +23,9 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.github.hborders.heathcast", appContext.getPackageName());
+        assertThat(
+                appContext.getPackageName(),
+                is("com.github.hborders.heathcast")
+        );
     }
 }

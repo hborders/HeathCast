@@ -18,7 +18,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public final class XmlParserTest {
     @Test
@@ -121,66 +122,68 @@ public final class XmlParserTest {
         final InputStream xmlInputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
         final List<Identified<Episode>> actual = XmlParser.parseEpisodeList(xmlInputStream);
 
-        assertEquals(
-                Arrays.asList(
-                        new Identified<>(
-                                new Identifier<>(
-                                        Episode.class,
-                                        0
-                                ),
-                                new Episode(
-                                        Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/25/harbor-podcast_wide-2df74dc7ff65b4a6351bbe48f20e68a8da7ec3f2.jpg?s=1400")),
-                                        Duration.ofSeconds(20318742),
-                                        Date.from(
-                                                ZonedDateTime.of(
-                                                        2019,
-                                                        1,
-                                                        25,
-                                                        18,
-                                                        13,
-                                                        0,
-                                                        0,
-                                                        ZoneOffset
-                                                                .ofHours(-5)
-                                                                .normalized()
-                                                ).toInstant()
+        assertThat(
+                actual,
+                is(
+                        Arrays.asList(
+                                new Identified<>(
+                                        new Identifier<>(
+                                                Episode.class,
+                                                0
                                         ),
-                                        "\nToday on the show, we take on one of life's most vexing problems: Sharing.\n",
-                                        "#890: The Division Problem",
-                                        Objects.requireNonNull(URLUtil.fromString("https://play.podtrac.com/npr-510289/npr.mc.tritondigital.com/NPR_510289/media/anon.npr-mp3/npr/pmoney/2019/01/20190125_pmoney_pmpod890.mp3?orgId=1&d=1272&p=510289&story=688849249&t=podcast&e=688849249&ft=pod&f=510289"))
-                                )
-                        ),
-                        new Identified<>(
-                                new Identifier<>(
-                                        Episode.class,
-                                        0
+                                        new Episode(
+                                                Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/25/harbor-podcast_wide-2df74dc7ff65b4a6351bbe48f20e68a8da7ec3f2.jpg?s=1400")),
+                                                Duration.ofSeconds(20318742),
+                                                Date.from(
+                                                        ZonedDateTime.of(
+                                                                2019,
+                                                                1,
+                                                                25,
+                                                                18,
+                                                                13,
+                                                                0,
+                                                                0,
+                                                                ZoneOffset
+                                                                        .ofHours(-5)
+                                                                        .normalized()
+                                                        ).toInstant()
+                                                ),
+                                                "\nToday on the show, we take on one of life's most vexing problems: Sharing.\n",
+                                                "#890: The Division Problem",
+                                                Objects.requireNonNull(URLUtil.fromString("https://play.podtrac.com/npr-510289/npr.mc.tritondigital.com/NPR_510289/media/anon.npr-mp3/npr/pmoney/2019/01/20190125_pmoney_pmpod890.mp3?orgId=1&d=1272&p=510289&story=688849249&t=podcast&e=688849249&ft=pod&f=510289"))
+                                        )
                                 ),
-                                new Episode(
-                                        Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/23/ap_931123921749_wide-0ea7c0a9c9dd1ee294bb65ba1b26c5154c0012e6.jpg?s=1400")),
-                                        Duration.ofSeconds(21678996),
-                                        Date.from(
-                                                ZonedDateTime.of(
-                                                        2019,
-                                                        1,
-                                                        23,
-                                                        18,
-                                                        50,
-                                                        0,
-                                                        0,
-                                                        ZoneOffset
-                                                                .ofHours(-5)
-                                                                .normalized()
-                                                ).toInstant()
+                                new Identified<>(
+                                        new Identifier<>(
+                                                Episode.class,
+                                                0
                                         ),
-                                        "\nJohn Bogle died last week. His creation — the index fund — " +
-                                                "changed investing. Today, how his invention set off a million dollar " +
-                                                "bet between some of the biggest brains on Wall Street, including Warren Buffett.\n",
-                                        "#688: Brilliant Vs. Boring",
-                                        Objects.requireNonNull(URLUtil.fromString("https://play.podtrac.com/npr-510289/npr.mc.tritondigital.com/NPR_510289/media/anon.npr-mp3/npr/pmoney/2019/01/20190123_pmoney_pmpod688rerun1.mp3?orgId=1&d=1358&p=510289&story=688018436&t=podcast&e=688018436&ft=pod&f=510289"))
+                                        new Episode(
+                                                Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/23/ap_931123921749_wide-0ea7c0a9c9dd1ee294bb65ba1b26c5154c0012e6.jpg?s=1400")),
+                                                Duration.ofSeconds(21678996),
+                                                Date.from(
+                                                        ZonedDateTime.of(
+                                                                2019,
+                                                                1,
+                                                                23,
+                                                                18,
+                                                                50,
+                                                                0,
+                                                                0,
+                                                                ZoneOffset
+                                                                        .ofHours(-5)
+                                                                        .normalized()
+                                                        ).toInstant()
+                                                ),
+                                                "\nJohn Bogle died last week. His creation — the index fund — " +
+                                                        "changed investing. Today, how his invention set off a million dollar " +
+                                                        "bet between some of the biggest brains on Wall Street, including Warren Buffett.\n",
+                                                "#688: Brilliant Vs. Boring",
+                                                Objects.requireNonNull(URLUtil.fromString("https://play.podtrac.com/npr-510289/npr.mc.tritondigital.com/NPR_510289/media/anon.npr-mp3/npr/pmoney/2019/01/20190123_pmoney_pmpod688rerun1.mp3?orgId=1&d=1358&p=510289&story=688018436&t=podcast&e=688018436&ft=pod&f=510289"))
+                                        )
                                 )
                         )
-                ),
-                actual
+                )
         );
     }
 }

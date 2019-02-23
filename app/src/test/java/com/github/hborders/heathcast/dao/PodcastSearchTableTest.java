@@ -17,7 +17,8 @@ import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -110,9 +111,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
         } else {
             @Nullable final Identifier<PodcastSearch> existingPodcastSearchIdentifier =
                     getTestObject().upsertPodcastSearch(podcastSearch1);
-            assertEquals(
-                    podcastSearchIdentifier1,
-                    existingPodcastSearchIdentifier
+            assertThat(
+                    existingPodcastSearchIdentifier,
+                    is(podcastSearchIdentifier1)
             );
 
             final TestObserver<List<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
@@ -163,9 +164,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
                 final @Nullable Long updatedPodcastSearch3Sort =
                         getTestObject().sortForPodcastSearch(podcastSearchIdentifier3);
 
-                assertEquals(
-                        initialPodcastSearch3Sort,
-                        updatedPodcastSearch3Sort
+                assertThat(
+                        updatedPodcastSearch3Sort,
+                        is(initialPodcastSearch3Sort)
                 );
             }
         }
@@ -183,9 +184,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
             fail();
         } else {
             final int deleteCount = getTestObject().deletePodcastSearchById(podcastSearchIdentifier1);
-            assertEquals(
-                    1,
-                    deleteCount
+            assertThat(
+                    deleteCount,
+                    is(1)
             );
 
             final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
@@ -218,9 +219,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
             getTestObject().deletePodcastSearchById(podcastSearchIdentifier1);
 
             final int deleteCount = getTestObject().deletePodcastSearchById(podcastSearchIdentifier1);
-            assertEquals(
-                    0,
-                    deleteCount
+            assertThat(
+                    deleteCount,
+                    is(0)
             );
         }
     }
@@ -246,9 +247,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
                             podcastSearchIdentifier2
                     )
             );
-            assertEquals(
-                    2,
-                    deleteCount
+            assertThat(
+                    deleteCount,
+                    is(2)
             );
 
             final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
@@ -294,9 +295,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest {
                             podcastSearchIdentifier2
                     )
             );
-            assertEquals(
-                    0,
-                    deleteCount
+            assertThat(
+                    deleteCount,
+                    is(0)
             );
         }
     }

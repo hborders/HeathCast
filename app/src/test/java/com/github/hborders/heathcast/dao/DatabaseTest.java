@@ -19,7 +19,8 @@ import javax.annotation.Nullable;
 import io.reactivex.observers.TestObserver;
 
 import static com.github.hborders.heathcast.util.IdentifiedObservableUtil.modelsObservable;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -281,9 +282,9 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     )
             );
             final int deleteCount = getTestObject().deletePodcastSearch(podcastSearchIdentifier2);
-            assertEquals(
-                    1,
-                    deleteCount
+            assertThat(
+                    deleteCount,
+                    is(1)
             );
 
             final TestObserver<List<Podcast>> podcastTestObserver1 =

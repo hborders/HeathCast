@@ -21,8 +21,9 @@ import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -158,9 +159,9 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
             );
             @Nullable final Identifier<Podcast> podcastIdentifier2 =
                     getTestObject().upsertPodcast(podcast2);
-            assertEquals(
-                    podcastIdentifier1,
-                    podcastIdentifier2
+            assertThat(
+                    podcastIdentifier2,
+                    is(podcastIdentifier1)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -212,12 +213,14 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                                     podcast3
                             )
                     );
-            assertEquals(
-                    Arrays.asList(
-                            Optional.of(podcastIdentifier1),
-                            Optional.of(podcastIdentifier1)
-                    ),
-                    upsertedPodcastIdentifiers
+            assertThat(
+                    upsertedPodcastIdentifiers,
+                    is(
+                            Arrays.asList(
+                                    Optional.of(podcastIdentifier1),
+                                    Optional.of(podcastIdentifier1)
+                            )
+                    )
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -269,12 +272,14 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
             @Nullable final Identifier<Podcast> podcastIdentifier =
                     upsertedPodcastIdentifierOptionals.get(0).orElse(null);
             if (podcastIdentifier != null) {
-                assertEquals(
-                        Collections.nCopies(
-                                upsertingPodcasts.size(),
-                                Optional.of(podcastIdentifier)
-                        ),
-                        upsertedPodcastIdentifierOptionals
+                assertThat(
+                        upsertedPodcastIdentifierOptionals,
+                        is(
+                                Collections.nCopies(
+                                        upsertingPodcasts.size(),
+                                        Optional.of(podcastIdentifier)
+                                )
+                        )
                 );
 
                 final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -350,14 +355,16 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 @Nullable final Identifier<Podcast> insertedPodcastIdentifier =
                         upsertedPodcastIdentifierOptionals.get(0).orElse(null);
                 if (insertedPodcastIdentifier != null) {
-                    assertEquals(
-                            Arrays.asList(
-                                    Optional.of(insertedPodcastIdentifier),
-                                    Optional.of(insertedPodcastIdentifier),
-                                    Optional.of(existingPodcastIdentifier),
-                                    Optional.of(existingPodcastIdentifier)
-                            ),
-                            upsertedPodcastIdentifierOptionals
+                    assertThat(
+                            upsertedPodcastIdentifierOptionals,
+                            is(
+                                    Arrays.asList(
+                                            Optional.of(insertedPodcastIdentifier),
+                                            Optional.of(insertedPodcastIdentifier),
+                                            Optional.of(existingPodcastIdentifier),
+                                            Optional.of(existingPodcastIdentifier)
+                                    )
+                            )
                     );
 
                     final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -412,9 +419,9 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                             podcast12
                     )
             );
-            assertEquals(
-                    1,
-                    updatedRowCount
+            assertThat(
+                    updatedRowCount,
+                    is(1)
             );
 
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -459,9 +466,9 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                             podcast12
                     )
             );
-            assertEquals(
-                    0,
-                    updatedRowCount
+            assertThat(
+                    updatedRowCount,
+                    is(0)
             );
         }
     }
@@ -580,9 +587,9 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
             fail();
         } else {
             final int deleteCount = getTestObject().deletePodcast(podcastIdentifier1);
-            assertEquals(
-                    1,
-                    deleteCount
+            assertThat(
+                    deleteCount,
+                    is(1)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -642,9 +649,9 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                             podcastIdentifier2
                     )
             );
-            assertEquals(
-                    2,
-                    deleteCount
+            assertThat(
+                    deleteCount,
+                    is(2)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();

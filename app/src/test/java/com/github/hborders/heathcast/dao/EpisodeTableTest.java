@@ -24,7 +24,8 @@ import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -139,12 +140,14 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 if (episodeIdentifier1 == null) {
                     fail();
                 } else {
-                    assertEquals(
-                            Collections.nCopies(
-                                    upsertingEpisodes.size(),
-                                    Optional.of(episodeIdentifier1)
-                            ),
-                            episodeIdentifierOptionals
+                    assertThat(
+                            episodeIdentifierOptionals,
+                            is(
+                                    Collections.nCopies(
+                                            upsertingEpisodes.size(),
+                                            Optional.of(episodeIdentifier1)
+                                    )
+                            )
                     );
 
                     final TestObserver<Set<Identified<Episode>>> episodeTestObserver = new TestObserver<>();
