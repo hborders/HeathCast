@@ -14,7 +14,7 @@ public final class IsIterableContainingInOrderUtil {
     private IsIterableContainingInOrderUtil() {
     }
 
-    public static <E> Matcher<Iterable<? extends E>> contains() {
+    public static <E> Matcher<Iterable<? extends E>> containsNothing() {
         return is(Collections.emptyList());
     }
 

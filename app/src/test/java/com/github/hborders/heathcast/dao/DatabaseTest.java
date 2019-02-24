@@ -12,15 +12,13 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-import io.reactivex.observers.TestObserver;
-
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.contains;
+import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
@@ -101,14 +99,15 @@ public class DatabaseTest extends AbstractDatabaseTest {
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
                     .subscribe(podcastTestObserver1);
-            final TestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
-                    new TestObserver<>();
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
+                    new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentifier2)
                     .subscribe(podcastTestObserver2);
 
-            podcastTestObserver1.assertValue(Collections.emptyList());
-            podcastTestObserver2.assertValue(Collections.emptyList());
+
+            podcastTestObserver1.assertValueThat(containsNothing());
+            podcastTestObserver2.assertValueThat(containsNothing());
 
             getTestObject().outerReplacePodcastSearchResults(
                     podcastSearchIdentifier1,
@@ -121,7 +120,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
 
             podcastTestObserver1.assertValueSequenceThat(
                     contains(
-                            contains(),
+                            containsNothing(),
                             contains(
                                     identifiedModel(podcast1),
                                     identifiedModel(podcast2),
@@ -129,10 +128,10 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             )
                     )
             );
-            podcastTestObserver2.assertValueSequence(
-                    Arrays.asList(
-                            Collections.emptyList(),
-                            Collections.emptyList()
+            podcastTestObserver2.assertValueSequenceThat(
+                    contains(
+                            containsNothing(),
+                            containsNothing()
                     )
             );
         }
@@ -171,8 +170,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
                     .subscribe(podcastTestObserver1);
-            final TestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
-                    new TestObserver<>();
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
+                    new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentifier2)
                     .subscribe(podcastTestObserver2);
@@ -186,9 +185,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             )
                     )
             );
-            podcastTestObserver2.assertValue(
-                    Collections.emptyList()
-            );
+            podcastTestObserver2.assertValueThat(containsNothing());
         }
     }
 
@@ -314,9 +311,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             )
                     )
             );
-            podcastTestObserver2.assertValue(
-                    Collections.emptyList()
-            );
+            podcastTestObserver2.assertValueThat(containsNothing());
         }
     }
 }
