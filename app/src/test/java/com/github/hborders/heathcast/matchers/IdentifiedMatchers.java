@@ -7,16 +7,26 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
+import static org.hamcrest.CoreMatchers.is;
+
 public final class IdentifiedMatchers {
     private IdentifiedMatchers() {
     }
 
-    public static <M, I extends Identified<M>> IdentifiedIdentifierMatcher identifiedIdentifier(Matcher<Identifier<M>> identifierMatcher) {
-        return new IdentifiedIdentifierMatcher<>(identifierMatcher);
+    public static <M, I extends Identified<M>> Matcher<I> identifiedIdentifier(Matcher<Identifier<M>> identifierMatcher) {
+        return new IdentifiedIdentifierMatcher<M, I>(identifierMatcher);
     }
 
-    public static <M, I extends Identified<M>> IdentifiedModelMatcher identifiedModel(Matcher<M> modelMatcher) {
-        return new IdentifiedModelMatcher<>(modelMatcher);
+    public static <M, I extends Identified<M>> Matcher<I> identifiedIdentifier(Identifier<M> identifier) {
+        return identifiedIdentifier(is(identifier));
+    }
+
+    public static <M, I extends Identified<M>> Matcher<I> identifiedModel(Matcher<M> modelMatcher) {
+        return new IdentifiedModelMatcher<M, I>(modelMatcher);
+    }
+
+    public static <M, I extends Identified<M>> Matcher<I> identifiedModel(M model) {
+        return identifiedModel(is(model));
     }
 
     public static final class IdentifiedIdentifierMatcher<M, I extends Identified<M>> extends TypeSafeMatcher<I> {

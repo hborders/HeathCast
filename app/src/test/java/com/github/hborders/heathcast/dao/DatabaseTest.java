@@ -4,6 +4,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +19,8 @@ import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
-import static com.github.hborders.heathcast.util.IdentifiedObservableUtil.modelsObservable;
+import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
+import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.contains;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
@@ -94,12 +96,11 @@ public class DatabaseTest extends AbstractDatabaseTest {
         } else if (podcastSearchIdentifier2 == null) {
             fail();
         } else {
-            final TestObserver<List<Podcast>> podcastTestObserver1 =
-                    new TestObserver<>();
-            modelsObservable(
-                    getTestObject()
-                            .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
-            ).subscribe(podcastTestObserver1);
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver1 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
+                    .subscribe(podcastTestObserver1);
             final TestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
                     new TestObserver<>();
             getTestObject()
@@ -118,13 +119,13 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     )
             );
 
-            podcastTestObserver1.assertValueSequence(
-                    Arrays.asList(
-                            Collections.emptyList(),
-                            Arrays.asList(
-                                    podcast1,
-                                    podcast2,
-                                    podcast3
+            podcastTestObserver1.assertValueSequenceThat(
+                    contains(
+                            contains(),
+                            contains(
+                                    identifiedModel(podcast1),
+                                    identifiedModel(podcast2),
+                                    identifiedModel(podcast3)
                             )
                     )
             );
@@ -165,23 +166,24 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     )
             );
 
-            final TestObserver<List<Podcast>> podcastTestObserver1 =
-                    new TestObserver<>();
-            modelsObservable(
-                    getTestObject()
-                            .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
-            ).subscribe(podcastTestObserver1);
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver1 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
+                    .subscribe(podcastTestObserver1);
             final TestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
                     new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentifier2)
                     .subscribe(podcastTestObserver2);
 
-            podcastTestObserver1.assertValue(
-                    Arrays.asList(
-                            podcast12,
-                            podcast2,
-                            podcast4
+            podcastTestObserver1.assertValueSequenceThat(
+                    contains(
+                            contains(
+                                    identifiedModel(podcast12),
+                                    identifiedModel(podcast2),
+                                    identifiedModel(podcast4)
+                            )
                     )
             );
             podcastTestObserver2.assertValue(
@@ -220,40 +222,43 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     )
             );
 
-            final TestObserver<List<Podcast>> podcastTestObserver1 =
-                    new TestObserver<>();
-            modelsObservable(
-                    getTestObject()
-                            .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
-            ).subscribe(podcastTestObserver1);
-            final TestObserver<List<Podcast>> podcastTestObserver2 =
-                    new TestObserver<>();
-            modelsObservable(
-                    getTestObject()
-                            .observeQueryForPodcastIdentifieds(podcastSearchIdentifier2)
-            ).subscribe(podcastTestObserver2);
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver1 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
+                    .subscribe(podcastTestObserver1);
 
-            podcastTestObserver1.assertValue(
-                    Arrays.asList(
-                            podcast1,
-                            podcast2,
-                            podcast3,
-                            podcast4
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeQueryForPodcastIdentifieds(podcastSearchIdentifier2)
+                    .subscribe(podcastTestObserver2);
+
+            podcastTestObserver1.assertValueSequenceThat(
+                    contains(
+                            contains(
+                                    identifiedModel(podcast1),
+                                    identifiedModel(podcast2),
+                                    identifiedModel(podcast3),
+                                    identifiedModel(podcast4)
+                            )
                     )
             );
-            podcastTestObserver2.assertValue(
-                    Arrays.asList(
-                            podcast5,
-                            podcast4,
-                            podcast3,
-                            podcast2
+            podcastTestObserver2.assertValueSequenceThat(
+                    contains(
+                            contains(
+                                    identifiedModel(podcast5),
+                                    identifiedModel(podcast4),
+                                    identifiedModel(podcast3),
+                                    identifiedModel(podcast2)
+                            )
                     )
             );
         }
     }
 
     @Test
-    public void testDeletePodcastSearchKeepsOtherSearchResultsWithSamePodcasts(){
+    public void testDeletePodcastSearchKeepsOtherSearchResultsWithSamePodcasts() {
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(new PodcastSearch("Search1"));
         @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
@@ -287,25 +292,26 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     is(1)
             );
 
-            final TestObserver<List<Podcast>> podcastTestObserver1 =
-                    new TestObserver<>();
-            modelsObservable(
-                    getTestObject()
-                            .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
-            ).subscribe(podcastTestObserver1);
-            final TestObserver<List<Podcast>> podcastTestObserver2 =
-                    new TestObserver<>();
-            modelsObservable(
-                    getTestObject()
-                            .observeQueryForPodcastIdentifieds(podcastSearchIdentifier2)
-            ).subscribe(podcastTestObserver2);
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver1 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeQueryForPodcastIdentifieds(podcastSearchIdentifier1)
+                    .subscribe(podcastTestObserver1);
 
-            podcastTestObserver1.assertValue(
-                    Arrays.asList(
-                            podcast1,
-                            podcast2,
-                            podcast3,
-                            podcast4
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeQueryForPodcastIdentifieds(podcastSearchIdentifier2)
+                    .subscribe(podcastTestObserver2);
+
+            podcastTestObserver1.assertValueSequenceThat(
+                    contains(
+                            contains(
+                                    identifiedModel(podcast1),
+                                    identifiedModel(podcast2),
+                                    identifiedModel(podcast3),
+                                    identifiedModel(podcast4)
+                            )
                     )
             );
             podcastTestObserver2.assertValue(
