@@ -1,5 +1,6 @@
 package com.github.hborders.heathcast.dao;
 
+import com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
@@ -17,7 +18,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
-import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.contains;
+import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -119,9 +120,9 @@ public class DatabaseTest extends AbstractDatabaseTest {
             );
 
             podcastTestObserver1.assertValueSequenceThat(
-                    contains(
+                    IsIterableContainingInOrderUtil.containsInOrder(
                             containsNothing(),
-                            contains(
+                            IsIterableContainingInOrderUtil.containsInOrder(
                                     identifiedModel(podcast1),
                                     identifiedModel(podcast2),
                                     identifiedModel(podcast3)
@@ -129,7 +130,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     )
             );
             podcastTestObserver2.assertValueSequenceThat(
-                    contains(
+                    IsIterableContainingInOrderUtil.containsInOrder(
                             containsNothing(),
                             containsNothing()
                     )
@@ -177,8 +178,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     .subscribe(podcastTestObserver2);
 
             podcastTestObserver1.assertValueSequenceThat(
-                    contains(
-                            contains(
+                    IsIterableContainingInOrderUtil.containsInOrder(
+                            IsIterableContainingInOrderUtil.containsInOrder(
                                     identifiedModel(podcast12),
                                     identifiedModel(podcast2),
                                     identifiedModel(podcast4)
@@ -232,8 +233,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     .subscribe(podcastTestObserver2);
 
             podcastTestObserver1.assertValueSequenceThat(
-                    contains(
-                            contains(
+                    IsIterableContainingInOrderUtil.containsInOrder(
+                            containsInOrder(
                                     identifiedModel(podcast1),
                                     identifiedModel(podcast2),
                                     identifiedModel(podcast3),
@@ -242,8 +243,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     )
             );
             podcastTestObserver2.assertValueSequenceThat(
-                    contains(
-                            contains(
+                    IsIterableContainingInOrderUtil.containsInOrder(
+                            containsInOrder(
                                     identifiedModel(podcast5),
                                     identifiedModel(podcast4),
                                     identifiedModel(podcast3),
@@ -302,8 +303,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
                     .subscribe(podcastTestObserver2);
 
             podcastTestObserver1.assertValueSequenceThat(
-                    contains(
-                            contains(
+                    IsIterableContainingInOrderUtil.containsInOrder(
+                            containsInOrder(
                                     identifiedModel(podcast1),
                                     identifiedModel(podcast2),
                                     identifiedModel(podcast3),

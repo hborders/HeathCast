@@ -17,9 +17,13 @@ public final class ContentValuesUtil {
             String key,
             @Nullable URL url
     ) {
-        if (url != null) {
-            contentValues.put(key, url.toExternalForm());
+        final @Nullable String urlString;
+        if (url == null) {
+            urlString = null;
+        } else {
+            urlString = url.toExternalForm();
         }
+        contentValues.put(key, urlString);
     }
 
     public static void putDurationAsLong(
@@ -27,9 +31,13 @@ public final class ContentValuesUtil {
             String key,
             @Nullable Duration duration
     ) {
-        if (duration != null) {
-            contentValues.put(key, duration.getSeconds());
+        final @Nullable Long seconds;
+        if (duration == null) {
+            seconds = null;
+        } else {
+            seconds = duration.getSeconds();
         }
+        contentValues.put(key, seconds);
     }
 
     public static void putDateAsLong(
@@ -37,8 +45,12 @@ public final class ContentValuesUtil {
             String key,
             @Nullable Date date
     ) {
-        if (date != null) {
-            contentValues.put(key, date.getTime());
+        final @Nullable Long time;
+        if (date == null) {
+            time = null;
+        } else {
+            time = date.getTime();
         }
+        contentValues.put(key, time);
     }
 }

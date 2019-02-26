@@ -105,6 +105,7 @@ final class PodcastTable extends Table {
                 ID,
                 FEED_URL,
                 Podcast.class,
+                String.class,
                 podcasts,
                 podcast -> podcast.feedURL.toExternalForm(),
                 cursor -> CursorUtil.getNonnullString(cursor, FEED_URL),
@@ -122,12 +123,7 @@ final class PodcastTable extends Table {
     }
 
     int deletePodcasts(Collection<Identifier<Podcast>> podcastIdentifiers) {
-        final String[] idStrings = new String[podcastIdentifiers.size()];
-        int i = 0;
-        for (Identifier<Podcast> podcastIdentifier : podcastIdentifiers) {
-            idStrings[i] = Long.toString(podcastIdentifier.id);
-            i++;
-        }
+        final String[] idStrings = idStrings(podcastIdentifiers);
         return briteDatabase.delete(
                 TABLE_PODCAST,
                 ID + inPlaceholderClause(podcastIdentifiers.size()),

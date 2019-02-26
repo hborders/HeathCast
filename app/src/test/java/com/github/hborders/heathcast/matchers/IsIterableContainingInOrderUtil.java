@@ -18,11 +18,11 @@ public final class IsIterableContainingInOrderUtil {
         return is(Collections.emptyList());
     }
 
-    public static <E> Matcher<Iterable<? extends E>> contains(Matcher<? super E> itemMatcher1) {
+    public static <E> Matcher<Iterable<? extends E>> containsInOrder(Matcher<? super E> itemMatcher1) {
         return new IsIterableContainingInOrder<>(listOf(itemMatcher1));
     }
 
-    public static <E> Matcher<Iterable<? extends E>> contains(
+    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
             Matcher<? super E> itemMatcher1,
             Matcher<? super E> itemMatcher2
     ) {
@@ -34,7 +34,7 @@ public final class IsIterableContainingInOrderUtil {
         );
     }
 
-    public static <E> Matcher<Iterable<? extends E>> contains(
+    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
             Matcher<? super E> itemMatcher1,
             Matcher<? super E> itemMatcher2,
             Matcher<? super E> itemMatcher3
@@ -48,7 +48,7 @@ public final class IsIterableContainingInOrderUtil {
         );
     }
 
-    public static <E> Matcher<Iterable<? extends E>> contains(
+    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
             Matcher<? super E> itemMatcher1,
             Matcher<? super E> itemMatcher2,
             Matcher<? super E> itemMatcher3,

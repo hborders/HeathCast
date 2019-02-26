@@ -15,6 +15,7 @@ import com.github.hborders.heathcast.utils.CursorUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDateFrom
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDurationFromLong;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
+import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
 final class EpisodeTable extends Table {
     private static final String TABLE_EPISODE = "episode";
@@ -69,6 +71,45 @@ final class EpisodeTable extends Table {
         super(briteDatabase);
     }
 
+    Optional<Identifier<Episode>> insertEpisode(
+            Identifier<Podcast> podcastIdentifier,
+            Episode episode
+    ) {
+        final long id = briteDatabase.insert(
+                TABLE_EPISODE,
+                CONFLICT_ROLLBACK,
+                getEpisodeContentValues(
+                        podcastIdentifier,
+                        episode
+                )
+        );
+        if (id == -1) {
+            return Optional.empty();
+        } else {
+            return Optional.of(
+                    new Identifier<>(
+                            Episode.class,
+                            id
+                    )
+            );
+        }
+    }
+
+    int updateEpisodeIdentified(
+            Identifier<Podcast> podcastIdentifier,
+            Identified<Episode> episodeIdentified) {
+        return briteDatabase.update(
+                TABLE_EPISODE,
+                CONFLICT_ROLLBACK,
+                getEpisodeIdentifiedContentValues(
+                        podcastIdentifier,
+                        episodeIdentified
+                ),
+                ID + " = ?",
+                Long.toString(episodeIdentified.identifier.id)
+        );
+    }
+
     List<Optional<Identifier<Episode>>> upsertEpisodes(
             Identifier<Podcast> podcastIdentifier,
             List<Episode> episodes
@@ -78,9 +119,10 @@ final class EpisodeTable extends Table {
                 ID,
                 URL,
                 Episode.class,
+                String.class,
                 episodes,
                 episode -> episode.url.toExternalForm(),
-                cursor -> CursorUtil.getNonnullURLFromString(
+                cursor -> CursorUtil.getNonnullString(
                         cursor,
                         URL
                 ),
@@ -92,6 +134,23 @@ final class EpisodeTable extends Table {
                         podcastIdentifier,
                         episodeIdentified
                 )
+        );
+    }
+
+    int deleteEpisode(Identifier<Episode> episodeIdentifier) {
+        return briteDatabase.delete(
+                TABLE_EPISODE,
+                ID + " = ?",
+                Long.toString(episodeIdentifier.id)
+        );
+    }
+
+    int deleteEpisodes(Collection<Identifier<Episode>> episodeIdentifiers) {
+        final String[] idStrings = idStrings(episodeIdentifiers);
+        return briteDatabase.delete(
+                TABLE_EPISODE,
+                ID + inPlaceholderClause(episodeIdentifiers.size()),
+                idStrings
         );
     }
 
@@ -114,14 +173,15 @@ final class EpisodeTable extends Table {
                 .map(HashSet::new);
     }
 
-    Observable<Set<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(Identifier<Podcast> podcastIdentifier) {
+    Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(Identifier<Podcast> podcastIdentifier) {
         final SupportSQLiteQuery query =
-                SupportSQLiteQueryBuilder
+                SupportSQLiteQueryBuilder2
                         .builder(TABLE_EPISODE)
                         .selection(
                                 PODCAST_ID + " = ?",
                                 new Object[]{podcastIdentifier.id}
                         )
+                        .orderBy(SORT)
                         .columns(COLUMNS_ALL_BUT_PODCAST_ID).create();
 
         return briteDatabase
@@ -132,8 +192,7 @@ final class EpisodeTable extends Table {
                         ),
                         query
                 )
-                .mapToList(EpisodeTable::getEpisodeIdentified)
-                .map(HashSet::new);
+                .mapToList(EpisodeTable::getEpisodeIdentified);
     }
 
     Observable<Optional<Identified<Episode>>> observeQueryForEpisodeIdentified(
@@ -159,52 +218,13 @@ final class EpisodeTable extends Table {
                 .mapToOptional(EpisodeTable::getEpisodeIdentified);
     }
 
-    private Optional<Identifier<Episode>> insertEpisode(
-            Identifier<Podcast> podcastIdentifier,
-            Episode episode
-    ) {
-        final long id = briteDatabase.insert(
-                TABLE_EPISODE,
-                CONFLICT_ROLLBACK,
-                getEpisodeContentValues(
-                        podcastIdentifier,
-                        episode
-                )
-        );
-        if (id == -1) {
-            return Optional.empty();
-        } else {
-            return Optional.of(
-                    new Identifier<>(
-                            Episode.class,
-                            id
-                    )
-            );
-        }
-    }
-
-    private int updateEpisodeIdentified(
-            Identifier<Podcast> podcastIdentifier,
-            Identified<Episode> episodeIdentified) {
-        return briteDatabase.update(
-                TABLE_EPISODE,
-                CONFLICT_ROLLBACK,
-                getEpisodeIdentifiedContentValues(
-                        podcastIdentifier,
-                        episodeIdentified
-                ),
-                ID + " = ?",
-                Long.toString(episodeIdentified.identifier.id)
-        );
-    }
-
     static void createEpisodeTable(SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
                 + ARTWORK_URL + " TEXT, "
                 + DURATION + " INTEGER, "
                 + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
                 + PODCAST_ID + " INTEGER NOT NULL, "
-                + PUBLISH_TIME_MILLIS + " INTEGER NOT NULL, "
+                + PUBLISH_TIME_MILLIS + " INTEGER, "
                 + SORT + " INTEGER NOT NULL DEFAULT 0, "
                 + SUMMARY + " TEXT, "
                 + TITLE + " TEXT NOT NULL, "

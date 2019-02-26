@@ -14,6 +14,7 @@ import com.github.hborders.heathcast.utils.SortedSetUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -104,11 +105,15 @@ abstract class Table {
         }
     }
 
+    // secondaryKeyClass exists to force S not to be Serializable or some other
+    // unexpected superclass of unrelated Model and Cursor property classes.
+    @SuppressWarnings("unused")
     protected final <M, S> List<Optional<Identifier<M>>> upsertModels(
             String tableName,
             String primaryKeyColumnName,
             String secondaryKeyColumnName,
             Class<M> modelClass,
+            Class<S> secondaryKeyClass,
             List<M> models,
             Function<M, S> modelSecondaryKeyGetter,
             Function<Cursor, S> cursorSecondaryKeyGetter,
@@ -234,5 +239,16 @@ abstract class Table {
                 return upsertedIdentifiers;
             }
         }
+    }
+
+    protected static String[] idStrings(Collection<? extends Identifier<?>> identifiers) {
+        final String[] idStrings = new String[identifiers.size()];
+        int i = 0;
+        for (Identifier<?> identifier : identifiers) {
+            idStrings[i] = Long.toString(identifier.id);
+            i++;
+        }
+
+        return idStrings;
     }
 }
