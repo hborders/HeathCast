@@ -3,13 +3,28 @@ package com.github.hborders.heathcast.matchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsNull;
 
 import java.util.Optional;
 
-public final class OptionalMatcher<T> extends TypeSafeMatcher<Optional<T>> {
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 
-    public static <T> OptionalMatcher<T> optional(Matcher<T> valueMatcher) {
-        return new OptionalMatcher<>(valueMatcher);
+public final class OptionalMatcher<T> extends TypeSafeMatcher<Optional<T>> {
+    public static <T> Matcher<Optional<T>> optionalIsNotPresent() {
+        return optionalValue(new IsNull<>());
+    }
+
+    public static <T> Matcher<Optional<T>> optionalIsPresent() {
+        return optionalValue(not(new IsNull<>()));
+    }
+
+    public static <T> Matcher<Optional<T>> optionalValue(T value) {
+        return optionalValue(is(value));
+    }
+
+    public static <T> Matcher<Optional<T>> optionalValue(Matcher<T> valueMatcher) {
+        return new OptionalMatcher<T>(valueMatcher);
     }
 
     private final Matcher<T> valueMatcher;
@@ -20,7 +35,7 @@ public final class OptionalMatcher<T> extends TypeSafeMatcher<Optional<T>> {
 
     @Override
     protected boolean matchesSafely(Optional<T> item) {
-        return item.map(valueMatcher::matches).orElse(false);
+        return valueMatcher.matches(item.orElse(null));
     }
 
     @Override

@@ -280,6 +280,125 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
     }
 
     @Test
+    public void testUpsertThreeNewEpisodesInsertsThemInOrder() throws Exception {
+        final Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork"),
+                "author",
+                new URL("http://example.com/feed"),
+                "name"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                getPodcastTable().insertPodcast(podcast1).orElse(null);
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else {
+            final Episode episode1 = new Episode(
+                    new URL("http://example.com/episode1/artwork"),
+                    Duration.ofSeconds(1),
+                    DateUtil.from(
+                            2019,
+                            1,
+                            1
+                    ),
+                    "summary1",
+                    "title1",
+                    new URL("http://example.com/episode1")
+            );
+            final Episode episode2 = new Episode(
+                    new URL("http://example.com/episode2/artwork"),
+                    Duration.ofSeconds(2),
+                    DateUtil.from(
+                            2019,
+                            2,
+                            2
+                    ),
+                    "summary2",
+                    "title12",
+                    new URL("http://example.com/episode2")
+            );
+            final Episode episode3 = new Episode(
+                    new URL("http://example.com/episode3/artwork"),
+                    Duration.ofSeconds(3),
+                    DateUtil.from(
+                            2019,
+                            3,
+                            3
+                    ),
+                    "summary3",
+                    "title3",
+                    new URL("http://example.com/episode3")
+            );
+            final Episode episode4 = new Episode(
+                    new URL("http://example.com/episode4/artwork"),
+                    Duration.ofSeconds(4),
+                    DateUtil.from(
+                            2019,
+                            4,
+                            4
+                    ),
+                    "summary4",
+                    "title4",
+                    new URL("http://example.com/episode4")
+            );
+
+            final List<Episode> upsertingEpisodes = Arrays.asList(
+                    episode1,
+                    episode2,
+                    episode3,
+                    episode4
+            );
+            final List<Optional<Identifier<Episode>>> episodeIdentifierOptionals =
+                    getTestObject().upsertEpisodes(
+                            podcastIdentifier1,
+                            upsertingEpisodes
+                    );
+            if (episodeIdentifierOptionals.size() != upsertingEpisodes.size()) {
+                fail("Expected " + upsertingEpisodes.size() + ", got episodeIdentifiers: " + episodeIdentifierOptionals);
+            } else {
+                @Nullable final Identifier<Episode> episodeIdentifier1 = episodeIdentifierOptionals.get(0).orElse(null);
+                @Nullable final Identifier<Episode> episodeIdentifier2 = episodeIdentifierOptionals.get(1).orElse(null);
+                @Nullable final Identifier<Episode> episodeIdentifier3 = episodeIdentifierOptionals.get(2).orElse(null);
+                @Nullable final Identifier<Episode> episodeIdentifier4 = episodeIdentifierOptionals.get(3).orElse(null);
+                if (episodeIdentifier1 == null) {
+                    fail();
+                } else if (episodeIdentifier2 == null) {
+                    fail();
+                } else if (episodeIdentifier3 == null) {
+                    fail();
+                } else if (episodeIdentifier4 == null) {
+                    fail();
+                } else {
+                    final TestObserver<List<Identified<Episode>>> episodeTestObserver = new TestObserver<>();
+                    getTestObject()
+                            .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier1)
+                            .subscribe(episodeTestObserver);
+
+                    episodeTestObserver.assertValue(
+                            Arrays.asList(
+                                    new Identified<>(
+                                            episodeIdentifier1,
+                                            episode1
+                                    ),
+                                    new Identified<>(
+                                            episodeIdentifier2,
+                                            episode2
+                                    ),
+                                    new Identified<>(
+                                            episodeIdentifier3,
+                                            episode3
+                                    ),
+                                    new Identified<>(
+                                            episodeIdentifier4,
+                                            episode4
+                                    )
+                            )
+                    );
+                }
+            }
+        }
+    }
+
+    @Test
     public void testUpsertNewEpisodeWithSameURLThriceTogetherInsertsFirstEpisodeAndOthers() throws Exception {
         final Podcast podcast1 = new Podcast(
                 new URL("http://example.com/artwork"),
@@ -293,7 +412,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
             fail();
         } else {
             final Episode episode1 = new Episode(
-                    new URL("http://example.com/episode11/artwork"),
+                    new URL("http://example.com/episode1/artwork"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
                             2019,

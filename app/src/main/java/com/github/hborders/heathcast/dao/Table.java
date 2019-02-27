@@ -17,7 +17,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -137,7 +138,11 @@ abstract class Table {
                                         Collectors.toMap(
                                                 modelSecondaryKeyGetter.compose(NonnullPair::getSecond),
                                                 indexedModelSortedSetUtil::singletonSortedSet,
-                                                indexedModelSortedSetUtil::union
+                                                indexedModelSortedSetUtil::union,
+                                                // LinkedHashMap is important here to ensure that
+                                                // we iterate through inserted elements in the same
+                                                // order as we receive them in the models List.
+                                                LinkedHashMap::new
                                         )
                                 );
 
@@ -155,7 +160,11 @@ abstract class Table {
                                         indexedModelSetsBySecondaryKey.keySet().toArray()
                                 )
                                 .create();
-                final HashSet<S> insertingSecondaryKeys = new HashSet<>(indexedModelSetsBySecondaryKey.keySet());
+                // Again, LinkedHashSet is important here to ensure that we iterate through inserted
+                // elements in the same order as we receive them in the models list.
+                // the above LinkedHashMap preserves that order in its keySet, and LinkedHashSet
+                // preserves that order as well.
+                final LinkedHashSet<S> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
                 final List<Identified<M>> updatingIdentifieds = new ArrayList<>(models.size());
                 try (final Cursor primaryKeyAndSecondaryKeyCursor = briteDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
                     while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {

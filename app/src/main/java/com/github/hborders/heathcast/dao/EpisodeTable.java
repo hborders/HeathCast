@@ -233,6 +233,19 @@ final class EpisodeTable extends Table {
                 + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE "
                 + ")"
         );
+        db.execSQL(
+                "CREATE TRIGGER " + TABLE_EPISODE + "_sort_after_insert_trigger"
+                        + "  AFTER INSERT ON " + TABLE_EPISODE + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_EPISODE
+                        + "      SET " + SORT + " = (" +
+                        "          SELECT" +
+                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
+                        "          FROM " + TABLE_EPISODE
+                        + "      )"
+                        + "      WHERE " + ID + " = NEW." + ID + ";"
+                        + "    END"
+        );
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PODCAST_ID
                 + " ON " + TABLE_EPISODE + "(" + PODCAST_ID + ")");
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PUBLISH_TIME_MILLIS

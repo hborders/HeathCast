@@ -179,7 +179,7 @@ final class PodcastSearchTable extends Table {
                         + ")"
         );
         db.execSQL(
-                "CREATE TRIGGER sort_after_insert_trigger"
+                "CREATE TRIGGER " + TABLE_PODCAST_SEARCH + "_sort_after_insert_trigger"
                         + "  AFTER INSERT ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
                         + "    BEGIN"
                         + "      UPDATE " + TABLE_PODCAST_SEARCH
@@ -192,7 +192,7 @@ final class PodcastSearchTable extends Table {
                         + "    END"
         );
         db.execSQL(
-                "CREATE TRIGGER sort_after_update_trigger"
+                "CREATE TRIGGER " + TABLE_PODCAST_SEARCH + "_sort_after_update_trigger"
                         + "  AFTER UPDATE ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
                         + "    BEGIN"
                         + "      UPDATE " + TABLE_PODCAST_SEARCH
