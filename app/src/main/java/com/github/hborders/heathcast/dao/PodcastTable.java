@@ -6,6 +6,7 @@ import android.database.Cursor;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
+import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -13,6 +14,7 @@ import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.utils.CursorUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +26,7 @@ import javax.annotation.Nullable;
 import io.reactivex.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
+import static com.github.hborders.heathcast.dao.EpisodeTable.TABLE_EPISODE;
 import static com.github.hborders.heathcast.utils.ContentValuesUtil.putURLAsString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
@@ -115,10 +118,20 @@ final class PodcastTable extends Table {
     }
 
     int deletePodcast(Identifier<Podcast> podcastIdentifier) {
-        return briteDatabase.delete(
-                TABLE_PODCAST,
-                ID + " = ?",
-                Long.toString(podcastIdentifier.id)
+        final SupportSQLiteStatement deleteStatement =
+                briteDatabase.getWritableDatabase().compileStatement(
+                        "DELETE FROM " + TABLE_PODCAST
+                                + " WHERE " + ID + " = ?"
+                );
+        deleteStatement.bindLong(1, podcastIdentifier.id);
+        return briteDatabase.executeUpdateDelete(
+                new HashSet<>(
+                        Arrays.asList(
+                                TABLE_PODCAST,
+                                TABLE_EPISODE
+                        )
+                ),
+                deleteStatement
         );
     }
 

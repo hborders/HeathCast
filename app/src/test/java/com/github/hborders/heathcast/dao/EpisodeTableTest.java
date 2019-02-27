@@ -4,6 +4,7 @@ import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 import com.github.hborders.heathcast.util.DateUtil;
 
 import org.junit.Test;
@@ -22,6 +23,9 @@ import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
+import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
+import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
+import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
@@ -708,6 +712,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                             podcastIdentifier,
                             episode11
                     ).orElse(null);
+
             final Episode episode2 = new Episode(
                     new URL("http://example.com/episode2/artwork"),
                     Duration.ofSeconds(2),
@@ -723,7 +728,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
             @Nullable final Identifier<Episode> episodeIdentifier2 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
-                            episode11
+                            episode2
                     ).orElse(null);
             if (episodeIdentifier1 == null) {
                 fail();
@@ -803,6 +808,208 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                                 Optional.empty()
                         )
                 );
+            }
+        }
+    }
+
+    @Test
+    public void testObserveQueryForEpisodeIdentifiedsForPodcast() throws Exception {
+        final Podcast podcast = new Podcast(
+                new URL("http://example.com/artwork"),
+                "author",
+                new URL("http://example.com/feed"),
+                "name"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast);
+        if (podcastIdentifier == null) {
+            fail();
+        } else {
+            final MatcherTestObserver<List<Identified<Episode>>> episodeTestObserver = new MatcherTestObserver<>();
+            getTestObject()
+                    .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier)
+                    .subscribe(episodeTestObserver);
+
+            episodeTestObserver.assertValueSequenceThat(
+                    containsInOrder(
+                            containsNothing()
+                    )
+            );
+
+            final Episode episode11 = new Episode(
+                    new URL("http://example.com/episode1/artwork11"),
+                    Duration.ofSeconds(11),
+                    DateUtil.from(
+                            2019,
+                            11,
+                            11
+                    ),
+                    "summary11",
+                    "title11",
+                    new URL("http://example.com/episode1")
+            );
+            @Nullable final Identifier<Episode> episodeIdentifier1 =
+                    getTestObject().insertEpisode(
+                            podcastIdentifier,
+                            episode11
+                    ).orElse(null);
+            if (episodeIdentifier1 == null) {
+                fail();
+            } else {
+                episodeTestObserver.assertValueSequenceThat(
+                        containsInOrder(
+                                containsNothing(),
+                                containsInOrder(
+                                        identifiedModel(episode11)
+                                )
+                        )
+                );
+
+                final Episode episode2 = new Episode(
+                        new URL("http://example.com/episode2/artwork"),
+                        Duration.ofSeconds(2),
+                        DateUtil.from(
+                                2019,
+                                2,
+                                2
+                        ),
+                        "summary2",
+                        "title2",
+                        new URL("http://example.com/episode2")
+                );
+                @Nullable final Identifier<Episode> episodeIdentifier2 =
+                        getTestObject().insertEpisode(
+                                podcastIdentifier,
+                                episode2
+                        ).orElse(null);
+                if (episodeIdentifier2 == null) {
+                    fail();
+                } else {
+                    episodeTestObserver.assertValueSequenceThat(
+                            containsInOrder(
+                                    containsNothing(),
+                                    containsInOrder(
+                                            identifiedModel(episode11)
+                                    ),
+                                    containsInOrder(
+                                            identifiedModel(episode11),
+                                            identifiedModel(episode2)
+                                    )
+                            )
+                    );
+
+                    final Episode episode3 = new Episode(
+                            new URL("http://example.com/episode3/artwork"),
+                            Duration.ofSeconds(3),
+                            DateUtil.from(
+                                    2019,
+                                    3,
+                                    3
+                            ),
+                            "summary3",
+                            "title3",
+                            new URL("http://example.com/episode3")
+                    );
+                    @Nullable final Identifier<Episode> episodeIdentifier3 =
+                            getTestObject().insertEpisode(
+                                    podcastIdentifier,
+                                    episode3
+                            ).orElse(null);
+                    if (episodeIdentifier3 == null) {
+                        fail();
+                    } else {
+                        episodeTestObserver.assertValueSequenceThat(
+                                containsInOrder(
+                                        containsNothing(),
+                                        containsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        )
+                                )
+                        );
+
+                        final Episode episode12 = new Episode(
+                                new URL("http://example.com/episode/artwork12"),
+                                Duration.ofSeconds(12),
+                                DateUtil.from(
+                                        2019,
+                                        12,
+                                        12
+                                ),
+                                "summary12",
+                                "title12",
+                                new URL("http://example.com/episode")
+                        );
+
+                        getTestObject().updateEpisodeIdentified(
+                                podcastIdentifier,
+                                new Identified<>(
+                                        episodeIdentifier1,
+                                        episode12
+                                )
+                        );
+
+                        episodeTestObserver.assertValueSequenceThat(
+                                containsInOrder(
+                                        containsNothing(),
+                                        containsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode12),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        )
+                                )
+                        );
+
+                        getTestObject().deleteEpisode(episodeIdentifier1);
+
+                        episodeTestObserver.assertValueSequenceThat(
+                                containsInOrder(
+                                        containsNothing(),
+                                        containsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode12),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        containsInOrder(
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        )
+                                )
+                        );
+                    }
+                }
             }
         }
     }

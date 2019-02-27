@@ -40,7 +40,7 @@ import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromS
 import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
 final class EpisodeTable extends Table {
-    private static final String TABLE_EPISODE = "episode";
+    static final String TABLE_EPISODE = "episode";
 
     private static final String ARTWORK_URL = "artwork_url";
     private static final String DURATION = "duration";
@@ -182,7 +182,8 @@ final class EpisodeTable extends Table {
                                 new Object[]{podcastIdentifier.id}
                         )
                         .orderBy(SORT)
-                        .columns(COLUMNS_ALL_BUT_PODCAST_ID).create();
+                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
+                        .create();
 
         return briteDatabase
                 .createQuery(

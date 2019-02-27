@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
+import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
@@ -60,6 +61,21 @@ public final class Database {
     @Nullable
     public Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
         return podcastSearchTable.upsertPodcastSearch(podcastSearch);
+    }
+
+    @Nullable
+    public Identifier<Podcast> upsertPodcast(Podcast podcast) {
+        return podcastTable.upsertPodcast(podcast);
+    }
+
+    public void upsertEpisodesForPodcast(
+            Identifier<Podcast> podcastIdentifier,
+            List<Episode> episodes
+    ) {
+        episodeTable.upsertEpisodes(
+                podcastIdentifier,
+                episodes
+        );
     }
 
     public void outerReplacePodcastSearchResults(
@@ -116,8 +132,18 @@ public final class Database {
         ).mapToList(PodcastTable::getPodcastIdentified);
     }
 
-    public int deletePodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
-        return podcastSearchTable.deletePodcastSearchById(podcastSearchIdentifier);
+    public Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(Identifier<Podcast> podcastIdentifier) {
+        return episodeTable.observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier);
+    }
+
+    public boolean deletePodcast(Identifier<Podcast> podcastIdentifier) {
+        final int deleteCount = podcastTable.deletePodcast(podcastIdentifier);
+        return deleteCount > 0;
+    }
+
+    public boolean deletePodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+        final int deleteCount = podcastSearchTable.deletePodcastSearchById(podcastSearchIdentifier);
+        return deleteCount > 0;
     }
 
     static final class Schema extends Callback {

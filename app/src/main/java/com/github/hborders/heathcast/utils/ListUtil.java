@@ -61,4 +61,20 @@ public final class ListUtil {
         list.add(element4);
         return list;
     }
+
+    public static <E> List<E> listOf(
+            E element1,
+            E element2,
+            E element3,
+            E element4,
+            E element5
+    ) {
+        final ArrayList<E> list = new ArrayList<>(5);
+        list.add(element1);
+        list.add(element2);
+        list.add(element3);
+        list.add(element4);
+        list.add(element5);
+        return list;
+    }
 }
