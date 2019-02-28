@@ -226,7 +226,7 @@ final class EpisodeTable extends Table {
                 + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
                 + PODCAST_ID + " INTEGER NOT NULL, "
                 + PUBLISH_TIME_MILLIS + " INTEGER, "
-                + SORT + " INTEGER NOT NULL DEFAULT 0, "
+                + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0, "
                 + SUMMARY + " TEXT, "
                 + TITLE + " TEXT NOT NULL, "
                 + URL + " TEXT NOT NULL, "
@@ -292,14 +292,14 @@ final class EpisodeTable extends Table {
 
     static ContentValues getEpisodeIdentifiedContentValues(
             Identifier<Podcast> podcastIdentifier,
-            Identified<Episode> identifiedEpisode
+            Identified<Episode> episodeIdentified
     ) {
         final ContentValues values = getEpisodeContentValues(
                 podcastIdentifier,
-                identifiedEpisode.model
+                episodeIdentified.model
         );
 
-        putIdentifier(values, ID, identifiedEpisode);
+        putIdentifier(values, ID, episodeIdentified);
 
         return values;
     }

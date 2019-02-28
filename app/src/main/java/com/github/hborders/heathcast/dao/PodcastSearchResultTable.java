@@ -63,7 +63,7 @@ final class PodcastSearchResultTable extends Table {
                 + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
                 + PODCAST_ID + " INTEGER NOT NULL, "
                 + PODCAST_SEARCH_ID + " INTEGER NOT NULL, "
-                + SORT + " INTEGER NOT NULL, "
+                + SORT + " INTEGER NOT NULL UNIQUE, "
                 + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE, "
                 + CREATE_FOREIGN_KEY_PODCAST_SEARCH + " ON DELETE CASCADE"
                 + ")");

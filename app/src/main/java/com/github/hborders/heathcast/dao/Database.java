@@ -33,6 +33,7 @@ public final class Database {
     final EpisodeTable episodeTable;
     private final PodcastSearchResultTable podcastSearchResultTable;
     private final PodcastEpisodeListTable podcastEpisodeListTable;
+    final SubscriptionTable subscriptionTable;
 
     public Database(
             Context context,
@@ -56,6 +57,7 @@ public final class Database {
         episodeTable = new EpisodeTable(briteDatabase);
         podcastSearchResultTable = new PodcastSearchResultTable(briteDatabase);
         podcastEpisodeListTable = new PodcastEpisodeListTable(briteDatabase);
+        subscriptionTable = new SubscriptionTable(briteDatabase);
     }
 
     @Nullable
@@ -158,6 +160,7 @@ public final class Database {
             EpisodeTable.createEpisodeTable(db);
             PodcastSearchResultTable.createPodcastSearchResultTable(db);
             PodcastEpisodeListTable.createPodcastEpisodeListTable(db);
+            SubscriptionTable.createSubscriptionTable(db);
         }
 
         public void onConfigure(SupportSQLiteDatabase db) {
