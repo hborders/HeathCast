@@ -39,6 +39,12 @@ import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
 
+this intentionally doen't compile.
+We can make PODCAST_ID + URL the secondary key to guard against
+podcasts republishing other podcast episodes.
+Need to figure out how to make a compound unique in sqlite.
+This looks like it might work:
+// https://stackoverflow.com/q/2701877/9636
 final class EpisodeTable extends Table {
     static final String TABLE_EPISODE = "episode";
 
