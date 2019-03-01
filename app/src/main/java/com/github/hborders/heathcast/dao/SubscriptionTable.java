@@ -60,7 +60,6 @@ public final class SubscriptionTable extends Table {
             Identifier<Subscription> movingSubscriptionIdentifier,
             Identifier<Subscription> referenceSubscriptionIdentifier
     ) {
-
         SupportSQLiteStatement statement =
                 briteDatabase.getWritableDatabase().compileStatement(
                         "UPDATE " + TABLE_SUBSCRIPTION + " "
@@ -157,7 +156,7 @@ public final class SubscriptionTable extends Table {
         );
     }
 
-    int deleteSubscriptionIdentified(Identifier<Subscription> subscriptionIdentifier) {
+    int deleteSubscription(Identifier<Subscription> subscriptionIdentifier) {
         return briteDatabase.delete(
                 TABLE_SUBSCRIPTION,
                 ID + " = ?",

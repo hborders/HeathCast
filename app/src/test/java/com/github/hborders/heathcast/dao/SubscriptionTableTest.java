@@ -59,8 +59,121 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest {
                     notNullValue()
             );
         }
+    }
 
-        // TODO implement an inner join to actually extract a Podcast
+    @Test
+    public void testDeleteSubscription() throws Exception {
+        final Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork1"),
+                "author1",
+                new URL("http://example.com/feed1"),
+                "name1"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                getPodcastTable().upsertPodcast(podcast1);
+
+        final Podcast podcast2 = new Podcast(
+                new URL("http://example.com/artwork2"),
+                "author2",
+                new URL("http://example.com/feed2"),
+                "name2"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+                getPodcastTable().upsertPodcast(podcast2);
+
+        final Podcast podcast3 = new Podcast(
+                new URL("http://example.com/artwork3"),
+                "author3",
+                new URL("http://example.com/feed3"),
+                "name3"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier3 =
+                getPodcastTable().upsertPodcast(podcast3);
+
+        final Podcast podcast4 = new Podcast(
+                new URL("http://example.com/artwork4"),
+                "author4",
+                new URL("http://example.com/feed4"),
+                "name4"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier4 =
+                getPodcastTable().upsertPodcast(podcast4);
+
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else if (podcastIdentifier2 == null) {
+            fail();
+        } else if (podcastIdentifier3 == null) {
+            fail();
+        } else if (podcastIdentifier4 == null) {
+            fail();
+        } else {
+            final Subscription subscription1 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier1,
+                            podcast1
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier1 =
+                    getTestObject().insertSubscription(subscription1).orElse(null);
+
+            final Subscription subscription2 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier2,
+                            podcast2
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier2 =
+                    getTestObject().insertSubscription(subscription2).orElse(null);
+
+            final Subscription subscription3 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier3,
+                            podcast3
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier3 =
+                    getTestObject().insertSubscription(subscription3).orElse(null);
+
+            final Subscription subscription4 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier4,
+                            podcast4
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier4 =
+                    getTestObject().insertSubscription(subscription4).orElse(null);
+
+            if (subscriptionIdentifier1 == null) {
+                fail();
+            } else if (subscriptionIdentifier2 == null) {
+                fail();
+            } else if (subscriptionIdentifier3 == null) {
+                fail();
+            } else if (subscriptionIdentifier4 == null) {
+                fail();
+            } else {
+                final int deleteCount = getTestObject().deleteSubscription(subscriptionIdentifier2);
+                assertThat(
+                        deleteCount,
+                        is(1)
+                );
+
+                final TestObserver<List<Identifier<Subscription>>> subscriptionTestObserver =
+                        new TestObserver<>();
+                getTestObject()
+                        .observeQueryForAllSubscriptionIdentifiers()
+                        .subscribe(subscriptionTestObserver);
+
+                subscriptionTestObserver.assertValue(
+                        Arrays.asList(
+                                subscriptionIdentifier1,
+                                subscriptionIdentifier3,
+                                subscriptionIdentifier4
+                        )
+                );
+            }
+        }
     }
 
     @Test
@@ -151,7 +264,249 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest {
     }
 
     @Test
-    public void testMoveSubscriptionToBeginning() throws Exception {
+    public void testMoveSubscriptionToBeginningWhileAtBeginning() throws Exception {
+        final Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork1"),
+                "author1",
+                new URL("http://example.com/feed1"),
+                "name1"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                getPodcastTable().upsertPodcast(podcast1);
+
+        final Podcast podcast2 = new Podcast(
+                new URL("http://example.com/artwork2"),
+                "author2",
+                new URL("http://example.com/feed2"),
+                "name2"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+                getPodcastTable().upsertPodcast(podcast2);
+
+        final Podcast podcast3 = new Podcast(
+                new URL("http://example.com/artwork3"),
+                "author3",
+                new URL("http://example.com/feed3"),
+                "name3"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier3 =
+                getPodcastTable().upsertPodcast(podcast3);
+
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else if (podcastIdentifier2 == null) {
+            fail();
+        } else if (podcastIdentifier3 == null) {
+            fail();
+        } else {
+            final Subscription subscription1 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier1,
+                            podcast1
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier1 =
+                    getTestObject().insertSubscription(subscription1).orElse(null);
+
+            final Subscription subscription2 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier2,
+                            podcast2
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier2 =
+                    getTestObject().insertSubscription(subscription2).orElse(null);
+
+            final Subscription subscription3 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier3,
+                            podcast3
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier3 =
+                    getTestObject().insertSubscription(subscription3).orElse(null);
+
+            if (subscriptionIdentifier1 == null) {
+                fail();
+            } else if (subscriptionIdentifier2 == null) {
+                fail();
+            } else if (subscriptionIdentifier3 == null) {
+                fail();
+            } else {
+                final int movedSubscriptionCount = getTestObject().moveSubscriptionIdentifiedBefore(
+                        subscriptionIdentifier1,
+                        subscriptionIdentifier1
+                );
+                assertThat(
+                        movedSubscriptionCount,
+                        is(1)
+                );
+
+                final TestObserver<List<Identifier<Subscription>>> subscriptionTestObserver =
+                        new TestObserver<>();
+                getTestObject()
+                        .observeQueryForAllSubscriptionIdentifiers()
+                        .subscribe(subscriptionTestObserver);
+
+                subscriptionTestObserver.assertValue(
+                        Arrays.asList(
+                                subscriptionIdentifier1,
+                                subscriptionIdentifier2,
+                                subscriptionIdentifier3
+                        )
+                );
+            }
+        }
+    }
+
+    @Test
+    public void testMoveSubscriptionFromBeginningToEndWith2() throws Exception {
+        final Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork1"),
+                "author1",
+                new URL("http://example.com/feed1"),
+                "name1"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                getPodcastTable().upsertPodcast(podcast1);
+
+        final Podcast podcast2 = new Podcast(
+                new URL("http://example.com/artwork2"),
+                "author2",
+                new URL("http://example.com/feed2"),
+                "name2"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+                getPodcastTable().upsertPodcast(podcast2);
+
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else if (podcastIdentifier2 == null) {
+            fail();
+        } else {
+            final Subscription subscription1 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier1,
+                            podcast1
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier1 =
+                    getTestObject().insertSubscription(subscription1).orElse(null);
+
+            final Subscription subscription2 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier2,
+                            podcast2
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier2 =
+                    getTestObject().insertSubscription(subscription2).orElse(null);
+
+            if (subscriptionIdentifier1 == null) {
+                fail();
+            } else if (subscriptionIdentifier2 == null) {
+                fail();
+            } else {
+                final int movedSubscriptionCount = getTestObject().moveSubscriptionIdentifiedAfter(
+                        subscriptionIdentifier1,
+                        subscriptionIdentifier2
+                );
+                assertThat(
+                        movedSubscriptionCount,
+                        is(1)
+                );
+
+                final TestObserver<List<Identifier<Subscription>>> subscriptionTestObserver =
+                        new TestObserver<>();
+                getTestObject()
+                        .observeQueryForAllSubscriptionIdentifiers()
+                        .subscribe(subscriptionTestObserver);
+
+                subscriptionTestObserver.assertValue(
+                        Arrays.asList(
+                                subscriptionIdentifier2,
+                                subscriptionIdentifier1
+                        )
+                );
+            }
+        }
+    }
+
+    @Test
+    public void testMoveSubscriptionFromEndToBeginningWith2() throws Exception {
+        final Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork1"),
+                "author1",
+                new URL("http://example.com/feed1"),
+                "name1"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                getPodcastTable().upsertPodcast(podcast1);
+
+        final Podcast podcast2 = new Podcast(
+                new URL("http://example.com/artwork2"),
+                "author2",
+                new URL("http://example.com/feed2"),
+                "name2"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+                getPodcastTable().upsertPodcast(podcast2);
+
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else if (podcastIdentifier2 == null) {
+            fail();
+        } else {
+            final Subscription subscription1 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier1,
+                            podcast1
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier1 =
+                    getTestObject().insertSubscription(subscription1).orElse(null);
+
+            final Subscription subscription2 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier2,
+                            podcast2
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier2 =
+                    getTestObject().insertSubscription(subscription2).orElse(null);
+
+            if (subscriptionIdentifier1 == null) {
+                fail();
+            } else if (subscriptionIdentifier2 == null) {
+                fail();
+            } else {
+                final int movedSubscriptionCount = getTestObject().moveSubscriptionIdentifiedBefore(
+                        subscriptionIdentifier2,
+                        subscriptionIdentifier1
+                );
+                assertThat(
+                        movedSubscriptionCount,
+                        is(1)
+                );
+
+                final TestObserver<List<Identifier<Subscription>>> subscriptionTestObserver =
+                        new TestObserver<>();
+                getTestObject()
+                        .observeQueryForAllSubscriptionIdentifiers()
+                        .subscribe(subscriptionTestObserver);
+
+                subscriptionTestObserver.assertValue(
+                        Arrays.asList(
+                                subscriptionIdentifier2,
+                                subscriptionIdentifier1
+                        )
+                );
+            }
+        }
+    }
+
+    @Test
+    public void testMoveSubscriptionFromMiddleToBeginning() throws Exception {
         final Podcast podcast1 = new Podcast(
                 new URL("http://example.com/artwork1"),
                 "author1",
@@ -528,6 +883,102 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest {
                                 subscriptionIdentifier1,
                                 subscriptionIdentifier3,
                                 subscriptionIdentifier2
+                        )
+                );
+            }
+        }
+    }
+
+    @Test
+    public void testMoveSubscriptionToEndWhileAtEnd() throws Exception {
+        final Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork1"),
+                "author1",
+                new URL("http://example.com/feed1"),
+                "name1"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                getPodcastTable().upsertPodcast(podcast1);
+
+        final Podcast podcast2 = new Podcast(
+                new URL("http://example.com/artwork2"),
+                "author2",
+                new URL("http://example.com/feed2"),
+                "name2"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+                getPodcastTable().upsertPodcast(podcast2);
+
+        final Podcast podcast3 = new Podcast(
+                new URL("http://example.com/artwork3"),
+                "author3",
+                new URL("http://example.com/feed3"),
+                "name3"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier3 =
+                getPodcastTable().upsertPodcast(podcast3);
+
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else if (podcastIdentifier2 == null) {
+            fail();
+        } else if (podcastIdentifier3 == null) {
+            fail();
+        } else {
+            final Subscription subscription1 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier1,
+                            podcast1
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier1 =
+                    getTestObject().insertSubscription(subscription1).orElse(null);
+
+            final Subscription subscription2 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier2,
+                            podcast2
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier2 =
+                    getTestObject().insertSubscription(subscription2).orElse(null);
+
+            final Subscription subscription3 = new Subscription(
+                    new Identified<>(
+                            podcastIdentifier3,
+                            podcast3
+                    )
+            );
+            @Nullable final Identifier<Subscription> subscriptionIdentifier3 =
+                    getTestObject().insertSubscription(subscription3).orElse(null);
+
+            if (subscriptionIdentifier1 == null) {
+                fail();
+            } else if (subscriptionIdentifier2 == null) {
+                fail();
+            } else if (subscriptionIdentifier3 == null) {
+                fail();
+            } else {
+                final int movedSubscriptionCount = getTestObject().moveSubscriptionIdentifiedAfter(
+                        subscriptionIdentifier3,
+                        subscriptionIdentifier3
+                );
+                assertThat(
+                        movedSubscriptionCount,
+                        is(1)
+                );
+
+                final TestObserver<List<Identifier<Subscription>>> subscriptionTestObserver =
+                        new TestObserver<>();
+                getTestObject()
+                        .observeQueryForAllSubscriptionIdentifiers()
+                        .subscribe(subscriptionTestObserver);
+
+                subscriptionTestObserver.assertValue(
+                        Arrays.asList(
+                                subscriptionIdentifier1,
+                                subscriptionIdentifier2,
+                                subscriptionIdentifier3
                         )
                 );
             }
