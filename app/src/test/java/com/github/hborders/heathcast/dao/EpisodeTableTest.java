@@ -15,6 +15,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -1301,6 +1302,80 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                                 new Identified<>(
                                         episodeIdentifier3,
                                         episode3
+                                )
+                        )
+                );
+            }
+        }
+    }
+
+    @Test
+    public void testUpsertTheSameEpisodesForMultiplePodcasts() throws Exception {
+        final Podcast podcast1 = new Podcast(
+                new URL("http://example.com/artwork1"),
+                "author1",
+                new URL("http://example.com/feed1"),
+                "name1"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+                getPodcastTable().upsertPodcast(podcast1);
+
+        final Podcast podcast2 = new Podcast(
+                new URL("http://example.com/artwork2"),
+                "author2",
+                new URL("http://example.com/feed2"),
+                "name2"
+        );
+        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+                getPodcastTable().upsertPodcast(podcast2);
+
+        if (podcastIdentifier1 == null) {
+            fail();
+        } else if (podcastIdentifier2 == null) {
+            fail();
+        } else {
+            final Episode episode1 = new Episode(
+                    new URL("http://example.com/episode1/artwork"),
+                    Duration.ofSeconds(1),
+                    DateUtil.from(
+                            2019,
+                            1,
+                            1
+                    ),
+                    "summary1",
+                    "title1",
+                    new URL("http://example.com/episode1")
+            );
+            @Nullable final Identifier<Episode> episodeIdentifier11 =
+                    getTestObject().insertEpisode(
+                            podcastIdentifier1,
+                            episode1
+                    ).orElse(null);
+            @Nullable final Identifier<Episode> episodeIdentifier21 =
+                    getTestObject().insertEpisode(
+                            podcastIdentifier2,
+                            episode1
+                    ).orElse(null);
+            if (episodeIdentifier11 == null) {
+                fail();
+            } else if (episodeIdentifier21 == null) {
+                fail();
+            } else {
+                final TestObserver<Set<Identified<Episode>>> episodeTestObserver = new TestObserver<>();
+                getTestObject()
+                        .observeQueryForAllEpisodeIdentifieds()
+                        .subscribe(episodeTestObserver);
+                episodeTestObserver.assertValue(
+                        new HashSet<>(
+                                Arrays.asList(
+                                        new Identified<>(
+                                                episodeIdentifier11,
+                                                episode1
+                                        ),
+                                        new Identified<>(
+                                                episodeIdentifier21,
+                                                episode1
+                                        )
                                 )
                         )
                 );

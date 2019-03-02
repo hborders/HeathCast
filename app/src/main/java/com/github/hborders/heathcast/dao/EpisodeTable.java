@@ -62,15 +62,15 @@ final class EpisodeTable extends Table {
             TITLE,
             URL,
     };
-    private static final UpsertAdapter<String> upsertAdapter = new SingleColumnSecondaryKeyUpsertAdapter<>(
-            TABLE_EPISODE,
-            ID,
-            URL,
-            cursor -> CursorUtil.getNonnullString(
-                    cursor,
-                    URL
-            )
-    );
+//            new SingleColumnSecondaryKeyUpsertAdapter<>(
+//            TABLE_EPISODE,
+//            ID,
+//            URL,
+//            cursor -> CursorUtil.getNonnullString(
+//                    cursor,
+//                    URL
+//            )
+//    );
 
     static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
     static final String CREATE_FOREIGN_KEY_EPISODE =
@@ -123,6 +123,8 @@ final class EpisodeTable extends Table {
             Identifier<Podcast> podcastIdentifier,
             List<Episode> episodes
     ) {
+        final UpsertAdapter<String> upsertAdapter = new EpisodeTableUpsertAdapter(podcastIdentifier);
+
         return super.upsertModels(
                 TABLE_EPISODE,
                 upsertAdapter,
@@ -234,6 +236,10 @@ final class EpisodeTable extends Table {
                 + SUMMARY + " TEXT, "
                 + TITLE + " TEXT NOT NULL, "
                 + URL + " TEXT NOT NULL, "
+                + "UNIQUE("
+                + "  " + PODCAST_ID + ", "
+                + "  " + URL + " "
+                + "), "
                 + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE "
                 + ")"
         );
@@ -306,5 +312,44 @@ final class EpisodeTable extends Table {
         putIdentifier(values, ID, episodeIdentified);
 
         return values;
+    }
+
+    private static class EpisodeTableUpsertAdapter implements UpsertAdapter<String> {
+        private final Identifier<Podcast> podcastIdentifier;
+
+        public EpisodeTableUpsertAdapter(Identifier<Podcast> podcastIdentifier) {
+            this.podcastIdentifier = podcastIdentifier;
+        }
+
+        @Override
+        public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<String> secondaryKeys) {
+            final String selection =
+                    URL + inPlaceholderClause(secondaryKeys.size())
+                            + " AND " + PODCAST_ID + " = ? ";
+            final Object[] bindArgs = new Object[secondaryKeys.size() + 1];
+            secondaryKeys.toArray(bindArgs);
+            bindArgs[secondaryKeys.size()] = podcastIdentifier.id;
+            return SupportSQLiteQueryBuilder
+                    .builder(TABLE_EPISODE)
+                    .columns(new String[]{
+                            ID,
+                            URL
+                    })
+                    .selection(
+                            selection,
+                            bindArgs
+                    )
+                    .create();
+        }
+
+        @Override
+        public long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return CursorUtil.getNonnullLong(primaryAndSecondaryKeyCursor, ID);
+        }
+
+        @Override
+        public String getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return CursorUtil.getNonnullString(primaryAndSecondaryKeyCursor, URL);
+        }
     }
 }
