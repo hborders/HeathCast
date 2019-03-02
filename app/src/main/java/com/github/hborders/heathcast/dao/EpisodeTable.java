@@ -62,6 +62,15 @@ final class EpisodeTable extends Table {
             TITLE,
             URL,
     };
+    private static final UpsertAdapter<String> upsertAdapter = new SingleColumnSecondaryKeyUpsertAdapter<>(
+            TABLE_EPISODE,
+            ID,
+            URL,
+            cursor -> CursorUtil.getNonnullString(
+                    cursor,
+                    URL
+            )
+    );
 
     static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
     static final String CREATE_FOREIGN_KEY_EPISODE =
@@ -116,16 +125,11 @@ final class EpisodeTable extends Table {
     ) {
         return super.upsertModels(
                 TABLE_EPISODE,
-                ID,
-                URL,
+                upsertAdapter,
                 Episode.class,
                 String.class,
                 episodes,
                 episode -> episode.url.toExternalForm(),
-                cursor -> CursorUtil.getNonnullString(
-                        cursor,
-                        URL
-                ),
                 episode -> insertEpisode(
                         podcastIdentifier,
                         episode

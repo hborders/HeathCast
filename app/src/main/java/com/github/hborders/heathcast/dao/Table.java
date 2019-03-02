@@ -50,34 +50,30 @@ abstract class Table {
     }
 
     @Nullable
+    @SuppressWarnings("unused")
     protected final <M, S> Identifier<M> upsertModel(
             String tableName,
-            String primaryKeyColumnName,
-            String secondaryKeyColumnName,
+            UpsertAdapter<S> upsertAdapter,
             Class<M> modelClass,
+            // secondaryKeyClass exists to force S not to be Serializable or some other
+            // unexpected superclass of unrelated Model and Cursor property classes.
+            // however, we don't actually need the parameter, so we suppress unused.
+            Class<S> secondaryKeyClass,
             M model,
             Function<M, S> modelSecondaryKeyGetter,
-            Function<Cursor, S> cursorSecondaryKeyGetter,
             Function<M, Optional<Identifier<M>>> modelInserter,
             Function<Identified<M>, Integer> identifiedUpdater
     ) {
         try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
             final S secondaryKey = modelSecondaryKeyGetter.apply(model);
-            final SupportSQLiteQuery primaryKeyQuery =
-                    SupportSQLiteQueryBuilder
-                            .builder(tableName)
-                            .columns(new String[]{
-                                    primaryKeyColumnName
-                            })
-                            .selection(
-                                    secondaryKeyColumnName + " = ?",
-                                    new Object[]{secondaryKey}
-                            )
-                            .create();
+
+
+            final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
+                    upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
             @Nullable final Identifier<M> upsertedIdentifier;
-            try (final Cursor primaryKeyCursor = briteDatabase.query(primaryKeyQuery)) {
-                if (primaryKeyCursor.moveToNext()) {
-                    final long primaryKey = primaryKeyCursor.getLong(0);
+            try (final Cursor primaryAndSecondaryKeyCursor = briteDatabase.query(primaryAndSecondaryKeyQuery)) {
+                if (primaryAndSecondaryKeyCursor.moveToNext()) {
+                    final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
                     final Identifier<M> upsertingIdentifier = new Identifier<>(
                             modelClass,
                             primaryKey
@@ -106,18 +102,17 @@ abstract class Table {
         }
     }
 
-    // secondaryKeyClass exists to force S not to be Serializable or some other
-    // unexpected superclass of unrelated Model and Cursor property classes.
     @SuppressWarnings("unused")
     protected final <M, S> List<Optional<Identifier<M>>> upsertModels(
             String tableName,
-            String primaryKeyColumnName,
-            String secondaryKeyColumnName,
+            UpsertAdapter<S> upsertAdapter,
             Class<M> modelClass,
+            // secondaryKeyClass exists to force S not to be Serializable or some other
+            // unexpected superclass of unrelated Model and Cursor property classes.
+            // however, we don't actually need the parameter, so we suppress unused.
             Class<S> secondaryKeyClass,
             List<M> models,
             Function<M, S> modelSecondaryKeyGetter,
-            Function<Cursor, S> cursorSecondaryKeyGetter,
             Function<M, Optional<Identifier<M>>> modelInserter,
             Function<Identified<M>, Integer> identifiedUpdater
     ) {
@@ -146,20 +141,8 @@ abstract class Table {
                                         )
                                 );
 
-                final String selection =
-                        secondaryKeyColumnName + inPlaceholderClause(indexedModelSetsBySecondaryKey.keySet().size());
                 final SupportSQLiteQuery primaryKeyAndSecondaryKeyQuery =
-                        SupportSQLiteQueryBuilder
-                                .builder(tableName)
-                                .columns(new String[]{
-                                        primaryKeyColumnName,
-                                        secondaryKeyColumnName
-                                })
-                                .selection(
-                                        selection,
-                                        indexedModelSetsBySecondaryKey.keySet().toArray()
-                                )
-                                .create();
+                        upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(indexedModelSetsBySecondaryKey.keySet());
                 // Again, LinkedHashSet is important here to ensure that we iterate through inserted
                 // elements in the same order as we receive them in the models list.
                 // the above LinkedHashMap preserves that order in its keySet, and LinkedHashSet
@@ -168,13 +151,8 @@ abstract class Table {
                 final List<Identified<M>> updatingIdentifieds = new ArrayList<>(models.size());
                 try (final Cursor primaryKeyAndSecondaryKeyCursor = briteDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
                     while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
-                        final long primaryKey =
-                                CursorUtil.getNonnullLong(
-                                        primaryKeyAndSecondaryKeyCursor,
-                                        primaryKeyColumnName
-                                );
-                        final S secondaryKey =
-                                cursorSecondaryKeyGetter.apply(primaryKeyAndSecondaryKeyCursor);
+                        final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
+                        final S secondaryKey = upsertAdapter.getSecondaryKey(primaryKeyAndSecondaryKeyCursor);
                         @Nullable final Set<NonnullPair<Integer, M>> indexedModelSet =
                                 indexedModelSetsBySecondaryKey.get(secondaryKey);
                         if (indexedModelSet == null) {
@@ -259,5 +237,62 @@ abstract class Table {
         }
 
         return idStrings;
+    }
+
+    protected interface UpsertAdapter<S> {
+        SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<S> secondaryKeys);
+
+        long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor);
+
+        S getSecondaryKey(Cursor primaryAndSecondaryKeyCursor);
+    }
+
+    protected static class SingleColumnSecondaryKeyUpsertAdapter<S> implements UpsertAdapter<S> {
+        private final String tableName;
+        private final String primaryKeyColumnName;
+        private final String secondaryKeyColumnName;
+        private final Function<Cursor, S> cursorSecondaryKeyGetter;
+
+        public SingleColumnSecondaryKeyUpsertAdapter(
+                String tableName,
+                String primaryKeyColumnName,
+                String secondaryKeyColumnName,
+                Function<Cursor, S> cursorSecondaryKeyGetter
+        ) {
+            this.tableName = tableName;
+            this.primaryKeyColumnName = primaryKeyColumnName;
+            this.secondaryKeyColumnName = secondaryKeyColumnName;
+            this.cursorSecondaryKeyGetter = cursorSecondaryKeyGetter;
+        }
+
+        @Override
+        public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<S> secondaryKeys) {
+            final String selection =
+                    secondaryKeyColumnName + inPlaceholderClause(secondaryKeys.size());
+            return SupportSQLiteQueryBuilder
+                    .builder(tableName)
+                    .columns(new String[]{
+                            primaryKeyColumnName,
+                            secondaryKeyColumnName
+                    })
+                    .selection(
+                            selection,
+                            secondaryKeys.toArray()
+                    )
+                    .create();
+        }
+
+        @Override
+        public long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return CursorUtil.getNonnullLong(
+                    primaryAndSecondaryKeyCursor,
+                    primaryKeyColumnName
+            );
+        }
+
+        @Override
+        public S getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return cursorSecondaryKeyGetter.apply(primaryAndSecondaryKeyCursor);
+        }
     }
 }

@@ -47,6 +47,12 @@ final class PodcastSearchTable extends Table {
             ID,
             SEARCH,
     };
+    private static final UpsertAdapter<String> upsertAdapter = new SingleColumnSecondaryKeyUpsertAdapter<>(
+            TABLE_PODCAST_SEARCH,
+            ID,
+            SEARCH,
+            cursor -> CursorUtil.getNonnullString(cursor, SEARCH)
+    );
 
     PodcastSearchTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
@@ -56,12 +62,11 @@ final class PodcastSearchTable extends Table {
     Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
         return upsertModel(
                 TABLE_PODCAST_SEARCH,
-                ID,
-                SEARCH,
+                upsertAdapter,
                 PodcastSearch.class,
+                String.class,
                 podcastSearch,
                 PodcastSearch::getSearch,
-                cursor -> CursorUtil.getNonnullString(cursor, SEARCH),
                 this::insertPodcastSearch,
                 this::updatePodcastSearchIdentified);
     }

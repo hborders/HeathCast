@@ -54,6 +54,12 @@ final class PodcastTable extends Table {
             FEED_URL,
             NAME,
     };
+    private static final UpsertAdapter<String> upsertAdapter = new SingleColumnSecondaryKeyUpsertAdapter<>(
+            TABLE_PODCAST,
+            ID,
+            FEED_URL,
+            cursor -> CursorUtil.getNonnullString(cursor, FEED_URL)
+    );
 
     PodcastTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
@@ -91,12 +97,11 @@ final class PodcastTable extends Table {
     Identifier<Podcast> upsertPodcast(Podcast podcast) {
         return upsertModel(
                 TABLE_PODCAST,
-                ID,
-                FEED_URL,
+                upsertAdapter,
                 Podcast.class,
+                String.class,
                 podcast,
                 podcast_ -> podcast_.feedURL.toExternalForm(),
-                cursor -> CursorUtil.getNonnullString(cursor, FEED_URL),
                 this::insertPodcast,
                 this::updatePodcastIdentified
         );
@@ -105,13 +110,11 @@ final class PodcastTable extends Table {
     List<Optional<Identifier<Podcast>>> upsertPodcasts(List<Podcast> podcasts) {
         return upsertModels(
                 TABLE_PODCAST,
-                ID,
-                FEED_URL,
+                upsertAdapter,
                 Podcast.class,
                 String.class,
                 podcasts,
                 podcast -> podcast.feedURL.toExternalForm(),
-                cursor -> CursorUtil.getNonnullString(cursor, FEED_URL),
                 this::insertPodcast,
                 this::updatePodcastIdentified
         );
