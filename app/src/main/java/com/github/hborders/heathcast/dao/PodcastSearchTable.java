@@ -58,8 +58,7 @@ final class PodcastSearchTable extends Table {
         super(briteDatabase);
     }
 
-    @Nullable
-    Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
+    Optional<Identifier<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
         return upsertModel(
                 TABLE_PODCAST_SEARCH,
                 upsertAdapter,

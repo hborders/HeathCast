@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import io.reactivex.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
@@ -93,8 +91,7 @@ final class PodcastTable extends Table {
         );
     }
 
-    @Nullable
-    Identifier<Podcast> upsertPodcast(Podcast podcast) {
+    Optional<Identifier<Podcast>> upsertPodcast(Podcast podcast) {
         return upsertModel(
                 TABLE_PODCAST,
                 upsertAdapter,

@@ -1,5 +1,8 @@
 package com.github.hborders.heathcast.services;
 
+import android.content.Context;
+
+import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
@@ -24,25 +27,50 @@ import okhttp3.Request;
 import okhttp3.ResponseBody;
 
 public final class PodcastService {
-    public static final PodcastService instance = new PodcastService(
-            new OkHttpClient(),
-            new Gson(),
-            ReactivexOkHttpCallAdapter.createWithScheduler(Schedulers.io())
-    );
+    @Nullable
+    private static PodcastService instance;
+    public static synchronized PodcastService getInstance(Context context) {
+        @Nullable final PodcastService oldInstance = instance;
+        if (oldInstance == null) {
+            final PodcastService newInstance = new PodcastService(
+                    new Database(
+                            context,
+                            null,
+                            Schedulers.io()
+                    ),
+                    new OkHttpClient(),
+                    new Gson(),
+                    ReactivexOkHttpCallAdapter.createWithScheduler(Schedulers.io())
+            );
+            instance = newInstance;
+            return newInstance;
+        } else {
+            return oldInstance;
+        }
+    }
 
+    private final Database database;
     private final OkHttpClient okHttpClient;
     private final Gson gson;
     private final ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter;
 
     public PodcastService(
+            Database database,
             OkHttpClient okHttpClient,
             Gson gson,
             ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter
     ) {
+        this.database = database;
         this.okHttpClient = okHttpClient;
         this.gson = gson;
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
     }
+
+//    public Observable<List<Identified<Podcast>>> searchForPodcasts2(String query) {
+//        final Optional<Identified<PodcastSearch>> podcastSearchIdentifiedOptional =
+//                database.upsertPodcastSearch(new PodcastSearch(query));
+//return database.observeQueryForPodcastIdentifieds()
+//    }
 
     public Single<List<Identified<Podcast>>> searchForPodcasts(String query) {
         // https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/

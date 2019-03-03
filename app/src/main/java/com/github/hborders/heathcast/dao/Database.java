@@ -14,6 +14,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.Subscription;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
@@ -32,7 +33,6 @@ public final class Database {
     final PodcastTable podcastTable;
     final EpisodeTable episodeTable;
     private final PodcastSearchResultTable podcastSearchResultTable;
-    private final PodcastEpisodeListTable podcastEpisodeListTable;
     final SubscriptionTable subscriptionTable;
 
     public Database(
@@ -56,18 +56,27 @@ public final class Database {
         podcastTable = new PodcastTable(briteDatabase);
         episodeTable = new EpisodeTable(briteDatabase);
         podcastSearchResultTable = new PodcastSearchResultTable(briteDatabase);
-        podcastEpisodeListTable = new PodcastEpisodeListTable(briteDatabase);
         subscriptionTable = new SubscriptionTable(briteDatabase);
     }
 
-    @Nullable
-    public Identifier<PodcastSearch> upsertPodcastSearch(PodcastSearch podcastSearch) {
-        return podcastSearchTable.upsertPodcastSearch(podcastSearch);
+    public Optional<Identified<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
+        return podcastSearchTable
+                .upsertPodcastSearch(podcastSearch)
+                .map(podcastSearchIdentifier -> new Identified<>(
+                                podcastSearchIdentifier,
+                                podcastSearch
+                        )
+                );
     }
 
-    @Nullable
-    public Identifier<Podcast> upsertPodcast(Podcast podcast) {
-        return podcastTable.upsertPodcast(podcast);
+    public Optional<Identified<Podcast>> upsertPodcast(Podcast podcast) {
+        return podcastTable
+                .upsertPodcast(podcast)
+                .map(podcastIdentifier -> new Identified<>(
+                                podcastIdentifier,
+                                podcast
+                        )
+                );
     }
 
     public void upsertEpisodesForPodcast(
@@ -106,9 +115,27 @@ public final class Database {
         }
     }
 
+    public Optional<Identified<Subscription>> subscribe(Identified<Podcast> podcastIdentified) {
+        return subscriptionTable.insertSubscription(
+                new Subscription(
+                        podcastIdentified
+                )
+        ).map(subscriptionIdentifier -> new Identified<>(
+                subscriptionIdentifier,
+                new Subscription(podcastIdentified)
+        ));
+    }
+
+    public boolean unsubscribe(Identifier<Subscription> subscriptionIdentifier) {
+        final int deleteCount = subscriptionTable.deleteSubscription(subscriptionIdentifier);
+        return deleteCount > 0;
+    }
+
     public Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
         return podcastSearchTable.observeQueryForAllPodcastSearchIdentifieds();
     }
+
+    public Observable<List<Identified<Podcast>>> observeQueryFor
 
     public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
             Identifier<PodcastSearch> podcastSearchIdentifier
@@ -132,6 +159,10 @@ public final class Database {
                         + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
                 podcastSearchIdentifier.id
         ).mapToList(PodcastTable::getPodcastIdentified);
+    }
+
+    public Observable<List<Identified<Subscription>>> observeQueryForSubscriptions() {
+        return subscriptionTable.observeQueryForSubscriptions();
     }
 
     public Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(Identifier<Podcast> podcastIdentifier) {
@@ -159,7 +190,6 @@ public final class Database {
             PodcastTable.createPodcastTable(db);
             EpisodeTable.createEpisodeTable(db);
             PodcastSearchResultTable.createPodcastSearchResultTable(db);
-            PodcastEpisodeListTable.createPodcastEpisodeListTable(db);
             SubscriptionTable.createSubscriptionTable(db);
         }
 

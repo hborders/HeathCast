@@ -95,7 +95,8 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                     oldDisposable.dispose();
                 }
                 fetchEpisodesDisposable =
-                        PodcastService.instance
+                        PodcastService
+                                .getInstance(inflater.getContext())
                                 .fetchEpisodes(podcast.feedURL)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(

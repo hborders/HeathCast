@@ -42,7 +42,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name1"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getTestObject().upsertPodcast(podcast);
+                getTestObject().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -240,7 +240,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getTestObject().upsertPodcast(podcast);
+                getTestObject().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -281,7 +281,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest {
                     "name2"
             );
             @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                    getTestObject().upsertPodcast(podcast2);
+                    getTestObject().upsertPodcast(podcast2).orElse(null);
             assertThat(
                     podcastIdentifier2,
                     is(podcastIdentifier1)

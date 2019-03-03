@@ -49,9 +49,8 @@ abstract class Table {
         contentValues.put(key, identifier.id);
     }
 
-    @Nullable
     @SuppressWarnings("unused")
-    protected final <M, S> Identifier<M> upsertModel(
+    protected final <M, S> Optional<Identifier<M>> upsertModel(
             String tableName,
             UpsertAdapter<S> upsertAdapter,
             Class<M> modelClass,
@@ -66,7 +65,6 @@ abstract class Table {
     ) {
         try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
             final S secondaryKey = modelSecondaryKeyGetter.apply(model);
-
 
             final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
                     upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
@@ -98,7 +96,7 @@ abstract class Table {
 
             transaction.markSuccessful();
 
-            return upsertedIdentifier;
+            return Optional.ofNullable(upsertedIdentifier);
         }
     }
 

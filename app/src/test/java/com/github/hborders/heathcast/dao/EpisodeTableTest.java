@@ -51,7 +51,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -101,7 +101,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -147,7 +147,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -218,7 +218,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -674,7 +674,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -748,7 +748,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -811,7 +811,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -941,7 +941,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -1143,7 +1143,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -1218,7 +1218,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast);
+                getPodcastTable().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -1318,7 +1318,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name1"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier1 =
-                getPodcastTable().upsertPodcast(podcast1);
+                getPodcastTable().upsertPodcast(podcast1).orElse(null);
 
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -1327,7 +1327,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest {
                 "name2"
         );
         @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                getPodcastTable().upsertPodcast(podcast2);
+                getPodcastTable().upsertPodcast(podcast2).orElse(null);
 
         if (podcastIdentifier1 == null) {
             fail();

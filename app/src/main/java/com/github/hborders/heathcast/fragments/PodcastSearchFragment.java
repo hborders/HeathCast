@@ -83,9 +83,10 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                     if (oldDisposable != null) {
                         oldDisposable.dispose();
                     }
-                    podcastSearchDisposable = PodcastService.instance.
-                            searchForPodcasts(query).
-                            observeOn(AndroidSchedulers.mainThread())
+                    podcastSearchDisposable = PodcastService
+                            .getInstance(inflater.getContext())
+                            .searchForPodcasts(query)
+                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     podcasts -> {
                                         @Nullable final PodcastListFragment existingPodcastListFragment =
