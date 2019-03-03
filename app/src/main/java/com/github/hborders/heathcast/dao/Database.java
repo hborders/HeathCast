@@ -15,6 +15,7 @@ import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
+import com.github.hborders.heathcast.utils.ListUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
@@ -69,6 +70,27 @@ public final class Database {
                 );
     }
 
+    public void replacePodcastSearchPodcasts(
+            Identified<PodcastSearch> podcastSearchIdentified,
+            List<Podcast> podcasts
+    ) {
+        try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+            podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.identifier);
+            ListUtil.indexedStream(podcasts).forEach(indexedPodcast ->
+                    podcastTable.upsertPodcast(indexedPodcast.second).ifPresent(
+                            podcastIdentifier ->
+                                    podcastSearchResultTable.insertPodcastSearchResult(
+                                            podcastIdentifier,
+                                            podcastSearchIdentified.identifier,
+                                            indexedPodcast.first
+                                    )
+                    )
+            );
+
+            transaction.markSuccessful();
+        }
+    }
+
     public Optional<Identified<Podcast>> upsertPodcast(Podcast podcast) {
         return podcastTable
                 .upsertPodcast(podcast)
@@ -87,32 +109,6 @@ public final class Database {
                 podcastIdentifier,
                 episodes
         );
-    }
-
-    public void outerReplacePodcastSearchResults(
-            Identifier<PodcastSearch> podcastSearchIdentifier,
-            List<Podcast> podcasts
-    ) {
-        try (BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
-            podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentifier);
-
-            final List<Optional<Identifier<Podcast>>> podcastIdentifierOptionals =
-                    podcastTable.upsertPodcasts(podcasts);
-            for (int i = 0; i < podcastIdentifierOptionals.size(); i++) {
-                final Optional<Identifier<Podcast>> podcastIdentifierOptional =
-                        podcastIdentifierOptionals.get(i);
-                if (podcastIdentifierOptional.isPresent()) {
-                    final Identifier<Podcast> podcastIdentifier = podcastIdentifierOptional.get();
-                    podcastSearchResultTable.insertPodcastSearchResult(
-                            podcastIdentifier,
-                            podcastSearchIdentifier,
-                            i
-                    );
-                }
-            }
-
-            transaction.markSuccessful();
-        }
     }
 
     public Optional<Identified<Subscription>> subscribe(Identified<Podcast> podcastIdentified) {
@@ -134,8 +130,6 @@ public final class Database {
     public Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
         return podcastSearchTable.observeQueryForAllPodcastSearchIdentifieds();
     }
-
-    public Observable<List<Identified<Podcast>>> observeQueryFor
 
     public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
             Identifier<PodcastSearch> podcastSearchIdentifier

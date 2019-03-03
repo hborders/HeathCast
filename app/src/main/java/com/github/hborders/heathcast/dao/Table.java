@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.utils.CursorUtil;
-import com.github.hborders.heathcast.utils.NonnullPair;
+import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.utils.SortedSetUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 

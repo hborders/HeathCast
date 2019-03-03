@@ -2,24 +2,33 @@ package com.github.hborders.heathcast.services;
 
 import android.content.Context;
 
+import com.github.hborders.heathcast.core.Either;
+import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -29,6 +38,7 @@ import okhttp3.ResponseBody;
 public final class PodcastService {
     @Nullable
     private static PodcastService instance;
+
     public static synchronized PodcastService getInstance(Context context) {
         @Nullable final PodcastService oldInstance = instance;
         if (oldInstance == null) {
@@ -54,6 +64,9 @@ public final class PodcastService {
     private final Gson gson;
     private final ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter;
 
+    private final ConcurrentHashMap<PodcastSearch, BehaviorSubject<ServiceRequestState>> serviceRequestStateBehaviorSubjectsByPodcastSearch =
+            new ConcurrentHashMap<>();
+
     public PodcastService(
             Database database,
             OkHttpClient okHttpClient,
@@ -66,13 +79,78 @@ public final class PodcastService {
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
     }
 
-//    public Observable<List<Identified<Podcast>>> searchForPodcasts2(String query) {
-//        final Optional<Identified<PodcastSearch>> podcastSearchIdentifiedOptional =
-//                database.upsertPodcastSearch(new PodcastSearch(query));
-//return database.observeQueryForPodcastIdentifieds()
-//    }
+    public Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
+        return database.observeQueryForAllPodcastSearchIdentifieds();
+    }
 
-    public Single<List<Identified<Podcast>>> searchForPodcasts(String query) {
+    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(PodcastSearch podcastSearch) {
+        final Optional<Identified<PodcastSearch>> podcastSearchIdentifiedOptional =
+                database.upsertPodcastSearch(podcastSearch);
+        return podcastSearchIdentifiedOptional.map(
+                podcastSearchIdentified -> {
+                    Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable =
+                            database.observeQueryForPodcastIdentifieds(podcastSearchIdentified.identifier);
+                    final BehaviorSubject<ServiceRequestState> serviceRequestStateBehaviorSubject =
+                            Objects.requireNonNull(
+                                    serviceRequestStateBehaviorSubjectsByPodcastSearch.putIfAbsent(
+                                            podcastSearch,
+                                            BehaviorSubject.create()
+                                    )
+                            );
+
+                    final Disposable searchForPodcastsDisposable =
+                            searchForPodcasts(podcastSearch.search)
+                                    .map(
+                                            podcastSearchResponse ->
+                                                    Either.liftLeft(
+                                                            PodcastSearchResponse.class,
+                                                            ServiceRequestState.class,
+                                                            podcastSearchResponse
+                                                    )
+                                    )
+                                    .onErrorReturn(
+                                            throwable ->
+                                                    Either.right(
+                                                            ServiceRequestState.class,
+                                                            ServiceRequestState.remoteFailure(throwable)
+                                                    )
+                                    )
+                                    .map(
+                                            podcastSearchResponseOrServiceRequestState ->
+                                                    podcastSearchResponseOrServiceRequestState.reduce(
+                                                            podcastSearchResponse -> {
+                                                                database.replacePodcastSearchPodcasts(
+                                                                        podcastSearchIdentified,
+                                                                        podcastSearchResponse.podcasts
+                                                                );
+                                                                return ServiceRequestState.loaded();
+                                                            },
+                                                            Function.identity()
+                                                    )
+                                    )
+                                    .onErrorReturn(ServiceRequestState.LocalFailure::new)
+                                    .subscribe(serviceRequestStateBehaviorSubject::onNext);
+
+
+                    return Observable.combineLatest(
+                            podcastIdentifiedsObservable,
+                            serviceRequestStateBehaviorSubject,
+                            NonnullPair::new
+                    ).doOnDispose(searchForPodcastsDisposable::dispose);
+                }
+        ).orElse(
+                Single.<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>>just(
+                        new NonnullPair<>(
+                                Collections.emptyList(),
+                                ServiceRequestState.localFailure(
+                                        new UpsertPodcastSearchException(podcastSearch)
+                                )
+                        )
+                ).toObservable()
+        );
+    }
+
+    private Single<PodcastSearchResponse> searchForPodcasts(String query) {
         // https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
         final HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
@@ -113,16 +191,16 @@ public final class PodcastService {
                                         response.close();
                                     }
 
-                                    final List<Identified<Podcast>> podcasts =
+                                    final List<Podcast> podcasts =
                                             Optional
                                                     .ofNullable(podcastSearchResultsJson.results)
                                                     .filter(Objects::nonNull)
                                                     .map(List::stream)
                                                     .orElseGet(Stream::empty)
-                                                    .map(PodcastJson::toIdentifiedPodcast)
+                                                    .map(PodcastJson::toPodcast)
                                                     .filter(Objects::nonNull)
                                                     .collect(Collectors.toList());
-                                    return Single.just(podcasts);
+                                    return Single.just(new PodcastSearchResponse(podcasts));
                                 }
                             } else {
                                 return Single.error(new Exception("HTTP Error: " + responseCode));
@@ -163,5 +241,33 @@ public final class PodcastService {
                             }
                         }
                 );
+    }
+
+    private static class PodcastSearchResponse {
+        private final List<Podcast> podcasts;
+
+        private PodcastSearchResponse(List<Podcast> podcasts) {
+            this.podcasts = podcasts;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PodcastSearchResponse that = (PodcastSearchResponse) o;
+            return podcasts.equals(that.podcasts);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(podcasts);
+        }
+
+        @Override
+        public String toString() {
+            return "PodcastSearchResponse{" +
+                    "podcasts=" + podcasts +
+                    '}';
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.github.hborders.heathcast.utils;
 
+import com.github.hborders.heathcast.core.NonnullPair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;

@@ -34,12 +34,12 @@ final class PodcastSearchResultTable extends Table {
     }
 
     long insertPodcastSearchResult(
-            Identifier<Podcast> podcast,
+            Identifier<Podcast> podcastIdentifier,
             Identifier<PodcastSearch> podcastSearchIdentifier,
             int sort
     ) {
         final ContentValues values = new ContentValues(3);
-        values.put(PODCAST_ID, podcast.id);
+        values.put(PODCAST_ID, podcastIdentifier.id);
         values.put(PODCAST_SEARCH_ID, podcastSearchIdentifier.id);
         values.put(SORT, sort);
 

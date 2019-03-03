@@ -1,7 +1,5 @@
 package com.github.hborders.heathcast.services;
 
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.utils.URLUtil;
 
@@ -35,7 +33,7 @@ final class PodcastJson {
     public String feedUrl;
 
     @Nullable
-    Identified<Podcast> toIdentifiedPodcast() {
+    Podcast toPodcast() {
         @Nullable final String artistName = this.artistName;
         @Nullable final String artwork30URLString = this.artworkUrl30;
         @Nullable final String artwork60URLString = this.artworkUrl60;
@@ -63,17 +61,11 @@ final class PodcastJson {
             if (feedURL == null) {
                 return null;
             } else {
-                return new Identified<>(
-                        new Identifier<>(
-                                Podcast.class,
-                                0
-                        ),
-                        new Podcast(
-                                artworkURLOptional.orElse(null),
-                                artistName,
-                                feedURL,
-                                collectionName
-                        )
+                return new Podcast(
+                        artworkURLOptional.orElse(null),
+                        artistName,
+                        feedURL,
+                        collectionName
                 );
             }
         }
