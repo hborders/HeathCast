@@ -1,4 +1,4 @@
-package com.github.hborders.heathcast.utils;
+package com.github.hborders.heathcast.android;
 
 import java.util.Collections;
 

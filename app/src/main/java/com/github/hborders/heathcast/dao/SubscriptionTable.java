@@ -10,7 +10,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.Subscription;
-import com.github.hborders.heathcast.utils.CursorUtil;
+import com.github.hborders.heathcast.android.CursorUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.Arrays;

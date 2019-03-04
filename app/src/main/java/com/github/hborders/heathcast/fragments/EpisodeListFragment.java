@@ -14,7 +14,7 @@ import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.parcelables.EpisodeIdentifiedHolder;
-import com.github.hborders.heathcast.utils.FragmentUtil;
+import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
 
 import java.util.List;

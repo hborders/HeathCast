@@ -1,7 +1,7 @@
 package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.utils.URLUtil;
+import com.github.hborders.heathcast.core.URLUtil;
 
 import java.net.URL;
 import java.util.Objects;

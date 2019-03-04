@@ -8,9 +8,9 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.utils.CursorUtil;
+import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.NonnullPair;
-import com.github.hborders.heathcast.utils.SortedSetUtil;
+import com.github.hborders.heathcast.core.SortedSetUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.ArrayList;
@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import static com.github.hborders.heathcast.utils.ListUtil.indexedStream;
-import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
+import static com.github.hborders.heathcast.core.ListUtil.indexedStream;
+import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
 abstract class Table {
     protected static final Object[] EMPTY_BIND_ARGS = new Object[0];

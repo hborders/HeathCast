@@ -1,4 +1,4 @@
-package com.github.hborders.heathcast.utils;
+package com.github.hborders.heathcast.core;
 
 import com.github.hborders.heathcast.core.NonnullPair;
 

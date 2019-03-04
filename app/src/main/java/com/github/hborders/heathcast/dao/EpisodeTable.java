@@ -11,7 +11,7 @@ import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.utils.CursorUtil;
+import com.github.hborders.heathcast.android.CursorUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.Arrays;
@@ -27,17 +27,17 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
-import static com.github.hborders.heathcast.utils.ContentValuesUtil.putDateAsLong;
-import static com.github.hborders.heathcast.utils.ContentValuesUtil.putDurationAsLong;
-import static com.github.hborders.heathcast.utils.ContentValuesUtil.putURLAsString;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullURLFromString;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDateFromLong;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNullableDurationFromLong;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNullableString;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNullableURLFromString;
-import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
+import static com.github.hborders.heathcast.android.ContentValuesUtil.putDateAsLong;
+import static com.github.hborders.heathcast.android.ContentValuesUtil.putDurationAsLong;
+import static com.github.hborders.heathcast.android.ContentValuesUtil.putURLAsString;
+import static com.github.hborders.heathcast.android.CursorUtil.getNonnullInt;
+import static com.github.hborders.heathcast.android.CursorUtil.getNonnullString;
+import static com.github.hborders.heathcast.android.CursorUtil.getNonnullURLFromString;
+import static com.github.hborders.heathcast.android.CursorUtil.getNullableDateFromLong;
+import static com.github.hborders.heathcast.android.CursorUtil.getNullableDurationFromLong;
+import static com.github.hborders.heathcast.android.CursorUtil.getNullableString;
+import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFromString;
+import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
 final class EpisodeTable extends Table {
     static final String TABLE_EPISODE = "episode";

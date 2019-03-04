@@ -15,7 +15,7 @@ import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
-import com.github.hborders.heathcast.utils.ListUtil;
+import com.github.hborders.heathcast.core.ListUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 

@@ -1,6 +1,8 @@
-package com.github.hborders.heathcast.utils;
+package com.github.hborders.heathcast.android;
 
 import android.database.Cursor;
+
+import com.github.hborders.heathcast.core.URLUtil;
 
 import java.net.URL;
 import java.time.Duration;

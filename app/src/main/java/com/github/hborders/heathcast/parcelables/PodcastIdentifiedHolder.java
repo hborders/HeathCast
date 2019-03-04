@@ -12,8 +12,8 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import static com.github.hborders.heathcast.utils.ParcelUtil.readURL;
-import static com.github.hborders.heathcast.utils.ParcelUtil.writeURL;
+import static com.github.hborders.heathcast.android.ParcelUtil.readURL;
+import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
 public final class PodcastIdentifiedHolder implements Parcelable, UnparcelableHolder<Identified<Podcast>> {
     @Nullable

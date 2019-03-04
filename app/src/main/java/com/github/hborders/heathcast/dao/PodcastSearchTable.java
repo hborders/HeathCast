@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.utils.CursorUtil;
+import com.github.hborders.heathcast.android.CursorUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 
 import java.util.Collection;
@@ -22,9 +22,9 @@ import javax.annotation.Nullable;
 import io.reactivex.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullInt;
-import static com.github.hborders.heathcast.utils.CursorUtil.getNonnullString;
-import static com.github.hborders.heathcast.utils.SqlUtil.inPlaceholderClause;
+import static com.github.hborders.heathcast.android.CursorUtil.getNonnullInt;
+import static com.github.hborders.heathcast.android.CursorUtil.getNonnullString;
+import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
 final class PodcastSearchTable extends Table {
     static final String TABLE_PODCAST_SEARCH = "podcast_search";

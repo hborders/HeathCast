@@ -197,8 +197,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
             podcastTestObserver1.assertValueThat(containsNothing());
             podcastTestObserver2.assertValueThat(containsNothing());
 
-            getTestObject().outerReplacePodcastSearchResults(
-                    podcastSearchIdentified1.identifier,
+            getTestObject().replacePodcastSearchPodcasts(
+                    podcastSearchIdentified1,
                     Arrays.asList(
                             podcast1,
                             podcast2,
@@ -236,16 +236,16 @@ public class DatabaseTest extends AbstractDatabaseTest {
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
-            getTestObject().outerReplacePodcastSearchResults(
-                    podcastSearchIdentified1.identifier,
+            getTestObject().replacePodcastSearchPodcasts(
+                    podcastSearchIdentified1,
                     Arrays.asList(
                             podcast11,
                             podcast2,
                             podcast3
                     )
             );
-            getTestObject().outerReplacePodcastSearchResults(
-                    podcastSearchIdentified1.identifier,
+            getTestObject().replacePodcastSearchPodcasts(
+                    podcastSearchIdentified1,
                     Arrays.asList(
                             podcast12,
                             podcast2,
@@ -288,8 +288,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
-            getTestObject().outerReplacePodcastSearchResults(
-                    podcastSearchIdentified1.identifier,
+            getTestObject().replacePodcastSearchPodcasts(
+                    podcastSearchIdentified1,
                     Arrays.asList(
                             podcast1,
                             podcast2,
@@ -297,8 +297,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             podcast4
                     )
             );
-            getTestObject().outerReplacePodcastSearchResults(
-                    podcastSearchIdentified2.identifier,
+            getTestObject().replacePodcastSearchPodcasts(
+                    podcastSearchIdentified2,
                     Arrays.asList(
                             podcast5,
                             podcast4,
@@ -353,8 +353,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
-            getTestObject().outerReplacePodcastSearchResults(
-                    podcastSearchIdentified1.identifier,
+            getTestObject().replacePodcastSearchPodcasts(
+                    podcastSearchIdentified1,
                     Arrays.asList(
                             podcast1,
                             podcast2,
@@ -362,8 +362,8 @@ public class DatabaseTest extends AbstractDatabaseTest {
                             podcast4
                     )
             );
-            getTestObject().outerReplacePodcastSearchResults(
-                    podcastSearchIdentified2.identifier,
+            getTestObject().replacePodcastSearchPodcasts(
+                    podcastSearchIdentified2,
                     Arrays.asList(
                             podcast5,
                             podcast4,

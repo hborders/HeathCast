@@ -1,6 +1,4 @@
-package com.github.hborders.heathcast.utils;
-
-import android.os.Parcel;
+package com.github.hborders.heathcast.core;
 
 import java.net.MalformedURLException;
 import java.net.URL;

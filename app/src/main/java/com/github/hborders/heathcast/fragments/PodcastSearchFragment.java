@@ -2,26 +2,21 @@ package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.services.PodcastService;
-import com.github.hborders.heathcast.utils.FragmentUtil;
-import com.google.android.material.snackbar.Snackbar;
+import com.github.hborders.heathcast.android.FragmentUtil;
 
 import javax.annotation.Nullable;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 public final class PodcastSearchFragment extends Fragment implements PodcastListFragment.PodcastListFragmentListener {
@@ -83,45 +78,45 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                     if (oldDisposable != null) {
                         oldDisposable.dispose();
                     }
-                    podcastSearchDisposable = PodcastService
-                            .getInstance(inflater.getContext())
-                            .searchForPodcasts(query)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    podcasts -> {
-                                        @Nullable final PodcastListFragment existingPodcastListFragment =
-                                                (PodcastListFragment) getChildFragmentManager()
-                                                        .findFragmentByTag(PODCAST_LIST_FRAGMENT_TAG);
-                                        final FragmentTransaction fragmentTransaction =
-                                                getChildFragmentManager()
-                                                        .beginTransaction();
-                                        if (existingPodcastListFragment != null) {
-                                            fragmentTransaction
-                                                    .remove(existingPodcastListFragment);
-                                        }
-                                        fragmentTransaction
-                                                .add(
-                                                        R.id.fragment_podcast_search_podcast_list_fragment_container_frame_layout,
-                                                        PodcastListFragment.newInstance(
-                                                                podcasts
-                                                        ),
-                                                        PODCAST_LIST_FRAGMENT_TAG
-                                                )
-                                                .commit();
-                                    },
-                                    throwable -> {
-                                        Snackbar.make(
-                                                searchView,
-                                                "Error when searching iTunes",
-                                                Snackbar.LENGTH_SHORT
-                                        );
-                                        Log.e(
-                                                TAG,
-                                                "Error when searching iTunes",
-                                                throwable
-                                        );
-                                    }
-                            );
+//                    podcastSearchDisposable = PodcastService
+//                            .getInstance(inflater.getContext())
+//                            .searchForPodcasts(query)
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe(
+//                                    podcasts -> {
+//                                        @Nullable final PodcastListFragment existingPodcastListFragment =
+//                                                (PodcastListFragment) getChildFragmentManager()
+//                                                        .findFragmentByTag(PODCAST_LIST_FRAGMENT_TAG);
+//                                        final FragmentTransaction fragmentTransaction =
+//                                                getChildFragmentManager()
+//                                                        .beginTransaction();
+//                                        if (existingPodcastListFragment != null) {
+//                                            fragmentTransaction
+//                                                    .remove(existingPodcastListFragment);
+//                                        }
+//                                        fragmentTransaction
+//                                                .add(
+//                                                        R.id.fragment_podcast_search_podcast_list_fragment_container_frame_layout,
+//                                                        PodcastListFragment.newInstance(
+//                                                                podcasts
+//                                                        ),
+//                                                        PODCAST_LIST_FRAGMENT_TAG
+//                                                )
+//                                                .commit();
+//                                    },
+//                                    throwable -> {
+//                                        Snackbar.make(
+//                                                searchView,
+//                                                "Error when searching iTunes",
+//                                                Snackbar.LENGTH_SHORT
+//                                        );
+//                                        Log.e(
+//                                                TAG,
+//                                                "Error when searching iTunes",
+//                                                throwable
+//                                        );
+//                                    }
+//                            );
 
                     return true;
                 }

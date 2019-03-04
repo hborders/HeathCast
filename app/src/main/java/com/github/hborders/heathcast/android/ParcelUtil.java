@@ -1,4 +1,4 @@
-package com.github.hborders.heathcast.utils;
+package com.github.hborders.heathcast.android;
 
 import android.os.Parcel;
 
@@ -8,7 +8,7 @@ import java.util.Date;
 
 import javax.annotation.Nullable;
 
-import static com.github.hborders.heathcast.utils.URLUtil.fromString;
+import static com.github.hborders.heathcast.core.URLUtil.fromString;
 
 public final class ParcelUtil {
     private ParcelUtil() {

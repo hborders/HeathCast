@@ -3,7 +3,7 @@ package com.github.hborders.heathcast.services;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.utils.URLUtil;
+import com.github.hborders.heathcast.core.URLUtil;
 
 import org.junit.Test;
 

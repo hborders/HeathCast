@@ -18,7 +18,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.services.PodcastService;
-import com.github.hborders.heathcast.utils.FragmentUtil;
+import com.github.hborders.heathcast.android.FragmentUtil;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 

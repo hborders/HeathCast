@@ -3,8 +3,8 @@ package com.github.hborders.heathcast.services;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.utils.DurationUtil;
-import com.github.hborders.heathcast.utils.URLUtil;
+import com.github.hborders.heathcast.android.DurationUtil;
+import com.github.hborders.heathcast.core.URLUtil;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -27,7 +27,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static com.github.hborders.heathcast.utils.StringUtil.isEmpty;
+import static com.github.hborders.heathcast.core.StringUtil.isEmpty;
 
 final class XmlParser {
     private static final String ITUNES_NAMESPACE = "http://www.itunes.com/dtds/podcast-1.0.dtd";

@@ -14,12 +14,12 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import static com.github.hborders.heathcast.utils.ParcelUtil.readDate;
-import static com.github.hborders.heathcast.utils.ParcelUtil.readDuration;
-import static com.github.hborders.heathcast.utils.ParcelUtil.readURL;
-import static com.github.hborders.heathcast.utils.ParcelUtil.writeDate;
-import static com.github.hborders.heathcast.utils.ParcelUtil.writeDuration;
-import static com.github.hborders.heathcast.utils.ParcelUtil.writeURL;
+import static com.github.hborders.heathcast.android.ParcelUtil.readDate;
+import static com.github.hborders.heathcast.android.ParcelUtil.readDuration;
+import static com.github.hborders.heathcast.android.ParcelUtil.readURL;
+import static com.github.hborders.heathcast.android.ParcelUtil.writeDate;
+import static com.github.hborders.heathcast.android.ParcelUtil.writeDuration;
+import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
 public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHolder<Identified<Episode>> {
     @Nullable
