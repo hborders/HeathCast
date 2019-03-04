@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -33,6 +34,7 @@ import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public final class PodcastService {
@@ -48,9 +50,7 @@ public final class PodcastService {
                             null,
                             Schedulers.io()
                     ),
-                    new OkHttpClient(),
-                    new Gson(),
-                    ReactivexOkHttpCallAdapter.createWithScheduler(Schedulers.io())
+                    Schedulers.io()
             );
             instance = newInstance;
             return newInstance;
@@ -69,6 +69,17 @@ public final class PodcastService {
 
     public PodcastService(
             Database database,
+            Scheduler scheduler) {
+        this(
+                database,
+                new OkHttpClient(),
+                new Gson(),
+                ReactivexOkHttpCallAdapter.createWithScheduler(scheduler)
+        );
+    }
+
+    public PodcastService(
+            Database database,
             OkHttpClient okHttpClient,
             Gson gson,
             ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter
@@ -83,7 +94,19 @@ public final class PodcastService {
         return database.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(PodcastSearch podcastSearch) {
+    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
+            PodcastSearch podcastSearch
+    ) {
+        return searchForPodcasts(
+                null,
+                podcastSearch
+        );
+    }
+
+    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
+            @Nullable NetworkPauser networkPauser,
+            PodcastSearch podcastSearch
+    ) {
         final Optional<Identified<PodcastSearch>> podcastSearchIdentifiedOptional =
                 database.upsertPodcastSearch(podcastSearch);
         return podcastSearchIdentifiedOptional.map(
@@ -91,15 +114,18 @@ public final class PodcastService {
                     Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable =
                             database.observeQueryForPodcastIdentifieds(podcastSearchIdentified.identifier);
                     final BehaviorSubject<ServiceRequestState> serviceRequestStateBehaviorSubject =
-                            Objects.requireNonNull(
-                                    serviceRequestStateBehaviorSubjectsByPodcastSearch.putIfAbsent(
-                                            podcastSearch,
-                                            BehaviorSubject.create()
+                            serviceRequestStateBehaviorSubjectsByPodcastSearch.computeIfAbsent(
+                                    podcastSearch,
+                                    podcastSearch_ -> BehaviorSubject.createDefault(
+                                            ServiceRequestState.loading()
                                     )
                             );
 
                     final Disposable searchForPodcastsDisposable =
-                            searchForPodcasts(podcastSearch.search)
+                            searchForPodcasts(
+                                    networkPauser,
+                                    podcastSearch.search
+                            )
                                     .map(
                                             podcastSearchResponse ->
                                                     Either.liftLeft(
@@ -150,7 +176,10 @@ public final class PodcastService {
         );
     }
 
-    private Single<PodcastSearchResponse> searchForPodcasts(String query) {
+    private Single<PodcastSearchResponse> searchForPodcasts(
+            @Nullable NetworkPauser networkPauser,
+            String query
+    ) {
         // https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
         final HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
@@ -169,8 +198,17 @@ public final class PodcastService {
 
         final Request request = new Request.Builder().url(url).build();
         final Call call = okHttpClient.newCall(request);
-        return reactivexOkHttpCallAdapter
-                .single(call)
+        final Single<Response> responseSingle = reactivexOkHttpCallAdapter
+                .single(call);
+        final Single<Response> maybePausedResponseSingle;
+        if (networkPauser == null) {
+            maybePausedResponseSingle = responseSingle;
+        } else {
+            maybePausedResponseSingle =
+                    networkPauser.completable.andThen(responseSingle);
+        }
+
+        return maybePausedResponseSingle
                 .subscribeOn(Schedulers.io())
                 .flatMap(
                         response -> {

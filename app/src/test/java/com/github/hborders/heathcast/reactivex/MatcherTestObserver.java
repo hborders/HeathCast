@@ -4,9 +4,10 @@ import com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil;
 
 import org.hamcrest.Matcher;
 
+import javax.annotation.Nullable;
+
 import io.reactivex.observers.TestObserver;
 
-import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public final class MatcherTestObserver<T> extends TestObserver<T> {
@@ -15,6 +16,26 @@ public final class MatcherTestObserver<T> extends TestObserver<T> {
     }
 
     public final void assertValueSequenceThat(Matcher<? super Iterable<T>> sequenceMatcher) {
-        assertThat(values, sequenceMatcher);
+        assertThat(
+                "actual values: " + values,
+                values,
+                sequenceMatcher
+        );
+    }
+
+    @Nullable
+    public final T lastValue() {
+        if (values.isEmpty()) {
+            return null;
+        } else {
+            return values.get(valueCount() - 1);
+        }
+    }
+
+    public final void assertLastValue(T expectedLastValue) {
+        assertValueAt(
+                valueCount() - 1,
+                expectedLastValue
+        );
     }
 }
