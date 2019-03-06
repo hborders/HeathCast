@@ -18,7 +18,7 @@ import java.util.List;
 
 public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecyclerViewAdapter.PodcastViewHolder> {
 
-    private final List<Identified<Podcast>> podcastIdentifieds;
+    private List<Identified<Podcast>> podcastIdentifieds;
     private final PodcastRecyclerViewAdapterListener listener;
 
     public PodcastRecyclerViewAdapter(
@@ -56,6 +56,11 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
     @Override
     public int getItemCount() {
         return podcastIdentifieds.size();
+    }
+
+    public void setPodcastIdentifieds(List<Identified<Podcast>> podcastIdentifieds) {
+        this.podcastIdentifieds = podcastIdentifieds;
+        notifyDataSetChanged();
     }
 
     static final class PodcastViewHolder extends RecyclerView.ViewHolder {

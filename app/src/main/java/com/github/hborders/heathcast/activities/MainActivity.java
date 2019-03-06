@@ -1,23 +1,23 @@
 package com.github.hborders.heathcast.activities;
 
 import android.os.Bundle;
-
-import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.fragments.PodcastFragment;
-import com.github.hborders.heathcast.fragments.PodcastListFragment;
-import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
-import com.github.hborders.heathcast.models.Podcast;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.Menu;
-import android.view.MenuItem;
+import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.fragments.PodcastFragment;
+import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
+import com.github.hborders.heathcast.services.PodcastService;
 
 public final class MainActivity extends AppCompatActivity
         implements PodcastSearchFragment.PodcastSearchFragmentListener,
         PodcastFragment.PodcastFragmentListener {
+
+    private final PodcastService podcastService = PodcastService.getInstance(this);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,5 +51,10 @@ public final class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public PodcastService podcastService() {
+        return podcastService;
     }
 }

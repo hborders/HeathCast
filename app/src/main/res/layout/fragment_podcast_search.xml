@@ -16,8 +16,9 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
-        android:id="@+id/fragment_podcast_search_podcast_list_fragment_container_frame_layout"
+    <fragment
+        android:id="@+id/fragment_podcast_search_podcast_list_fragment"
+        class="com.github.hborders.heathcast.fragments.PodcastListFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

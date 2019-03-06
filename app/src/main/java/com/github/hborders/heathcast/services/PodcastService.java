@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -202,7 +203,8 @@ public final class PodcastService {
                 .single(call);
         final Single<Response> maybePausedResponseSingle;
         if (networkPauser == null) {
-            maybePausedResponseSingle = responseSingle;
+            // slow requests to show instance database feedback
+            maybePausedResponseSingle = responseSingle.delay(2, TimeUnit.SECONDS);
         } else {
             maybePausedResponseSingle =
                     networkPauser.completable.andThen(responseSingle);

@@ -2,6 +2,7 @@ package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +12,23 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.services.PodcastService;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.BehaviorSubject;
 
 public final class PodcastSearchFragment extends Fragment implements PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
@@ -25,6 +36,8 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
 
     @Nullable
     private PodcastSearchFragmentListener listener;
+    private BehaviorSubject<List<Identified<Podcast>>> podcastIdentifiedsBehaviorSubject =
+            BehaviorSubject.create();
     @Nullable
     private Disposable podcastSearchDisposable;
 
@@ -46,13 +59,17 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        listener = FragmentUtil.requireContextFragmentListener(
+                context,
+                PodcastSearchFragmentListener.class);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -63,93 +80,83 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
             @Nullable Bundle savedInstanceState
     ) {
         // Inflate the layout for this fragment
-        @Nullable final View view = inflater.inflate(
+        return inflater.inflate(
                 R.layout.fragment_podcast_search,
                 container,
                 false
         );
-        if (view != null) {
-            final SearchView searchView = view.requireViewById(R.id.fragment_podcast_search_search_view);
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    searchView.clearFocus();
-                    @Nullable final Disposable oldDisposable = podcastSearchDisposable;
-                    if (oldDisposable != null) {
-                        oldDisposable.dispose();
-                    }
-//                    podcastSearchDisposable = PodcastService
-//                            .getInstance(inflater.getContext())
-//                            .searchForPodcasts(query)
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribe(
-//                                    podcasts -> {
-//                                        @Nullable final PodcastListFragment existingPodcastListFragment =
-//                                                (PodcastListFragment) getChildFragmentManager()
-//                                                        .findFragmentByTag(PODCAST_LIST_FRAGMENT_TAG);
-//                                        final FragmentTransaction fragmentTransaction =
-//                                                getChildFragmentManager()
-//                                                        .beginTransaction();
-//                                        if (existingPodcastListFragment != null) {
-//                                            fragmentTransaction
-//                                                    .remove(existingPodcastListFragment);
-//                                        }
-//                                        fragmentTransaction
-//                                                .add(
-//                                                        R.id.fragment_podcast_search_podcast_list_fragment_container_frame_layout,
-//                                                        PodcastListFragment.newInstance(
-//                                                                podcasts
-//                                                        ),
-//                                                        PODCAST_LIST_FRAGMENT_TAG
-//                                                )
-//                                                .commit();
-//                                    },
-//                                    throwable -> {
-//                                        Snackbar.make(
-//                                                searchView,
-//                                                "Error when searching iTunes",
-//                                                Snackbar.LENGTH_SHORT
-//                                        );
-//                                        Log.e(
-//                                                TAG,
-//                                                "Error when searching iTunes",
-//                                                throwable
-//                                        );
-//                                    }
-//                            );
-
-                    return true;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    return true;
-                }
-            });
-            searchView.setQueryHint(inflater.getContext().getString(R.string.search_query_hint));
-
-
-        }
-        return view;
     }
 
     @Override
-    public void onDestroyView() {
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        final SearchView searchView = view.requireViewById(R.id.fragment_podcast_search_search_view);
+        final PodcastListFragment podcastListFragment = Objects.requireNonNull(
+                (PodcastListFragment) getChildFragmentManager().findFragmentById(R.id.fragment_podcast_search_podcast_list_fragment)
+        );
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchView.clearFocus();
+                @Nullable final Disposable oldDisposable = podcastSearchDisposable;
+                podcastIdentifiedsBehaviorSubject.onNext(Collections.emptyList());
+                if (oldDisposable != null) {
+                    oldDisposable.dispose();
+                }
+
+                @Nullable final PodcastSearchFragmentListener listener = PodcastSearchFragment.this.listener;
+                if (listener != null) {
+                    podcastSearchDisposable =
+                            listener
+                                    .podcastService()
+                                    .searchForPodcasts(new PodcastSearch(query))
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                            podcastIdentifiedsAndServiceRequestState ->
+                                                    podcastIdentifiedsBehaviorSubject.onNext(
+                                                            podcastIdentifiedsAndServiceRequestState.first
+                                                    ),
+                                            throwable -> {
+                                                Snackbar.make(
+                                                        searchView,
+                                                        requireContext().getText(R.string.podcast_search_error),
+                                                        Snackbar.LENGTH_SHORT
+                                                ).show();
+                                                Log.e(
+                                                        TAG,
+                                                        "Error when searching iTunes",
+                                                        throwable
+                                                );
+                                            }
+                                    );
+                }
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+        });
+        searchView.setQueryHint(requireContext().getString(R.string.search_query_hint));
+    }
+
+    @Override
+    public void onStop() {
         @Nullable final Disposable podcastSearchDisposable = this.podcastSearchDisposable;
         if (podcastSearchDisposable != null) {
             podcastSearchDisposable.dispose();
         }
 
-        super.onDestroyView();
+        super.onStop();
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        listener = FragmentUtil.requireContextFragmentListener(
-                context,
-                PodcastSearchFragmentListener.class);
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -172,7 +179,12 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
         }
     }
 
+    @Override
+    public Observable<List<Identified<Podcast>>> podcastObservable() {
+        return podcastIdentifiedsBehaviorSubject;
+    }
 
     public interface PodcastSearchFragmentListener {
+        PodcastService podcastService();
     }
 }
