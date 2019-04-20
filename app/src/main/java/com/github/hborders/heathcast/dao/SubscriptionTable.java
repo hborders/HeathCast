@@ -164,9 +164,8 @@ public final class SubscriptionTable extends Table {
     Observable<List<Identified<Subscription>>> observeQueryForSubscriptions() {
         return briteDatabase.createQuery(
                 Arrays.asList(
-                        PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
                         PodcastTable.TABLE_PODCAST,
-                        PodcastSearchTable.TABLE_PODCAST_SEARCH
+                        SubscriptionTable.TABLE_SUBSCRIPTION
                 ),
                 "SELECT "
                         + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ARTWORK_URL + " AS " + PodcastTable.ARTWORK_URL + ","
@@ -180,6 +179,10 @@ public final class SubscriptionTable extends Table {
                         + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
                         + "ORDER BY " + TABLE_SUBSCRIPTION + "." + SORT
         ).mapToList(SubscriptionTable::getSubscriptionIdentified);
+    }
+
+    Observable<Optional<Identified<Subscription>>> observeQueryForSubscription(Identifier<Podcast> podcastIdentifier) {
+        implement this
     }
 
     static void createSubscriptionTable(SupportSQLiteDatabase db) {

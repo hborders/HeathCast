@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -43,12 +44,6 @@ public final class PodcastListFragment extends Fragment {
 
     public PodcastListFragment() {
         // Required empty public constructor
-    }
-
-    public static PodcastListFragment newInstance(List<Identified<Podcast>> podcastIdentifieds) {
-        final PodcastListFragment fragment = new PodcastListFragment();
-        fragment.updatePodcastIdentifieds(podcastIdentifieds);
-        return fragment;
     }
 
     @Override
@@ -95,35 +90,29 @@ public final class PodcastListFragment extends Fragment {
         final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
                 identifiedPodcasts == null ? Collections.emptyList() : identifiedPodcasts,
                 identifiedPodcast -> {
-                    @Nullable final PodcastListFragmentListener listener = this.listener;
-                    if (listener != null) {
-                        listener.onClick(identifiedPodcast);
-                    }
+                    Objects.requireNonNull(this.listener).onClick(identifiedPodcast);
                 }
         );
         this.adapter = adapter;
         podcastsRecyclerView.setAdapter(adapter);
 
-        final @Nullable PodcastListFragmentListener listener = this.listener;
-        if (listener != null) {
-            disposable = listener
-                    .podcastObservable()
-                    .subscribe(
-                            this::updatePodcastIdentifieds,
-                            throwable -> {
-                                Snackbar.make(
-                                        view,
-                                        requireContext().getText(R.string.podcast_list_observer_error),
-                                        Snackbar.LENGTH_SHORT
-                                ).show();
-                                Log.e(
-                                        TAG,
-                                        "Error when searching iTunes",
-                                        throwable
-                                );
-                            }
-                    );
-        }
+        disposable = Objects.requireNonNull(this.listener)
+                .podcastIdentifiedsObservable()
+                .subscribe(
+                        this::updatePodcastIdentifieds,
+                        throwable -> {
+                            Snackbar.make(
+                                    view,
+                                    requireContext().getText(R.string.podcast_list_observer_error),
+                                    Snackbar.LENGTH_SHORT
+                            ).show();
+                            Log.e(
+                                    TAG,
+                                    "Error when searching iTunes",
+                                    throwable
+                            );
+                        }
+                );
     }
 
     // Note that `onStop` is only called before `onSaveInstanceState()` on Android 28+ devices.
@@ -172,10 +161,7 @@ public final class PodcastListFragment extends Fragment {
                         .toArray(PodcastIdentifiedHolder[]::new)
         );
         setArguments(args);
-        @Nullable final PodcastRecyclerViewAdapter adapter = this.adapter;
-        if (adapter != null) {
-            adapter.setPodcastIdentifieds(podcastIdentifieds);
-        }
+        Objects.requireNonNull(this.adapter).setPodcastIdentifieds(podcastIdentifieds);
     }
 
     private void dispose() {
@@ -191,6 +177,6 @@ public final class PodcastListFragment extends Fragment {
     public interface PodcastListFragmentListener {
         void onClick(Identified<Podcast> identifiedPodcast);
 
-        Observable<List<Identified<Podcast>>> podcastObservable();
+        Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable();
     }
 }

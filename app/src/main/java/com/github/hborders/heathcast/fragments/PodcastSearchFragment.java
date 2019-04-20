@@ -180,7 +180,7 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     }
 
     @Override
-    public Observable<List<Identified<Podcast>>> podcastObservable() {
+    public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable() {
         return podcastIdentifiedsBehaviorSubject;
     }
 

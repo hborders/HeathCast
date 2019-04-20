@@ -155,11 +155,23 @@ public final class Database {
         ).mapToList(PodcastTable::getPodcastIdentified);
     }
 
+    public Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
+            Identifier<Podcast> podcastIdentifier
+    ) {
+        return podcastTable.observeQueryForPodcastIdentified(podcastIdentifier);
+    }
+
     public Observable<List<Identified<Subscription>>> observeQueryForSubscriptions() {
         return subscriptionTable.observeQueryForSubscriptions();
     }
 
-    public Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(Identifier<Podcast> podcastIdentifier) {
+    public Observable<Optional<Identified<Subscription>>> observeQueryForSubscription(Identifier<Podcast> podcastIdentifier) {
+        return subscriptionTable.observeQueryForSubscription(podcastIdentifier);
+    }
+
+    public Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(
+            Identifier<Podcast> podcastIdentifier
+    ) {
         return episodeTable.observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier);
     }
 

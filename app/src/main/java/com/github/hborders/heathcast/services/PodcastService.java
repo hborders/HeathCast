@@ -95,6 +95,12 @@ public final class PodcastService {
         return database.observeQueryForAllPodcastSearchIdentifieds();
     }
 
+//    public Observable<Identified<Podcast>> observeQueryForPodcastIdentified(
+//            Identifier<Podcast> podcastIdentifier
+//    ) {
+//        return database.observeQueryForPodcastIdentified(podcastIdentifier);
+//    }
+
     public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
             PodcastSearch podcastSearch
     ) {

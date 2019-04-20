@@ -13,14 +13,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class FragmentUtil {
     private FragmentUtil() {
     }
 
-    @Nonnull
     public static <L> L requireFragmentListener(
             Fragment fragment,
             Context context,
@@ -36,7 +34,6 @@ public final class FragmentUtil {
         }
     }
 
-    @Nonnull
     public static <L> L requireContextFragmentListener(
             Context context,
             Class<L> listenerClass
@@ -48,7 +45,6 @@ public final class FragmentUtil {
         }
     }
 
-    @Nonnull
     public static <L> L requireParentFragmentFragmentListenerRecursive(
             Fragment fragment,
             Class<L> listenerClass
@@ -60,7 +56,6 @@ public final class FragmentUtil {
         );
     }
 
-    @Nonnull
     private static <L> L requireParentFragmentFragmentListenerRecursive(
             Fragment originalFragment,
             Fragment recursingFragment,
@@ -103,6 +98,20 @@ public final class FragmentUtil {
         }
     }
 
+    public static <U, H extends UnparcelableHolder<U>> U requireUnparcelableHolderArgument(
+            Fragment fragment,
+            Class<H> unparcelableHolderClass,
+            String key
+    ) {
+        return Objects.requireNonNull(
+                getUnparcelableHolderArgument(
+                        fragment,
+                        unparcelableHolderClass,
+                        key
+                )
+        );
+    }
+
     @Nullable
     public static <U, H extends UnparcelableHolder<U>> List<U> getUnparcelableHolderListArgument(
             Fragment fragment,
@@ -134,5 +143,19 @@ public final class FragmentUtil {
                         .collect(Collectors.toList());
             }
         }
+    }
+
+    public static <U, H extends UnparcelableHolder<U>> List<U> requireUnparcelableHolderListArgument(
+            Fragment fragment,
+            Class<H> unparcelableHolderClass,
+            String key
+    ) {
+        return Objects.requireNonNull(
+                getUnparcelableHolderListArgument(
+                        fragment,
+                        unparcelableHolderClass,
+                        key
+                )
+        );
     }
 }
