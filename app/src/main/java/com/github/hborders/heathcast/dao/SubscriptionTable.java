@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.models.Identified;
@@ -30,15 +32,17 @@ public final class SubscriptionTable extends Table {
     private static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
     private static final String SORT = "sort";
 
+    private static final String[] COLUMNS_ID = new String[]{ID};
+
     SubscriptionTable(BriteDatabase briteDatabase) {
         super(briteDatabase);
     }
 
-    Optional<Identifier<Subscription>> insertSubscription(Subscription subscription) {
+    Optional<Identifier<Subscription>> insertSubscription(Identifier<Podcast> podcastIdentifier) {
         final long id = briteDatabase.insert(
                 TABLE_SUBSCRIPTION,
                 CONFLICT_ABORT,
-                getSubscriptionContentValues(subscription)
+                getSubscriptionContentValues(podcastIdentifier)
         );
 
         if (id == -1) {
@@ -181,8 +185,22 @@ public final class SubscriptionTable extends Table {
         ).mapToList(SubscriptionTable::getSubscriptionIdentified);
     }
 
-    Observable<Optional<Identified<Subscription>>> observeQueryForSubscription(Identifier<Podcast> podcastIdentifier) {
-        implement this
+    Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(Identifier<Podcast> podcastIdentifier) {
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder
+                        .builder(TABLE_SUBSCRIPTION)
+                        .columns(COLUMNS_ID)
+                        .selection(
+                                ID + " = ?",
+                                new Object[]{podcastIdentifier.id}
+                        ).create();
+        return briteDatabase.createQuery(
+                Arrays.asList(
+                        PodcastTable.TABLE_PODCAST,
+                        SubscriptionTable.TABLE_SUBSCRIPTION
+                ),
+                query
+        ).mapToOptional(SubscriptionTable::getSubscriptionIdentifier);
     }
 
     static void createSubscriptionTable(SupportSQLiteDatabase db) {
@@ -211,10 +229,10 @@ public final class SubscriptionTable extends Table {
                 + " ON " + TABLE_SUBSCRIPTION + "(" + SORT + ")");
     }
 
-    static ContentValues getSubscriptionContentValues(Subscription subscription) {
-        final ContentValues values = new ContentValues(3);
+    static ContentValues getSubscriptionContentValues(Identifier<Podcast> podcastIdentifier) {
+        final ContentValues values = new ContentValues(1);
 
-        putIdentifier(values, PODCAST_ID, subscription.podcastIdentified);
+        putIdentifier(values, PODCAST_ID, podcastIdentifier);
 
         return values;
     }
@@ -228,6 +246,13 @@ public final class SubscriptionTable extends Table {
         return new Identified<>(
                 subscriptionIdentifier,
                 new Subscription(podcastIdentified)
+        );
+    }
+
+    static Identifier<Subscription> getSubscriptionIdentifier(Cursor cursor) {
+        return new Identifier<>(
+                Subscription.class,
+                CursorUtil.getNonnullLong(cursor, ID)
         );
     }
 }

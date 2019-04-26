@@ -7,8 +7,10 @@ import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
@@ -95,11 +97,17 @@ public final class PodcastService {
         return database.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-//    public Observable<Identified<Podcast>> observeQueryForPodcastIdentified(
-//            Identifier<Podcast> podcastIdentifier
-//    ) {
-//        return database.observeQueryForPodcastIdentified(podcastIdentifier);
-//    }
+    public Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
+            Identifier<Podcast> podcastIdentifier
+    ) {
+        return database.observeQueryForPodcastIdentified(podcastIdentifier);
+    }
+
+    public Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(
+            Identifier<Podcast> podcastIdentifier
+    ) {
+        return database.observeQueryForSubscriptionIdentifier(podcastIdentifier);
+    }
 
     public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
             PodcastSearch podcastSearch

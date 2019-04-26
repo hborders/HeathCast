@@ -112,14 +112,16 @@ public final class Database {
     }
 
     public Optional<Identified<Subscription>> subscribe(Identified<Podcast> podcastIdentified) {
-        return subscriptionTable.insertSubscription(
-                new Subscription(
-                        podcastIdentified
-                )
-        ).map(subscriptionIdentifier -> new Identified<>(
-                subscriptionIdentifier,
-                new Subscription(podcastIdentified)
-        ));
+        return subscribe(podcastIdentified.identifier)
+                .map(subscriptionIdentifier -> new Identified<>(
+                                subscriptionIdentifier,
+                                new Subscription(podcastIdentified)
+                        )
+                );
+    }
+
+    public Optional<Identifier<Subscription>> subscribe(Identifier<Podcast> podcastIdentifier) {
+        return subscriptionTable.insertSubscription(podcastIdentifier);
     }
 
     public boolean unsubscribe(Identifier<Subscription> subscriptionIdentifier) {
@@ -165,8 +167,10 @@ public final class Database {
         return subscriptionTable.observeQueryForSubscriptions();
     }
 
-    public Observable<Optional<Identified<Subscription>>> observeQueryForSubscription(Identifier<Podcast> podcastIdentifier) {
-        return subscriptionTable.observeQueryForSubscription(podcastIdentifier);
+    public Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(
+            Identifier<Podcast> podcastIdentifier
+    ) {
+        return subscriptionTable.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
     public Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(

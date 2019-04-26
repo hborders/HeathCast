@@ -5,7 +5,10 @@
     <string name="podcast_search_fragment_title">Search for Podcasts</string>
     <string name="podcast_list_fragment_title">Podcast List</string>
     <string name="search_query_hint">Enter a podcast name to search</string>
-    <string name="fragment_podcast_list_progress">Loading...</string>
+    <string name="fragment_podcast_list_progress">Loading…</string>
     <string name="podcast_list_observer_error">Error retrieving podcasts</string>
     <string name="podcast_search_error">Error searching iTunes</string>
+    <string name="fragment_podcast_missing">Missing</string>
+    <string name="fragment_podcast_subscribed">Subscribed</string>
+    <string name="fragment_podcast_not_subscribed">Subscribe</string>
 </resources>
