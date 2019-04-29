@@ -17,6 +17,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -32,6 +33,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -133,7 +135,6 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
             podcastIdentifiedDisposable =
                     podcastService
                             .observeQueryForPodcastIdentified(identifiedPodcast.identifier)
-                            .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .onErrorReturnItem(Optional.empty())
                             .subscribe(updateWithPodcastIdentifiedOptionalFunction::apply);
@@ -147,7 +148,6 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
             subscriptionIdentifierDisposable =
                     podcastService
                             .observeQueryForSubscriptionIdentifier(identifiedPodcast.identifier)
-                            .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .onErrorReturnItem(Optional.empty())
                             .subscribe(
@@ -158,20 +158,73 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                         final View.OnClickListener onClickListener;
                                         if (subscriptionIdentifier == null) {
                                             textRes = R.string.fragment_podcast_not_subscribed;
-                                            onClickListener = button -> {
-                                                // make sure to put this on a background thread in
-                                                // the PodcastService itself
-                                                error: Implement subscription in PodcastService
-                                            };
+                                            onClickListener = button ->
+                                                    podcastService
+                                                            .subscribe(identifiedPodcast.identifier)
+                                                            .observeOn(AndroidSchedulers.mainThread())
+                                                            .subscribe(new SingleObserver<Optional<Identifier<Subscription>>>() {
+                                                                           @Override
+                                                                           public void onSubscribe(Disposable d) {
+                                                                               // don't dispose this should be fast, and disposal is pointless anyway
+                                                                           }
+
+                                                                           @Override
+                                                                           public void onSuccess(Optional<Identifier<Subscription>> subscriptionIdentifierOptional) {
+                                                                               Snackbar.make(
+                                                                                       view,
+                                                                                       subscriptionIdentifierOptional.isPresent() ?
+                                                                                               R.string.fragment_podcast_subscribe_success :
+                                                                                               R.string.fragment_podcast_subscribe_failure,
+                                                                                       Snackbar.LENGTH_LONG
+                                                                               ).show();
+                                                                           }
+
+                                                                           @Override
+                                                                           public void onError(Throwable e) {
+                                                                               Snackbar.make(
+                                                                                       view,
+                                                                                       R.string.fragment_podcast_subscribe_failure,
+                                                                                       Snackbar.LENGTH_LONG
+                                                                               ).show();
+                                                                           }
+                                                                       }
+                                                            );
                                         } else {
                                             textRes = R.string.fragment_podcast_subscribed;
-                                            onClickListener = button -> {
-                                                // make sure to put this on a background thread
-                                                // the PodcastService itself
-                                                error: Implement unsubscription in PodcastService
+                                            onClickListener = button ->
+                                                    podcastService
+                                                            .unsubscribe(subscriptionIdentifier)
+                                                            .observeOn(AndroidSchedulers.mainThread())
+                                                            .subscribe(new SingleObserver<Result>() {
+                                                                           @Override
+                                                                           public void onSubscribe(Disposable d) {
+                                                                               // don't dispose this should be fast, and disposal is pointless anyway
+                                                                           }
 
-                                            };
+                                                                           @Override
+                                                                           public void onSuccess(Result result) {
+                                                                               Snackbar.make(
+                                                                                       view,
+                                                                                       result.<Integer>map(
+                                                                                               success -> R.string.fragment_podcast_unsubscribe_success,
+                                                                                               failure -> R.string.fragment_podcast_unsubscribe_failure
+                                                                                       ),
+                                                                                       Snackbar.LENGTH_LONG
+                                                                               ).show();
+                                                                           }
+
+                                                                           @Override
+                                                                           public void onError(Throwable e) {
+                                                                               Snackbar.make(
+                                                                                       view,
+                                                                                       R.string.fragment_podcast_unsubscribe_failure,
+                                                                                       Snackbar.LENGTH_LONG
+                                                                               ).show();
+                                                                           }
+                                                                       }
+                                                            );
                                         }
+                                        subscribedButton.setOnClickListener(onClickListener);
                                         subscribedButton.setText(textRes);
                                     }
                             );

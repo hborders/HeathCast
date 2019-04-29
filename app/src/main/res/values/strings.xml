@@ -11,4 +11,8 @@
     <string name="fragment_podcast_missing">Missing</string>
     <string name="fragment_podcast_subscribed">Subscribed</string>
     <string name="fragment_podcast_not_subscribed">Subscribe</string>
+    <string name="fragment_podcast_subscribe_success">Subscribed!</string>
+    <string name="fragment_podcast_subscribe_failure">Subscribing failed. Try again.</string>
+    <string name="fragment_podcast_unsubscribe_success">Unsubscribed!</string>
+    <string name="fragment_podcast_unsubscribe_failure">Unsubscribing failed. Try again.</string>
 </resources>

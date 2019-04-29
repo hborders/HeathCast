@@ -9,13 +9,14 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
+import com.github.hborders.heathcast.core.ListUtil;
+import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
-import com.github.hborders.heathcast.core.ListUtil;
 import com.squareup.sqlbrite3.BriteDatabase;
 import com.squareup.sqlbrite3.SqlBrite;
 
@@ -124,9 +125,9 @@ public final class Database {
         return subscriptionTable.insertSubscription(podcastIdentifier);
     }
 
-    public boolean unsubscribe(Identifier<Subscription> subscriptionIdentifier) {
+    public Result unsubscribe(Identifier<Subscription> subscriptionIdentifier) {
         final int deleteCount = subscriptionTable.deleteSubscription(subscriptionIdentifier);
-        return deleteCount > 0;
+        return deleteCount > 0 ? Result.Success.INSTANCE : Result.Failure.INSTANCE;
     }
 
     public Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {

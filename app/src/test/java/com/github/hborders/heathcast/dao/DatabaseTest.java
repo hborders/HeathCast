@@ -1,8 +1,10 @@
 package com.github.hborders.heathcast.dao;
 
+import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
@@ -18,6 +20,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -596,6 +599,61 @@ public class DatabaseTest extends AbstractDatabaseTest {
                                 )
                         )
                 );
+            }
+        }
+    }
+
+    @Test
+    public void testSubscribeUnsubscribeSubscribeUnsubscribeUpdatesSubscriptionIdentifierQuery() {
+        @Nullable final Identified<Podcast> podcastIdentified =
+                getTestObject().upsertPodcast(podcast1).orElse(null);
+        if (podcastIdentified == null) {
+            fail();
+        } else {
+            final TestObserver<Optional<Identifier<Subscription>>> subscriptionIdentifierTestObserver =
+                    new TestObserver<>();
+            getTestObject()
+                    .observeQueryForSubscriptionIdentifier(podcastIdentified.identifier)
+                    .subscribe(subscriptionIdentifierTestObserver);
+
+            @Nullable final Identifier<Subscription> subscriptionIdentifier1 =
+                    getTestObject().subscribe(podcastIdentified.identifier).orElse(null);
+            if (subscriptionIdentifier1 == null) {
+                fail();
+            } else {
+                final Result result1 = getTestObject()
+                        .unsubscribe(subscriptionIdentifier1);
+                if (result1.map(
+                        success -> false,
+                        failure -> true
+                )) {
+                    fail();
+                } else {
+                    @Nullable final Identifier<Subscription> subscriptionIdentifier2 =
+                            getTestObject().subscribe(podcastIdentified.identifier).orElse(null);
+                    if (subscriptionIdentifier2 == null) {
+                        fail();
+                    } else {
+                        final Result result2 = getTestObject()
+                                .unsubscribe(subscriptionIdentifier2);
+                        if (result2.map(
+                                success -> false,
+                                failure -> true
+                        )) {
+                            fail();
+                        } else {
+                            subscriptionIdentifierTestObserver.assertValueSequence(
+                                    Arrays.asList(
+                                            Optional.empty(),
+                                            Optional.of(subscriptionIdentifier1),
+                                            Optional.empty(),
+                                            Optional.of(subscriptionIdentifier2),
+                                            Optional.empty()
+                                    )
+                            );
+                        }
+                    }
+                }
             }
         }
     }

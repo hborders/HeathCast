@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.github.hborders.heathcast.core.Either;
 import com.github.hborders.heathcast.core.NonnullPair;
+import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
@@ -63,6 +64,7 @@ public final class PodcastService {
     }
 
     private final Database database;
+    private final Scheduler scheduler;
     private final OkHttpClient okHttpClient;
     private final Gson gson;
     private final ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter;
@@ -75,6 +77,7 @@ public final class PodcastService {
             Scheduler scheduler) {
         this(
                 database,
+                scheduler,
                 new OkHttpClient(),
                 new Gson(),
                 ReactivexOkHttpCallAdapter.createWithScheduler(scheduler)
@@ -83,11 +86,13 @@ public final class PodcastService {
 
     public PodcastService(
             Database database,
+            Scheduler scheduler,
             OkHttpClient okHttpClient,
             Gson gson,
             ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter
     ) {
         this.database = database;
+        this.scheduler = scheduler;
         this.okHttpClient = okHttpClient;
         this.gson = gson;
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
@@ -107,6 +112,22 @@ public final class PodcastService {
             Identifier<Podcast> podcastIdentifier
     ) {
         return database.observeQueryForSubscriptionIdentifier(podcastIdentifier);
+    }
+
+    public Single<Optional<Identifier<Subscription>>> subscribe(Identifier<Podcast> podcastIdentifier) {
+        return Single.<Optional<Identifier<Subscription>>>create(source ->
+                source.onSuccess(
+                        database.subscribe(podcastIdentifier)
+                )
+        ).subscribeOn(scheduler);
+    }
+
+    public Single<Result> unsubscribe(Identifier<Subscription> subscriptionIdentifier) {
+        return Single.<Result>create(source ->
+                source.onSuccess(
+                        database.unsubscribe(subscriptionIdentifier)
+                )
+        ).subscribeOn(scheduler);
     }
 
     public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(

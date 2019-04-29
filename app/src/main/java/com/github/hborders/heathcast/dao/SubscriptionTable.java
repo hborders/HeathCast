@@ -191,7 +191,7 @@ public final class SubscriptionTable extends Table {
                         .builder(TABLE_SUBSCRIPTION)
                         .columns(COLUMNS_ID)
                         .selection(
-                                ID + " = ?",
+                                PODCAST_ID + " = ?",
                                 new Object[]{podcastIdentifier.id}
                         ).create();
         return briteDatabase.createQuery(
