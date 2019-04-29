@@ -55,7 +55,10 @@ final class PodcastSearchTable extends Table {
     );
 
     PodcastSearchTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+        super(
+                briteDatabase,
+                TABLE_PODCAST_SEARCH
+        );
     }
 
     Optional<Identifier<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {

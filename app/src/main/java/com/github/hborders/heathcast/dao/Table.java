@@ -36,9 +36,11 @@ abstract class Table {
     protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
 
     protected final BriteDatabase briteDatabase;
+    protected final String tableName;
 
-    protected Table(BriteDatabase briteDatabase) {
+    protected Table(BriteDatabase briteDatabase, String tableName) {
         this.briteDatabase = briteDatabase;
+        this.tableName = tableName;
     }
 
     protected static void putIdentifier(ContentValues contentValues, String key, Identified<?> identified) {

@@ -35,7 +35,10 @@ public final class SubscriptionTable extends Table {
     private static final String[] COLUMNS_ID = new String[]{ID};
 
     SubscriptionTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+        super(
+                briteDatabase,
+                TABLE_SUBSCRIPTION
+        );
     }
 
     Optional<Identifier<Subscription>> insertSubscription(Identifier<Podcast> podcastIdentifier) {

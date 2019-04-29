@@ -23,14 +23,17 @@ final class PodcastSearchResultTable extends Table {
     static final String PODCAST_SEARCH_ID = FOREIGN_KEY_PODCAST_SEARCH;
     static final String SORT = "sort";
 
-    private static final String[] COLUMNS_ALL_BUT_SORT = new String[] {
+    private static final String[] COLUMNS_ALL_BUT_SORT = new String[]{
             ID,
             PODCAST_ID,
             PODCAST_SEARCH_ID
     };
 
     PodcastSearchResultTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+        super(
+                briteDatabase,
+                TABLE_PODCAST_SEARCH_RESULT
+        );
     }
 
     long insertPodcastSearchResult(

@@ -32,6 +32,7 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNonnullURLFrom
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
+import static com.github.hborders.heathcast.dao.SubscriptionTable.TABLE_SUBSCRIPTION;
 
 final class PodcastTable extends Table {
     static final String TABLE_PODCAST = "podcast";
@@ -60,7 +61,10 @@ final class PodcastTable extends Table {
     );
 
     PodcastTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+        super(
+                briteDatabase,
+                TABLE_PODCAST
+        );
     }
 
     Optional<Identifier<Podcast>> insertPodcast(Podcast podcast) {
@@ -128,7 +132,8 @@ final class PodcastTable extends Table {
                 new HashSet<>(
                         Arrays.asList(
                                 TABLE_PODCAST,
-                                TABLE_EPISODE
+                                TABLE_EPISODE,
+                                TABLE_SUBSCRIPTION
                         )
                 ),
                 deleteStatement

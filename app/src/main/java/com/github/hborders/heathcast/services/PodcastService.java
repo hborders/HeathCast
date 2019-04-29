@@ -50,6 +50,7 @@ public final class PodcastService {
         if (oldInstance == null) {
             final PodcastService newInstance = new PodcastService(
                     new Database(
+                            null,
                             context,
                             null,
                             Schedulers.io()

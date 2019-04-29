@@ -77,7 +77,10 @@ final class EpisodeTable extends Table {
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
 
     EpisodeTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+        super(
+                briteDatabase,
+                TABLE_EPISODE
+        );
     }
 
     Optional<Identifier<Episode>> insertEpisode(

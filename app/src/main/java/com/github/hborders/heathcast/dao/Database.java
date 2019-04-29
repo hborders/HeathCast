@@ -1,5 +1,6 @@
 package com.github.hborders.heathcast.dao;
 
+import android.content.ContentValues;
 import android.content.Context;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -23,13 +24,18 @@ import com.squareup.sqlbrite3.SqlBrite;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
+
 public final class Database {
+    public static final Long TEST_AUTOINCREMENT_SEED = 19210601L;
+
     private final BriteDatabase briteDatabase;
     final PodcastSearchTable podcastSearchTable;
     final PodcastTable podcastTable;
@@ -38,13 +44,14 @@ public final class Database {
     final SubscriptionTable subscriptionTable;
 
     public Database(
+            @Nullable Long autoincrementSeed,
             Context context,
             @Nullable String name,
             Scheduler scheduler
     ) {
         final Configuration configuration = Configuration
                 .builder(context)
-                .callback(new Schema())
+                .callback(new Schema(autoincrementSeed))
                 .name(name)
                 .build();
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
@@ -191,8 +198,12 @@ public final class Database {
     }
 
     static final class Schema extends Callback {
-        Schema() {
+        @Nullable
+        private final Long autoincrementSeed;
+
+        Schema(@Nullable Long autoincrementSeed) {
             super(1);
+            this.autoincrementSeed = autoincrementSeed;
         }
 
         @Override
@@ -202,6 +213,34 @@ public final class Database {
             EpisodeTable.createEpisodeTable(db);
             PodcastSearchResultTable.createPodcastSearchResultTable(db);
             SubscriptionTable.createSubscriptionTable(db);
+
+            if (autoincrementSeed != null) {
+                final Random random = new Random(autoincrementSeed);
+
+                try {
+                    db.beginTransaction();
+                    final ContentValues contentValues = new ContentValues(2);
+                    for (String tableName : Arrays.asList(
+                            PodcastSearchTable.TABLE_PODCAST_SEARCH,
+                            PodcastTable.TABLE_PODCAST,
+                            EpisodeTable.TABLE_EPISODE,
+                            PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
+                            SubscriptionTable.TABLE_SUBSCRIPTION
+                    )) {
+                        final int autoIncrementValue = random.nextInt(1000);
+                        contentValues.put("name", tableName);
+                        contentValues.put("seq", autoIncrementValue);
+                        db.insert(
+                                "SQLITE_SEQUENCE",
+                                CONFLICT_ABORT,
+                                contentValues
+                        );
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+            }
         }
 
         public void onConfigure(SupportSQLiteDatabase db) {

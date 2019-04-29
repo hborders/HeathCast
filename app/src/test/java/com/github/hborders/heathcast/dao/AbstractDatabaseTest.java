@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 
 import io.reactivex.schedulers.Schedulers;
 
+import static com.github.hborders.heathcast.dao.Database.TEST_AUTOINCREMENT_SEED;
+
 public class AbstractDatabaseTest {
     @Nullable
     private Database database;
@@ -14,6 +16,7 @@ public class AbstractDatabaseTest {
         @Nullable final Database initialDatabase = this.database;
         if (initialDatabase == null) {
             final Database newDatabase = new Database(
+                    TEST_AUTOINCREMENT_SEED,
                     ApplicationProvider.getApplicationContext(),
                     null, // in-memory
                     Schedulers.trampoline()

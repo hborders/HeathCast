@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 
 import io.reactivex.schedulers.Schedulers;
 
+import static com.github.hborders.heathcast.dao.Database.TEST_AUTOINCREMENT_SEED;
+
 public abstract class AbstractPodcastServiceTest {
     @Nullable
     private PodcastService podcastService;
@@ -16,6 +18,7 @@ public abstract class AbstractPodcastServiceTest {
         @Nullable final PodcastService initialPodcastService = this.podcastService;
         if (initialPodcastService == null) {
             final Database database = new Database(
+                    TEST_AUTOINCREMENT_SEED,
                     ApplicationProvider.getApplicationContext(),
                     null, // in-memory
                     Schedulers.trampoline()
