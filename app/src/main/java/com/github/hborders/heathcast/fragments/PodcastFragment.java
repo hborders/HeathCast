@@ -17,23 +17,25 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
-import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
+import java.net.URL;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import io.reactivex.SingleObserver;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -92,7 +94,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                 false
         );
         if (view != null) {
-            final PodcastService podcastService = PodcastService.getInstance(inflater.getContext());
+            final PodcastFragmentListener listener = Objects.requireNonNull(this.listener);
 
             final ConstraintLayout constraintLayout = view.requireViewById(R.id.fragment_podcast_constraint_layout);
             final ImageView artworkImageView = view.requireViewById(R.id.fragment_podcast_artwork_image_view);
@@ -124,8 +126,11 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                 oldFetchEpisodesDisposable.dispose();
                             }
                             fetchEpisodesDisposable =
-                                    podcastService
-                                            .fetchEpisodes(identifiedPodcast.model.feedURL)
+                                    listener
+                                            .fetchEpisodes(
+                                                    this,
+                                                    identifiedPodcast.model.feedURL
+                                            )
                                             .subscribeOn(Schedulers.io())
                                             .observeOn(AndroidSchedulers.mainThread())
                                             .subscribe(
@@ -179,8 +184,11 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                 oldPodcastIdentifiedDisposable.dispose();
             }
             podcastIdentifiedDisposable =
-                    podcastService
-                            .observeQueryForPodcastIdentified(identifiedPodcast.identifier)
+                    listener
+                            .observeQueryForPodcastIdentified(
+                                    this,
+                                    identifiedPodcast.identifier
+                            )
                             .observeOn(AndroidSchedulers.mainThread())
                             .onErrorReturnItem(Optional.empty())
                             .subscribe(updateWithPodcastIdentifiedOptionalFunction::apply);
@@ -192,8 +200,11 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                 oldSubscriptionIdentifierDisposable.dispose();
             }
             subscriptionIdentifierDisposable =
-                    podcastService
-                            .observeQueryForSubscriptionIdentifier(identifiedPodcast.identifier)
+                    listener
+                            .observeQueryForSubscriptionIdentifier(
+                                    this,
+                                    identifiedPodcast.identifier
+                            )
                             .observeOn(AndroidSchedulers.mainThread())
                             .onErrorReturnItem(Optional.empty())
                             .subscribe(
@@ -205,70 +216,17 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                         if (subscriptionIdentifier == null) {
                                             textRes = R.string.fragment_podcast_not_subscribed;
                                             onClickListener = button ->
-                                                    podcastService
-                                                            .subscribe(identifiedPodcast.identifier)
-                                                            .observeOn(AndroidSchedulers.mainThread())
-                                                            .subscribe(new SingleObserver<Optional<Identifier<Subscription>>>() {
-                                                                           @Override
-                                                                           public void onSubscribe(Disposable d) {
-                                                                               // don't dispose this should be fast, and disposal is pointless anyway
-                                                                           }
-
-                                                                           @Override
-                                                                           public void onSuccess(Optional<Identifier<Subscription>> subscriptionIdentifierOptional) {
-                                                                               Snackbar.make(
-                                                                                       view,
-                                                                                       subscriptionIdentifierOptional.isPresent() ?
-                                                                                               R.string.fragment_podcast_subscribe_success :
-                                                                                               R.string.fragment_podcast_subscribe_failure,
-                                                                                       Snackbar.LENGTH_LONG
-                                                                               ).show();
-                                                                           }
-
-                                                                           @Override
-                                                                           public void onError(Throwable e) {
-                                                                               Snackbar.make(
-                                                                                       view,
-                                                                                       R.string.fragment_podcast_subscribe_failure,
-                                                                                       Snackbar.LENGTH_LONG
-                                                                               ).show();
-                                                                           }
-                                                                       }
-                                                            );
+                                                    listener.requestedSubscribe(
+                                                            this,
+                                                            identifiedPodcast.identifier
+                                                    );
                                         } else {
                                             textRes = R.string.fragment_podcast_subscribed;
                                             onClickListener = button ->
-                                                    podcastService
-                                                            .unsubscribe(subscriptionIdentifier)
-                                                            .observeOn(AndroidSchedulers.mainThread())
-                                                            .subscribe(new SingleObserver<Result>() {
-                                                                           @Override
-                                                                           public void onSubscribe(Disposable d) {
-                                                                               // don't dispose this should be fast, and disposal is pointless anyway
-                                                                           }
-
-                                                                           @Override
-                                                                           public void onSuccess(Result result) {
-                                                                               Snackbar.make(
-                                                                                       view,
-                                                                                       result.<Integer>map(
-                                                                                               success -> R.string.fragment_podcast_unsubscribe_success,
-                                                                                               failure -> R.string.fragment_podcast_unsubscribe_failure
-                                                                                       ),
-                                                                                       Snackbar.LENGTH_LONG
-                                                                               ).show();
-                                                                           }
-
-                                                                           @Override
-                                                                           public void onError(Throwable e) {
-                                                                               Snackbar.make(
-                                                                                       view,
-                                                                                       R.string.fragment_podcast_unsubscribe_failure,
-                                                                                       Snackbar.LENGTH_LONG
-                                                                               ).show();
-                                                                           }
-                                                                       }
-                                                            );
+                                            listener.requestedUnsubscribe(
+                                                    this,
+                                                    subscriptionIdentifier
+                                            );
                                         }
                                         subscribedButton.setOnClickListener(onClickListener);
                                         subscribedButton.setText(textRes);
@@ -309,6 +267,29 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     }
 
     public interface PodcastFragmentListener {
+        Single<List<Identified<Episode>>> fetchEpisodes(
+                PodcastFragment podcastFragment,
+                URL url
+        );
 
+        Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
+                PodcastFragment podcastFragment,
+                Identifier<Podcast> podcastIdentifier
+        );
+
+        Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(
+                PodcastFragment podcastFragment,
+                Identifier<Podcast> podcastIdentifier
+        );
+
+        void requestedSubscribe(
+                PodcastFragment podcastFragment,
+                Identifier<Podcast> podcastIdentifier
+        );
+
+        void requestedUnsubscribe(
+                PodcastFragment podcastFragment,
+                Identifier<Subscription> subscriptionIdentifier
+        );
     }
 }

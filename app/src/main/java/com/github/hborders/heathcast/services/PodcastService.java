@@ -42,27 +42,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public final class PodcastService {
-    @Nullable
-    private static PodcastService instance;
-
-    public static synchronized PodcastService getInstance(Context context) {
-        @Nullable final PodcastService oldInstance = instance;
-        if (oldInstance == null) {
-            final PodcastService newInstance = new PodcastService(
-                    new Database(
-                            context,
-                            null,
-                            Schedulers.io()
-                    ),
-                    Schedulers.io()
-            );
-            instance = newInstance;
-            return newInstance;
-        } else {
-            return oldInstance;
-        }
-    }
-
     private final Database database;
     private final Scheduler scheduler;
     private final OkHttpClient okHttpClient;
@@ -72,11 +51,23 @@ public final class PodcastService {
     private final ConcurrentHashMap<PodcastSearch, BehaviorSubject<ServiceRequestState>> serviceRequestStateBehaviorSubjectsByPodcastSearch =
             new ConcurrentHashMap<>();
 
-    public PodcastService(
-            Database database,
-            Scheduler scheduler) {
+    public PodcastService(Context context) {
         this(
-                database,
+                context,
+                Schedulers.io()
+        );
+    }
+
+    private PodcastService(
+            Context context,
+            Scheduler scheduler
+    ) {
+        this(
+                new Database(
+                        context,
+                        null,
+                        scheduler
+                ),
                 scheduler,
                 new OkHttpClient(),
                 new Gson(),
