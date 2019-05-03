@@ -92,11 +92,14 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                 false
         );
         if (view != null) {
+            final PodcastService podcastService = PodcastService.getInstance(inflater.getContext());
+
             final ConstraintLayout constraintLayout = view.requireViewById(R.id.fragment_podcast_constraint_layout);
             final ImageView artworkImageView = view.requireViewById(R.id.fragment_podcast_artwork_image_view);
             final TextView nameTextView = view.requireViewById(R.id.fragment_podcast_name_text_view);
             final TextView authorTextView = view.requireViewById(R.id.fragment_podcast_author_text_view);
             final TextView missingTextView = view.requireViewById(R.id.fragment_podcast_missing_text_view);
+
             final Function<Optional<Identified<Podcast>>, Void> updateWithPodcastIdentifiedOptionalFunction =
                     podcastIdentifiedOptional -> {
                         @Nullable final Identified<Podcast> identifiedPodcast =
@@ -115,6 +118,51 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                 final String artworkURLString = podcast.artworkURL.toExternalForm();
                                 Picasso.get().load(artworkURLString).into(artworkImageView);
                             }
+
+                            @Nullable final Disposable oldFetchEpisodesDisposable = fetchEpisodesDisposable;
+                            if (oldFetchEpisodesDisposable != null) {
+                                oldFetchEpisodesDisposable.dispose();
+                            }
+                            fetchEpisodesDisposable =
+                                    podcastService
+                                            .fetchEpisodes(identifiedPodcast.model.feedURL)
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(
+                                                    identifiedEpisodes -> {
+                                                        @Nullable final EpisodeListFragment existingEpisodeListFragment =
+                                                                (EpisodeListFragment) getChildFragmentManager()
+                                                                        .findFragmentByTag(EPISODE_LIST_FRAGMENT_TAG);
+                                                        final FragmentTransaction fragmentTransaction =
+                                                                getChildFragmentManager()
+                                                                        .beginTransaction();
+                                                        if (existingEpisodeListFragment != null) {
+                                                            fragmentTransaction
+                                                                    .remove(existingEpisodeListFragment);
+                                                        }
+                                                        fragmentTransaction
+                                                                .add(
+                                                                        R.id.fragment_podcast_episode_list_fragment_container_frame_layout,
+                                                                        EpisodeListFragment.newInstance(
+                                                                                identifiedEpisodes
+                                                                        ),
+                                                                        EPISODE_LIST_FRAGMENT_TAG
+                                                                )
+                                                                .commit();
+                                                    },
+                                                    throwable -> {
+                                                        Snackbar.make(
+                                                                view,
+                                                                "Error when fetching episodes",
+                                                                Snackbar.LENGTH_SHORT
+                                                        );
+                                                        Log.e(
+                                                                TAG,
+                                                                "Error when fetching episodes",
+                                                                throwable
+                                                        );
+                                                    }
+                                            );
                         }
                         return null;
                     };
@@ -125,8 +173,6 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                     PODCAST_PARCELABLE_KEY
             );
             updateWithPodcastIdentifiedOptionalFunction.apply(Optional.of(identifiedPodcast));
-
-            final PodcastService podcastService = PodcastService.getInstance(inflater.getContext());
 
             @Nullable final Disposable oldPodcastIdentifiedDisposable = podcastIdentifiedDisposable;
             if (oldPodcastIdentifiedDisposable != null) {
@@ -226,51 +272,6 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                         }
                                         subscribedButton.setOnClickListener(onClickListener);
                                         subscribedButton.setText(textRes);
-                                    }
-                            );
-
-            @Nullable final Disposable oldFetchEpisodesDisposable = fetchEpisodesDisposable;
-            if (oldFetchEpisodesDisposable != null) {
-                oldFetchEpisodesDisposable.dispose();
-            }
-            fetchEpisodesDisposable =
-                    podcastService
-                            .fetchEpisodes(identifiedPodcast.model.feedURL)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    identifiedEpisodes -> {
-                                        @Nullable final EpisodeListFragment existingEpisodeListFragment =
-                                                (EpisodeListFragment) getChildFragmentManager()
-                                                        .findFragmentByTag(EPISODE_LIST_FRAGMENT_TAG);
-                                        final FragmentTransaction fragmentTransaction =
-                                                getChildFragmentManager()
-                                                        .beginTransaction();
-                                        if (existingEpisodeListFragment != null) {
-                                            fragmentTransaction
-                                                    .remove(existingEpisodeListFragment);
-                                        }
-                                        fragmentTransaction
-                                                .add(
-                                                        R.id.fragment_podcast_episode_list_fragment_container_frame_layout,
-                                                        EpisodeListFragment.newInstance(
-                                                                identifiedEpisodes
-                                                        ),
-                                                        EPISODE_LIST_FRAGMENT_TAG
-                                                )
-                                                .commit();
-                                    },
-                                    throwable -> {
-                                        Snackbar.make(
-                                                view,
-                                                "Error when fetching episodes",
-                                                Snackbar.LENGTH_SHORT
-                                        );
-                                        Log.e(
-                                                TAG,
-                                                "Error when fetching episodes",
-                                                throwable
-                                        );
                                     }
                             );
         }
