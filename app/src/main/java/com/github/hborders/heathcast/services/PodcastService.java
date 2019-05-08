@@ -68,6 +68,16 @@ public final class PodcastService {
                         null,
                         scheduler
                 ),
+                scheduler
+        );
+    }
+
+    public PodcastService(
+            Database database,
+            Scheduler scheduler
+    ) {
+        this(
+                database,
                 scheduler,
                 new OkHttpClient(),
                 new Gson(),
