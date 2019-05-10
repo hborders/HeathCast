@@ -32,6 +32,7 @@ public final class EpisodeListFragment extends Fragment {
         // Required empty public constructor
     }
 
+    TODO replace this with an Observable-based API like PodcastListFragment has
     public static EpisodeListFragment newInstance(List<Identified<Episode>> episodeIdentifieds) {
         final EpisodeListFragment fragment = new EpisodeListFragment();
         final Bundle args = new Bundle();
