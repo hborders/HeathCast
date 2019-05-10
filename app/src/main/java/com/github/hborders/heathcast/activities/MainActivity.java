@@ -7,17 +7,23 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.core.Result;
+import com.github.hborders.heathcast.fragments.MainFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.services.PodcastService;
+import com.github.hborders.heathcast.services.ServiceRequestState;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
@@ -33,7 +39,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 public final class MainActivity extends AppCompatActivity
-        implements PodcastSearchFragment.PodcastSearchFragmentListener,
+        implements
+        MainFragment.MainFragmentListener,
+        PodcastSearchFragment.PodcastSearchFragmentListener,
         PodcastFragment.PodcastFragmentListener {
 
     private final PodcastService podcastService = new PodcastService(this);
@@ -72,9 +80,46 @@ public final class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private NavController requireNavController() {
+        return Navigation.findNavController(
+                this,
+                R.id.activity_main_nav_host_fragment
+        );
+    }
+
+    @Nullable
+    private View findContentView() {
+        return findViewById(android.R.id.content);
+    }
+
+    // MainFragment
+
     @Override
-    public PodcastService podcastService() {
-        return podcastService;
+    public void onClickSearch(MainFragment mainFragment) {
+        requireNavController().navigate(
+                R.id.action_mainFragment_to_podcastSearchFragment
+        );
+    }
+
+    // PodcastSearchFragmentListener
+
+    @Override
+    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
+            PodcastSearchFragment podcastSearchFragment,
+            PodcastSearch podcastSearch
+    ) {
+        return podcastService.searchForPodcasts(podcastSearch);
+    }
+
+    @Override
+    public void onClickPodcastIdentified(
+            PodcastSearchFragment podcastSearchFragment,
+            Identified<Podcast> podcastIdentified
+    ) {
+        requireNavController().navigate(
+                R.id.action_podcastSearchFragment_to_podcastFragment,
+                PodcastFragment.newArguments(podcastIdentified)
+        );
     }
 
     // PodcastFragmentListener
@@ -119,26 +164,28 @@ public final class MainActivity extends AppCompatActivity
 
                                @Override
                                public void onSuccess(Optional<Identifier<Subscription>> subscriptionIdentifierOptional) {
-                                   findContentViewOptional().ifPresent(contentView ->
-                                           Snackbar.make(
-                                                   contentView,
-                                                   subscriptionIdentifierOptional.isPresent() ?
-                                                           R.string.fragment_podcast_subscribe_success :
-                                                           R.string.fragment_podcast_subscribe_failure,
-                                                   Snackbar.LENGTH_LONG
-                                           ).show()
-                                   );
+                                   @Nullable final View contentView = findContentView();
+                                   if (contentView != null) {
+                                       Snackbar.make(
+                                               contentView,
+                                               subscriptionIdentifierOptional.isPresent() ?
+                                                       R.string.fragment_podcast_subscribe_success :
+                                                       R.string.fragment_podcast_subscribe_failure,
+                                               Snackbar.LENGTH_LONG
+                                       ).show();
+                                   }
                                }
 
                                @Override
                                public void onError(Throwable e) {
-                                   findContentViewOptional().ifPresent(contentView ->
-                                           Snackbar.make(
-                                                   contentView,
-                                                   R.string.fragment_podcast_subscribe_failure,
-                                                   Snackbar.LENGTH_LONG
-                                           ).show()
-                                   );
+                                   @Nullable final View contentView = findContentView();
+                                   if (contentView != null) {
+                                       Snackbar.make(
+                                               contentView,
+                                               R.string.fragment_podcast_subscribe_failure,
+                                               Snackbar.LENGTH_LONG
+                                       ).show();
+                                   }
                                }
                            }
                 );
@@ -160,35 +207,31 @@ public final class MainActivity extends AppCompatActivity
 
                                @Override
                                public void onSuccess(Result result) {
-                                   findContentViewOptional().ifPresent(contentView ->
-                                           Snackbar.make(
-                                                   contentView,
-                                                   result.<Integer>map(
-                                                           success -> R.string.fragment_podcast_unsubscribe_success,
-                                                           failure -> R.string.fragment_podcast_unsubscribe_failure
-                                                   ),
-                                                   Snackbar.LENGTH_LONG
-                                           ).show()
-                                   );
+                                   @Nullable final View contentView = findContentView();
+                                   if (contentView != null) {
+                                       Snackbar.make(
+                                               contentView,
+                                               result.<Integer>map(
+                                                       success -> R.string.fragment_podcast_unsubscribe_success,
+                                                       failure -> R.string.fragment_podcast_unsubscribe_failure
+                                               ),
+                                               Snackbar.LENGTH_LONG
+                                       ).show();
+                                   }
                                }
 
                                @Override
                                public void onError(Throwable e) {
-                                   findContentViewOptional().ifPresent(contentView ->
-                                           Snackbar.make(
-                                                   contentView,
-                                                   R.string.fragment_podcast_unsubscribe_failure,
-                                                   Snackbar.LENGTH_LONG
-                                           ).show()
-                                   );
+                                   @Nullable final View contentView = findContentView();
+                                   if (contentView != null) {
+                                       Snackbar.make(
+                                               contentView,
+                                               R.string.fragment_podcast_unsubscribe_failure,
+                                               Snackbar.LENGTH_LONG
+                                       ).show();
+                                   }
                                }
                            }
                 );
-    }
-
-    // Private API
-
-    private Optional<View> findContentViewOptional() {
-        return Optional.ofNullable(findViewById(android.R.id.content));
     }
 }

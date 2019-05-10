@@ -9,14 +9,14 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.services.PodcastService;
+import com.github.hborders.heathcast.services.ServiceRequestState;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
@@ -30,9 +30,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
-public final class PodcastSearchFragment extends Fragment implements PodcastListFragment.PodcastListFragmentListener {
+public final class PodcastSearchFragment extends Fragment
+        implements
+        PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
-    private static final String PODCAST_LIST_FRAGMENT_TAG = "podcastList";
 
     @Nullable
     private PodcastSearchFragmentListener listener;
@@ -64,7 +65,8 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
 
         listener = FragmentUtil.requireContextFragmentListener(
                 context,
-                PodcastSearchFragmentListener.class);
+                PodcastSearchFragmentListener.class
+        );
     }
 
     @Override
@@ -92,10 +94,6 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
         super.onViewCreated(view, savedInstanceState);
 
         final SearchView searchView = view.requireViewById(R.id.fragment_podcast_search_search_view);
-        final PodcastListFragment podcastListFragment = Objects.requireNonNull(
-                (PodcastListFragment) getChildFragmentManager().findFragmentById(R.id.fragment_podcast_search_podcast_list_fragment)
-        );
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -106,32 +104,31 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
                     oldDisposable.dispose();
                 }
 
-                @Nullable final PodcastSearchFragmentListener listener = PodcastSearchFragment.this.listener;
-                if (listener != null) {
-                    podcastSearchDisposable =
-                            listener
-                                    .podcastService()
-                                    .searchForPodcasts(new PodcastSearch(query))
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(
-                                            podcastIdentifiedsAndServiceRequestState ->
-                                                    podcastIdentifiedsBehaviorSubject.onNext(
-                                                            podcastIdentifiedsAndServiceRequestState.first
-                                                    ),
-                                            throwable -> {
-                                                Snackbar.make(
-                                                        searchView,
-                                                        requireContext().getText(R.string.podcast_search_error),
-                                                        Snackbar.LENGTH_SHORT
-                                                ).show();
-                                                Log.e(
-                                                        TAG,
-                                                        "Error when searching iTunes",
-                                                        throwable
-                                                );
-                                            }
-                                    );
-                }
+                podcastSearchDisposable =
+                        Objects.requireNonNull(PodcastSearchFragment.this.listener)
+                                .searchForPodcasts(
+                                        PodcastSearchFragment.this,
+                                        new PodcastSearch(query)
+                                )
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        podcastIdentifiedsAndServiceRequestState ->
+                                                podcastIdentifiedsBehaviorSubject.onNext(
+                                                        podcastIdentifiedsAndServiceRequestState.first
+                                                ),
+                                        throwable -> {
+                                            Snackbar.make(
+                                                    searchView,
+                                                    requireContext().getText(R.string.podcast_search_error),
+                                                    Snackbar.LENGTH_SHORT
+                                            ).show();
+                                            Log.e(
+                                                    TAG,
+                                                    "Error when searching iTunes",
+                                                    throwable
+                                            );
+                                        }
+                                );
 
                 return true;
             }
@@ -167,24 +164,32 @@ public final class PodcastSearchFragment extends Fragment implements PodcastList
     }
 
     @Override
-    public void onClick(Identified<Podcast> identifiedPodcast) {
-        @Nullable final View view = getView();
-        if (view != null) {
-            Navigation
-                    .findNavController(view)
-                    .navigate(
-                            R.id.action_podcastSearchFragment_to_podcastFragment,
-                            PodcastFragment.newArguments(identifiedPodcast)
-                    );
-        }
+    public void onClick(
+            PodcastListFragment podcastListFragment,
+            Identified<Podcast> podcastIdentified
+    ) {
+        Objects.requireNonNull(listener).onClickPodcastIdentified(
+                this,
+                podcastIdentified
+        );
     }
 
     @Override
-    public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable() {
+    public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
+            PodcastListFragment podcastListFragment
+    ) {
         return podcastIdentifiedsBehaviorSubject;
     }
 
     public interface PodcastSearchFragmentListener {
-        PodcastService podcastService();
+        Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
+                PodcastSearchFragment podcastSearchFragment,
+                PodcastSearch podcastSearch
+        );
+
+        void onClickPodcastIdentified(
+                PodcastSearchFragment podcastSearchFragment,
+                Identified<Podcast> podcastIdentified
+        );
     }
 }

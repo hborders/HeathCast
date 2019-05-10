@@ -18,6 +18,7 @@ import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -31,15 +32,15 @@ public final class EpisodeListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static EpisodeListFragment newInstance(List<Identified<Episode>> identifiedEpisodes) {
+    public static EpisodeListFragment newInstance(List<Identified<Episode>> episodeIdentifieds) {
         final EpisodeListFragment fragment = new EpisodeListFragment();
         final Bundle args = new Bundle();
         args.putParcelableArray(
                 EPISODE_PARCELABLES_KEY,
-                identifiedEpisodes
-        .stream()
-        .map(EpisodeIdentifiedHolder::new)
-        .toArray(EpisodeIdentifiedHolder[]::new));
+                episodeIdentifieds
+                        .stream()
+                        .map(EpisodeIdentifiedHolder::new)
+                        .toArray(EpisodeIdentifiedHolder[]::new));
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,36 +51,34 @@ public final class EpisodeListFragment extends Fragment {
     }
 
     @Override
-    @Nullable
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        @Nullable final View view = inflater.inflate(
-                R.layout.fragment_episode_list,
-                container,
-                false
+        final View view = Objects.requireNonNull(
+                inflater.inflate(
+                        R.layout.fragment_episode_list,
+                        container,
+                        false
+                )
         );
-        if (view != null) {
-            final RecyclerView episodessRecyclerView = view.requireViewById(R.id.fragment_episode_list_episodes_recycler_view);
-            episodessRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-            @Nullable final List<Identified<Episode>> identifiedEpisodes =
-                    FragmentUtil.getUnparcelableHolderListArgument(
-                            this,
-                            EpisodeIdentifiedHolder.class,
-                            EPISODE_PARCELABLES_KEY
-                    );
-            if (identifiedEpisodes != null) {
-                final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(
-                        identifiedEpisodes,
-                        identifiedEpisode -> {
-                            @Nullable final EpisodeListFragment.EpisodeListFragmentListener listener = this.listener;
-                            if (listener != null) {
-                                listener.onClick(identifiedEpisode);
-                            }
-                        }
+        final RecyclerView episodessRecyclerView = view.requireViewById(R.id.fragment_episode_list_episodes_recycler_view);
+        episodessRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        @Nullable final List<Identified<Episode>> episodeIdentifieds =
+                FragmentUtil.getUnparcelableHolderListArgument(
+                        this,
+                        EpisodeIdentifiedHolder.class,
+                        EPISODE_PARCELABLES_KEY
                 );
-                episodessRecyclerView.setAdapter(adapter);
-            }
+        if (episodeIdentifieds != null) {
+            final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(
+                    episodeIdentifieds,
+                    identifiedEpisode ->
+                            Objects.requireNonNull(this.listener).onClick(
+                                    this,
+                                    identifiedEpisode
+                            )
+            );
+            episodessRecyclerView.setAdapter(adapter);
         }
 
         return view;
@@ -104,6 +103,9 @@ public final class EpisodeListFragment extends Fragment {
     }
 
     public interface EpisodeListFragmentListener {
-        void onClick(Identified<Episode> identifiedEpisode);
+        void onClick(
+                EpisodeListFragment episodeListFragment,
+                Identified<Episode> episodeIdentified
+        );
     }
 }

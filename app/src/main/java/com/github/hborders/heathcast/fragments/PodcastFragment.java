@@ -84,155 +84,156 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     }
 
     @Override
-    @Nullable
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        @Nullable final View view = inflater.inflate(
-                R.layout.fragment_podcast,
-                container,
-                false
+        final View view = Objects.requireNonNull(
+                inflater.inflate(
+                        R.layout.fragment_podcast,
+                        container,
+                        false
+                )
         );
-        if (view != null) {
-            final PodcastFragmentListener listener = Objects.requireNonNull(this.listener);
+        final PodcastFragmentListener listener = Objects.requireNonNull(this.listener);
 
-            final ConstraintLayout constraintLayout = view.requireViewById(R.id.fragment_podcast_constraint_layout);
-            final ImageView artworkImageView = view.requireViewById(R.id.fragment_podcast_artwork_image_view);
-            final TextView nameTextView = view.requireViewById(R.id.fragment_podcast_name_text_view);
-            final TextView authorTextView = view.requireViewById(R.id.fragment_podcast_author_text_view);
-            final TextView missingTextView = view.requireViewById(R.id.fragment_podcast_missing_text_view);
+        final ConstraintLayout constraintLayout = view.requireViewById(R.id.fragment_podcast_constraint_layout);
+        final ImageView artworkImageView = view.requireViewById(R.id.fragment_podcast_artwork_image_view);
+        final TextView nameTextView = view.requireViewById(R.id.fragment_podcast_name_text_view);
+        final TextView authorTextView = view.requireViewById(R.id.fragment_podcast_author_text_view);
+        final TextView missingTextView = view.requireViewById(R.id.fragment_podcast_missing_text_view);
 
-            final Function<Optional<Identified<Podcast>>, Void> updateWithPodcastIdentifiedOptionalFunction =
-                    podcastIdentifiedOptional -> {
-                        @Nullable final Identified<Podcast> identifiedPodcast =
-                                podcastIdentifiedOptional.orElse(null);
-                        if (identifiedPodcast == null) {
-                            constraintLayout.setVisibility(View.GONE);
-                            missingTextView.setVisibility(View.VISIBLE);
+        final Function<Optional<Identified<Podcast>>, Void> updateWithPodcastIdentifiedOptionalFunction =
+                podcastIdentifiedOptional -> {
+                    @Nullable final Identified<Podcast> identifiedPodcast =
+                            podcastIdentifiedOptional.orElse(null);
+                    if (identifiedPodcast == null) {
+                        constraintLayout.setVisibility(View.GONE);
+                        missingTextView.setVisibility(View.VISIBLE);
+                    } else {
+                        constraintLayout.setVisibility(View.VISIBLE);
+                        missingTextView.setVisibility(View.GONE);
+
+                        final Podcast podcast = identifiedPodcast.model;
+                        nameTextView.setText(podcast.name);
+                        authorTextView.setText(podcast.author);
+                        if (podcast.artworkURL == null) {
+                            artworkImageView.setImageDrawable(null);
                         } else {
-                            constraintLayout.setVisibility(View.VISIBLE);
-                            missingTextView.setVisibility(View.GONE);
-
-                            final Podcast podcast = identifiedPodcast.model;
-                            nameTextView.setText(podcast.name);
-                            authorTextView.setText(podcast.author);
-                            if (podcast.artworkURL != null) {
-                                final String artworkURLString = podcast.artworkURL.toExternalForm();
-                                Picasso.get().load(artworkURLString).into(artworkImageView);
-                            }
-
-                            @Nullable final Disposable oldFetchEpisodesDisposable = fetchEpisodesDisposable;
-                            if (oldFetchEpisodesDisposable != null) {
-                                oldFetchEpisodesDisposable.dispose();
-                            }
-                            fetchEpisodesDisposable =
-                                    listener
-                                            .fetchEpisodes(
-                                                    this,
-                                                    identifiedPodcast.model.feedURL
-                                            )
-                                            .subscribeOn(Schedulers.io())
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(
-                                                    identifiedEpisodes -> {
-                                                        @Nullable final EpisodeListFragment existingEpisodeListFragment =
-                                                                (EpisodeListFragment) getChildFragmentManager()
-                                                                        .findFragmentByTag(EPISODE_LIST_FRAGMENT_TAG);
-                                                        final FragmentTransaction fragmentTransaction =
-                                                                getChildFragmentManager()
-                                                                        .beginTransaction();
-                                                        if (existingEpisodeListFragment != null) {
-                                                            fragmentTransaction
-                                                                    .remove(existingEpisodeListFragment);
-                                                        }
-                                                        fragmentTransaction
-                                                                .add(
-                                                                        R.id.fragment_podcast_episode_list_fragment_container_frame_layout,
-                                                                        EpisodeListFragment.newInstance(
-                                                                                identifiedEpisodes
-                                                                        ),
-                                                                        EPISODE_LIST_FRAGMENT_TAG
-                                                                )
-                                                                .commit();
-                                                    },
-                                                    throwable -> {
-                                                        Snackbar.make(
-                                                                view,
-                                                                "Error when fetching episodes",
-                                                                Snackbar.LENGTH_SHORT
-                                                        );
-                                                        Log.e(
-                                                                TAG,
-                                                                "Error when fetching episodes",
-                                                                throwable
-                                                        );
-                                                    }
-                                            );
+                            final String artworkURLString = podcast.artworkURL.toExternalForm();
+                            Picasso.get().load(artworkURLString).into(artworkImageView);
                         }
-                        return null;
-                    };
 
-            final Identified<Podcast> identifiedPodcast = FragmentUtil.requireUnparcelableHolderArgument(
-                    this,
-                    PodcastIdentifiedHolder.class,
-                    PODCAST_PARCELABLE_KEY
-            );
-            updateWithPodcastIdentifiedOptionalFunction.apply(Optional.of(identifiedPodcast));
-
-            @Nullable final Disposable oldPodcastIdentifiedDisposable = podcastIdentifiedDisposable;
-            if (oldPodcastIdentifiedDisposable != null) {
-                oldPodcastIdentifiedDisposable.dispose();
-            }
-            podcastIdentifiedDisposable =
-                    listener
-                            .observeQueryForPodcastIdentified(
-                                    this,
-                                    identifiedPodcast.identifier
-                            )
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .onErrorReturnItem(Optional.empty())
-                            .subscribe(updateWithPodcastIdentifiedOptionalFunction::apply);
-
-            final Button subscribedButton = view.requireViewById(R.id.fragment_podcast_subscribed_button);
-
-            @Nullable final Disposable oldSubscriptionIdentifierDisposable = subscriptionIdentifierDisposable;
-            if (oldSubscriptionIdentifierDisposable != null) {
-                oldSubscriptionIdentifierDisposable.dispose();
-            }
-            subscriptionIdentifierDisposable =
-                    listener
-                            .observeQueryForSubscriptionIdentifier(
-                                    this,
-                                    identifiedPodcast.identifier
-                            )
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .onErrorReturnItem(Optional.empty())
-                            .subscribe(
-                                    subscriptionIdentifierOptional -> {
-                                        @Nullable final Identifier<Subscription> subscriptionIdentifier =
-                                                subscriptionIdentifierOptional.orElse(null);
-                                        @StringRes final int textRes;
-                                        final View.OnClickListener onClickListener;
-                                        if (subscriptionIdentifier == null) {
-                                            textRes = R.string.fragment_podcast_not_subscribed;
-                                            onClickListener = button ->
-                                                    listener.requestedSubscribe(
-                                                            this,
-                                                            identifiedPodcast.identifier
+                        @Nullable final Disposable oldFetchEpisodesDisposable = fetchEpisodesDisposable;
+                        if (oldFetchEpisodesDisposable != null) {
+                            oldFetchEpisodesDisposable.dispose();
+                        }
+                        fetchEpisodesDisposable =
+                                listener
+                                        .fetchEpisodes(
+                                                this,
+                                                identifiedPodcast.model.feedURL
+                                        )
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(
+                                                identifiedEpisodes -> {
+                                                    @Nullable final EpisodeListFragment existingEpisodeListFragment =
+                                                            (EpisodeListFragment) getChildFragmentManager()
+                                                                    .findFragmentByTag(EPISODE_LIST_FRAGMENT_TAG);
+                                                    final FragmentTransaction fragmentTransaction =
+                                                            getChildFragmentManager()
+                                                                    .beginTransaction();
+                                                    if (existingEpisodeListFragment != null) {
+                                                        fragmentTransaction
+                                                                .remove(existingEpisodeListFragment);
+                                                    }
+                                                    fragmentTransaction
+                                                            .add(
+                                                                    R.id.fragment_podcast_episode_list_fragment_container_frame_layout,
+                                                                    EpisodeListFragment.newInstance(
+                                                                            identifiedEpisodes
+                                                                    ),
+                                                                    EPISODE_LIST_FRAGMENT_TAG
+                                                            )
+                                                            .commit();
+                                                },
+                                                throwable -> {
+                                                    Snackbar.make(
+                                                            view,
+                                                            "Error when fetching episodes",
+                                                            Snackbar.LENGTH_SHORT
                                                     );
-                                        } else {
-                                            textRes = R.string.fragment_podcast_subscribed;
-                                            onClickListener = button ->
-                                            listener.requestedUnsubscribe(
-                                                    this,
-                                                    subscriptionIdentifier
-                                            );
-                                        }
-                                        subscribedButton.setOnClickListener(onClickListener);
-                                        subscribedButton.setText(textRes);
-                                    }
-                            );
+                                                    Log.e(
+                                                            TAG,
+                                                            "Error when fetching episodes",
+                                                            throwable
+                                                    );
+                                                }
+                                        );
+                    }
+                    return null;
+                };
+
+        final Identified<Podcast> identifiedPodcast = FragmentUtil.requireUnparcelableHolderArgument(
+                this,
+                PodcastIdentifiedHolder.class,
+                PODCAST_PARCELABLE_KEY
+        );
+        updateWithPodcastIdentifiedOptionalFunction.apply(Optional.of(identifiedPodcast));
+
+        @Nullable final Disposable oldPodcastIdentifiedDisposable = podcastIdentifiedDisposable;
+        if (oldPodcastIdentifiedDisposable != null) {
+            oldPodcastIdentifiedDisposable.dispose();
         }
+        podcastIdentifiedDisposable =
+                listener
+                        .observeQueryForPodcastIdentified(
+                                this,
+                                identifiedPodcast.identifier
+                        )
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .onErrorReturnItem(Optional.empty())
+                        .subscribe(updateWithPodcastIdentifiedOptionalFunction::apply);
+
+        final Button subscribedButton = view.requireViewById(R.id.fragment_podcast_subscribed_button);
+
+        @Nullable final Disposable oldSubscriptionIdentifierDisposable = subscriptionIdentifierDisposable;
+        if (oldSubscriptionIdentifierDisposable != null) {
+            oldSubscriptionIdentifierDisposable.dispose();
+        }
+        subscriptionIdentifierDisposable =
+                listener
+                        .observeQueryForSubscriptionIdentifier(
+                                this,
+                                identifiedPodcast.identifier
+                        )
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .onErrorReturnItem(Optional.empty())
+                        .subscribe(
+                                subscriptionIdentifierOptional -> {
+                                    @Nullable final Identifier<Subscription> subscriptionIdentifier =
+                                            subscriptionIdentifierOptional.orElse(null);
+                                    @StringRes final int textRes;
+                                    final View.OnClickListener onClickListener;
+                                    if (subscriptionIdentifier == null) {
+                                        textRes = R.string.fragment_podcast_not_subscribed;
+                                        onClickListener = button ->
+                                                listener.requestedSubscribe(
+                                                        this,
+                                                        identifiedPodcast.identifier
+                                                );
+                                    } else {
+                                        textRes = R.string.fragment_podcast_subscribed;
+                                        onClickListener = button ->
+                                                listener.requestedUnsubscribe(
+                                                        this,
+                                                        subscriptionIdentifier
+                                                );
+                                    }
+                                    subscribedButton.setOnClickListener(onClickListener);
+                                    subscribedButton.setText(textRes);
+                                }
+                        );
 
         return view;
     }
@@ -262,7 +263,10 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     }
 
     @Override
-    public void onClick(Identified<Episode> identifiedEpisode) {
+    public void onClick(
+            EpisodeListFragment episodeListFragment,
+            Identified<Episode> episodeIdentified
+    ) {
 
     }
 

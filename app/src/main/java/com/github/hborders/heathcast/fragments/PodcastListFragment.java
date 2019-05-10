@@ -89,15 +89,16 @@ public final class PodcastListFragment extends Fragment {
                 );
         final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
                 identifiedPodcasts == null ? Collections.emptyList() : identifiedPodcasts,
-                identifiedPodcast -> {
-                    Objects.requireNonNull(this.listener).onClick(identifiedPodcast);
-                }
+                identifiedPodcast ->
+                        Objects.requireNonNull(this.listener).onClick(
+                                this,
+                                identifiedPodcast)
         );
         this.adapter = adapter;
         podcastsRecyclerView.setAdapter(adapter);
 
         disposable = Objects.requireNonNull(this.listener)
-                .podcastIdentifiedsObservable()
+                .podcastIdentifiedsObservable(this)
                 .subscribe(
                         this::updatePodcastIdentifieds,
                         throwable -> {
@@ -175,8 +176,13 @@ public final class PodcastListFragment extends Fragment {
     }
 
     public interface PodcastListFragmentListener {
-        void onClick(Identified<Podcast> identifiedPodcast);
+        void onClick(
+                PodcastListFragment podcastListFragment,
+                Identified<Podcast> identifiedPodcast
+        );
 
-        Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable();
+        Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
+                PodcastListFragment podcastListFragment
+        );
     }
 }
