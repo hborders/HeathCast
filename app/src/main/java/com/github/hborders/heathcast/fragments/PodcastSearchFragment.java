@@ -35,10 +35,14 @@ public final class PodcastSearchFragment extends Fragment
         PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
 
-    @Nullable
-    private PodcastSearchFragmentListener listener;
+    Bookmark - How does the BehaviorSubject lifecycle exist within the Fragment lifecycle?
+    Also, this class definitely shouldn't hold a List. It should contain only the seed
+    necessary to make that list.
     private BehaviorSubject<List<Identified<Podcast>>> podcastIdentifiedsBehaviorSubject =
             BehaviorSubject.create();
+
+    @Nullable
+    private PodcastSearchFragmentListener listener;
     @Nullable
     private Disposable podcastSearchDisposable;
 

@@ -42,6 +42,9 @@ public final class PodcastFragment extends Fragment
     private static final String TAG = "podcast";
     private static final String PODCAST_PARCELABLE_KEY = "podcast";
 
+    Bookmark - all BehaviorSubjects should be nonnull because they have to live
+    between onCreateView and onDestroyView, but after onDestroyView, we should onNext(Optional.empty())
+
     private BehaviorSubject<Optional<Identified<Podcast>>> podcastIdentifiedOptionalBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
@@ -129,6 +132,9 @@ public final class PodcastFragment extends Fragment
                     return null;
                 };
 
+        This needs to move to onCreateView so that EpisodeListFragment has values immediately.
+                Once we implement emptying the behavior subject, waiting until onViewCreated
+                will cause flicker.
         final Identified<Podcast> identifiedPodcast = FragmentUtil.requireUnparcelableHolderArgument(
                 this,
                 PodcastIdentifiedHolder.class,
