@@ -27,6 +27,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 public final class PodcastListFragment extends Fragment {
@@ -75,20 +76,23 @@ public final class PodcastListFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(
+            View view,
+            @Nullable Bundle savedInstanceState
+    ) {
         super.onViewCreated(view, savedInstanceState);
 
         final RecyclerView podcastsRecyclerView =
                 view.requireViewById(R.id.fragment_podcast_list_podcasts_recycler_view);
         podcastsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        @Nullable final List<Identified<Podcast>> identifiedPodcasts =
+        @Nullable final List<Identified<Podcast>> podcastIdentifieds =
                 FragmentUtil.getUnparcelableHolderListArgument(
                         this,
                         PodcastIdentifiedHolder.class,
                         PODCAST_PARCELABLES_KEY
                 );
         final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
-                identifiedPodcasts == null ? Collections.emptyList() : identifiedPodcasts,
+                podcastIdentifieds == null ? Collections.emptyList() : podcastIdentifieds,
                 identifiedPodcast ->
                         Objects.requireNonNull(this.listener).onClick(
                                 this,
@@ -99,6 +103,7 @@ public final class PodcastListFragment extends Fragment {
 
         disposable = Objects.requireNonNull(this.listener)
                 .podcastIdentifiedsObservable(this)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         this::updatePodcastIdentifieds,
                         throwable -> {
@@ -116,23 +121,33 @@ public final class PodcastListFragment extends Fragment {
                 );
     }
 
-    // Note that `onStop` is only called before `onSaveInstanceState()` on Android 28+ devices.
-    // Prior to that, the order can be reversed - this is a case Lifecycle specifically handles.
-    // I was under the impression that `AutoDispose` does as well
-    // https://androidstudygroup.slack.com/archives/C09HE40J0/p1551849597051100
-
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        dispose();
+        afterOnSaveInstanceStateOrOnStop();
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        dispose();
+        afterOnSaveInstanceStateOrOnStop();
+    }
+
+    // Note that `onStop` is only called before `onSaveInstanceState()` on Android 28+ devices.
+    // Prior to that, the order can be reversed - this is a case Lifecycle specifically handles.
+    // I was under the impression that `AutoDispose` does as well
+    // https://androidstudygroup.slack.com/archives/C09HE40J0/p1551849597051100
+
+    private void afterOnSaveInstanceStateOrOnStop() {
+        @Nullable final Disposable disposable = this.disposable;
+        if (disposable != null) {
+            disposable.dispose();
+            this.disposable = null;
+        }
+
+        adapter = null;
     }
 
     @Override
@@ -165,24 +180,13 @@ public final class PodcastListFragment extends Fragment {
         Objects.requireNonNull(this.adapter).setPodcastIdentifieds(podcastIdentifieds);
     }
 
-    private void dispose() {
-        @Nullable final Disposable disposable = this.disposable;
-        if (disposable != null) {
-            disposable.dispose();
-            this.disposable = null;
-        }
-
-        adapter = null;
-    }
-
     public interface PodcastListFragmentListener {
+        Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
+                PodcastListFragment podcastListFragment
+        );
         void onClick(
                 PodcastListFragment podcastListFragment,
                 Identified<Podcast> identifiedPodcast
-        );
-
-        Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
-                PodcastListFragment podcastListFragment
         );
     }
 }

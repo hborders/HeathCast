@@ -2,7 +2,6 @@ package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
@@ -23,7 +21,6 @@ import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
-import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -38,21 +35,21 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
 
-public final class PodcastFragment extends Fragment implements EpisodeListFragment.EpisodeListFragmentListener {
+public final class PodcastFragment extends Fragment
+        implements EpisodeListFragment.EpisodeListFragmentListener {
     private static final String TAG = "podcast";
     private static final String PODCAST_PARCELABLE_KEY = "podcast";
-    private static final String EPISODE_LIST_FRAGMENT_TAG = "episodeList";
 
+    private BehaviorSubject<Optional<Identified<Podcast>>> podcastIdentifiedOptionalBehaviorSubject =
+            BehaviorSubject.create();
     @Nullable
     private PodcastFragmentListener listener;
     @Nullable
     private Disposable podcastIdentifiedDisposable;
     @Nullable
     private Disposable subscriptionIdentifierDisposable;
-    @Nullable
-    private Disposable fetchEpisodesDisposable;
 
     public PodcastFragment() {
         // Required empty public constructor
@@ -87,13 +84,18 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        final View view = Objects.requireNonNull(
-                inflater.inflate(
-                        R.layout.fragment_podcast,
-                        container,
-                        false
-                )
+        return inflater.inflate(
+                R.layout.fragment_podcast,
+                container,
+                false
         );
+    }
+
+    @Override
+    public void onViewCreated(
+            View view,
+            @Nullable Bundle savedInstanceState
+    ) {
         final PodcastFragmentListener listener = Objects.requireNonNull(this.listener);
 
         final ConstraintLayout constraintLayout = view.requireViewById(R.id.fragment_podcast_constraint_layout);
@@ -104,6 +106,7 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
 
         final Function<Optional<Identified<Podcast>>, Void> updateWithPodcastIdentifiedOptionalFunction =
                 podcastIdentifiedOptional -> {
+                    podcastIdentifiedOptionalBehaviorSubject.onNext(podcastIdentifiedOptional);
                     @Nullable final Identified<Podcast> identifiedPodcast =
                             podcastIdentifiedOptional.orElse(null);
                     if (identifiedPodcast == null) {
@@ -122,54 +125,6 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                             final String artworkURLString = podcast.artworkURL.toExternalForm();
                             Picasso.get().load(artworkURLString).into(artworkImageView);
                         }
-
-                        @Nullable final Disposable oldFetchEpisodesDisposable = fetchEpisodesDisposable;
-                        if (oldFetchEpisodesDisposable != null) {
-                            oldFetchEpisodesDisposable.dispose();
-                        }
-                        fetchEpisodesDisposable =
-                                listener
-                                        .fetchEpisodes(
-                                                this,
-                                                identifiedPodcast.model.feedURL
-                                        )
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(
-                                                identifiedEpisodes -> {
-                                                    @Nullable final EpisodeListFragment existingEpisodeListFragment =
-                                                            (EpisodeListFragment) getChildFragmentManager()
-                                                                    .findFragmentByTag(EPISODE_LIST_FRAGMENT_TAG);
-                                                    final FragmentTransaction fragmentTransaction =
-                                                            getChildFragmentManager()
-                                                                    .beginTransaction();
-                                                    if (existingEpisodeListFragment != null) {
-                                                        fragmentTransaction
-                                                                .remove(existingEpisodeListFragment);
-                                                    }
-                                                    fragmentTransaction
-                                                            .add(
-                                                                    R.id.fragment_podcast_episode_list_fragment_container_frame_layout,
-                                                                    EpisodeListFragment.newInstance(
-                                                                            identifiedEpisodes
-                                                                    ),
-                                                                    EPISODE_LIST_FRAGMENT_TAG
-                                                            )
-                                                            .commit();
-                                                },
-                                                throwable -> {
-                                                    Snackbar.make(
-                                                            view,
-                                                            "Error when fetching episodes",
-                                                            Snackbar.LENGTH_SHORT
-                                                    );
-                                                    Log.e(
-                                                            TAG,
-                                                            "Error when fetching episodes",
-                                                            throwable
-                                                    );
-                                                }
-                                        );
                     }
                     return null;
                 };
@@ -234,8 +189,6 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
                                     subscribedButton.setText(textRes);
                                 }
                         );
-
-        return view;
     }
 
     @Override
@@ -248,11 +201,11 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
         }
         podcastIdentifiedDisposable = null;
 
-        @Nullable final Disposable oldFetchEpisodesDisposable = fetchEpisodesDisposable;
-        if (oldFetchEpisodesDisposable != null) {
-            oldFetchEpisodesDisposable.dispose();
+        @Nullable final Disposable oldSubscriptionIdentifierDisposable = subscriptionIdentifierDisposable;
+        if (oldSubscriptionIdentifierDisposable != null) {
+            oldSubscriptionIdentifierDisposable.dispose();
         }
-        fetchEpisodesDisposable = null;
+        subscriptionIdentifierDisposable = null;
     }
 
     @Override
@@ -260,6 +213,37 @@ public final class PodcastFragment extends Fragment implements EpisodeListFragme
         super.onDetach();
 
         listener = null;
+    }
+
+    @Override
+    public Observable<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalObservable(
+            EpisodeListFragment episodeListFragment
+    ) {
+        return podcastIdentifiedOptionalBehaviorSubject
+                .hide()
+                .map(podcastIdentifiedOptional ->
+                        podcastIdentifiedOptional.map(podcastIdentified ->
+                                podcastIdentified.model.feedURL
+                        )
+                )
+                .distinctUntilChanged()
+                .flatMap(feedURLOptional -> {
+                    @Nullable final URL feedURL =
+                            feedURLOptional.orElse(null);
+                    final Single<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalSingle;
+                    if (feedURL == null) {
+                        episodeIdentifiedsOptionalSingle = Single.just(Optional.empty());
+                    } else {
+                        episodeIdentifiedsOptionalSingle = Objects.requireNonNull(listener).fetchEpisodes(
+                                this,
+                                feedURL
+                        ).map(Optional::of);
+                    }
+                    return Observable.concat(
+                            episodeIdentifiedsOptionalSingle.toObservable(),
+                            Observable.never()
+                    );
+                });
     }
 
     @Override

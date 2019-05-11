@@ -67,8 +67,9 @@
             app:layout_constraintWidth_percent=".8"
             tools:text="Subscribed" />
 
-        <FrameLayout
-            android:id="@+id/fragment_podcast_episode_list_fragment_container_frame_layout"
+        <fragment
+            android:id="@+id/fragment_podcast_episode_list_fragment"
+            class="com.github.hborders.heathcast.fragments.EpisodeListFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="10dp"

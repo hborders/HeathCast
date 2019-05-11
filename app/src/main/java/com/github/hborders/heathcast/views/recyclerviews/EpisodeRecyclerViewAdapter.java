@@ -17,7 +17,7 @@ import java.util.List;
 
 public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecyclerViewAdapter.EpisodeViewHolder> {
 
-    private final List<Identified<Episode>> episodeIdentifieds;
+    private List<Identified<Episode>> episodeIdentifieds;
     private final EpisodeRecyclerViewAdapterListener listener;
 
     public EpisodeRecyclerViewAdapter(
@@ -54,6 +54,11 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
     @Override
     public int getItemCount() {
         return episodeIdentifieds.size();
+    }
+
+    public void setEpisodeIdentifieds(List<Identified<Episode>> episodeIdentifieds) {
+        this.episodeIdentifieds = episodeIdentifieds;
+        notifyDataSetChanged();
     }
 
     static final class EpisodeViewHolder extends RecyclerView.ViewHolder {

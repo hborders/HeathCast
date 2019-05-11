@@ -7,6 +7,7 @@
     <string name="search_query_hint">Enter a podcast name to search</string>
     <string name="fragment_podcast_list_progress">Loading…</string>
     <string name="podcast_list_observer_error">Error retrieving podcasts</string>
+    <string name="episode_list_observer_error">Error retrieving episodes</string>
     <string name="podcast_search_error">Error searching iTunes</string>
     <string name="fragment_podcast_missing">Missing</string>
     <string name="fragment_podcast_subscribed">Subscribed</string>
