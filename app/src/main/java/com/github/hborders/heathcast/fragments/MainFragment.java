@@ -28,10 +28,12 @@ public class MainFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        listener = FragmentUtil.requireContextFragmentListener(
+        final MainFragmentListener listener = FragmentUtil.requireContextFragmentListener(
                 context,
                 MainFragment.MainFragmentListener.class
         );
+        this.listener = listener;
+        listener.onMainFragmentAttached(this);
     }
 
     @Override
@@ -68,12 +70,18 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        listener = null;
+        final MainFragmentListener listener = Objects.requireNonNull(this.listener);
+        this.listener = null;
+        listener.onMainFragmentWillDetach(this);
 
         super.onDetach();
     }
 
     public interface MainFragmentListener {
+        void onMainFragmentAttached(MainFragment mainFragment);
+
         void onClickSearch(MainFragment mainFragment);
+
+        void onMainFragmentWillDetach(MainFragment mainFragment);
     }
 }

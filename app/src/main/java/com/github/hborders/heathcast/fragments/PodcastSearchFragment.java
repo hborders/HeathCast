@@ -67,10 +67,12 @@ public final class PodcastSearchFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        listener = FragmentUtil.requireContextFragmentListener(
+        final PodcastSearchFragmentListener listener = FragmentUtil.requireContextFragmentListener(
                 context,
                 PodcastSearchFragmentListener.class
         );
+        this.listener = listener;
+        listener.onPodcastSearchFragmentAttached(this);
     }
 
     @Override
@@ -162,9 +164,22 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onDetach() {
-        super.onDetach();
+        final PodcastSearchFragmentListener listener = Objects.requireNonNull(this.listener);
+        this.listener = null;
+        listener.onPodcastSearchFragmentWillDetach(this);
 
-        listener = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment) {
+    }
+
+    @Override
+    public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
+            PodcastListFragment podcastListFragment
+    ) {
+        return podcastIdentifiedsBehaviorSubject;
     }
 
     @Override
@@ -179,13 +194,12 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
-            PodcastListFragment podcastListFragment
-    ) {
-        return podcastIdentifiedsBehaviorSubject;
+    public void onPodcastListFragmentListenerWillDetach(PodcastListFragment podcastListFragment) {
     }
 
     public interface PodcastSearchFragmentListener {
+        void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment);
+
         Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
                 PodcastSearchFragment podcastSearchFragment,
                 PodcastSearch podcastSearch
@@ -195,5 +209,7 @@ public final class PodcastSearchFragment extends Fragment
                 PodcastSearchFragment podcastSearchFragment,
                 Identified<Podcast> podcastIdentified
         );
+
+        void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment);
     }
 }

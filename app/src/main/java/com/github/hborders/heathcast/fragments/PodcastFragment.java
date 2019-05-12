@@ -71,11 +71,13 @@ public final class PodcastFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        listener = FragmentUtil.requireFragmentListener(
+        final PodcastFragmentListener listener = FragmentUtil.requireFragmentListener(
                 this,
                 context,
                 PodcastFragment.PodcastFragmentListener.class
         );
+        this.listener = listener;
+        listener.onPodcastFragmentAttached(this);
     }
 
     @Override
@@ -216,9 +218,15 @@ public final class PodcastFragment extends Fragment
 
     @Override
     public void onDetach() {
-        super.onDetach();
+        final PodcastFragmentListener listener = Objects.requireNonNull(this.listener);
+        this.listener = null;
+        listener.onPodcastFragmentWillDetach(this);
 
-        listener = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment) {
     }
 
     @Override
@@ -257,10 +265,15 @@ public final class PodcastFragment extends Fragment
             EpisodeListFragment episodeListFragment,
             Identified<Episode> episodeIdentified
     ) {
+    }
 
+    @Override
+    public void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment) {
     }
 
     public interface PodcastFragmentListener {
+        void onPodcastFragmentAttached(PodcastFragment podcastFragment);
+
         Single<List<Identified<Episode>>> fetchEpisodes(
                 PodcastFragment podcastFragment,
                 URL url
@@ -285,5 +298,7 @@ public final class PodcastFragment extends Fragment
                 PodcastFragment podcastFragment,
                 Identifier<Subscription> subscriptionIdentifier
         );
+
+        void onPodcastFragmentWillDetach(PodcastFragment podcastFragment);
     }
 }

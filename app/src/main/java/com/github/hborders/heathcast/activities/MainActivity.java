@@ -94,6 +94,11 @@ public final class MainActivity extends AppCompatActivity
 
     // MainFragment
 
+
+    @Override
+    public void onMainFragmentAttached(MainFragment mainFragment) {
+    }
+
     @Override
     public void onClickSearch(MainFragment mainFragment) {
         requireNavController().navigate(
@@ -101,7 +106,15 @@ public final class MainActivity extends AppCompatActivity
         );
     }
 
+    @Override
+    public void onMainFragmentWillDetach(MainFragment mainFragment) {
+    }
+
     // PodcastSearchFragmentListener
+
+    @Override
+    public void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment) {
+    }
 
     @Override
     public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
@@ -122,7 +135,15 @@ public final class MainActivity extends AppCompatActivity
         );
     }
 
+    @Override
+    public void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment) {
+    }
+
     // PodcastFragmentListener
+
+    @Override
+    public void onPodcastFragmentAttached(PodcastFragment podcastFragment) {
+    }
 
     @Override
     public Single<List<Identified<Episode>>> fetchEpisodes(
@@ -233,5 +254,9 @@ public final class MainActivity extends AppCompatActivity
                                }
                            }
                 );
+    }
+
+    @Override
+    public void onPodcastFragmentWillDetach(PodcastFragment podcastFragment) {
     }
 }

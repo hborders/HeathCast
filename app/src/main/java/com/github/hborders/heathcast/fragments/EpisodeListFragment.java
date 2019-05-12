@@ -56,11 +56,13 @@ public final class EpisodeListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        listener = FragmentUtil.requireFragmentListener(
+        final EpisodeListFragmentListener listener = FragmentUtil.requireFragmentListener(
                 this,
                 context,
                 EpisodeListFragment.EpisodeListFragmentListener.class
         );
+        this.listener = listener;
+        listener.onEpisodeListFragmentAttached(this);
     }
 
     @Override
@@ -168,9 +170,11 @@ public final class EpisodeListFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
+        final EpisodeListFragmentListener listener = Objects.requireNonNull(this.listener);
+        this.listener = null;
+        listener.onEpisodeListFragmentWillDetach(this);
 
-        listener = null;
+        super.onDetach();
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -194,6 +198,8 @@ public final class EpisodeListFragment extends Fragment {
     }
 
     public interface EpisodeListFragmentListener {
+        void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment);
+
         Observable<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalObservable(
                 EpisodeListFragment episodeListFragment
         );
@@ -202,5 +208,7 @@ public final class EpisodeListFragment extends Fragment {
                 EpisodeListFragment episodeListFragment,
                 Identified<Episode> episodeIdentified
         );
+
+        void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment);
     }
 }
