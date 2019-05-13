@@ -23,6 +23,7 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
+        Bookmark - write some UI integration tests
         assertThat(
                 appContext.getPackageName(),
                 is("com.github.hborders.heathcast")

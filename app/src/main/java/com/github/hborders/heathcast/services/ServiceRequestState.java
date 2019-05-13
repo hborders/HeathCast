@@ -5,14 +5,13 @@ import androidx.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Function;
 
-
 public abstract class ServiceRequestState {
-    public static ServiceRequestState loaded() {
-        return new Loaded();
-    }
-
     public static ServiceRequestState loading() {
         return new Loading();
+    }
+    Bookmark: Make this generic. Why wasn't it originally?
+    public static ServiceRequestState loaded() {
+        return new Loaded();
     }
 
     public static ServiceRequestState localFailure(Throwable throwable) {
