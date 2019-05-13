@@ -18,7 +18,6 @@ import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.parcelables.EpisodeIdentifiedHolder;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
 import java.util.List;
@@ -108,6 +107,11 @@ public final class EpisodeListFragment extends Fragment {
         );
         this.adapter = adapter;
         episodesRecyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
 
         disposable = Objects.requireNonNull(this.listener)
                 .episodeIdentifiedsOptionalObservable(this)
@@ -115,11 +119,10 @@ public final class EpisodeListFragment extends Fragment {
                 .subscribe(
                         this::updateEpisodeIdentifiedsOptional,
                         throwable -> {
-                            Snackbar.make(
-                                    view,
-                                    requireContext().getText(R.string.episode_list_observer_error),
-                                    Snackbar.LENGTH_SHORT
-                            ).show();
+                            Objects.requireNonNull(this.listener).onEpisodeIdentifiedsOptionalError(
+                                    this,
+                                    throwable
+                            );
                             Log.e(
                                     TAG,
                                     "Error loading episodes",
@@ -154,8 +157,6 @@ public final class EpisodeListFragment extends Fragment {
             disposable.dispose();
             this.disposable = null;
         }
-
-        adapter = null;
     }
 
     @Override
@@ -202,6 +203,11 @@ public final class EpisodeListFragment extends Fragment {
 
         Observable<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalObservable(
                 EpisodeListFragment episodeListFragment
+        );
+
+        void onEpisodeIdentifiedsOptionalError(
+                EpisodeListFragment episodeListFragment,
+                Throwable throwable
         );
 
         void onClick(

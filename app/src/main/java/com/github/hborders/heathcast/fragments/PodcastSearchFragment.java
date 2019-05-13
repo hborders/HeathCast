@@ -22,29 +22,24 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
 public final class PodcastSearchFragment extends Fragment
         implements
         PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
+    private static final String QUERY_KEY = "query";
 
-    Bookmark - How does the BehaviorSubject lifecycle exist within the Fragment lifecycle?
-    Also, this class definitely shouldn't hold a List. It should contain only the seed
-    necessary to make that list.
-    private BehaviorSubject<List<Identified<Podcast>>> podcastIdentifiedsBehaviorSubject =
+    private BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
 
     @Nullable
     private PodcastSearchFragmentListener listener;
-    @Nullable
-    private Disposable podcastSearchDisposable;
 
     public PodcastSearchFragment() {
         // Required empty public constructor
@@ -104,37 +99,7 @@ public final class PodcastSearchFragment extends Fragment
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchView.clearFocus();
-                @Nullable final Disposable oldDisposable = podcastSearchDisposable;
-                podcastIdentifiedsBehaviorSubject.onNext(Collections.emptyList());
-                if (oldDisposable != null) {
-                    oldDisposable.dispose();
-                }
-
-                podcastSearchDisposable =
-                        Objects.requireNonNull(PodcastSearchFragment.this.listener)
-                                .searchForPodcasts(
-                                        PodcastSearchFragment.this,
-                                        new PodcastSearch(query)
-                                )
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        podcastIdentifiedsAndServiceRequestState ->
-                                                podcastIdentifiedsBehaviorSubject.onNext(
-                                                        podcastIdentifiedsAndServiceRequestState.first
-                                                ),
-                                        throwable -> {
-                                            Snackbar.make(
-                                                    searchView,
-                                                    requireContext().getText(R.string.podcast_search_error),
-                                                    Snackbar.LENGTH_SHORT
-                                            ).show();
-                                            Log.e(
-                                                    TAG,
-                                                    "Error when searching iTunes",
-                                                    throwable
-                                            );
-                                        }
-                                );
+                queryOptionalBehaviorSubject.onNext(Optional.of(query));
 
                 return true;
             }
@@ -144,17 +109,43 @@ public final class PodcastSearchFragment extends Fragment
                 return true;
             }
         });
-        searchView.setQueryHint(requireContext().getString(R.string.search_query_hint));
+        searchView.setQueryHint(requireContext().getString(R.string.fragment_podcast_search_query_hint));
+        @Nullable final CharSequence query;
+        if (savedInstanceState == null) {
+            query = null;
+        } else {
+            query = savedInstanceState.getCharSequence(QUERY_KEY);
+        }
+        searchView.setQuery(query, false);
+        queryOptionalBehaviorSubject.onNext(
+                Optional.ofNullable(query).map(CharSequence::toString)
+        );
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        final SearchView searchView = requireView().requireViewById(R.id.fragment_podcast_search_search_view);
+        @Nullable final CharSequence queryCharSequence = searchView.getQuery();
+        outState.putCharSequence(QUERY_KEY, queryCharSequence);
+
+        afterOnSaveInstanceStateOrOnStop();
     }
 
     @Override
     public void onStop() {
-        @Nullable final Disposable podcastSearchDisposable = this.podcastSearchDisposable;
-        if (podcastSearchDisposable != null) {
-            podcastSearchDisposable.dispose();
-        }
-
         super.onStop();
+
+        afterOnSaveInstanceStateOrOnStop();
+    }
+
+    // Note that `onStop` is only called before `onSaveInstanceState()` on Android 28+ devices.
+    // Prior to that, the order can be reversed - this is a case Lifecycle specifically handles.
+    // I was under the impression that `AutoDispose` does as well
+    // https://androidstudygroup.slack.com/archives/C09HE40J0/p1551849597051100
+
+    private void afterOnSaveInstanceStateOrOnStop() {
     }
 
     @Override
@@ -179,7 +170,60 @@ public final class PodcastSearchFragment extends Fragment
     public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
             PodcastListFragment podcastListFragment
     ) {
-        return podcastIdentifiedsBehaviorSubject;
+        return queryOptionalBehaviorSubject
+                .hide()
+                .distinctUntilChanged()
+                .flatMap(queryOptional -> {
+                    @Nullable final String query = queryOptional.orElse(null);
+                    Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable;
+                    if (query == null) {
+                        podcastIdentifiedsObservable = Observable.just(Collections.emptyList());
+                    } else {
+                        podcastIdentifiedsObservable = Objects.requireNonNull(listener)
+                                .searchForPodcasts(
+                                        PodcastSearchFragment.this,
+                                        new PodcastSearch(query)
+                                ).flatMap(
+                                        podcastIdentifiedsAndServiceRequestState ->
+                                                podcastIdentifiedsAndServiceRequestState.second.reduce(
+                                                        loading ->
+                                                                Observable.just(Collections.emptyList()),
+                                                        loaded ->
+                                                                Observable.just(podcastIdentifiedsAndServiceRequestState.first),
+                                                        localFailure -> {
+                                                            Log.e(
+                                                                    TAG,
+                                                                    "Local error loading podcasts for query: " + query,
+                                                                    localFailure.throwable
+                                                            );
+                                                            return Observable.error(localFailure.throwable);
+                                                        },
+                                                        remoteFailure -> {
+                                                            Log.e(
+                                                                    TAG,
+                                                                    "Remote error loading podcasts for query: " + query,
+                                                                    remoteFailure.throwable
+                                                            );
+                                                            return Observable.error(remoteFailure.throwable);
+                                                        }
+
+                                                )
+                                );
+                    }
+                    return podcastIdentifiedsObservable;
+                });
+    }
+
+    @Override
+    public void onPodcastIdentifiedsError(
+            PodcastListFragment podcastListFragment,
+            Throwable throwable
+    ) {
+        Snackbar.make(
+                requireView(),
+                requireContext().getText(R.string.fragment_podcast_search_error),
+                Snackbar.LENGTH_SHORT
+        ).show();
     }
 
     @Override

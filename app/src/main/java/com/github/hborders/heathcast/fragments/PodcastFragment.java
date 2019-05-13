@@ -21,6 +21,7 @@ import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -41,9 +42,6 @@ public final class PodcastFragment extends Fragment
         implements EpisodeListFragment.EpisodeListFragmentListener {
     private static final String TAG = "podcast";
     private static final String PODCAST_PARCELABLE_KEY = "podcast";
-
-    Bookmark - all BehaviorSubjects should be nonnull because they have to live
-    between onCreateView and onDestroyView, but after onDestroyView, we should onNext(Optional.empty())
 
     private BehaviorSubject<Optional<Identified<Podcast>>> podcastIdentifiedOptionalBehaviorSubject =
             BehaviorSubject.create();
@@ -133,10 +131,6 @@ public final class PodcastFragment extends Fragment
                     }
                     return null;
                 };
-
-        This needs to move to onCreateView so that EpisodeListFragment has values immediately.
-                Once we implement emptying the behavior subject, waiting until onViewCreated
-                will cause flicker.
         final Identified<Podcast> identifiedPodcast = FragmentUtil.requireUnparcelableHolderArgument(
                 this,
                 PodcastIdentifiedHolder.class,
@@ -227,6 +221,12 @@ public final class PodcastFragment extends Fragment
 
     @Override
     public void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment) {
+        final Identified<Podcast> identifiedPodcast = FragmentUtil.requireUnparcelableHolderArgument(
+                this,
+                PodcastIdentifiedHolder.class,
+                PODCAST_PARCELABLE_KEY
+        );
+        podcastIdentifiedOptionalBehaviorSubject.onNext(Optional.of(identifiedPodcast));
     }
 
     @Override
@@ -253,11 +253,20 @@ public final class PodcastFragment extends Fragment
                                 feedURL
                         ).map(Optional::of);
                     }
-                    return Observable.concat(
-                            episodeIdentifiedsOptionalSingle.toObservable(),
-                            Observable.never()
-                    );
+                    return episodeIdentifiedsOptionalSingle.toObservable();
                 });
+    }
+
+    @Override
+    public void onEpisodeIdentifiedsOptionalError(
+            EpisodeListFragment episodeListFragment,
+            Throwable throwable
+    ) {
+        Snackbar.make(
+                requireView(),
+                requireContext().getText(R.string.fragment_podcast_episode_list_error),
+                Snackbar.LENGTH_SHORT
+        ).show();
     }
 
     @Override
@@ -269,6 +278,7 @@ public final class PodcastFragment extends Fragment
 
     @Override
     public void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment) {
+        podcastIdentifiedOptionalBehaviorSubject.onNext(Optional.empty());
     }
 
     public interface PodcastFragmentListener {

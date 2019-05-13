@@ -18,7 +18,6 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
 import java.util.List;
@@ -102,6 +101,11 @@ public final class PodcastListFragment extends Fragment {
         );
         this.adapter = adapter;
         podcastsRecyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
 
         disposable = Objects.requireNonNull(this.listener)
                 .podcastIdentifiedsObservable(this)
@@ -109,14 +113,13 @@ public final class PodcastListFragment extends Fragment {
                 .subscribe(
                         this::updatePodcastIdentifieds,
                         throwable -> {
-                            Snackbar.make(
-                                    view,
-                                    requireContext().getText(R.string.podcast_list_observer_error),
-                                    Snackbar.LENGTH_SHORT
-                            ).show();
+                            Objects.requireNonNull(this.listener).onPodcastIdentifiedsError(
+                                    this,
+                                    throwable
+                            );
                             Log.e(
                                     TAG,
-                                    "Error when searching iTunes",
+                                    "Error loading podcast list",
                                     throwable
                             );
                         }
@@ -148,8 +151,6 @@ public final class PodcastListFragment extends Fragment {
             disposable.dispose();
             this.disposable = null;
         }
-
-        adapter = null;
     }
 
     @Override
@@ -189,6 +190,11 @@ public final class PodcastListFragment extends Fragment {
 
         Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
                 PodcastListFragment podcastListFragment
+        );
+
+        void onPodcastIdentifiedsError(
+                PodcastListFragment podcastListFragment,
+                Throwable throwable
         );
 
         void onClick(
