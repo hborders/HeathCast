@@ -57,7 +57,7 @@ public abstract class Either<L, R> {
         public final Class<L> reifiedClass;
         public final L value;
 
-        public Left(
+        private Left(
                 Class<L> reifiedClass,
                 L value
         ) {
@@ -100,7 +100,7 @@ public abstract class Either<L, R> {
         public final Class<R> reifiedClass;
         public final R value;
 
-        public Right(
+        private Right(
                 Class<R> reifiedClass,
                 R value
         ) {

@@ -5,11 +5,14 @@ import androidx.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Function;
 
+// this is specifically not generic because the service request has a separate state from
+// the network request. We could have a failed remote request, but still have
+// cached results.
 public abstract class ServiceRequestState {
     public static ServiceRequestState loading() {
         return new Loading();
     }
-    Bookmark: Make this generic. Why wasn't it originally?
+
     public static ServiceRequestState loaded() {
         return new Loaded();
     }
@@ -33,6 +36,9 @@ public abstract class ServiceRequestState {
     );
 
     public static final class Loading extends ServiceRequestState {
+        private Loading() {
+        }
+
         @Override
         public boolean equals(@Nullable Object obj) {
             if (this == obj) return true;
@@ -61,6 +67,9 @@ public abstract class ServiceRequestState {
     }
 
     public static final class Loaded extends ServiceRequestState {
+        private Loaded() {
+        }
+
         @Override
         public final boolean equals(@Nullable Object obj) {
             if (this == obj) return true;
@@ -91,7 +100,7 @@ public abstract class ServiceRequestState {
     public static final class LocalFailure extends ServiceRequestState {
         public final Throwable throwable;
 
-        public LocalFailure(Throwable throwable) {
+        private LocalFailure(Throwable throwable) {
             this.throwable = throwable;
         }
 
@@ -129,7 +138,7 @@ public abstract class ServiceRequestState {
     public static final class RemoteFailure extends ServiceRequestState {
         public final Throwable throwable;
 
-        public RemoteFailure(Throwable throwable) {
+        private RemoteFailure(Throwable throwable) {
             this.throwable = throwable;
         }
 

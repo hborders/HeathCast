@@ -191,7 +191,7 @@ public final class PodcastService {
                                                             Function.identity()
                                                     )
                                     )
-                                    .onErrorReturn(ServiceRequestState.LocalFailure::new)
+                                    .onErrorReturn(ServiceRequestState::localFailure)
                                     .subscribe(serviceRequestStateBehaviorSubject::onNext);
 
 
