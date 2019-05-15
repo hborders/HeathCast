@@ -1,7 +1,6 @@
 package com.github.hborders.heathcast.core;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 public abstract class Either<L, R> {
     public static <L, R> Either<L, R> liftLeft(

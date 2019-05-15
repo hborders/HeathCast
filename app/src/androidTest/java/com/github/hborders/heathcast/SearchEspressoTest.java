@@ -4,13 +4,13 @@ import android.view.KeyEvent;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import com.github.hborders.heathcast.activities.MainActivity;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,12 +27,18 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 @LargeTest
 public class SearchEspressoTest {
 
-    @Rule
-    public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(
-            MainActivity.class,
-            false,
-            true
-    );
+    private final ActivityScenarioRule<MainActivity> activityScenarioRule =
+            new ActivityScenarioRule<>(MainActivity.class);
+
+    @Before
+    public void registerIdlingResource() throws Exception {
+        activityScenarioRule.getScenario().onActivity(mainActivity -> {
+//            IdlingRegistry.getInstance().
+//            mIdlingResource = mainActivity.getIdlingResource();
+//            // To prove that the test fails, omit this call:
+//            IdlingRegistry.getInstance().register(mIdlingResource);
+        });
+    }
 
     @Test
     public void searchForPlanetMoneyAndSubscribe() throws Exception {

@@ -11,9 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.idlingresource.BasicIdlingResource;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
@@ -32,6 +34,8 @@ import io.reactivex.disposables.Disposable;
 public final class PodcastListFragment extends Fragment {
     private static final String TAG = "PodcastList";
     private static final String PODCAST_PARCELABLES_KEY = "podcastParcelables";
+
+    private final BasicIdlingResource basicIdlingResource = new BasicIdlingResource(TAG);
 
     @Nullable
     private PodcastListFragmentListener listener;
@@ -170,6 +174,10 @@ public final class PodcastListFragment extends Fragment {
         listener.onPodcastListFragmentListenerWillDetach(this);
 
         super.onDetach();
+    }
+
+    public IdlingResource getPodcastIdentifiedsIdlingResource() {
+        return basicIdlingResource;
     }
 
     private void updatePodcastIdentifieds(List<Identified<Podcast>> podcastIdentifieds) {

@@ -55,11 +55,14 @@ dependencies {
     implementation 'android.arch.navigation:navigation-fragment:1.0.0' // use -ktx for Kotlin
     implementation 'android.arch.navigation:navigation-ui:1.0.0' // use -ktx for Kotlin
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    // to expose idling resources to UI tests
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.2.0-beta01'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'androidx.test:core:1.1.0'
     testImplementation "org.robolectric:robolectric:4.1"
+
+    // XML Pull Parser implementation for non-android unit tests
     testImplementation 'net.sf.kxml:kxml2:2.3.0'
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
 

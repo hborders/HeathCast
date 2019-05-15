@@ -2,12 +2,27 @@ package com.github.hborders.heathcast.services;
 
 import androidx.annotation.Nullable;
 
+import com.github.hborders.heathcast.core.Function;
+
 import java.util.Objects;
-import java.util.function.Function;
 
 // this is specifically not generic because the service request has a separate state from
 // the network request. We could have a failed remote request, but still have
 // cached results.
+
+// TODO break this apart into separate classes:
+// Location: Local/Remote
+// Load: Loading/Loaded/Failure
+// This way, we can show our states as Location * Load:
+// Local Loading, Remote Loading
+// Local Loading, Remote Loaded
+// Local Loading, Remote Failure
+// Local Loaded, Remote Loading
+// Local Loaded, Remote Loaded
+// Local Loaded, Remote Failure
+// Local Failure, Remote Loading
+// Local Failure, Remote Loaded
+// Local Failure, Remote Failure
 public abstract class ServiceRequestState {
     public static ServiceRequestState loading() {
         return new Loading();

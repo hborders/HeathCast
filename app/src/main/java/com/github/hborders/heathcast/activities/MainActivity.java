@@ -16,6 +16,7 @@ import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.fragments.MainFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
+import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -44,6 +45,8 @@ public final class MainActivity extends AppCompatActivity
         PodcastSearchFragment.PodcastSearchFragmentListener,
         PodcastFragment.PodcastFragmentListener {
 
+    private final DelegatingIdlingResource podcastSearchDelegatingIdlingResource =
+            new DelegatingIdlingResource("podcastSearch");
     private final PodcastService podcastService = new PodcastService(this);
 
     @Override
@@ -114,6 +117,7 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment) {
+
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.github.hborders.heathcast.core;
 
-import java.util.function.Function;
-
 public abstract class Result {
     private Result() {
     }

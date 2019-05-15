@@ -9,10 +9,12 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import androidx.fragment.app.Fragment;
+import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.core.NonnullPair;
+import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
@@ -35,7 +37,8 @@ public final class PodcastSearchFragment extends Fragment
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
 
-    private BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
+    private final DelegatingIdlingResource delegatingIdlingResource = new DelegatingIdlingResource(TAG);
+    private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
 
     @Nullable
@@ -164,6 +167,9 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment) {
+//        delegatingIdlingResource.setInnerIdlingResource(
+//                podcastListFragment.getPodcastIdentifiedsIdlingResource()
+//        );
     }
 
     @Override
@@ -239,6 +245,11 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerWillDetach(PodcastListFragment podcastListFragment) {
+//        delegatingIdlingResource.setInnerIdlingResource(null);
+    }
+
+    public IdlingResource getSearchResultPodcastIdentifiedsIdlingResource() {
+        return delegatingIdlingResource;
     }
 
     public interface PodcastSearchFragmentListener {
