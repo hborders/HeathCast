@@ -9,15 +9,33 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 public final class DelegatingIdlingResource implements IdlingResource {
-    private final String name;
 
-    private volatile State state = State.expectingInnerIdlingResource();
+    public static DelegatingIdlingResource expectingInnerIdlingResource(String name) {
+        return new DelegatingIdlingResource(
+                name,
+                State.expectingInnerIdlingResource()
+        );
+    }
+
+    public static DelegatingIdlingResource notExpectingInnerIdlingResource(String name) {
+        return new DelegatingIdlingResource(
+                name,
+                State.notExpectingInnerIdlingResource()
+        );
+    }
+
+    private final String name;
+    private volatile State state;
 
     @Nullable
     private volatile ResourceCallback resourceCallback;
 
-    public DelegatingIdlingResource(String name) {
+    private DelegatingIdlingResource(
+            String name,
+            State state
+    ) {
         this.name = name;
+        this.state = state;
     }
 
     // IdlingResource

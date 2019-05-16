@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.core.NonnullPair;
@@ -46,7 +47,7 @@ public final class MainActivity extends AppCompatActivity
         PodcastFragment.PodcastFragmentListener {
 
     private final DelegatingIdlingResource podcastSearchDelegatingIdlingResource =
-            new DelegatingIdlingResource("podcastSearch");
+            DelegatingIdlingResource.notExpectingInnerIdlingResource("podcastSearch");
     private final PodcastService podcastService = new PodcastService(this);
 
     @Override
@@ -117,7 +118,11 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment) {
-
+        podcastSearchDelegatingIdlingResource.setState(
+                DelegatingIdlingResource.State.hasInnerIdlingResource(
+                        podcastSearchFragment.getSearchResultPodcastIdentifiedsIdlingResource()
+                )
+        );
     }
 
     @Override
@@ -141,6 +146,9 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment) {
+        podcastSearchDelegatingIdlingResource.setState(
+                DelegatingIdlingResource.State.notExpectingInnerIdlingResource()
+        );
     }
 
     // PodcastFragmentListener
@@ -262,5 +270,9 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastFragmentWillDetach(PodcastFragment podcastFragment) {
+    }
+
+    public IdlingResource getPodcastSearchIdlingResource() {
+        return podcastSearchDelegatingIdlingResource;
     }
 }

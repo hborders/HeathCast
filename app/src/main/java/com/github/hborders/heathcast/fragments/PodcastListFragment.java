@@ -35,7 +35,7 @@ public final class PodcastListFragment extends Fragment {
     private static final String TAG = "PodcastList";
     private static final String PODCAST_PARCELABLES_KEY = "podcastParcelables";
 
-    private final BasicIdlingResource basicIdlingResource = new BasicIdlingResource(TAG);
+    private final BasicIdlingResource basicIdlingResource = BasicIdlingResource.busy(TAG);
 
     @Nullable
     private PodcastListFragmentListener listener;
@@ -115,7 +115,18 @@ public final class PodcastListFragment extends Fragment {
                 .podcastIdentifiedsObservable(this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        this::updatePodcastIdentifieds,
+                        podcastIdentifieds -> {
+                            final Bundle args = new Bundle();
+                            args.putParcelableArray(
+                                    PODCAST_PARCELABLES_KEY,
+                                    podcastIdentifieds
+                                            .stream()
+                                            .map(PodcastIdentifiedHolder::new)
+                                            .toArray(PodcastIdentifiedHolder[]::new)
+                            );
+                            setArguments(args);
+                            Objects.requireNonNull(this.adapter).setPodcastIdentifieds(podcastIdentifieds);
+                        },
                         throwable -> {
                             Objects.requireNonNull(this.listener).onPodcastIdentifiedsError(
                                     this,
@@ -142,6 +153,8 @@ public final class PodcastListFragment extends Fragment {
         super.onStop();
 
         afterOnSaveInstanceStateOrOnStop();
+
+        basicIdlingResource.setBusy();
     }
 
     // Note that `onStop` is only called before `onSaveInstanceState()` on Android 28+ devices.
@@ -178,19 +191,6 @@ public final class PodcastListFragment extends Fragment {
 
     public IdlingResource getPodcastIdentifiedsIdlingResource() {
         return basicIdlingResource;
-    }
-
-    private void updatePodcastIdentifieds(List<Identified<Podcast>> podcastIdentifieds) {
-        final Bundle args = new Bundle();
-        args.putParcelableArray(
-                PODCAST_PARCELABLES_KEY,
-                podcastIdentifieds
-                        .stream()
-                        .map(PodcastIdentifiedHolder::new)
-                        .toArray(PodcastIdentifiedHolder[]::new)
-        );
-        setArguments(args);
-        Objects.requireNonNull(this.adapter).setPodcastIdentifieds(podcastIdentifieds);
     }
 
     public interface PodcastListFragmentListener {

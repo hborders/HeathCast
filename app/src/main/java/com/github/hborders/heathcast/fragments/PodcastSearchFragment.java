@@ -37,7 +37,8 @@ public final class PodcastSearchFragment extends Fragment
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
 
-    private final DelegatingIdlingResource delegatingIdlingResource = new DelegatingIdlingResource(TAG);
+    private final DelegatingIdlingResource podcastListDelegatingIdlingResource =
+            DelegatingIdlingResource.expectingInnerIdlingResource("podcastList");
     private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
 
@@ -167,9 +168,11 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment) {
-//        delegatingIdlingResource.setInnerIdlingResource(
-//                podcastListFragment.getPodcastIdentifiedsIdlingResource()
-//        );
+        podcastListDelegatingIdlingResource.setState(
+                DelegatingIdlingResource.State.hasInnerIdlingResource(
+                        podcastListFragment.getPodcastIdentifiedsIdlingResource()
+                )
+        );
     }
 
     @Override
@@ -245,11 +248,13 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerWillDetach(PodcastListFragment podcastListFragment) {
-//        delegatingIdlingResource.setInnerIdlingResource(null);
+        podcastListDelegatingIdlingResource.setState(
+                DelegatingIdlingResource.State.notExpectingInnerIdlingResource()
+        );
     }
 
     public IdlingResource getSearchResultPodcastIdentifiedsIdlingResource() {
-        return delegatingIdlingResource;
+        return podcastListDelegatingIdlingResource;
     }
 
     public interface PodcastSearchFragmentListener {

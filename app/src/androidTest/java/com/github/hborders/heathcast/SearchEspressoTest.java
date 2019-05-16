@@ -3,6 +3,8 @@ package com.github.hborders.heathcast;
 import android.view.KeyEvent;
 
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.IdlingRegistry;
+import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -10,9 +12,13 @@ import androidx.test.filters.LargeTest;
 
 import com.github.hborders.heathcast.activities.MainActivity;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import javax.annotation.Nullable;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -27,17 +33,29 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 @LargeTest
 public class SearchEspressoTest {
 
-    private final ActivityScenarioRule<MainActivity> activityScenarioRule =
+    @Rule
+    public final ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
+
+    @Nullable
+    private IdlingResource podcastSearchIdlingResource;
 
     @Before
     public void registerIdlingResource() throws Exception {
         activityScenarioRule.getScenario().onActivity(mainActivity -> {
-//            IdlingRegistry.getInstance().
-//            mIdlingResource = mainActivity.getIdlingResource();
-//            // To prove that the test fails, omit this call:
-//            IdlingRegistry.getInstance().register(mIdlingResource);
+            final IdlingResource podcastSearchIdlingResource =
+                    mainActivity.getPodcastSearchIdlingResource();
+            this.podcastSearchIdlingResource = podcastSearchIdlingResource;
+            IdlingRegistry.getInstance().register(podcastSearchIdlingResource);
         });
+    }
+
+    @After
+    public void unregisterIdlingResource() throws Exception {
+        @Nullable final IdlingResource podcastSearchIdlingResource = this.podcastSearchIdlingResource;
+        if (podcastSearchIdlingResource != null) {
+            IdlingRegistry.getInstance().unregister(podcastSearchIdlingResource);
+        }
     }
 
     @Test
@@ -47,9 +65,6 @@ public class SearchEspressoTest {
                 typeText("Planet Money"),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
-
-        // Need to replace this with an idling resource
-        Thread.sleep(5 * 1000);
 
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
                 actionOnItemAtPosition(0, click())
@@ -74,9 +89,6 @@ public class SearchEspressoTest {
         }
 
         Espresso.pressBack();
-
-        // Need to replace this with an idling resource
-        Thread.sleep(1000);
 
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
                 actionOnItemAtPosition(0, click())
