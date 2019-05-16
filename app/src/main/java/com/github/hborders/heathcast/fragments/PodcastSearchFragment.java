@@ -37,6 +37,21 @@ public final class PodcastSearchFragment extends Fragment
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
 
+    Bookmark - This fundamentally doesn't work.
+    // I thought I could use AndIdlingResource to combine
+    // the search state with the podcast list state
+    // but that doesn't work because I'm not guaranteed to get
+    // another signal from the podcast list when the next results
+    // come through
+    // Instead, I should expose an Observable for the podcast list's
+    // podcast identifieds.
+    // This fragment can combine that observable with its search state
+    // and publish a new state to say whether it's searching or whether
+    // it has search results.
+    // Later, I'll expose different state to say whether we're searching locally
+    // or remotely.
+    // We'll remove IdlingResource from the app directly, and just
+    // make custom adapters that adapt the Rx state.
     private final DelegatingIdlingResource podcastListDelegatingIdlingResource =
             DelegatingIdlingResource.expectingInnerIdlingResource("podcastList");
     private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
