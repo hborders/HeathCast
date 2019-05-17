@@ -2,7 +2,7 @@ package com.github.hborders.heathcast.core;
 
 import java.util.Objects;
 
-public abstract class Ranged<E> {
+public abstract class Ranged<E extends Comparable<E>> {
     private Ranged() {
     }
 
@@ -13,11 +13,11 @@ public abstract class Ranged<E> {
             Function<Closed<E>, R> closedFunction
     );
 
-    public static <E> Open<E> open() {
+    public static <E extends Comparable<E>> Open<E> open() {
         return new Open<E>();
     }
 
-    public static final class Open<E> extends Ranged<E> {
+    public static final class Open<E extends Comparable<E>> extends Ranged<E> {
         public Open() {
         }
 
@@ -48,7 +48,7 @@ public abstract class Ranged<E> {
         }
     }
 
-    public static final class OpenStart<E> extends Ranged<E> {
+    public static final class OpenStart<E extends Comparable<E>> extends Ranged<E> {
         public final E end;
 
         public OpenStart(E end) {
@@ -86,7 +86,7 @@ public abstract class Ranged<E> {
         }
     }
 
-    public static final class OpenEnd<E> extends Ranged<E> {
+    public static final class OpenEnd<E extends Comparable<E>> extends Ranged<E> {
         public final E start;
 
         public OpenEnd(E start) {
@@ -124,11 +124,19 @@ public abstract class Ranged<E> {
         }
     }
 
-    public static final class Closed<E> extends Ranged<E> {
+    public static final class Closed<E extends Comparable<E>> extends Ranged<E> {
         public final E start;
         public final E end;
 
         public Closed(E start, E end) {
+            if (start.compareTo(end) > 0) {
+                throw new IllegalArgumentException(
+                        "start must be less than or equal to end: "
+                                + " start: " + start
+                                + " end: " + end
+                );
+            }
+
             this.start = start;
             this.end = end;
         }

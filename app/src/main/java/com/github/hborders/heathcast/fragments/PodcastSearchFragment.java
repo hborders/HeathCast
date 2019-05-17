@@ -9,16 +9,15 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import androidx.fragment.app.Fragment;
-import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.core.NonnullPair;
-import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.services.ServiceRequestState;
+import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
@@ -36,8 +35,9 @@ public final class PodcastSearchFragment extends Fragment
         PodcastListFragment.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
+    private static final String SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY = "searchResultItemRangeEnabled";
 
-    Bookmark - This fundamentally doesn't work.
+    // Bookmark - This fundamentally doesn't work.
     // I thought I could use AndIdlingResource to combine
     // the search state with the podcast list state
     // but that doesn't work because I'm not guaranteed to get
@@ -52,13 +52,15 @@ public final class PodcastSearchFragment extends Fragment
     // or remotely.
     // We'll remove IdlingResource from the app directly, and just
     // make custom adapters that adapt the Rx state.
-    private final DelegatingIdlingResource podcastListDelegatingIdlingResource =
-            DelegatingIdlingResource.expectingInnerIdlingResource("podcastList");
     private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
 
     @Nullable
     private PodcastSearchFragmentListener listener;
+
+    @Nullable
+    private PodcastListFragment searchResultPodcastListFragment;
+    private boolean searchResultItemRangeEnabled;
 
     public PodcastSearchFragment() {
         // Required empty public constructor
@@ -92,6 +94,11 @@ public final class PodcastSearchFragment extends Fragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            searchResultItemRangeEnabled =
+                    savedInstanceState.getBoolean(SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY);
+        }
     }
 
     @Override
@@ -129,16 +136,13 @@ public final class PodcastSearchFragment extends Fragment
             }
         });
         searchView.setQueryHint(requireContext().getString(R.string.fragment_podcast_search_query_hint));
-        @Nullable final CharSequence query;
-        if (savedInstanceState == null) {
-            query = null;
-        } else {
-            query = savedInstanceState.getCharSequence(QUERY_KEY);
+        if (savedInstanceState != null) {
+            @Nullable final CharSequence query = savedInstanceState.getCharSequence(QUERY_KEY);
+            searchView.setQuery(query, false);
+            queryOptionalBehaviorSubject.onNext(
+                    Optional.ofNullable(query).map(CharSequence::toString)
+            );
         }
-        searchView.setQuery(query, false);
-        queryOptionalBehaviorSubject.onNext(
-                Optional.ofNullable(query).map(CharSequence::toString)
-        );
     }
 
     @Override
@@ -147,7 +151,14 @@ public final class PodcastSearchFragment extends Fragment
 
         final SearchView searchView = requireView().requireViewById(R.id.fragment_podcast_search_search_view);
         @Nullable final CharSequence queryCharSequence = searchView.getQuery();
-        outState.putCharSequence(QUERY_KEY, queryCharSequence);
+        outState.putCharSequence(
+                QUERY_KEY,
+                queryCharSequence
+        );
+        outState.putBoolean(
+                SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY,
+                searchResultItemRangeEnabled
+        );
 
         afterOnSaveInstanceStateOrOnStop();
     }
@@ -183,11 +194,10 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment) {
-        podcastListDelegatingIdlingResource.setState(
-                DelegatingIdlingResource.State.hasInnerIdlingResource(
-                        podcastListFragment.getPodcastIdentifiedsIdlingResource()
-                )
-        );
+        searchResultPodcastListFragment = podcastListFragment;
+        if (searchResultItemRangeEnabled) {
+            searchResultPodcastListFragment.enableItemRangeObservable();
+        }
     }
 
     @Override
@@ -263,13 +273,26 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerWillDetach(PodcastListFragment podcastListFragment) {
-        podcastListDelegatingIdlingResource.setState(
-                DelegatingIdlingResource.State.notExpectingInnerIdlingResource()
-        );
+        searchResultPodcastListFragment = null;
     }
 
-    public IdlingResource getSearchResultPodcastIdentifiedsIdlingResource() {
-        return podcastListDelegatingIdlingResource;
+    public void enableSearchResultItemRangeObservable() {
+        searchResultItemRangeEnabled = true;
+        @Nullable final PodcastListFragment searchResultPodcastListFragment =
+                this.searchResultPodcastListFragment;
+        if (searchResultPodcastListFragment != null) {
+            searchResultPodcastListFragment.enableItemRangeObservable();
+        }
+    }
+
+    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
+        figure out how to populate this observable.
+        // I probably need to create a Subject that contains Observables that I can later observe
+        // but that's going to be too complicated, so I should probably just convert
+        // the fragment listeners into observables. They'll just have an onFragmentAttached method
+        // that will contain an Observable containing the Fragment. When the observable completes,
+        // the fragment detaches. Then, I can have all the other lifecycle methods get pumped
+        // through other observables.
     }
 
     public interface PodcastSearchFragmentListener {

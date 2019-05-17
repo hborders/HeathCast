@@ -11,31 +11,35 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.idlingresource.BasicIdlingResource;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
+import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.BehaviorSubject;
 
 public final class PodcastListFragment extends Fragment {
     private static final String TAG = "PodcastList";
     private static final String PODCAST_PARCELABLES_KEY = "podcastParcelables";
+    private static final String ITEM_RANGE_ENABLED_KEY = "itemRangeEnabled";
 
-    private final BasicIdlingResource basicIdlingResource = BasicIdlingResource.busy(TAG);
+    private final BehaviorSubject<Optional<ItemRange>> itemRangeOptionalBehaviorSubject =
+            BehaviorSubject.createDefault(Optional.empty());
+    private boolean itemRangeEnabled;
 
     @Nullable
     private PodcastListFragmentListener listener;
@@ -66,6 +70,10 @@ public final class PodcastListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            itemRangeEnabled = savedInstanceState.getBoolean(ITEM_RANGE_ENABLED_KEY);
+        }
     }
 
     @Override
@@ -89,7 +97,8 @@ public final class PodcastListFragment extends Fragment {
 
         final RecyclerView podcastsRecyclerView =
                 view.requireViewById(R.id.fragment_podcast_list_podcasts_recycler_view);
-        podcastsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
+        podcastsRecyclerView.setLayoutManager(linearLayoutManager);
         @Nullable final List<Identified<Podcast>> podcastIdentifieds =
                 FragmentUtil.getUnparcelableHolderListArgument(
                         this,
@@ -105,6 +114,57 @@ public final class PodcastListFragment extends Fragment {
         );
         this.adapter = adapter;
         podcastsRecyclerView.setAdapter(adapter);
+        podcastsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (itemRangeEnabled) {
+                    @Nullable final RecyclerView.Adapter adapter = recyclerView.getAdapter();
+                    final Optional<ItemRange> itemRangeOptional;
+                    if (adapter == null) {
+                        itemRangeOptional = Optional.empty();
+                    } else {
+                        @Nullable final RecyclerView.LayoutManager recyclerViewLayoutManager =
+                                recyclerView.getLayoutManager();
+                        if (linearLayoutManager != recyclerViewLayoutManager) {
+                            throw new IllegalStateException("RecyclerView.layoutManager should be: "
+                                    + linearLayoutManager +
+                                    " but is: "
+                                    + recyclerViewLayoutManager
+                            );
+                        }
+
+                        final int itemCount = adapter.getItemCount();
+                        final int firstVisibleItemPosition =
+                                linearLayoutManager.findFirstVisibleItemPosition();
+                        if (firstVisibleItemPosition == RecyclerView.NO_POSITION) {
+                            itemRangeOptional = Optional.of(
+                                    ItemRange.invisible(itemCount)
+                            );
+                        } else {
+                            final int lastVisibleItemPosition =
+                                    linearLayoutManager.findLastVisibleItemPosition();
+                            if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
+                                throw new IllegalStateException(
+                                        "A firstVisibleItemPosition: "
+                                                + firstVisibleItemPosition
+                                                + " should imply a " +
+                                                "lastVisibleItemPosition"
+                                );
+                            } else {
+                                itemRangeOptional = Optional.of(
+                                        ItemRange.visible(
+                                                itemCount,
+                                                firstVisibleItemPosition,
+                                                lastVisibleItemPosition
+                                        )
+                                );
+                            }
+                        }
+                    }
+                    itemRangeOptionalBehaviorSubject.onNext(itemRangeOptional);
+                }
+            }
+        });
     }
 
     @Override
@@ -142,8 +202,13 @@ public final class PodcastListFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putBoolean(
+                ITEM_RANGE_ENABLED_KEY,
+                itemRangeEnabled
+        );
 
         afterOnSaveInstanceStateOrOnStop();
     }
@@ -153,8 +218,6 @@ public final class PodcastListFragment extends Fragment {
         super.onStop();
 
         afterOnSaveInstanceStateOrOnStop();
-
-        basicIdlingResource.setBusy();
     }
 
     // Note that `onStop` is only called before `onSaveInstanceState()` on Android 28+ devices.
@@ -189,8 +252,12 @@ public final class PodcastListFragment extends Fragment {
         super.onDetach();
     }
 
-    public IdlingResource getPodcastIdentifiedsIdlingResource() {
-        return basicIdlingResource;
+    public void enableItemRangeObservable() {
+        itemRangeEnabled = true;
+    }
+
+    public Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
+        return itemRangeOptionalBehaviorSubject.hide();
     }
 
     public interface PodcastListFragmentListener {
