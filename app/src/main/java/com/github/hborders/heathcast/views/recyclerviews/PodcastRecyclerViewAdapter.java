@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
@@ -29,9 +28,8 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
         this.listener = listener;
     }
 
-    @NonNull
     @Override
-    public PodcastViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public PodcastViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.item_podcast,
                 parent,
@@ -41,7 +39,7 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PodcastViewHolder holder, int position) {
+    public void onBindViewHolder(PodcastViewHolder holder, int position) {
         final Identified<Podcast> identifiedPodcast = podcastIdentifieds.get(position);
         final Podcast podcast = identifiedPodcast.model;
         holder.nameTextView.setText(podcast.name);

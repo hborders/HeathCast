@@ -11,6 +11,7 @@ import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -98,6 +99,20 @@ public final class FragmentUtil {
         }
     }
 
+    public static <U, H extends UnparcelableHolder<U>> Optional<U> getUnparcelableHolderArgumentOptional(
+            Fragment fragment,
+            Class<H> unparcelableHolderClass,
+            String key
+    ) {
+        return Optional.ofNullable(
+                getUnparcelableHolderArgument(
+                        fragment,
+                        unparcelableHolderClass,
+                        key
+                )
+        );
+    }
+
     public static <U, H extends UnparcelableHolder<U>> U requireUnparcelableHolderArgument(
             Fragment fragment,
             Class<H> unparcelableHolderClass,
@@ -143,6 +158,20 @@ public final class FragmentUtil {
                         .collect(Collectors.toList());
             }
         }
+    }
+
+    public static <U, H extends UnparcelableHolder<U>> Optional<List<U>> getUnparcelableHolderListArgumentOptional(
+            Fragment fragment,
+            Class<H> unparcelableHolderClass,
+            String key
+    ) {
+        return Optional.ofNullable(
+                getUnparcelableHolderListArgument(
+                        fragment,
+                        unparcelableHolderClass,
+                        key
+                )
+        );
     }
 
     public static <U, H extends UnparcelableHolder<U>> List<U> requireUnparcelableHolderListArgument(
