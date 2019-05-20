@@ -73,6 +73,6 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
     }
 
     public interface PodcastRecyclerViewAdapterListener {
-        void onClick(Identified<Podcast> identifiedPodcast);
+        void onClick(Identified<Podcast> podcastIdentified);
     }
 }

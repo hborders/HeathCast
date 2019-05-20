@@ -118,11 +118,11 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment) {
-        podcastSearchDelegatingIdlingResource.setState(
-                DelegatingIdlingResource.State.hasInnerIdlingResource(
-                        podcastSearchFragment.getSearchResultPodcastIdentifiedsIdlingResource()
-                )
-        );
+//        podcastSearchDelegatingIdlingResource.setState(
+//                DelegatingIdlingResource.State.hasInnerIdlingResource(
+//                        podcastSearchFragment.getSearchResultPodcastIdentifiedsIdlingResource()
+//                )
+//        );
     }
 
     @Override

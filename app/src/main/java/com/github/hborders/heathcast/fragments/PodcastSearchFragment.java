@@ -31,7 +31,7 @@ import io.reactivex.subjects.BehaviorSubject;
 
 public final class PodcastSearchFragment extends Fragment
         implements
-        PodcastListFragment.PodcastListFragmentListener {
+        PodcastListFragment2.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
     private static final String SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY = "searchResultItemRangeEnabled";
@@ -58,7 +58,7 @@ public final class PodcastSearchFragment extends Fragment
     private PodcastSearchFragmentListener listener;
 
     @Nullable
-    private PodcastListFragment searchResultPodcastListFragment;
+    private PodcastListFragment2 searchResultPodcastListFragment;
     private boolean searchResultItemRangeEnabled;
 
     public PodcastSearchFragment() {
@@ -192,16 +192,16 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment) {
+    public void onPodcastListFragmentListenerAttached(PodcastListFragment2 podcastListFragment) {
         searchResultPodcastListFragment = podcastListFragment;
-        if (searchResultItemRangeEnabled) {
-            searchResultPodcastListFragment.enableItemRangeObservable();
-        }
+//        if (searchResultItemRangeEnabled) {
+//            searchResultPodcastListFragment.enableItemRangeObservable();
+//        }
     }
 
     @Override
     public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
-            PodcastListFragment podcastListFragment
+            PodcastListFragment2 podcastListFragment
     ) {
         return queryOptionalBehaviorSubject
                 .hide()
@@ -249,7 +249,7 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastIdentifiedsError(
-            PodcastListFragment podcastListFragment,
+            PodcastListFragment2 podcastListFragment,
             Throwable throwable
     ) {
         Snackbar.make(
@@ -261,7 +261,7 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onClick(
-            PodcastListFragment podcastListFragment,
+            PodcastListFragment2 podcastListFragment,
             Identified<Podcast> podcastIdentified
     ) {
         Objects.requireNonNull(listener).onClickPodcastIdentified(
@@ -271,18 +271,18 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public void onPodcastListFragmentListenerWillDetach(PodcastListFragment podcastListFragment) {
+    public void onPodcastListFragmentListenerWillDetach(PodcastListFragment2 podcastListFragment) {
         searchResultPodcastListFragment = null;
     }
 
-    public void enableSearchResultItemRangeObservable() {
-        searchResultItemRangeEnabled = true;
-        @Nullable final PodcastListFragment searchResultPodcastListFragment =
-                this.searchResultPodcastListFragment;
-        if (searchResultPodcastListFragment != null) {
-            searchResultPodcastListFragment.enableItemRangeObservable();
-        }
-    }
+//    public void enableSearchResultItemRangeObservable() {
+//        searchResultItemRangeEnabled = true;
+//        @Nullable final PodcastListFragment searchResultPodcastListFragment =
+//                this.searchResultPodcastListFragment;
+//        if (searchResultPodcastListFragment != null) {
+//            searchResultPodcastListFragment.enableItemRangeObservable();
+//        }
+//    }
 
 //    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
 //        figure out how to populate this observable.
