@@ -1,18 +1,14 @@
 package com.github.hborders.heathcast.android;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Parcelable;
 
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -84,19 +80,11 @@ public final class FragmentUtil {
             Class<H> unparcelableHolderClass,
             String key
     ) {
-        @Nullable final Bundle arguments = fragment.getArguments();
-        if (arguments == null) {
-            return null;
-        } else {
-            @Nullable final Parcelable parcelable = arguments.getParcelable(key);
-            if (unparcelableHolderClass.isInstance(parcelable)) {
-                final UnparcelableHolder<U> unparcelableHolder =
-                        Objects.requireNonNull(unparcelableHolderClass.cast(parcelable));
-                return unparcelableHolder.getUnparcelable();
-            } else {
-                return null;
-            }
-        }
+        return BundleUtil.getUnparcelableHolder(
+                fragment.getArguments(),
+                unparcelableHolderClass,
+                key
+        );
     }
 
     public static <U, H extends UnparcelableHolder<U>> Optional<U> getUnparcelableHolderArgumentOptional(
@@ -133,31 +121,11 @@ public final class FragmentUtil {
             Class<H> unparcelableHolderClass,
             String key
     ) {
-        @Nullable final Bundle arguments = fragment.getArguments();
-        if (arguments == null) {
-            return null;
-        } else {
-            @Nullable final Parcelable[] parcelableArray = arguments.getParcelableArray(key);
-            if (parcelableArray == null) {
-                return null;
-            } else {
-                return Arrays
-                        .stream(parcelableArray)
-                        .filter(unparcelableHolderClass::isInstance)
-                        .map(parcelable -> {
-                            // could be more cleanly represented a method references,
-                            // but Android Studio's Inspector incorrectly reports
-                            // that the method references might cause a NullPointerException
-                            // because it doesn't can't infer null safety through the
-                            // Java Streams API
-                            // https://stackoverflow.com/q/54360011/9636
-                            @Nullable final UnparcelableHolder<U> unparcelableHolder =
-                                    unparcelableHolderClass.cast(parcelable);
-                            return Objects.requireNonNull(unparcelableHolder).getUnparcelable();
-                        })
-                        .collect(Collectors.toList());
-            }
-        }
+        return BundleUtil.getUnparcelableHolderList(
+                fragment.getArguments(),
+                unparcelableHolderClass,
+                key
+        );
     }
 
     public static <U, H extends UnparcelableHolder<U>> Optional<List<U>> getUnparcelableHolderListArgumentOptional(

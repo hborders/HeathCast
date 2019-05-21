@@ -71,18 +71,18 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         @Nullable
         public final Bundle savedInstanceState;
         public final Observable<SaveInstanceState> saveInstanceStateObservable;
-        public final Observable<ViewCreation> viewCreationObservable;
+        public final Observable<Observable<ViewCreation>> viewCreationObservableObservable;
         public final Completable onDestroyCompletable;
 
         private FragmentCreation(
                 @Nullable Bundle savedInstanceState,
                 Observable<SaveInstanceState> saveInstanceStateObservable,
-                Observable<ViewCreation> viewCreationObservable,
+                Observable<Observable<ViewCreation>> viewCreationObservableObservable,
                 Completable onDestroyCompletable
         ) {
             this.savedInstanceState = savedInstanceState;
             this.saveInstanceStateObservable = saveInstanceStateObservable;
-            this.viewCreationObservable = viewCreationObservable;
+            this.viewCreationObservableObservable = viewCreationObservableObservable;
             this.onDestroyCompletable = onDestroyCompletable;
         }
 
@@ -91,7 +91,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
             return "FragmentCreation{" +
                     "savedInstanceState=" + savedInstanceState +
                     ", saveInstanceStateObservable=" + saveInstanceStateObservable +
-                    ", viewCreationObservable=" + viewCreationObservable +
+                    ", viewCreationObservableObservable=" + viewCreationObservableObservable +
                     ", onDestroyCompletable=" + onDestroyCompletable +
                     '}';
         }
@@ -236,6 +236,9 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
             PublishSubject.create();
     private final CompletableSubject onDestroyCompletableSubject = CompletableSubject.create();
 
+    private final PublishSubject<Observable<ViewCreation>> viewCreationObservablePublishSubject =
+            PublishSubject.create();
+
     private PublishSubject<ViewCreation> viewCreationPublishSubject = PublishSubject.create();
     private PublishSubject<ViewCreation.SaveInstanceState> viewCreationSaveInstanceStatePublishSubject =
             PublishSubject.create();
@@ -300,7 +303,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
                 new FragmentCreation<>(
                         savedInstanceState,
                         fragmentCreationSaveInstanceStatePublishSubject.hide(),
-                        viewCreationPublishSubject,
+                        viewCreationObservablePublishSubject.hide(),
                         onDestroyCompletableSubject.hide()
                 )
         );
@@ -327,6 +330,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     ) {
         super.onViewCreated(view, savedInstanceState);
 
+        viewCreationObservablePublishSubject.onNext(viewCreationPublishSubject.hide());
         viewCreationPublishSubject.onNext(
                 new ViewCreation(
                         view,
@@ -386,7 +390,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
         onStopCompletableSubject = CompletableSubject.create();
         startPublishSubject = PublishSubject.create();
-        startSaveInstanceStatePublishSubject.onComplete();
+        startSaveInstanceStatePublishSubject = PublishSubject.create();
     }
 
     @Override
@@ -403,7 +407,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public final void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
         fragmentCreationSaveInstanceStatePublishSubject.onNext(
@@ -425,6 +429,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         super.onDestroy();
 
         onDestroyCompletableSubject.onComplete();
+        viewCreationObservablePublishSubject.onComplete();
         fragmentCreationPublishSubject.onComplete();
         fragmentCreationSaveInstanceStatePublishSubject.onComplete();
     }
