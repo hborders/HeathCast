@@ -3,6 +3,7 @@ package com.github.hborders.heathcast.fragments;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -12,14 +13,18 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
+import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.functions.Functions;
+import io.reactivex.subjects.BehaviorSubject;
 
 public final class PodcastListFragment2 extends RxFragment<
         PodcastListFragment2,
@@ -49,6 +54,9 @@ public final class PodcastListFragment2 extends RxFragment<
         void onPodcastListFragmentListenerWillDetach(PodcastListFragment2 podcastListFragment);
     }
 
+    private final BehaviorSubject<Optional<PodcastIdentifiedsItemRanger>> podcastIdentifiedsItemRangerOptionalBehaviorSubject =
+            BehaviorSubject.createDefault(Optional.empty());
+
     public PodcastListFragment2() {
         super(
                 PodcastListFragmentListener.class,
@@ -75,9 +83,6 @@ public final class PodcastListFragment2 extends RxFragment<
                     final PodcastListFragmentListener listener = attachment.listener;
                     attachment.fragmenCreationObservable.subscribe(
                             fragmentCreation -> {
-                                fragmentCreation.setArgumentsCompletable.subscribe(
-
-                                ).isDisposed();
                                 fragmentCreation.viewCreationObservableObservable.subscribe(
                                         viewCreationObservable -> viewCreationObservable.subscribe(
                                                 viewCreation -> {
@@ -106,6 +111,15 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                             )
                                                             );
                                                     podcastsRecyclerView.setAdapter(adapter);
+                                                    podcastIdentifiedsItemRangerOptionalBehaviorSubject.onNext(
+                                                            Optional.of(
+                                                                    new PodcastIdentifiedsItemRanger(
+                                                                            podcastsRecyclerView,
+                                                                            adapter,
+                                                                            linearLayoutManager
+                                                                    )
+                                                            )
+                                                    );
                                                     viewCreation.activityCreationObservable.subscribe(
                                                             activityCreation -> {
                                                                 activityCreation.startObservable.subscribe(
@@ -145,7 +159,9 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                 ).isDisposed();
                                                             }
                                                     ).isDisposed();
-                                                }
+                                                },
+                                                Functions.ON_ERROR_MISSING,
+                                                () -> podcastIdentifiedsItemRangerOptionalBehaviorSubject.onNext(Optional.empty())
                                         ).isDisposed()
                                 ).isDisposed();
                             }
@@ -157,5 +173,80 @@ public final class PodcastListFragment2 extends RxFragment<
                     ).isDisposed();
                 }
         ).isDisposed();
+    }
+
+    private static final class PodcastIdentifiedsItemRanger {
+        private final RecyclerView recyclerView;
+        private final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter;
+        private final LinearLayoutManager linearLayoutManager;
+
+        private PodcastIdentifiedsItemRanger(
+                RecyclerView recyclerView,
+                PodcastRecyclerViewAdapter podcastRecyclerViewAdapter,
+                LinearLayoutManager linearLayoutManager
+        ) {
+            this.recyclerView = recyclerView;
+            this.podcastRecyclerViewAdapter = podcastRecyclerViewAdapter;
+            this.linearLayoutManager = linearLayoutManager;
+        }
+
+        @Override
+        public String toString() {
+            return "RecyclerViewItemRangeCollector{" +
+                    "recyclerView=" + recyclerView +
+                    ", podcastRecyclerViewAdapter=" + podcastRecyclerViewAdapter +
+                    ", linearLayoutManager=" + linearLayoutManager +
+                    '}';
+        }
+    }
+
+    public Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
+        return podcastIdentifiedsItemRangerOptionalBehaviorSubject.flatMap(podcastIdentifiedsItemRangerOptional ->
+                podcastIdentifiedsItemRangerOptional.map(podcastIdentifiedsItemRanger ->
+                        Observable.<Optional<ItemRange>>create(emitter -> {
+                            final RecyclerView recyclerView = podcastIdentifiedsItemRanger.recyclerView;
+                            final LinearLayoutManager linearLayoutManager = podcastIdentifiedsItemRanger.linearLayoutManager;
+                            final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter = podcastIdentifiedsItemRanger.podcastRecyclerViewAdapter;
+
+                            final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                                    final int itemCount = podcastRecyclerViewAdapter.getItemCount();
+                                    final int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    final Optional<ItemRange> itemRangeOptional;
+                                    if (firstVisibleItemPosition == RecyclerView.NO_POSITION) {
+                                        itemRangeOptional = Optional.of(
+                                                ItemRange.invisible(itemCount)
+                                        );
+                                    } else {
+                                        final int lastVisibleItemPosition =
+                                                podcastIdentifiedsItemRanger.linearLayoutManager
+                                                        .findLastVisibleItemPosition();
+                                        if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
+                                            throw new IllegalStateException(
+                                                    "A firstVisibleItemPosition: "
+                                                            + firstVisibleItemPosition
+                                                            + " should imply a " +
+                                                            "lastVisibleItemPosition"
+                                            );
+                                        } else {
+                                            itemRangeOptional = Optional.of(
+                                                    ItemRange.visible(
+                                                            itemCount,
+                                                            firstVisibleItemPosition,
+                                                            lastVisibleItemPosition
+                                                    )
+                                            );
+                                        }
+                                    }
+                                    emitter.onNext(itemRangeOptional);
+                                }
+                            };
+                            recyclerView.addOnScrollListener(onScrollListener);
+                            emitter.setCancellable(() ->
+                                    recyclerView.removeOnScrollListener(onScrollListener)
+                            );
+                        })
+                ).orElse(Observable.empty()));
     }
 }
