@@ -75,6 +75,9 @@ public final class PodcastListFragment2 extends RxFragment<
                     final PodcastListFragmentListener listener = attachment.listener;
                     attachment.fragmenCreationObservable.subscribe(
                             fragmentCreation -> {
+                                fragmentCreation.setArgumentsCompletable.subscribe(
+
+                                ).isDisposed();
                                 fragmentCreation.viewCreationObservableObservable.subscribe(
                                         viewCreationObservable -> viewCreationObservable.subscribe(
                                                 viewCreation -> {
@@ -103,44 +106,45 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                             )
                                                             );
                                                     podcastsRecyclerView.setAdapter(adapter);
-
-                                                    viewCreation.startObservable.subscribe(
-                                                            start -> {
-                                                                final Disposable disposable = listener
-                                                                        .podcastIdentifiedsObservable(this)
-                                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                                        .subscribe(
-                                                                                podcastIdentifieds -> {
-                                                                                    final Bundle args = new Bundle();
-                                                                                    args.putParcelableArray(
-                                                                                            PODCAST_PARCELABLES_KEY,
-                                                                                            podcastIdentifieds
-                                                                                                    .stream()
-                                                                                                    .map(PodcastIdentifiedHolder::new)
-                                                                                                    .toArray(PodcastIdentifiedHolder[]::new)
+                                                    viewCreation.activityCreationObservable.subscribe(
+                                                            activityCreation -> {
+                                                                activityCreation.startObservable.subscribe(
+                                                                        start -> {
+                                                                            final Disposable adapterSetPodcastIdentifiedsDisposable = listener
+                                                                                    .podcastIdentifiedsObservable(this)
+                                                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                                                    .subscribe(
+                                                                                            podcastIdentifieds -> {
+                                                                                                final Bundle args = new Bundle();
+                                                                                                args.putParcelableArray(
+                                                                                                        PODCAST_PARCELABLES_KEY,
+                                                                                                        podcastIdentifieds
+                                                                                                                .stream()
+                                                                                                                .map(PodcastIdentifiedHolder::new)
+                                                                                                                .toArray(PodcastIdentifiedHolder[]::new)
+                                                                                                );
+                                                                                                setArguments(args);
+                                                                                                adapter.setPodcastIdentifieds(podcastIdentifieds);
+                                                                                            },
+                                                                                            throwable -> {
+                                                                                                listener.onPodcastIdentifiedsError(
+                                                                                                        this,
+                                                                                                        throwable
+                                                                                                );
+                                                                                                Log.e(
+                                                                                                        TAG,
+                                                                                                        "Error loading podcast list",
+                                                                                                        throwable
+                                                                                                );
+                                                                                            }
                                                                                     );
-                                                                                    setArguments(args);
-                                                                                    adapter.setPodcastIdentifieds(podcastIdentifieds);
-                                                                                },
-                                                                                throwable -> {
-                                                                                    listener.onPodcastIdentifiedsError(
-                                                                                            this,
-                                                                                            throwable
-                                                                                    );
-                                                                                    Log.e(
-                                                                                            TAG,
-                                                                                            "Error loading podcast list",
-                                                                                            throwable
-                                                                                    );
-                                                                                }
-                                                                        );
-                                                                start.saveInstanceStateObservable.subscribe(
-                                                                        saveInstanceState -> disposable.dispose()
+                                                                            fragmentCreation.setArgumentsCompletable.subscribe(
+                                                                                    adapterSetPodcastIdentifiedsDisposable::dispose
+                                                                            ).isDisposed();
+                                                                        }
                                                                 ).isDisposed();
-                                                                start.onStopCompletable.subscribe(
-                                                                        disposable::dispose
-                                                                ).isDisposed();
-                                                            }).isDisposed();
+                                                            }
+                                                    ).isDisposed();
                                                 }
                                         ).isDisposed()
                                 ).isDisposed();
