@@ -81,6 +81,7 @@ public final class PodcastListFragment2 extends RxFragment<
         attachmentObservable.subscribe(
                 attachment -> {
                     final PodcastListFragmentListener listener = attachment.listener;
+                    listener.onPodcastListFragmentListenerAttached(this);
                     attachment.fragmenCreationObservable.subscribe(
                             fragmentCreation -> {
                                 fragmentCreation.viewCreationObservableObservable.subscribe(
@@ -167,7 +168,6 @@ public final class PodcastListFragment2 extends RxFragment<
                             }
                     ).isDisposed();
 
-                    listener.onPodcastListFragmentListenerAttached(this);
                     attachment.onDetachCompletable.subscribe(() ->
                             listener.onPodcastListFragmentListenerWillDetach(this)
                     ).isDisposed();
