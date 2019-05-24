@@ -4,13 +4,13 @@ import android.view.KeyEvent;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
-import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.github.hborders.heathcast.activities.MainActivity;
+import com.github.hborders.heathcast.idlingresource.OptionalObservableIdlingResourceSubscriber;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,23 +38,29 @@ public class SearchEspressoTest {
             new ActivityScenarioRule<>(MainActivity.class);
 
     @Nullable
-    private IdlingResource podcastSearchIdlingResource;
+    private OptionalObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource;
 
     @Before
     public void registerIdlingResource() throws Exception {
         activityScenarioRule.getScenario().onActivity(mainActivity -> {
-            final IdlingResource podcastSearchIdlingResource =
-                    mainActivity.getPodcastSearchIdlingResource();
-            this.podcastSearchIdlingResource = podcastSearchIdlingResource;
-            IdlingRegistry.getInstance().register(podcastSearchIdlingResource);
+            final OptionalObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
+                    OptionalObservableIdlingResourceSubscriber.subscribe(
+                            "podcastSearchResults",
+                            mainActivity.getSearchResultItemRangeOptionalObservable()
+                    );
+            this.podcastSearchSubscribedIdlingResource =
+                    podcastSearchSubscribedIdlingResource;
+            IdlingRegistry.getInstance().register(podcastSearchSubscribedIdlingResource);
         });
     }
 
     @After
     public void unregisterIdlingResource() throws Exception {
-        @Nullable final IdlingResource podcastSearchIdlingResource = this.podcastSearchIdlingResource;
-        if (podcastSearchIdlingResource != null) {
-            IdlingRegistry.getInstance().unregister(podcastSearchIdlingResource);
+        @Nullable final OptionalObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
+                this.podcastSearchSubscribedIdlingResource;
+        if (podcastSearchSubscribedIdlingResource != null) {
+            podcastSearchSubscribedIdlingResource.dispose();
+            IdlingRegistry.getInstance().unregister(podcastSearchSubscribedIdlingResource);
         }
     }
 

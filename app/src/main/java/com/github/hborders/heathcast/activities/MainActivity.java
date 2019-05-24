@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.core.NonnullPair;
@@ -17,7 +16,6 @@ import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.fragments.MainFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
-import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -26,6 +24,7 @@ import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.services.ServiceRequestState;
+import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
@@ -39,6 +38,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.BehaviorSubject;
 
 public final class MainActivity extends AppCompatActivity
         implements
@@ -46,8 +46,8 @@ public final class MainActivity extends AppCompatActivity
         PodcastSearchFragment.PodcastSearchFragmentListener,
         PodcastFragment.PodcastFragmentListener {
 
-    private final DelegatingIdlingResource podcastSearchDelegatingIdlingResource =
-            DelegatingIdlingResource.notExpectingInnerIdlingResource("podcastSearch");
+    private final BehaviorSubject<Optional<PodcastSearchFragment>> podcastSearchFragmentOptionalBehaviorSubject =
+            BehaviorSubject.create();
     private final PodcastService podcastService = new PodcastService(this);
 
     @Override
@@ -118,6 +118,7 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment) {
+        podcastSearchFragmentOptionalBehaviorSubject.onNext(Optional.of(podcastSearchFragment));
 //        podcastSearchDelegatingIdlingResource.setState(
 //                DelegatingIdlingResource.State.hasInnerIdlingResource(
 //                        podcastSearchFragment.getSearchResultPodcastIdentifiedsIdlingResource()
@@ -146,9 +147,7 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment) {
-        podcastSearchDelegatingIdlingResource.setState(
-                DelegatingIdlingResource.State.notExpectingInnerIdlingResource()
-        );
+        podcastSearchFragmentOptionalBehaviorSubject.onNext(Optional.empty());
     }
 
     // PodcastFragmentListener
@@ -272,7 +271,12 @@ public final class MainActivity extends AppCompatActivity
     public void onPodcastFragmentWillDetach(PodcastFragment podcastFragment) {
     }
 
-    public IdlingResource getPodcastSearchIdlingResource() {
-        return podcastSearchDelegatingIdlingResource;
+    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
+        return podcastSearchFragmentOptionalBehaviorSubject.flatMap(
+                podcastSearchFragmentOptional ->
+                        podcastSearchFragmentOptional.map(
+                                PodcastSearchFragment::getSearchResultItemRangeOptionalObservable
+                        ).orElse(Observable.empty())
+        );
     }
 }

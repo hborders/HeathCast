@@ -17,6 +17,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.services.ServiceRequestState;
+import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
@@ -36,6 +37,8 @@ public final class PodcastSearchFragment extends Fragment
     private static final String QUERY_KEY = "query";
     private static final String SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY = "searchResultItemRangeEnabled";
 
+    private final BehaviorSubject<Optional<PodcastListFragment2>> searchResultPodcastListFragmentOptionalBehaviorSubject =
+            BehaviorSubject.create();
     // Bookmark - This fundamentally doesn't work.
     // I thought I could use AndIdlingResource to combine
     // the search state with the podcast list state
@@ -57,8 +60,6 @@ public final class PodcastSearchFragment extends Fragment
     @Nullable
     private PodcastSearchFragmentListener listener;
 
-    @Nullable
-    private PodcastListFragment2 searchResultPodcastListFragment;
     private boolean searchResultItemRangeEnabled;
 
     public PodcastSearchFragment() {
@@ -193,10 +194,9 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerAttached(PodcastListFragment2 podcastListFragment) {
-        searchResultPodcastListFragment = podcastListFragment;
-//        if (searchResultItemRangeEnabled) {
-//            searchResultPodcastListFragment.enableItemRangeObservable();
-//        }
+        searchResultPodcastListFragmentOptionalBehaviorSubject.onNext(
+                Optional.of(podcastListFragment)
+        );
     }
 
     @Override
@@ -272,7 +272,9 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public void onPodcastListFragmentListenerWillDetach(PodcastListFragment2 podcastListFragment) {
-        searchResultPodcastListFragment = null;
+        searchResultPodcastListFragmentOptionalBehaviorSubject.onNext(
+                Optional.empty()
+        );
     }
 
 //    public void enableSearchResultItemRangeObservable() {
@@ -283,6 +285,15 @@ public final class PodcastSearchFragment extends Fragment
 //            searchResultPodcastListFragment.enableItemRangeObservable();
 //        }
 //    }
+
+    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
+        return searchResultPodcastListFragmentOptionalBehaviorSubject.flatMap(
+                searchResultPodcastListFragmentOptional ->
+                        searchResultPodcastListFragmentOptional.map(
+                                PodcastListFragment2::getItemRangeOptionalObservable
+                        ).orElse(Observable.empty())
+        );
+    }
 
 //    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
 //        figure out how to populate this observable.
