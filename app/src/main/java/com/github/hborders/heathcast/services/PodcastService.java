@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -141,17 +140,16 @@ public final class PodcastService {
         );
     }
 
-    public Completable updatePodcastCache(
-            @Nullable NetworkPauser networkPauser,
-            PodcastSearch podcastSearch
-    ) {
-        // we can't keep network operations purely separate from local operations
-        // we have to create a separate operation for network operations so we can observe that
-        // separately from local operations
-        // to do this, we'll change searchForPodcasts to searchForCachedPodcasts
-        // and then implement this method to do the network operation
-        // interested consumers can follow the cache and can separately trigger this update
-    }
+    // separating operations loses transactional power. We have to keep the network and
+    // cache updates bundled together so we can establish order of operations.
+    // but putting it in the same observable is confusing because how do we know when
+    // the remote operation finishes?
+    // I don't want to have to send an extra operation just because the remote ended
+    // Perhaps the best option is to follow the Rx Completable pattern internally:
+    // We have a union { local, local+remote } where local+remote contains a Completable-like
+    // structure for the remote.
+    // Also, now I have a better understanding of how BehaviorSubject works, and I don't think
+    // it makes the most sense for this implementation.
 
     public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
             @Nullable NetworkPauser networkPauser,
