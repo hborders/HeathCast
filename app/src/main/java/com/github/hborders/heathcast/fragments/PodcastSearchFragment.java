@@ -13,8 +13,10 @@ import androidx.fragment.app.Fragment;
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.core.NonnullPair;
+import com.github.hborders.heathcast.models.AsyncValue;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedsList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.services.ServiceRequestState;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
@@ -200,23 +202,22 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
-            PodcastListFragment2 podcastListFragment
-    ) {
+    public Observable<AsyncValue<PodcastIdentifiedsList>> podcastIdentifiedsAsyncValueObservable(PodcastListFragment2 podcastListFragment) {
         return queryOptionalBehaviorSubject
                 .hide()
                 .distinctUntilChanged()
                 .flatMap(queryOptional -> {
                     @Nullable final String query = queryOptional.orElse(null);
-                    Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable;
                     if (query == null) {
-                        podcastIdentifiedsObservable = Observable.just(Collections.emptyList());
+                        return Observable.just(AsyncValue.loaded(Collections.emptyList()));
                     } else {
-                        podcastIdentifiedsObservable = Objects.requireNonNull(listener)
-                                .searchForPodcasts(
-                                        PodcastSearchFragment.this,
-                                        new PodcastSearch(query)
-                                ).flatMap(
+                        return Observable.concatArray(
+                                Observable.just(AsyncValue.loading(PodcastIdentifiedsList.class)),
+                                Objects.requireNonNull(listener)
+                                        .searchForPodcasts(
+                                                PodcastSearchFragment.this,
+                                                new PodcastSearch(query)
+                                        ).flatMap(
                                         podcastIdentifiedsAndServiceRequestState ->
                                                 podcastIdentifiedsAndServiceRequestState.second.reduce(
                                                         loading ->
@@ -241,7 +242,8 @@ public final class PodcastSearchFragment extends Fragment
                                                         }
 
                                                 )
-                                );
+                                )
+                        );
                     }
                     return podcastIdentifiedsObservable;
                 });

@@ -3,7 +3,7 @@ package com.github.hborders.heathcast.core;
 import java.util.Objects;
 
 public abstract class Either<L, R> {
-    public static <L, R> Either<L, R> liftLeft(
+    public static <L, R> Either<L, R> left(
             Class<L> reifiedLeftClass,
             L leftValue
     ) {
