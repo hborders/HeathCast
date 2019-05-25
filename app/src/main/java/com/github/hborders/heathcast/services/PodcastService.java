@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
@@ -138,6 +139,18 @@ public final class PodcastService {
                 null,
                 podcastSearch
         );
+    }
+
+    public Completable updatePodcastCache(
+            @Nullable NetworkPauser networkPauser,
+            PodcastSearch podcastSearch
+    ) {
+        // we can't keep network operations purely separate from local operations
+        // we have to create a separate operation for network operations so we can observe that
+        // separately from local operations
+        // to do this, we'll change searchForPodcasts to searchForCachedPodcasts
+        // and then implement this method to do the network operation
+        // interested consumers can follow the cache and can separately trigger this update
     }
 
     public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
