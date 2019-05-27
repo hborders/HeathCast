@@ -20,10 +20,12 @@ import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.services.ServiceRequestState;
+import com.github.hborders.heathcast.services.ServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -132,6 +134,14 @@ public final class MainActivity extends AppCompatActivity
             PodcastSearch podcastSearch
     ) {
         return podcastService.searchForPodcasts(podcastSearch);
+    }
+
+    @Override
+    public Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
+            PodcastSearchFragment podcastSearchFragment,
+            PodcastSearch podcastSearch
+    ) {
+        return podcastService.searchForPodcasts2(podcastSearch);
     }
 
     @Override

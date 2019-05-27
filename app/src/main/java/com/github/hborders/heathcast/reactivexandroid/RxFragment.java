@@ -260,15 +260,15 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         );
 
         subscribeToAttachmentObservable(
-                attachmentPublishSubject.hide()
+                attachmentPublishSubject
         );
         attachmentPublishSubject.onNext(
                 new Attachment<>(
                         self,
                         context,
                         listener,
-                        fragmentCreationPublishSubject.hide(),
-                        onDetachCompletableSubject.hide()
+                        fragmentCreationPublishSubject,
+                        onDetachCompletableSubject
                 )
         );
     }
@@ -280,10 +280,10 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         fragmentCreationPublishSubject.onNext(
                 new FragmentCreation<>(
                         savedInstanceState,
-                        setArgumentsCompletableSubject.hide(),
-                        saveInstanceStatePublishSubject.hide(),
-                        viewCreationObservablePublishSubject.hide(),
-                        onDestroyCompletableSubject.hide()
+                        setArgumentsCompletableSubject,
+                        saveInstanceStatePublishSubject,
+                        viewCreationObservablePublishSubject,
+                        onDestroyCompletableSubject
                 )
         );
     }
@@ -309,13 +309,13 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     ) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewCreationObservablePublishSubject.onNext(viewCreationPublishSubject.hide());
+        viewCreationObservablePublishSubject.onNext(viewCreationPublishSubject);
         viewCreationPublishSubject.onNext(
                 new ViewCreation(
                         view,
                         savedInstanceState,
-                        activityCreationPublishSubject.hide(),
-                        viewCreationOnDestroyViewCompletableSubject.hide()
+                        activityCreationPublishSubject,
+                        viewCreationOnDestroyViewCompletableSubject
                 )
         );
     }
@@ -327,8 +327,8 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         activityCreationPublishSubject.onNext(
                 new ActivityCreation(
                         savedInstanceState,
-                        startPublishSubject.hide(),
-                        activityCreationOnDestroyViewCompletableSubject.hide()
+                        startPublishSubject,
+                        activityCreationOnDestroyViewCompletableSubject
                 )
         );
     }
@@ -339,8 +339,8 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
         startPublishSubject.onNext(
                 new Start(
-                        resumePublishSubject.hide(),
-                        onStopCompletableSubject.hide()
+                        resumePublishSubject,
+                        onStopCompletableSubject
                 )
         );
     }
@@ -350,7 +350,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         super.onResume();
 
         resumePublishSubject.onNext(
-                new Resume(onPauseCompletableSubject.hide())
+                new Resume(onPauseCompletableSubject)
         );
     }
 

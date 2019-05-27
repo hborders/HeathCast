@@ -234,7 +234,6 @@ public final class PodcastFragment extends Fragment
             EpisodeListFragment episodeListFragment
     ) {
         return podcastIdentifiedOptionalBehaviorSubject
-                .hide()
                 .map(podcastIdentifiedOptional ->
                         podcastIdentifiedOptional.map(podcastIdentified ->
                                 podcastIdentified.model.feedURL

@@ -15,6 +15,7 @@ import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.squareup.sqlbrite3.BriteDatabase;
@@ -156,6 +157,32 @@ public final class Database {
                         + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
                 podcastSearchIdentifier.id
         ).mapToList(PodcastTable::getPodcastIdentified);
+    }
+
+    public Observable<PodcastIdentifiedList> observeQueryForPodcastIdentifieds2(
+            Identifier<PodcastSearch> podcastSearchIdentifier
+    ) {
+        return briteDatabase.createQuery(
+                Arrays.asList(
+                        PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
+                        PodcastTable.TABLE_PODCAST,
+                        PodcastSearchTable.TABLE_PODCAST_SEARCH
+                ),
+                "SELECT "
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ARTWORK_URL + " AS " + PodcastTable.ARTWORK_URL + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.AUTHOR + " AS " + PodcastTable.AUTHOR + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.FEED_URL + " AS " + PodcastTable.FEED_URL + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " AS " + PodcastTable.ID + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.NAME + " AS " + PodcastTable.NAME + " "
+                        + "FROM " + PodcastTable.TABLE_PODCAST + " "
+                        + "INNER JOIN " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + " "
+                        + "  ON " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_ID + " "
+                        + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
+                        + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
+                podcastSearchIdentifier.id
+        )
+                .mapToList(PodcastTable::getPodcastIdentified)
+                .map(PodcastIdentifiedList::new);
     }
 
     public Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(

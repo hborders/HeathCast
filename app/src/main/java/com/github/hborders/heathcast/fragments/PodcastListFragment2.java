@@ -2,6 +2,9 @@ package com.github.hborders.heathcast.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,8 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.AsyncValue;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
@@ -37,7 +42,7 @@ public final class PodcastListFragment2 extends RxFragment<
     public interface PodcastListFragmentListener {
         void onPodcastListFragmentListenerAttached(PodcastListFragment2 podcastListFragment);
 
-        Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
+        Observable<AsyncValue<PodcastIdentifiedList>> podcastIdentifiedsAsyncValueObservable(
                 PodcastListFragment2 podcastListFragment
         );
 
@@ -60,7 +65,7 @@ public final class PodcastListFragment2 extends RxFragment<
     public PodcastListFragment2() {
         super(
                 PodcastListFragmentListener.class,
-                R.layout.fragment_podcast_list
+                R.layout.fragment_podcast_list_2
         );
     }
 
@@ -87,6 +92,18 @@ public final class PodcastListFragment2 extends RxFragment<
                                 fragmentCreation.viewCreationObservableObservable.subscribe(
                                         viewCreationObservable -> viewCreationObservable.subscribe(
                                                 viewCreation -> {
+                                                    final ProgressBar progressBar =
+                                                            viewCreation.view.requireViewById(
+                                                                    R.id.fragment_podcast_list_progress_bar
+                                                            );
+                                                    final TextView progressTextView =
+                                                            viewCreation.view.requireViewById(
+                                                                    R.id.fragment_podcast_list_progress_text_view
+                                                            );
+                                                    final TextView errorTextView =
+                                                            viewCreation.view.requireViewById(
+                                                                    R.id.fragment_podcast_list_error_text_view
+                                                            );
                                                     final RecyclerView podcastsRecyclerView =
                                                             viewCreation.view.requireViewById(
                                                                     R.id.fragment_podcast_list_podcasts_recycler_view
@@ -126,21 +143,41 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                 activityCreation.startObservable.subscribe(
                                                                         start -> {
                                                                             final Disposable adapterSetPodcastIdentifiedsDisposable = listener
-                                                                                    .podcastIdentifiedsObservable(this)
+                                                                                    .podcastIdentifiedsAsyncValueObservable(this)
                                                                                     .observeOn(AndroidSchedulers.mainThread())
                                                                                     .subscribe(
-                                                                                            podcastIdentifieds -> {
-                                                                                                final Bundle args = new Bundle();
-                                                                                                args.putParcelableArray(
-                                                                                                        PODCAST_PARCELABLES_KEY,
-                                                                                                        podcastIdentifieds
-                                                                                                                .stream()
-                                                                                                                .map(PodcastIdentifiedHolder::new)
-                                                                                                                .toArray(PodcastIdentifiedHolder[]::new)
-                                                                                                );
-                                                                                                setArguments(args);
-                                                                                                adapter.setPodcastIdentifieds(podcastIdentifieds);
-                                                                                            },
+                                                                                            podcastIdentifiedsAsyncValue ->
+                                                                                                    podcastIdentifiedsAsyncValue.act(
+                                                                                                            podcastIdentifiedListLoading -> {
+                                                                                                                progressBar.setVisibility(View.VISIBLE);
+                                                                                                                progressTextView.setVisibility(View.VISIBLE);
+                                                                                                                errorTextView.setVisibility(View.GONE);
+                                                                                                                podcastsRecyclerView.setVisibility(View.GONE);
+                                                                                                            },
+                                                                                                            podcastIdentifiedListFailed -> {
+                                                                                                                progressBar.setVisibility(View.GONE);
+                                                                                                                progressTextView.setVisibility(View.GONE);
+                                                                                                                errorTextView.setVisibility(View.VISIBLE);
+                                                                                                                podcastsRecyclerView.setVisibility(View.GONE);
+                                                                                                            },
+                                                                                                            podcastIdentifiedListLoaded -> {
+                                                                                                                progressBar.setVisibility(View.GONE);
+                                                                                                                progressTextView.setVisibility(View.GONE);
+                                                                                                                errorTextView.setVisibility(View.GONE);
+                                                                                                                podcastsRecyclerView.setVisibility(View.VISIBLE);
+
+                                                                                                                final Bundle args = new Bundle();
+                                                                                                                args.putParcelableArray(
+                                                                                                                        PODCAST_PARCELABLES_KEY,
+                                                                                                                        podcastIdentifiedListLoaded.value
+                                                                                                                                .stream()
+                                                                                                                                .map(PodcastIdentifiedHolder::new)
+                                                                                                                                .toArray(PodcastIdentifiedHolder[]::new)
+                                                                                                                );
+                                                                                                                setArguments(args);
+                                                                                                                adapter.setPodcastIdentifieds(podcastIdentifiedListLoaded.value);
+                                                                                                            }
+                                                                                                    ),
                                                                                             throwable -> {
                                                                                                 listener.onPodcastIdentifiedsError(
                                                                                                         this,

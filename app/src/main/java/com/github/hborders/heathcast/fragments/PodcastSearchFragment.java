@@ -2,7 +2,6 @@ package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +11,14 @@ import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.AsyncValue;
 import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.services.ServiceRequestState;
+import com.github.hborders.heathcast.services.ServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -28,6 +30,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
 public final class PodcastSearchFragment extends Fragment
@@ -35,7 +38,10 @@ public final class PodcastSearchFragment extends Fragment
         PodcastListFragment2.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
-    private static final String SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY = "searchResultItemRangeEnabled";
+
+
+    @Nullable
+    private PodcastSearchFragmentListener listener;
 
     private final BehaviorSubject<Optional<PodcastListFragment2>> searchResultPodcastListFragmentOptionalBehaviorSubject =
             BehaviorSubject.create();
@@ -56,11 +62,20 @@ public final class PodcastSearchFragment extends Fragment
     // make custom adapters that adapt the Rx state.
     private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
-
+    private final Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
+            queryOptionalBehaviorSubject.flatMap(
+                    queryOptional -> queryOptional.map(
+                            query -> Objects.requireNonNull(listener)
+                                    .searchForPodcasts2(
+                                            PodcastSearchFragment.this,
+                                            new PodcastSearch(query)
+                                    ).map(Optional::of)
+                    ).orElse(Observable.just(Optional.empty()))
+            );
+    private final BehaviorSubject<NonnullPair<AsyncValue<PodcastIdentifiedList>, Boolean>> podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject =
+            BehaviorSubject.create();
     @Nullable
-    private PodcastSearchFragmentListener listener;
-
-    private boolean searchResultItemRangeEnabled;
+    private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
 
     public PodcastSearchFragment() {
         // Required empty public constructor
@@ -94,11 +109,6 @@ public final class PodcastSearchFragment extends Fragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            searchResultItemRangeEnabled =
-                    savedInstanceState.getBoolean(SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY);
-        }
     }
 
     @Override
@@ -143,6 +153,32 @@ public final class PodcastSearchFragment extends Fragment
                     Optional.ofNullable(query).map(CharSequence::toString)
             );
         }
+
+        podcastIdentifiedListServiceResponseOptionalDisposable =
+                podcastIdentifiedListServiceResponseOptionalObservable.subscribe(
+                        podcastIdentifiedListServiceResponseOptional ->
+                                podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.onNext(
+                                        podcastIdentifiedListServiceResponseOptional
+                                                .map(
+                                                        podcastIdentifiedListServiceResponse ->
+                                                                new NonnullPair<>(
+                                                                        AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
+                                                                        podcastIdentifiedListServiceResponse.remoteStatus.reduce(
+                                                                                loading -> true,
+                                                                                failed -> false,
+                                                                                complete ->
+                                                                                        !podcastIdentifiedListServiceResponse.value.isEmpty()
+                                                                        )
+                                                                )
+                                                )
+                                                .orElse(
+                                                        new NonnullPair<>(
+                                                                AsyncValue.loaded(new PodcastIdentifiedList(Collections.emptyList())),
+                                                                false
+                                                        )
+                                                )
+                                )
+                );
     }
 
     @Override
@@ -154,10 +190,6 @@ public final class PodcastSearchFragment extends Fragment
         outState.putCharSequence(
                 QUERY_KEY,
                 queryCharSequence
-        );
-        outState.putBoolean(
-                SEARCH_RESULT_ITEM_RANGE_ENABLED_KEY,
-                searchResultItemRangeEnabled
         );
 
         afterOnSaveInstanceStateOrOnStop();
@@ -176,6 +208,20 @@ public final class PodcastSearchFragment extends Fragment
     // https://androidstudygroup.slack.com/archives/C09HE40J0/p1551849597051100
 
     private void afterOnSaveInstanceStateOrOnStop() {
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        queryOptionalBehaviorSubject.onNext(Optional.empty());
+
+        @Nullable final Disposable podcastIdentifiedListServiceResponseOptionalDisposable =
+                this.podcastIdentifiedListServiceResponseOptionalDisposable;
+        this.podcastIdentifiedListServiceResponseOptionalDisposable = null;
+        if (podcastIdentifiedListServiceResponseOptionalDisposable != null) {
+            podcastIdentifiedListServiceResponseOptionalDisposable.dispose();
+        }
     }
 
     @Override
@@ -200,51 +246,12 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
+    public Observable<AsyncValue<PodcastIdentifiedList>> podcastIdentifiedsAsyncValueObservable(
             PodcastListFragment2 podcastListFragment
     ) {
-        return queryOptionalBehaviorSubject
-                .hide()
-                .distinctUntilChanged()
-                .flatMap(queryOptional -> {
-                    @Nullable final String query = queryOptional.orElse(null);
-                    Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable;
-                    if (query == null) {
-                        podcastIdentifiedsObservable = Observable.just(Collections.emptyList());
-                    } else {
-                        podcastIdentifiedsObservable = Objects.requireNonNull(listener)
-                                .searchForPodcasts(
-                                        PodcastSearchFragment.this,
-                                        new PodcastSearch(query)
-                                ).flatMap(
-                                        podcastIdentifiedsAndServiceRequestState ->
-                                                podcastIdentifiedsAndServiceRequestState.second.reduce(
-                                                        loading ->
-                                                                Observable.just(Collections.emptyList()),
-                                                        loaded ->
-                                                                Observable.just(podcastIdentifiedsAndServiceRequestState.first),
-                                                        localFailure -> {
-                                                            Log.e(
-                                                                    TAG,
-                                                                    "Local error loading podcasts for query: " + query,
-                                                                    localFailure.throwable
-                                                            );
-                                                            return Observable.error(localFailure.throwable);
-                                                        },
-                                                        remoteFailure -> {
-                                                            Log.e(
-                                                                    TAG,
-                                                                    "Remote error loading podcasts for query: " + query,
-                                                                    remoteFailure.throwable
-                                                            );
-                                                            return Observable.error(remoteFailure.throwable);
-                                                        }
-
-                                                )
-                                );
-                    }
-                    return podcastIdentifiedsObservable;
-                });
+        return podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.map(
+                NonnullPair::getFirst
+        );
     }
 
     @Override
@@ -305,10 +312,21 @@ public final class PodcastSearchFragment extends Fragment
 //        // through other observables.
 //    }
 
+    public Observable<Boolean> searchingObservable() {
+        return podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.map(
+                NonnullPair::getSecond
+        );
+    }
+
     public interface PodcastSearchFragmentListener {
         void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment);
 
         Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
+                PodcastSearchFragment podcastSearchFragment,
+                PodcastSearch podcastSearch
+        );
+
+        Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
                 PodcastSearchFragment podcastSearchFragment,
                 PodcastSearch podcastSearch
         );

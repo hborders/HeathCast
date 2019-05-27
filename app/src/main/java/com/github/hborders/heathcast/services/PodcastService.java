@@ -11,6 +11,7 @@ import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
@@ -34,6 +35,7 @@ import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.CompletableSubject;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -50,6 +52,10 @@ public final class PodcastService {
 
     private final ConcurrentHashMap<PodcastSearch, BehaviorSubject<ServiceRequestState>> serviceRequestStateBehaviorSubjectsByPodcastSearch =
             new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<
+            PodcastSearch,
+            CompletableSubject
+            > completableSubjectsByPodcastSearch = new ConcurrentHashMap<>();
 
     public PodcastService(Context context) {
         this(
@@ -129,6 +135,62 @@ public final class PodcastService {
                         database.unsubscribe(subscriptionIdentifier)
                 )
         ).subscribeOn(scheduler);
+    }
+
+    public Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
+            PodcastSearch podcastSearch
+    ) {
+        return searchForPodcasts2(
+                null,
+                podcastSearch
+        );
+    }
+
+    public Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
+            @Nullable NetworkPauser networkPauser,
+            PodcastSearch podcastSearch
+    ) {
+        final Optional<Identified<PodcastSearch>> podcastSearchIdentifiedOptional =
+                database.upsertPodcastSearch(podcastSearch);
+
+        return podcastSearchIdentifiedOptional.map(
+                podcastSearchIdentified -> {
+                    final Observable<PodcastIdentifiedList> podcastIdentifiedListObservable =
+                            database.observeQueryForPodcastIdentifieds2(podcastSearchIdentified.identifier);
+                    final CompletableSubject completableSubject =
+                            completableSubjectsByPodcastSearch.computeIfAbsent(
+                                    podcastSearch,
+                                    __ -> CompletableSubject.create()
+                            );
+                    final Disposable searchForPodcastsDisposable =
+                            searchForPodcasts(
+                                    networkPauser,
+                                    podcastSearch.search
+                            )
+                                    .doOnSuccess(
+                                            podcastSearchResponse -> {
+                                                completableSubjectsByPodcastSearch.remove(podcastSearch);
+                                                database.replacePodcastSearchPodcasts(
+                                                        podcastSearchIdentified,
+                                                        podcastSearchResponse.podcasts
+                                                );
+                                            }
+                                    )
+                                    .ignoreElement()
+                                    .subscribe(completableSubject::onComplete);
+
+                    return Observable.combineLatest(
+                            podcastIdentifiedListObservable,
+                            Single.concat(
+                                    Single.just(ServiceResponse.RemoteStatus.loading()),
+                                    completableSubject.toSingleDefault(
+                                            ServiceResponse.RemoteStatus.complete()
+                                    ).onErrorReturn(ServiceResponse.RemoteStatus::failed)
+                            ).toObservable(),
+                            ServiceResponse::new
+                    ).doOnDispose(searchForPodcastsDisposable::dispose);
+                }
+        ).orElse(Observable.error(new UpsertPodcastSearchException(podcastSearch)));
     }
 
     public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(

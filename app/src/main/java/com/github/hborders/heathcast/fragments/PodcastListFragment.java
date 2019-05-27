@@ -257,7 +257,7 @@ public final class PodcastListFragment extends Fragment {
     }
 
     public Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
-        return itemRangeOptionalBehaviorSubject.hide();
+        return itemRangeOptionalBehaviorSubject;
     }
 
     public interface PodcastListFragmentListener {
