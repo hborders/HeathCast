@@ -238,7 +238,7 @@ public final class PodcastListFragment2 extends RxFragment<
     }
 
     public Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
-        return podcastIdentifiedsItemRangerOptionalBehaviorSubject.flatMap(podcastIdentifiedsItemRangerOptional ->
+        return podcastIdentifiedsItemRangerOptionalBehaviorSubject.switchMap(podcastIdentifiedsItemRangerOptional ->
                 podcastIdentifiedsItemRangerOptional.map(podcastIdentifiedsItemRanger ->
                         Observable.<Optional<ItemRange>>create(emitter -> {
                             final RecyclerView recyclerView = podcastIdentifiedsItemRanger.recyclerView;

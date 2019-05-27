@@ -282,7 +282,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
-        return podcastSearchFragmentOptionalBehaviorSubject.flatMap(
+        return podcastSearchFragmentOptionalBehaviorSubject.switchMap(
                 podcastSearchFragmentOptional ->
                         podcastSearchFragmentOptional.map(
                                 PodcastSearchFragment::getSearchResultItemRangeOptionalObservable

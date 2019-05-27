@@ -63,7 +63,7 @@ public final class PodcastSearchFragment extends Fragment
     private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
     private final Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
-            queryOptionalBehaviorSubject.flatMap(
+            queryOptionalBehaviorSubject.switchMap(
                     queryOptional -> queryOptional.map(
                             query -> Objects.requireNonNull(listener)
                                     .searchForPodcasts2(
@@ -294,7 +294,7 @@ public final class PodcastSearchFragment extends Fragment
 //    }
 
     public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
-        return searchResultPodcastListFragmentOptionalBehaviorSubject.flatMap(
+        return searchResultPodcastListFragmentOptionalBehaviorSubject.switchMap(
                 searchResultPodcastListFragmentOptional ->
                         searchResultPodcastListFragmentOptional.map(
                                 PodcastListFragment2::getItemRangeOptionalObservable

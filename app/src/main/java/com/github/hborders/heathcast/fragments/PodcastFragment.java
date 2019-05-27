@@ -240,7 +240,7 @@ public final class PodcastFragment extends Fragment
                         )
                 )
                 .distinctUntilChanged()
-                .flatMap(feedURLOptional -> {
+                .switchMap(feedURLOptional -> {
                     @Nullable final URL feedURL =
                             feedURLOptional.orElse(null);
                     final Single<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalSingle;
