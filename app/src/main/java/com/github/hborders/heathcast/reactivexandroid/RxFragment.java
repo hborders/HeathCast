@@ -387,6 +387,9 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         viewCreationOnDestroyViewCompletableSubject.onComplete();
         viewCreationPublishSubject.onComplete();
 
+        activityCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
+        activityCreationPublishSubject = PublishSubject.create();
+
         viewCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
         viewCreationPublishSubject = PublishSubject.create();
     }
