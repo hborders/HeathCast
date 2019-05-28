@@ -62,6 +62,10 @@ public final class PodcastSearchFragment extends Fragment
     // make custom adapters that adapt the Rx state.
     private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
+    // We can't use a ConnectableObservable here (via Observable#replay) because every
+    // ConnectableObservable#connect call resets all state and throws away past subscriptions.
+    // Instead we have to manage our own BehaviorSubject manually.
+    // See com.github.hborders.heathcast.reactivexdemo.ConnectableObservableTest
     private final Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
             queryOptionalBehaviorSubject.switchMap(
                     queryOptional -> queryOptional.map(
