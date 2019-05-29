@@ -1,6 +1,7 @@
 package com.github.hborders.heathcast;
 
 import android.view.KeyEvent;
+import android.widget.EditText;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
@@ -21,11 +22,13 @@ import org.junit.runner.RunWith;
 import javax.annotation.Nullable;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -104,6 +107,20 @@ public class SearchEspressoTest {
                 matches(
                         withText(R.string.fragment_podcast_subscribed)
                 )
+        );
+    }
+
+    @Test
+    public void searchForPlanetMoneyAndThenForModernLove() throws Exception {
+        onView(withId(R.id.fragment_main_add_podcast_fab)).perform(click());
+        onView(withId(R.id.fragment_podcast_search_search_view)).perform(
+                typeText("Planet Money"),
+                pressKey(KeyEvent.KEYCODE_ENTER)
+        );
+        onView(isAssignableFrom(EditText.class)).perform(clearText());
+        onView(withId(R.id.fragment_podcast_search_search_view)).perform(
+                typeText("Modern Love"),
+                pressKey(KeyEvent.KEYCODE_ENTER)
         );
     }
 }
