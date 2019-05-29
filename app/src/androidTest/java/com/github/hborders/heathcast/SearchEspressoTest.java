@@ -10,7 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.github.hborders.heathcast.activities.MainActivity;
-import com.github.hborders.heathcast.idlingresource.OptionalObservableIdlingResourceSubscriber;
+import com.github.hborders.heathcast.idlingresource.BooleanObservableIdlingResourceSubscriber;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,15 +38,15 @@ public class SearchEspressoTest {
             new ActivityScenarioRule<>(MainActivity.class);
 
     @Nullable
-    private OptionalObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource;
+    private BooleanObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource;
 
     @Before
     public void registerIdlingResource() throws Exception {
         activityScenarioRule.getScenario().onActivity(mainActivity -> {
-            final OptionalObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
-                    OptionalObservableIdlingResourceSubscriber.subscribe(
+            final BooleanObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
+                    BooleanObservableIdlingResourceSubscriber.subscribe(
                             "podcastSearchResults",
-                            mainActivity.getSearchResultItemRangeOptionalObservable()
+                            mainActivity.getPodcastSearchingObservable().map(searching -> !searching)
                     );
             this.podcastSearchSubscribedIdlingResource =
                     podcastSearchSubscribedIdlingResource;
@@ -56,7 +56,7 @@ public class SearchEspressoTest {
 
     @After
     public void unregisterIdlingResource() throws Exception {
-        @Nullable final OptionalObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
+        @Nullable final BooleanObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
                 this.podcastSearchSubscribedIdlingResource;
         if (podcastSearchSubscribedIdlingResource != null) {
             podcastSearchSubscribedIdlingResource.dispose();

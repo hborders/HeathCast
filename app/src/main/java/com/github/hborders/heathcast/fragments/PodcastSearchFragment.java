@@ -170,8 +170,7 @@ public final class PodcastSearchFragment extends Fragment
                                                                         podcastIdentifiedListServiceResponse.remoteStatus.reduce(
                                                                                 loading -> true,
                                                                                 failed -> false,
-                                                                                complete ->
-                                                                                        !podcastIdentifiedListServiceResponse.value.isEmpty()
+                                                                                complete -> false
                                                                         )
                                                                 )
                                                 )
@@ -306,17 +305,8 @@ public final class PodcastSearchFragment extends Fragment
         );
     }
 
-//    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
-//        figure out how to populate this observable.
-//        // I probably need to create a Subject that contains Observables that I can later observe
-//        // but that's going to be too complicated, so I should probably just convert
-//        // the fragment listeners into observables. They'll just have an onFragmentAttached method
-//        // that will contain an Observable containing the Fragment. When the observable completes,
-//        // the fragment detaches. Then, I can have all the other lifecycle methods get pumped
-//        // through other observables.
-//    }
 
-    public Observable<Boolean> searchingObservable() {
+    public Observable<Boolean> getSearchingObservable() {
         return podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.map(
                 NonnullPair::getSecond
         );

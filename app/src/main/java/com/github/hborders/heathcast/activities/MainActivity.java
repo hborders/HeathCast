@@ -26,7 +26,6 @@ import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.services.ServiceRequestState;
 import com.github.hborders.heathcast.services.ServiceResponse;
-import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
@@ -49,7 +48,7 @@ public final class MainActivity extends AppCompatActivity
         PodcastFragment.PodcastFragmentListener {
 
     private final BehaviorSubject<Optional<PodcastSearchFragment>> podcastSearchFragmentOptionalBehaviorSubject =
-            BehaviorSubject.create();
+            BehaviorSubject.createDefault(Optional.empty());
     private final PodcastService podcastService = new PodcastService(this);
 
     @Override
@@ -281,12 +280,12 @@ public final class MainActivity extends AppCompatActivity
     public void onPodcastFragmentWillDetach(PodcastFragment podcastFragment) {
     }
 
-    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
+    public Observable<Boolean> getPodcastSearchingObservable() {
         return podcastSearchFragmentOptionalBehaviorSubject.switchMap(
                 podcastSearchFragmentOptional ->
                         podcastSearchFragmentOptional.map(
-                                PodcastSearchFragment::getSearchResultItemRangeOptionalObservable
-                        ).orElse(Observable.empty())
+                                PodcastSearchFragment::getSearchingObservable
+                        ).orElse(Observable.just(false))
         );
     }
 }
