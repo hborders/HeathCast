@@ -27,10 +27,15 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.assertion.ViewAssertions.selectedDescendantsMatch;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static androidx.test.espresso.matcher.ViewMatchers.withChild;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.github.hborders.heathcast.matcher.ViewMatchers.atPosition;
+import static com.github.hborders.heathcast.matcher.ViewMatchers.withAncestor;
+import static org.hamcrest.Matchers.allOf;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -117,10 +122,29 @@ public class SearchEspressoTest {
                 typeText("Planet Money"),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
-        onView(isAssignableFrom(EditText.class)).perform(clearText());
+        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view))
+                .check(selectedDescendantsMatch(
+                        atPosition(0),
+                        withChild(withText("Planet Money"))
+                        )
+                );
+
+        onView(
+                allOf(
+                        isAssignableFrom(EditText.class),
+                        withAncestor(withId(R.id.fragment_podcast_search_search_view))
+                )
+        ).perform(clearText());
+
         onView(withId(R.id.fragment_podcast_search_search_view)).perform(
                 typeText("Modern Love"),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
+        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view))
+                .check(selectedDescendantsMatch(
+                        atPosition(0),
+                        withChild(withText("Modern Love"))
+                        )
+                );
     }
 }
