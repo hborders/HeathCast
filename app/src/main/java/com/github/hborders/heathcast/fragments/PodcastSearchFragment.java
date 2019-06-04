@@ -175,7 +175,15 @@ public final class PodcastSearchFragment extends Fragment
                                                                                 ),
                                                                         failed ->
                                                                                 new NonnullPair<>(
-                                                                                        AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
+                                                                                        podcastIdentifiedListServiceResponse.value.isEmpty() ?
+                                                                                                AsyncValue.failed(
+                                                                                                        PodcastIdentifiedList.class,
+                                                                                                        failed.throwable
+                                                                                                ) :
+                                                                                                AsyncValue.loadedButUpdateFailed(
+                                                                                                        podcastIdentifiedListServiceResponse.value,
+                                                                                                        failed.throwable
+                                                                                                ),
                                                                                         false
                                                                                 ),
                                                                         complete ->
