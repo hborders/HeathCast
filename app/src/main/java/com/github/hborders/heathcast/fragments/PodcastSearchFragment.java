@@ -165,13 +165,24 @@ public final class PodcastSearchFragment extends Fragment
                                         podcastIdentifiedListServiceResponseOptional
                                                 .map(
                                                         podcastIdentifiedListServiceResponse ->
-                                                                new NonnullPair<>(
-                                                                        AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
-                                                                        podcastIdentifiedListServiceResponse.remoteStatus.reduce(
-                                                                                loading -> true,
-                                                                                failed -> false,
-                                                                                complete -> false
-                                                                        )
+                                                                podcastIdentifiedListServiceResponse.remoteStatus.reduce(
+                                                                        loading ->
+                                                                                new NonnullPair<>(
+                                                                                        podcastIdentifiedListServiceResponse.value.isEmpty() ?
+                                                                                                AsyncValue.loading(PodcastIdentifiedList.class) :
+                                                                                                AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
+                                                                                        true
+                                                                                ),
+                                                                        failed ->
+                                                                                new NonnullPair<>(
+                                                                                        AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
+                                                                                        false
+                                                                                ),
+                                                                        complete ->
+                                                                                new NonnullPair<>(
+                                                                                        AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
+                                                                                        false
+                                                                                )
                                                                 )
                                                 )
                                                 .orElse(
