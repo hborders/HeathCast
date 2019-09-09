@@ -81,7 +81,10 @@ public class SearchEspressoTest {
         );
 
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
-                actionOnItemAtPosition(0, click())
+                actionOnItemAtPosition(
+                        0,
+                        click()
+                )
         );
 
         {
@@ -105,7 +108,10 @@ public class SearchEspressoTest {
         Espresso.pressBack();
 
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
-                actionOnItemAtPosition(0, click())
+                actionOnItemAtPosition(
+                        0,
+                        click()
+                )
         );
 
         onView(withId(R.id.fragment_podcast_subscribed_button)).check(
@@ -116,7 +122,7 @@ public class SearchEspressoTest {
     }
 
     @Test
-    public void searchForPlanetMoneyAndThenForModernLove() throws Exception {
+    public void searchForPlanetMoneyAndViewPlanetMoneyAndThenSearchForModernLove() throws Exception {
         onView(withId(R.id.fragment_main_add_podcast_fab)).perform(click());
         onView(withId(R.id.fragment_podcast_search_search_view)).perform(
                 typeText("Planet Money"),
@@ -128,6 +134,14 @@ public class SearchEspressoTest {
                         withChild(withText("Planet Money"))
                         )
                 );
+        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
+                actionOnItemAtPosition(
+                        0,
+                        click()
+                )
+        );
+
+        Espresso.pressBack();
 
         onView(
                 allOf(
