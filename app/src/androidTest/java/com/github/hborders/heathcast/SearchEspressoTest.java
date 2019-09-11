@@ -154,6 +154,7 @@ public class SearchEspressoTest {
                 typeText("Modern Love"),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
+
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view))
                 .check(selectedDescendantsMatch(
                         atPosition(0),

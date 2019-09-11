@@ -56,7 +56,7 @@ public final class ViewMatchers {
         private final int position;
 
         private AtPositionMatcher(int position) {
-            super(RecyclerView.class);
+            super(View.class);
             this.position = position;
         }
 
@@ -84,6 +84,10 @@ public final class ViewMatchers {
 
         @Nullable
         private RecyclerView findRecyclerViewAncestor(View view) {
+            if (view instanceof RecyclerView) {
+                return (RecyclerView) view;
+            }
+
             for (
                     @Nullable ViewParent viewParent = view.getParent();
                     viewParent != null;
