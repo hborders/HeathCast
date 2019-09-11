@@ -33,6 +33,7 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
@@ -157,37 +158,77 @@ public final class PodcastService {
                 podcastSearchIdentified -> {
                     final Observable<PodcastIdentifiedList> podcastIdentifiedListObservable =
                             database.observeQueryForPodcastIdentifieds2(podcastSearchIdentified.identifier);
+
+//                    final CompletableSubject completableSubject =
+//                            completableSubjectsByPodcastSearch.computeIfAbsent(
+//                                    podcastSearch,
+//                                    __ -> CompletableSubject.create()
+//                            );
+//                    final Disposable searchForPodcastsDisposable =
+//                            searchForPodcasts(
+//                                    networkPauser,
+//                                    podcastSearch.search
+//                            )
+//                                    .doOnSuccess(
+//                                            podcastSearchResponse -> {
+//                                                completableSubjectsByPodcastSearch.remove(podcastSearch);
+//                                                database.replacePodcastSearchPodcasts(
+//                                                        podcastSearchIdentified,
+//                                                        podcastSearchResponse.podcasts
+//                                                );
+//                                            }
+//                                    )
+//                                    .ignoreElement()
+//                                    .subscribe(completableSubject::onComplete);
+
+                    final CompletableSubject newCompletableSubject = CompletableSubject.create();
                     final CompletableSubject completableSubject =
                             completableSubjectsByPodcastSearch.computeIfAbsent(
                                     podcastSearch,
-                                    __ -> CompletableSubject.create()
+                                    __ -> newCompletableSubject
                             );
-                    final Disposable searchForPodcastsDisposable =
-                            searchForPodcasts(
-                                    networkPauser,
-                                    podcastSearch.search
-                            )
-                                    .doOnSuccess(
-                                            podcastSearchResponse -> {
-                                                completableSubjectsByPodcastSearch.remove(podcastSearch);
-                                                database.replacePodcastSearchPodcasts(
-                                                        podcastSearchIdentified,
-                                                        podcastSearchResponse.podcasts
-                                                );
-                                            }
-                                    )
-                                    .ignoreElement()
-                                    .subscribe(completableSubject::onComplete);
+                    final Disposable searchForPodcastsDisposable;
+                    if (completableSubject == newCompletableSubject) {
+                        searchForPodcastsDisposable =
+                                searchForPodcasts(
+                                        networkPauser,
+                                        podcastSearch.search
+                                )
+                                        .doOnSuccess(
+                                                podcastSearchResponse -> {
+                                                    completableSubjectsByPodcastSearch.remove(podcastSearch);
+                                                    database.replacePodcastSearchPodcasts(
+                                                            podcastSearchIdentified,
+                                                            podcastSearchResponse.podcasts
+                                                    );
+                                                }
+                                        )
+                                        .ignoreElement()
+                                        .subscribe(completableSubject::onComplete);
+                    } else {
+                        searchForPodcastsDisposable = Disposables.disposed();
+                    }
 
                     return Observable.combineLatest(
                             podcastIdentifiedListObservable,
                             Single.concat(
                                     Single.just(ServiceResponse.RemoteStatus.loading()),
+                                    // this is a data race.
+                                    // completableSubject can complete before podcastIdentifiedListObservable
+                                    // emits another value. That's bad. The only way around this
+                                    // is to append a version number to our data in the database
+                                    // then we can check that and know that we're seeing data from
+                                    // our search.
                                     completableSubject.toSingleDefault(
                                             ServiceResponse.RemoteStatus.complete()
                                     ).onErrorReturn(ServiceResponse.RemoteStatus::failed)
                             ).toObservable(),
-                            ServiceResponse::new
+                            (identifieds, remoteStatus) ->
+                                    new ServiceResponse<>(
+                                            PodcastIdentifiedList.class,
+                                            identifieds,
+                                            remoteStatus
+                                    )
                     ).doOnDispose(searchForPodcastsDisposable::dispose);
                 }
         ).orElse(Observable.error(new UpsertPodcastSearchException(podcastSearch)));

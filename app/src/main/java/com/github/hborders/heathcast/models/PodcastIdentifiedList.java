@@ -1,6 +1,7 @@
 package com.github.hborders.heathcast.models;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +17,10 @@ import javax.annotation.Nullable;
 
 public final class PodcastIdentifiedList implements List<Identified<Podcast>> {
     private final List<Identified<Podcast>> podcastIdentifieds;
+
+    public PodcastIdentifiedList() {
+        this(Collections.emptyList());
+    }
 
     public PodcastIdentifiedList(List<Identified<Podcast>> podcastIdentifieds) {
         this.podcastIdentifieds = podcastIdentifieds;

@@ -6,13 +6,16 @@ import com.github.hborders.heathcast.core.VoidFunction;
 import java.util.Objects;
 
 public final class ServiceResponse<T> {
+    public final Class<T> valueClass;
     public final T value;
     public final RemoteStatus remoteStatus;
 
     public ServiceResponse(
+            Class<T> valueClass,
             T value,
             RemoteStatus remoteStatus
     ) {
+        this.valueClass = valueClass;
         this.value = value;
         this.remoteStatus = remoteStatus;
     }
@@ -22,19 +25,21 @@ public final class ServiceResponse<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ServiceResponse<?> that = (ServiceResponse<?>) o;
-        return value.equals(that.value) &&
+        return valueClass.equals(that.valueClass) &&
+                value.equals(that.value) &&
                 remoteStatus.equals(that.remoteStatus);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, remoteStatus);
+        return Objects.hash(valueClass, value, remoteStatus);
     }
 
     @Override
     public String toString() {
         return "ServiceResponse{" +
-                "value=" + value +
+                "valueClass=" + valueClass +
+                ", value=" + value +
                 ", remoteStatus=" + remoteStatus +
                 '}';
     }

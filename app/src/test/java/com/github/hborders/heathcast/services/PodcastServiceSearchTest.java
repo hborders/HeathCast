@@ -3,6 +3,7 @@ package com.github.hborders.heathcast.services;
 import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 
@@ -18,6 +19,7 @@ import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifi
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
 import static com.github.hborders.heathcast.matchers.NonnullPairMatchers.nonnullPair;
+import static com.github.hborders.heathcast.matchers.ServiceResponseMatchers.serviceResponse;
 import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -160,6 +162,133 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         nonnullPair(
                                 not(emptyIterable()),
                                 is(ServiceRequestState.loaded())
+                        )
+                )
+        );
+    }
+
+    @Test
+    public void testSearchForPlanetMoneyTwiceQuickly() {
+        final MatcherTestObserver<List<Identified<PodcastSearch>>> podcastSearchIdentifiedsMatcherTestObserver =
+                new MatcherTestObserver<>();
+        getTestObject()
+                .observeQueryForAllPodcastSearchIdentifieds()
+                .subscribe(podcastSearchIdentifiedsMatcherTestObserver);
+
+        podcastSearchIdentifiedsMatcherTestObserver.assertValueSequence(
+                Collections.singletonList(
+                        Collections.emptyList()
+                )
+        );
+
+        final MatcherTestObserver<ServiceResponse<PodcastIdentifiedList>> planetMoneyMatcherTestObserver1 =
+                new MatcherTestObserver<>();
+        final MatcherTestObserver<ServiceResponse<PodcastIdentifiedList>> planetMoneyMatcherTestObserver2 =
+                new MatcherTestObserver<>();
+        final NetworkPauser planetMoneyNetworkPauser = new NetworkPauser();
+        final PodcastSearch planetMoneyPodcastSearch = new PodcastSearch("Planet Money");
+        getTestObject()
+                .searchForPodcasts2(
+                        planetMoneyNetworkPauser,
+                        planetMoneyPodcastSearch
+                )
+                .subscribe(planetMoneyMatcherTestObserver1);
+        getTestObject()
+                .searchForPodcasts2(
+                        planetMoneyNetworkPauser,
+                        planetMoneyPodcastSearch
+                )
+                .subscribe(planetMoneyMatcherTestObserver2);
+
+        podcastSearchIdentifiedsMatcherTestObserver.assertValueSequenceThat(
+                containsInOrder(
+                        containsNothing(),
+                        containsInOrder(
+                                identifiedModel(
+                                        planetMoneyPodcastSearch
+                                )
+                        ),
+                        containsInOrder(
+                                identifiedModel(
+                                        planetMoneyPodcastSearch
+                                )
+                        )
+                )
+        );
+
+        planetMoneyMatcherTestObserver1.assertValueSequenceThat(
+                containsInOrder(
+                        is(
+                                new ServiceResponse<>(
+                                        PodcastIdentifiedList.class,
+                                        new PodcastIdentifiedList(),
+                                        ServiceResponse.RemoteStatus.loading()
+                                )
+                        ),
+                        is(
+                                new ServiceResponse<>(
+                                        PodcastIdentifiedList.class,
+                                        new PodcastIdentifiedList(),
+                                        ServiceResponse.RemoteStatus.loading()
+                                )
+                        )
+                )
+        );
+
+        planetMoneyNetworkPauser.resume();
+
+        planetMoneyMatcherTestObserver1.awaitCount(4);
+
+        planetMoneyMatcherTestObserver1.assertValueSequenceThat(
+                containsInOrder(
+                        is(
+                                new ServiceResponse<>(
+                                        PodcastIdentifiedList.class,
+                                        new PodcastIdentifiedList(),
+                                        ServiceResponse.RemoteStatus.loading()
+                                )
+                        ),
+                        is(
+                                new ServiceResponse<>(
+                                        PodcastIdentifiedList.class,
+                                        new PodcastIdentifiedList(),
+                                        ServiceResponse.RemoteStatus.loading()
+                                )
+                        ),
+                        // there is a race where List<Identified<Podcast>> or ServiceRequestState
+                        // could change first, so just ignore this value.
+                        anything(),
+                        serviceResponse(
+                                not(emptyIterable()),
+                                ServiceResponse.RemoteStatus.complete()
+                        )
+                )
+        );
+
+        planetMoneyMatcherTestObserver2.awaitCount(4);
+
+        planetMoneyMatcherTestObserver2.assertValueSequenceThat(
+                containsInOrder(
+                        is(
+                                new ServiceResponse<>(
+                                        PodcastIdentifiedList.class,
+                                        new PodcastIdentifiedList(),
+                                        ServiceResponse.RemoteStatus.loading()
+                                )
+                        ),
+                        is(
+                                new ServiceResponse<>(
+                                        PodcastIdentifiedList.class,
+                                        new PodcastIdentifiedList(),
+                                        ServiceResponse.RemoteStatus.loading()
+                                )
+                        ),
+                        // there is a race where List<Identified<Podcast>> or ServiceRequestState
+                        // could change first, so just ignore this value.
+                        anything(),
+                        serviceResponse(
+                                not(emptyIterable()),
+                                ServiceResponse.RemoteStatus.complete()
                         )
                 )
         );

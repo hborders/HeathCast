@@ -38,6 +38,9 @@ public final class ViewMatchers {
 
         @Override
         public boolean matchesSafely(View view) {
+            if (ancestorMatcher.matches(view)) {
+                return true;
+            }
             for (
                     @Nullable ViewParent viewParent = view.getParent();
                     viewParent != null;
@@ -71,7 +74,6 @@ public final class ViewMatchers {
             if (recyclerView == null) {
                 return false;
             }
-
 
             @Nullable RecyclerView.ViewHolder viewHolder =
                     recyclerView.findViewHolderForAdapterPosition(position);
