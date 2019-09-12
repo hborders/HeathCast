@@ -11,7 +11,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.fragments.MainFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
@@ -24,7 +23,6 @@ import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.services.PodcastService;
-import com.github.hborders.heathcast.services.ServiceRequestState;
 import com.github.hborders.heathcast.services.ServiceResponse;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -125,14 +123,6 @@ public final class MainActivity extends AppCompatActivity
 //                        podcastSearchFragment.getSearchResultPodcastIdentifiedsIdlingResource()
 //                )
 //        );
-    }
-
-    @Override
-    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
-            PodcastSearchFragment podcastSearchFragment,
-            PodcastSearch podcastSearch
-    ) {
-        return podcastService.searchForPodcasts(podcastSearch);
     }
 
     @Override

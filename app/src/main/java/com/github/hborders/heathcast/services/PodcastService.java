@@ -2,9 +2,6 @@ package com.github.hborders.heathcast.services;
 
 import android.content.Context;
 
-import com.github.hborders.heathcast.core.Either;
-import com.github.hborders.heathcast.core.Function;
-import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.Episode;
@@ -18,7 +15,6 @@ import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
 import java.net.URL;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -232,99 +228,6 @@ public final class PodcastService {
                     ).doOnDispose(searchForPodcastsDisposable::dispose);
                 }
         ).orElse(Observable.error(new UpsertPodcastSearchException(podcastSearch)));
-    }
-
-    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
-            PodcastSearch podcastSearch
-    ) {
-        return searchForPodcasts(
-                null,
-                podcastSearch
-        );
-    }
-
-    // separating operations loses transactional power. We have to keep the network and
-    // cache updates bundled together so we can establish order of operations.
-    // but putting it in the same observable is confusing because how do we know when
-    // the remote operation finishes?
-    // I don't want to have to send an extra operation just because the remote ended
-    // Perhaps the best option is to follow the Rx Completable pattern internally:
-    // We have a union { local, local+remote } where local+remote contains a Completable-like
-    // structure for the remote.
-    // Also, now I have a better understanding of how BehaviorSubject works, and I don't think
-    // it makes the most sense for this implementation.
-
-    public Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
-            @Nullable NetworkPauser networkPauser,
-            PodcastSearch podcastSearch
-    ) {
-        final Optional<Identified<PodcastSearch>> podcastSearchIdentifiedOptional =
-                database.upsertPodcastSearch(podcastSearch);
-        return podcastSearchIdentifiedOptional.map(
-                podcastSearchIdentified -> {
-                    Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable =
-                            database.observeQueryForPodcastIdentifieds(podcastSearchIdentified.identifier);
-                    final BehaviorSubject<ServiceRequestState> serviceRequestStateBehaviorSubject =
-                            serviceRequestStateBehaviorSubjectsByPodcastSearch.computeIfAbsent(
-                                    podcastSearch,
-                                    podcastSearch_ -> BehaviorSubject.createDefault(
-                                            ServiceRequestState.loading()
-                                    )
-                            );
-
-                    final Disposable searchForPodcastsDisposable =
-                            searchForPodcasts(
-                                    networkPauser,
-                                    podcastSearch.search
-                            )
-                                    .map(
-                                            podcastSearchResponse ->
-                                                    Either.liftLeft(
-                                                            PodcastSearchResponse.class,
-                                                            ServiceRequestState.class,
-                                                            podcastSearchResponse
-                                                    )
-                                    )
-                                    .onErrorReturn(
-                                            throwable ->
-                                                    Either.right(
-                                                            ServiceRequestState.class,
-                                                            ServiceRequestState.remoteFailure(throwable)
-                                                    )
-                                    )
-                                    .map(
-                                            podcastSearchResponseOrServiceRequestState ->
-                                                    podcastSearchResponseOrServiceRequestState.reduce(
-                                                            podcastSearchResponse -> {
-                                                                database.replacePodcastSearchPodcasts(
-                                                                        podcastSearchIdentified,
-                                                                        podcastSearchResponse.podcasts
-                                                                );
-                                                                return ServiceRequestState.loaded();
-                                                            },
-                                                            Function.identity()
-                                                    )
-                                    )
-                                    .onErrorReturn(ServiceRequestState::localFailure)
-                                    .subscribe(serviceRequestStateBehaviorSubject::onNext);
-
-
-                    return Observable.combineLatest(
-                            podcastIdentifiedsObservable,
-                            serviceRequestStateBehaviorSubject,
-                            NonnullPair::new
-                    ).doOnDispose(searchForPodcastsDisposable::dispose);
-                }
-        ).orElse(
-                Single.<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>>just(
-                        new NonnullPair<>(
-                                Collections.emptyList(),
-                                ServiceRequestState.localFailure(
-                                        new UpsertPodcastSearchException(podcastSearch)
-                                )
-                        )
-                ).toObservable()
-        );
     }
 
     private Single<PodcastSearchResponse> searchForPodcasts(

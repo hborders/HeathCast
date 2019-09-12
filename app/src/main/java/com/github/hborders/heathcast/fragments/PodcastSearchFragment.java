@@ -17,13 +17,11 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.services.ServiceRequestState;
 import com.github.hborders.heathcast.services.ServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -333,11 +331,6 @@ public final class PodcastSearchFragment extends Fragment
 
     public interface PodcastSearchFragmentListener {
         void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment);
-
-        Observable<NonnullPair<List<Identified<Podcast>>, ServiceRequestState>> searchForPodcasts(
-                PodcastSearchFragment podcastSearchFragment,
-                PodcastSearch podcastSearch
-        );
 
         Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
                 PodcastSearchFragment podcastSearchFragment,
