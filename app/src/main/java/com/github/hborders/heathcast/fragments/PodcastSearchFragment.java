@@ -58,13 +58,22 @@ public final class PodcastSearchFragment extends Fragment
     // or remotely.
     // We'll remove IdlingResource from the app directly, and just
     // make custom adapters that adapt the Rx state.
-    private final BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
+
+    // Need to refactor queryOptionalBehaviorSubject and  podcastIdentifiedListServiceResponseOptionalObservable
+    // into a separate object so it can be easier to recreate on every onViewCreated onViewDestroyed pair
+
+
+    // We need to reset this every time we update the UI rather than
+    // sending empty values through it. That confuses the UI when we restore.
+    private ~final~ BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
             BehaviorSubject.create();
     // We can't use a ConnectableObservable here (via Observable#replay) because every
     // ConnectableObservable#connect call resets all state and throws away past subscriptions.
     // Instead we have to manage our own BehaviorSubject manually.
     // See com.github.hborders.heathcast.reactivexdemo.ConnectableObservableTest
-    private final Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
+    // Also, we need to reset this every time we create a view so that we can throw away
+    // past PodcastIdentifiedLists. All that data is saved in the PodcastListFragment.
+    private ~final~ Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
             queryOptionalBehaviorSubject.switchMap(
                     queryOptional -> queryOptional.map(
                             query -> Objects.requireNonNull(listener)

@@ -11,13 +11,10 @@ import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
 
-import java.util.Objects;
-
 import javax.annotation.Nullable;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.PublishSubject;
 
@@ -26,14 +23,14 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         public final F fragment;
         public final Context context;
         public final L listener;
-        public final Observable<FragmentCreation<F, L>> fragmenCreationObservable;
+        public final Observable<FragmentCreation> fragmenCreationObservable;
         public final Completable onDetachCompletable;
 
         private Attachment(
                 F fragment,
                 Context context,
                 L listener,
-                Observable<FragmentCreation<F, L>> fragmenCreationObservable,
+                Observable<FragmentCreation> fragmenCreationObservable,
                 Completable onDetachCompletable
         ) {
             this.fragment = fragment;
@@ -55,7 +52,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
-    protected static final class FragmentCreation<F extends RxFragment<F, L>, L> {
+    protected static final class FragmentCreation {
         public static final class SaveInstanceState {
             public final Bundle outState;
 
@@ -73,20 +70,17 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
         @Nullable
         public final Bundle savedInstanceState;
-        public final Completable setArgumentsCompletable;
         public final Observable<SaveInstanceState> saveInstanceStateObservable;
         public final Observable<Observable<ViewCreation>> viewCreationObservableObservable;
         public final Completable onDestroyCompletable;
 
         private FragmentCreation(
                 @Nullable Bundle savedInstanceState,
-                Completable setArgumentsCompletable,
                 Observable<SaveInstanceState> saveInstanceStateObservable,
                 Observable<Observable<ViewCreation>> viewCreationObservableObservable,
                 Completable onDestroyCompletable
         ) {
             this.savedInstanceState = savedInstanceState;
-            this.setArgumentsCompletable = setArgumentsCompletable;
             this.saveInstanceStateObservable = saveInstanceStateObservable;
             this.viewCreationObservableObservable = viewCreationObservableObservable;
             this.onDestroyCompletable = onDestroyCompletable;
@@ -96,7 +90,6 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         public String toString() {
             return "FragmentCreation{" +
                     "savedInstanceState=" + savedInstanceState +
-                    ", setArgumentsCompletable=" + setArgumentsCompletable +
                     ", saveInstanceStateObservable=" + saveInstanceStateObservable +
                     ", viewCreationObservableObservable=" + viewCreationObservableObservable +
                     ", onDestroyCompletable=" + onDestroyCompletable +
@@ -108,20 +101,17 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         public final View view;
         @Nullable
         public final Bundle savedInstanceState;
-        public final Completable setArgumentsCompletable;
         public final Observable<ActivityCreation> activityCreationObservable;
         public final Completable onDestroyViewCompletable;
 
         private ViewCreation(
                 View view,
                 @Nullable Bundle savedInstanceState,
-                Completable setArgumentsCompletable,
                 Observable<ActivityCreation> activityCreationObservable,
                 Completable onDestroyViewCompletable
         ) {
             this.view = view;
             this.savedInstanceState = savedInstanceState;
-            this.setArgumentsCompletable = setArgumentsCompletable;
             this.activityCreationObservable = activityCreationObservable;
             this.onDestroyViewCompletable = onDestroyViewCompletable;
         }
@@ -131,7 +121,6 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
             return "ViewCreation{" +
                     "view=" + view +
                     ", savedInstanceState=" + savedInstanceState +
-                    ", setArgumentsCompletable=" + setArgumentsCompletable +
                     ", activityCreationObservable=" + activityCreationObservable +
                     ", onDestroyViewCompletable=" + onDestroyViewCompletable +
                     '}';
@@ -141,18 +130,15 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     protected static final class ActivityCreation {
         @Nullable
         public final Bundle savedInstanceState;
-        public final Completable setArgumentsCompletable;
         public final Observable<Start> startObservable;
         public final Completable onDestroyViewCompletable;
 
         private ActivityCreation(
                 @Nullable Bundle savedInstanceState,
-                Completable setArgumentsCompletable,
                 Observable<Start> startObservable,
                 Completable onDestroyViewCompletable
         ) {
             this.savedInstanceState = savedInstanceState;
-            this.setArgumentsCompletable = setArgumentsCompletable;
             this.startObservable = startObservable;
             this.onDestroyViewCompletable = onDestroyViewCompletable;
         }
@@ -161,7 +147,6 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         public String toString() {
             return "ActivityCreation{" +
                     "savedInstanceState=" + savedInstanceState +
-                    ", setArgumentsCompletable=" + setArgumentsCompletable +
                     ", startObservable=" + startObservable +
                     ", onDestroyViewCompletable=" + onDestroyViewCompletable +
                     '}';
@@ -169,16 +154,16 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     }
 
     protected static final class Start {
-        public final Completable setArgumentsCompletable;
+        private final RxFragment<?, ?> fragment;
         public final Observable<Resume> resumeObservable;
         public final Completable onStopCompletable;
 
         private Start(
-                Completable setArgumentsCompletable,
+                RxFragment<?, ?> fragment,
                 Observable<Resume> resumeObservable,
                 Completable onStopCompletable
         ) {
-            this.setArgumentsCompletable = setArgumentsCompletable;
+            this.fragment = fragment;
             this.resumeObservable = resumeObservable;
             this.onStopCompletable = onStopCompletable;
         }
@@ -186,10 +171,18 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         @Override
         public String toString() {
             return "Start{" +
-                    "setArgumentsCompletable=" + setArgumentsCompletable +
+                    "fragment=" + fragment +
                     ", resumeObservable=" + resumeObservable +
                     ", onStopCompletable=" + onStopCompletable +
                     '}';
+        }
+
+        public final void setArguments(@Nullable Bundle args) {
+            // It isn't legal to update arguments except for after onStart
+            // because there is no callback before onSaveInstanceState,
+            // and once onSaveInstanceState is called, it's too late to update arguments.
+            // Only onStart has a guaranteed callback first: onStop.
+            fragment.superSetArguments(args);
         }
     }
 
@@ -216,10 +209,9 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
             PublishSubject.create();
     private CompletableSubject onDetachCompletableSubject = CompletableSubject.create();
 
-    private PublishSubject<FragmentCreation<F, L>> fragmentCreationPublishSubject =
+    private PublishSubject<FragmentCreation> fragmentCreationPublishSubject =
             PublishSubject.create();
-    private CompletableSubject fragmentCreationSetArgumentsCompletableSubject =
-            CompletableSubject.create();
+    private boolean setInitialArgumentsLegal = true;
     private PublishSubject<FragmentCreation.SaveInstanceState> saveInstanceStatePublishSubject =
             PublishSubject.create();
     private CompletableSubject onDestroyCompletableSubject = CompletableSubject.create();
@@ -228,18 +220,12 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
             PublishSubject.create();
 
     private PublishSubject<ViewCreation> viewCreationPublishSubject = PublishSubject.create();
-    private CompletableSubject viewCreationSetArgumentsCompletableSubject =
-            CompletableSubject.create();
     private CompletableSubject viewCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
 
     private PublishSubject<ActivityCreation> activityCreationPublishSubject = PublishSubject.create();
-    private CompletableSubject activityCreationSetArgumentsCompletableSubject =
-            CompletableSubject.create();
     private CompletableSubject activityCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
 
     private PublishSubject<Start> startPublishSubject = PublishSubject.create();
-    private CompletableSubject startSetArgumentsCompletableSubject =
-            CompletableSubject.create();
     private CompletableSubject onStopCompletableSubject = CompletableSubject.create();
 
     private PublishSubject<Resume> resumePublishSubject = PublishSubject.create();
@@ -251,6 +237,25 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     ) {
         this.listenerClass = listenerClass;
         this.layoutResource = layoutResource;
+    }
+
+    public final void setInitialArguments(@Nullable Bundle args) {
+        if (setInitialArgumentsLegal) {
+            super.setArguments(args);
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    private void superSetArguments(@Nullable Bundle args) {
+        super.setArguments(args);
+    }
+
+    @Deprecated
+    @Override
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    public final void setArguments(@Nullable Bundle args) {
+        super.setArguments(args);
     }
 
     @Override
@@ -290,10 +295,10 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     public final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setInitialArgumentsLegal = false;
         fragmentCreationPublishSubject.onNext(
-                new FragmentCreation<>(
+                new FragmentCreation(
                         savedInstanceState,
-                        fragmentCreationSetArgumentsCompletableSubject,
                         saveInstanceStatePublishSubject,
                         viewCreationObservablePublishSubject,
                         onDestroyCompletableSubject
@@ -327,7 +332,6 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
                 new ViewCreation(
                         view,
                         savedInstanceState,
-                        viewCreationSetArgumentsCompletableSubject,
                         activityCreationPublishSubject,
                         viewCreationOnDestroyViewCompletableSubject
                 )
@@ -341,7 +345,6 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         activityCreationPublishSubject.onNext(
                 new ActivityCreation(
                         savedInstanceState,
-                        activityCreationSetArgumentsCompletableSubject,
                         startPublishSubject,
                         activityCreationOnDestroyViewCompletableSubject
                 )
@@ -354,7 +357,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
         startPublishSubject.onNext(
                 new Start(
-                        startSetArgumentsCompletableSubject,
+                        this,
                         resumePublishSubject,
                         onStopCompletableSubject
                 )
@@ -387,17 +390,9 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
         onStopCompletableSubject.onComplete();
         startPublishSubject.onComplete();
-        startSetArgumentsCompletableSubject.onComplete();
-        activityCreationSetArgumentsCompletableSubject.onComplete();
-        viewCreationSetArgumentsCompletableSubject.onComplete();
-        fragmentCreationSetArgumentsCompletableSubject.onComplete();
 
         onStopCompletableSubject = CompletableSubject.create();
         startPublishSubject = PublishSubject.create();
-        startSetArgumentsCompletableSubject = CompletableSubject.create();
-        activityCreationSetArgumentsCompletableSubject
-        viewCreationSetArgumentsCompletableSubject
-        fragmentCreationSetArgumentsCompletableSubject
     }
 
     @Override
@@ -430,16 +425,11 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     public final void onDestroy() {
         super.onDestroy();
 
-        final CompletableSubject setArgumentsCompletableSubject =
-                Objects.requireNonNull(setArgumentsCompletableSubjectBehaviorSubject.getValue());
-        setArgumentsCompletableSubject.onComplete();
-        setArgumentsCompletableSubjectBehaviorSubject.onComplete();
         onDestroyCompletableSubject.onComplete();
         viewCreationObservablePublishSubject.onComplete();
         fragmentCreationPublishSubject.onComplete();
         saveInstanceStatePublishSubject.onComplete();
 
-        setArgumentsCompletableSubjectBehaviorSubject = BehaviorSubject.create();
         onDestroyCompletableSubject = CompletableSubject.create();
         viewCreationObservablePublishSubject = PublishSubject.create();
         fragmentCreationPublishSubject = PublishSubject.create();

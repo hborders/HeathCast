@@ -174,7 +174,7 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                                                                                 .map(PodcastIdentifiedHolder::new)
                                                                                                                                 .toArray(PodcastIdentifiedHolder[]::new)
                                                                                                                 );
-                                                                                                                setArguments(args);
+                                                                                                                start.setArguments(args);
                                                                                                                 adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdating.value);
                                                                                                             },
                                                                                                             podcastIdentifiedListLoadedButUpdateFailed -> {
@@ -191,7 +191,7 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                                                                                 .map(PodcastIdentifiedHolder::new)
                                                                                                                                 .toArray(PodcastIdentifiedHolder[]::new)
                                                                                                                 );
-                                                                                                                setArguments(args);
+                                                                                                                start.setArguments(args);
                                                                                                                 adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdateFailed.value);
                                                                                                             },
                                                                                                             podcastIdentifiedListLoaded -> {
@@ -208,7 +208,7 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                                                                                 .map(PodcastIdentifiedHolder::new)
                                                                                                                                 .toArray(PodcastIdentifiedHolder[]::new)
                                                                                                                 );
-                                                                                                                setArguments(args);
+                                                                                                                start.setArguments(args);
                                                                                                                 adapter.setPodcastIdentifieds(podcastIdentifiedListLoaded.value);
                                                                                                             }
                                                                                                     ),
@@ -224,8 +224,9 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                                                 );
                                                                                             }
                                                                                     );
-                                                                            fragmentCreation.setArgumentsCompletable.subscribe(
-                                                                                    adapterSetPodcastIdentifiedsDisposable::dispose
+                                                                            start.onStopCompletable.subscribe(
+                                                                                    () ->
+                                                                                            adapterSetPodcastIdentifiedsDisposable.dispose()
                                                                             ).isDisposed();
                                                                         }
                                                                 ).isDisposed();
