@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
@@ -177,11 +178,19 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
                     '}';
         }
 
+        @RequiresApi(28)
         public final void setArguments(@Nullable Bundle args) {
             // It isn't legal to update arguments except for after onStart
             // because there is no callback before onSaveInstanceState,
             // and once onSaveInstanceState is called, it's too late to update arguments.
             // Only onStart has a guaranteed callback first: onStop.
+            // Also:
+            // If we used LifecycleObserver for onStop, we could have guarantees about
+            // onStop getting called before onSaveInstanceState, and thus
+            // we could know for sure that we can't call setArguments anymore.
+            // However, LifecycleObserver requires an annotation processor, and that
+            // kills build performance, so we're not going to do that.
+            // https://androidstudygroup.slack.com/archives/C09HE40J0/p1568259507014000?thread_ts=1551849597.051100&cid=C09HE40J0
             fragment.superSetArguments(args);
         }
     }
@@ -384,6 +393,12 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         resumePublishSubject = PublishSubject.create();
     }
 
+    // If we used LifecycleObserver here, we could have guarantees about
+    // onStop getting called before onSaveInstanceState, and thus
+    // we could know for sure that we can't call setArguments anymore.
+    // However, LifecycleObserver requires an annotation processor, and that
+    // kills build performance, so we're not going to do that.
+    // https://androidstudygroup.slack.com/archives/C09HE40J0/p1568259507014000?thread_ts=1551849597.051100&cid=C09HE40J0
     @Override
     public final void onStop() {
         super.onStop();
