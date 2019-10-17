@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 
 public final class PodcastSearchFragment extends Fragment
         implements
@@ -59,22 +60,20 @@ public final class PodcastSearchFragment extends Fragment
     // We'll remove IdlingResource from the app directly, and just
     // make custom adapters that adapt the Rx state.
 
-    // Need to refactor queryOptionalBehaviorSubject and  podcastIdentifiedListServiceResponseOptionalObservable
+    // Need to refactor queryOptionalPublishSubject and  podcastIdentifiedListServiceResponseOptionalObservable
     // into a separate object so it can be easier to recreate on every onViewCreated onViewDestroyed pair
 
 
-    // We need to reset this every time we update the UI rather than
-    // sending empty values through it. That confuses the UI when we restore.
-    private ~final~ BehaviorSubject<Optional<String>> queryOptionalBehaviorSubject =
-            BehaviorSubject.create();
+    private final PublishSubject<Optional<String>> queryOptionalPublishSubject =
+            PublishSubject.create();
     // We can't use a ConnectableObservable here (via Observable#replay) because every
     // ConnectableObservable#connect call resets all state and throws away past subscriptions.
     // Instead we have to manage our own BehaviorSubject manually.
     // See com.github.hborders.heathcast.reactivexdemo.ConnectableObservableTest
     // Also, we need to reset this every time we create a view so that we can throw away
     // past PodcastIdentifiedLists. All that data is saved in the PodcastListFragment.
-    private ~final~ Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
-            queryOptionalBehaviorSubject.switchMap(
+    private final Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
+            queryOptionalPublishSubject.switchMap(
                     queryOptional -> queryOptional.map(
                             query -> Objects.requireNonNull(listener)
                                     .searchForPodcasts2(
@@ -146,7 +145,7 @@ public final class PodcastSearchFragment extends Fragment
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchView.clearFocus();
-                queryOptionalBehaviorSubject.onNext(Optional.of(query));
+                queryOptionalPublishSubject.onNext(Optional.of(query));
 
                 return true;
             }
@@ -160,7 +159,7 @@ public final class PodcastSearchFragment extends Fragment
         if (savedInstanceState != null) {
             @Nullable final CharSequence query = savedInstanceState.getCharSequence(QUERY_KEY);
             searchView.setQuery(query, false);
-            queryOptionalBehaviorSubject.onNext(
+            queryOptionalPublishSubject.onNext(
                     Optional.ofNullable(query).map(CharSequence::toString)
             );
         }
@@ -242,8 +241,6 @@ public final class PodcastSearchFragment extends Fragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        queryOptionalBehaviorSubject.onNext(Optional.empty());
 
         @Nullable final Disposable podcastIdentifiedListServiceResponseOptionalDisposable =
                 this.podcastIdentifiedListServiceResponseOptionalDisposable;
