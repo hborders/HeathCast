@@ -35,39 +35,39 @@ public final class ReactivexOkHttpCallAdapter {
     }
 
     public Completable completable(Call call) {
-        Observable<Response> observable = unassumbledObservable(call);
+        Observable<Response> observable = unassembledObservable(call);
         return observable.ignoreElements();
     }
 
     public Flowable<Response> flowable(Call call) {
-        Observable<Response> observable = unassumbledObservable(call);
+        Observable<Response> observable = unassembledObservable(call);
         return observable.toFlowable(BackpressureStrategy.LATEST);
     }
 
     public Maybe<Response> maybe(Call call) {
-        Observable<Response> observable = unassumbledObservable(call);
+        Observable<Response> observable = unassembledObservable(call);
         return observable.singleElement();
     }
 
     public Observable<Response> observable(Call call) {
-        Observable<Response> observable = unassumbledObservable(call);
+        Observable<Response> observable = unassembledObservable(call);
         return RxJavaPlugins.onAssembly(observable);
     }
 
     public Single<Response> single(Call call) {
-        Observable<Response> observable = unassumbledObservable(call);
+        Observable<Response> observable = unassembledObservable(call);
         return observable.singleOrError();
     }
 
-    private Observable<Response> unassumbledObservable(Call call) {
-        Observable<Response> originalObservable;
+    private Observable<Response> unassembledObservable(Call call) {
+        final Observable<Response> originalObservable;
         if (isAsync) {
-            originalObservable = new CallEnqueueObservable(call);
+            originalObservable = new CallExecuteObservable(call);
         } else {
             originalObservable = new CallEnqueueObservable(call);
         }
 
-        Observable<Response> observable;
+        final Observable<Response> observable;
         if (scheduler == null) {
             observable = originalObservable;
         } else {
