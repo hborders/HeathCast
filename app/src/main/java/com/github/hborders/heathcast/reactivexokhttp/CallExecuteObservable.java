@@ -9,6 +9,8 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Response;
 
+// Copied from
+// https://github.com/square/retrofit/blob/4faf9e217be8ed4cdc36af50fb15166ed8faecc5/retrofit-adapters/rxjava2/src/main/java/retrofit2/adapter/rxjava2/CallExecuteObservable.java
 final class CallExecuteObservable extends Observable<Response> {
     private final Call originalCall;
 

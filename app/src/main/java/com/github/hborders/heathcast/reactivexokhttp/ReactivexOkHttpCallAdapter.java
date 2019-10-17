@@ -12,6 +12,8 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.Call;
 import okhttp3.Response;
 
+// Slightly modified version of
+// https://github.com/square/retrofit/blob/4faf9e217be8ed4cdc36af50fb15166ed8faecc5/retrofit-adapters/rxjava2/src/main/java/retrofit2/adapter/rxjava2/RxJava2CallAdapter.java
 public final class ReactivexOkHttpCallAdapter {
     private final boolean isAsync;
     @Nullable
