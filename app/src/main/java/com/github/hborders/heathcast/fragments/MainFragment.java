@@ -16,6 +16,8 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+~~~~~~~~~
+// Make this an RxFragment, and then finally start showing subscriptions
 public class MainFragment extends Fragment {
     @Nullable
     private MainFragmentListener listener;

@@ -31,6 +31,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.internal.functions.Functions;
 import io.reactivex.subjects.BehaviorSubject;
 
+// This class seems to work
+// Next, I should consume it in the MainFragment as well
 public final class PodcastListFragment2 extends RxFragment<
         PodcastListFragment2,
         PodcastListFragment2.PodcastListFragmentListener
