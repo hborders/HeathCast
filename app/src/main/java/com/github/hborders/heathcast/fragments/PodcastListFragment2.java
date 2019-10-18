@@ -33,6 +33,7 @@ import io.reactivex.subjects.BehaviorSubject;
 
 // This class seems to work
 // Next, I should consume it in the MainFragment as well
+// next, extract a generic ListFragment out of it.
 public final class PodcastListFragment2 extends RxFragment<
         PodcastListFragment2,
         PodcastListFragment2.PodcastListFragmentListener
@@ -67,6 +68,8 @@ public final class PodcastListFragment2 extends RxFragment<
     public PodcastListFragment2() {
         super(
                 PodcastListFragmentListener.class,
+                PodcastListFragmentListener::onPodcastListFragmentListenerAttached,
+                PodcastListFragmentListener::onPodcastListFragmentListenerWillDetach,
                 R.layout.fragment_podcast_list_2
         );
     }
@@ -88,7 +91,6 @@ public final class PodcastListFragment2 extends RxFragment<
         attachmentObservable.subscribe(
                 attachment -> {
                     final PodcastListFragmentListener listener = attachment.listener;
-                    listener.onPodcastListFragmentListenerAttached(this);
                     attachment.fragmenCreationObservable.subscribe(
                             fragmentCreation -> {
                                 fragmentCreation.viewCreationObservableObservable.subscribe(
@@ -227,8 +229,7 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                                             }
                                                                                     );
                                                                             start.onStopCompletable.subscribe(
-                                                                                    () ->
-                                                                                            adapterSetPodcastIdentifiedsDisposable.dispose()
+                                                                                    adapterSetPodcastIdentifiedsDisposable::dispose
                                                                             ).isDisposed();
                                                                         }
                                                                 ).isDisposed();
@@ -240,10 +241,6 @@ public final class PodcastListFragment2 extends RxFragment<
                                         ).isDisposed()
                                 ).isDisposed();
                             }
-                    ).isDisposed();
-
-                    attachment.onDetachCompletable.subscribe(() ->
-                            listener.onPodcastListFragmentListenerWillDetach(this)
                     ).isDisposed();
                 }
         ).isDisposed();

@@ -12,10 +12,13 @@ import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
 
+import java.util.Objects;
+
 import javax.annotation.Nullable;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.PublishSubject;
 
@@ -210,12 +213,22 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
+    protected interface OnAttached<F extends RxFragment<F, L>, L> {
+        void onAttached(L listener, F fragment);
+    }
+
+    protected interface WillDetach<F extends RxFragment<F, L>, L> {
+        void willDetach(L listener, F fragment);
+    }
+
     private final Class<L> listenerClass;
+    private final OnAttached<F, L> onAttached;
+    private final WillDetach<F, L> willDetach;
     @LayoutRes
     private final int layoutResource;
 
-    private PublishSubject<Attachment<F, L>> attachmentPublishSubject =
-            PublishSubject.create();
+    private BehaviorSubject<Attachment<F, L>> attachmentBehaviorSubject =
+            BehaviorSubject.create();
     private CompletableSubject onDetachCompletableSubject = CompletableSubject.create();
 
     private PublishSubject<FragmentCreation> fragmentCreationPublishSubject =
@@ -242,9 +255,13 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
     protected RxFragment(
             Class<L> listenerClass,
+            OnAttached<F, L> onAttached,
+            WillDetach<F, L> willDetach,
             int layoutResource
     ) {
         this.listenerClass = listenerClass;
+        this.onAttached = onAttached;
+        this.willDetach = willDetach;
         this.layoutResource = layoutResource;
     }
 
@@ -287,9 +304,10 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         );
 
         subscribeToAttachmentObservable(
-                attachmentPublishSubject
+                attachmentBehaviorSubject
         );
-        attachmentPublishSubject.onNext(
+        onAttached.onAttached(listener, self);
+        attachmentBehaviorSubject.onNext(
                 new Attachment<>(
                         self,
                         context,
@@ -455,11 +473,13 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     public final void onDetach() {
         super.onDetach();
 
+        Attachment<F, L> attachment = Objects.requireNonNull(attachmentBehaviorSubject.getValue());
+        willDetach.willDetach(attachment.listener, attachment.fragment);
         onDetachCompletableSubject.onComplete();
-        attachmentPublishSubject.onComplete();
+        attachmentBehaviorSubject.onComplete();
 
         onDetachCompletableSubject = CompletableSubject.create();
-        attachmentPublishSubject = PublishSubject.create();
+        attachmentBehaviorSubject = BehaviorSubject.create();
     }
 
     protected abstract F getSelf();

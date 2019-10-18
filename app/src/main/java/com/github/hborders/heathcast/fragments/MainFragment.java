@@ -1,82 +1,58 @@
 package com.github.hborders.heathcast.fragments;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.fragment.app.Fragment;
-
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Objects;
+import io.reactivex.Observable;
 
-import javax.annotation.Nullable;
-
-~~~~~~~~~
-// Make this an RxFragment, and then finally start showing subscriptions
-public class MainFragment extends Fragment {
-    @Nullable
-    private MainFragmentListener listener;
+public class MainFragment extends RxFragment<
+        MainFragment,
+        MainFragment.MainFragmentListener> {
 
     public MainFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        final MainFragmentListener listener = FragmentUtil.requireContextFragmentListener(
-                context,
-                MainFragment.MainFragmentListener.class
+        super(
+                MainFragmentListener.class,
+                MainFragmentListener::onMainFragmentAttached,
+                MainFragmentListener::onMainFragmentWillDetach,
+                R.layout.fragment_main
         );
-        this.listener = listener;
-        listener.onMainFragmentAttached(this);
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected MainFragment getSelf() {
+        return this;
     }
 
     @Override
-    @Nullable
-    public View onCreateView(LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        final View view = Objects.requireNonNull(
-                inflater.inflate(
-                        R.layout.fragment_main,
-                        container,
-                        false
-                )
-        );
-
-        final FloatingActionButton fab = view.requireViewById(R.id.fragment_main_add_podcast_fab);
-        fab.setOnClickListener(__ ->
-                Objects.requireNonNull(listener).onClickSearch(MainFragment.this)
-        );
-
-        return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onDetach() {
-        final MainFragmentListener listener = Objects.requireNonNull(this.listener);
-        this.listener = null;
-        listener.onMainFragmentWillDetach(this);
-
-        super.onDetach();
+    protected void subscribeToAttachmentObservable(
+            Observable<
+                    Attachment<
+                            MainFragment,
+                            MainFragmentListener
+                            >
+                    > attachmentObservable
+    ) {
+        attachmentObservable.subscribe(
+                attachment -> {
+                    final MainFragmentListener listener = attachment.listener;
+                    attachment.fragmenCreationObservable.subscribe(
+                            fragmentCreation -> {
+                                fragmentCreation.viewCreationObservableObservable.subscribe(
+                                        viewCreationObservable -> viewCreationObservable.subscribe(
+                                                viewCreation -> {
+                                                    final FloatingActionButton fab =
+                                                            viewCreation.view.requireViewById(R.id.fragment_main_add_podcast_fab);
+                                                    fab.setOnClickListener(__ ->
+                                                            listener.onClickSearch(MainFragment.this)
+                                                    );
+                                                }
+                                        ).isDisposed()
+                                ).isDisposed();
+                            }
+                    ).isDisposed();
+                }
+        ).isDisposed();
     }
 
     public interface MainFragmentListener {
