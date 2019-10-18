@@ -33,24 +33,18 @@ public class MainFragment extends RxFragment<
                             >
                     > attachmentObservable
     ) {
-        attachmentObservable.subscribe(
-                attachment -> {
-                    final MainFragmentListener listener = attachment.listener;
-                    attachment.fragmenCreationObservable.subscribe(
-                            fragmentCreation -> {
-                                fragmentCreation.viewCreationObservableObservable.subscribe(
-                                        viewCreationObservable -> viewCreationObservable.subscribe(
-                                                viewCreation -> {
-                                                    final FloatingActionButton fab =
-                                                            viewCreation.view.requireViewById(R.id.fragment_main_add_podcast_fab);
-                                                    fab.setOnClickListener(__ ->
-                                                            listener.onClickSearch(MainFragment.this)
-                                                    );
-                                                }
-                                        ).isDisposed()
-                                ).isDisposed();
-                            }
-                    ).isDisposed();
+        switchMapToViewCreation(attachmentObservable).subscribe(
+                attachmentFragmentCreationViewCreationTriple -> {
+                    final MainFragmentListener listener =
+                            attachmentFragmentCreationViewCreationTriple.first.listener;
+                    final ViewCreation viewCreation =
+                            attachmentFragmentCreationViewCreationTriple.third;
+
+                    final FloatingActionButton fab =
+                            viewCreation.view.requireViewById(R.id.fragment_main_add_podcast_fab);
+                    fab.setOnClickListener(__ ->
+                            listener.onClickSearch(MainFragment.this)
+                    );
                 }
         ).isDisposed();
     }

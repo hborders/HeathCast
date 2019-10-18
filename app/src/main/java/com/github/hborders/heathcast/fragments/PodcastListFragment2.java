@@ -1,5 +1,6 @@
 package com.github.hborders.heathcast.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,7 +29,6 @@ import java.util.Optional;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.internal.functions.Functions;
 import io.reactivex.subjects.BehaviorSubject;
 
 // This class seems to work
@@ -88,159 +88,152 @@ public final class PodcastListFragment2 extends RxFragment<
                             >
                     > attachmentObservable
     ) {
-        attachmentObservable.subscribe(
-                attachment -> {
-                    final PodcastListFragmentListener listener = attachment.listener;
-                    attachment.fragmenCreationObservable.subscribe(
-                            fragmentCreation -> {
-                                fragmentCreation.viewCreationObservableObservable.subscribe(
-                                        viewCreationObservable -> viewCreationObservable.subscribe(
-                                                viewCreation -> {
-                                                    final ProgressBar progressBar =
-                                                            viewCreation.view.requireViewById(
-                                                                    R.id.fragment_podcast_list_progress_bar
-                                                            );
-                                                    final TextView progressTextView =
-                                                            viewCreation.view.requireViewById(
-                                                                    R.id.fragment_podcast_list_progress_text_view
-                                                            );
-                                                    final TextView errorTextView =
-                                                            viewCreation.view.requireViewById(
-                                                                    R.id.fragment_podcast_list_error_text_view
-                                                            );
-                                                    final RecyclerView podcastsRecyclerView =
-                                                            viewCreation.view.requireViewById(
-                                                                    R.id.fragment_podcast_list_podcasts_recycler_view
-                                                            );
-                                                    final LinearLayoutManager linearLayoutManager =
-                                                            new LinearLayoutManager(
-                                                                    attachment.context
-                                                            );
-                                                    podcastsRecyclerView.setLayoutManager(linearLayoutManager);
-                                                    final List<Identified<Podcast>> initialPodcastIdentifieds =
-                                                            FragmentUtil.getUnparcelableHolderListArgumentOptional(
-                                                                    this,
-                                                                    PodcastIdentifiedHolder.class,
-                                                                    PODCAST_PARCELABLES_KEY
-                                                            ).orElse(Collections.emptyList());
-                                                    final PodcastRecyclerViewAdapter adapter =
-                                                            new PodcastRecyclerViewAdapter(
-                                                                    initialPodcastIdentifieds,
-                                                                    podcastIdentified ->
-                                                                            listener.onClick(
-                                                                                    this,
-                                                                                    podcastIdentified
-                                                                            )
-                                                            );
-                                                    podcastsRecyclerView.setAdapter(adapter);
-                                                    podcastIdentifiedsItemRangerOptionalBehaviorSubject.onNext(
-                                                            Optional.of(
-                                                                    new PodcastIdentifiedsItemRanger(
-                                                                            podcastsRecyclerView,
-                                                                            adapter,
-                                                                            linearLayoutManager
-                                                                    )
-                                                            )
+        switchMapToViewCreation(attachmentObservable).subscribe(
+                attachmentFragmentCreationViewCreationTriple -> {
+                    final Context context =
+                            attachmentFragmentCreationViewCreationTriple.first.context;
+                    final PodcastListFragmentListener listener =
+                            attachmentFragmentCreationViewCreationTriple.first.listener;
+                    final ViewCreation viewCreation =
+                            attachmentFragmentCreationViewCreationTriple.third;
+
+                    final ProgressBar progressBar =
+                            viewCreation.view.requireViewById(
+                                    R.id.fragment_podcast_list_progress_bar
+                            );
+                    final TextView progressTextView =
+                            viewCreation.view.requireViewById(
+                                    R.id.fragment_podcast_list_progress_text_view
+                            );
+                    final TextView errorTextView =
+                            viewCreation.view.requireViewById(
+                                    R.id.fragment_podcast_list_error_text_view
+                            );
+                    final RecyclerView podcastsRecyclerView =
+                            viewCreation.view.requireViewById(
+                                    R.id.fragment_podcast_list_podcasts_recycler_view
+                            );
+                    final LinearLayoutManager linearLayoutManager =
+                            new LinearLayoutManager(context);
+                    podcastsRecyclerView.setLayoutManager(linearLayoutManager);
+                    final List<Identified<Podcast>> initialPodcastIdentifieds =
+                            FragmentUtil.getUnparcelableHolderListArgumentOptional(
+                                    this,
+                                    PodcastIdentifiedHolder.class,
+                                    PODCAST_PARCELABLES_KEY
+                            ).orElse(Collections.emptyList());
+                    final PodcastRecyclerViewAdapter adapter =
+                            new PodcastRecyclerViewAdapter(
+                                    initialPodcastIdentifieds,
+                                    podcastIdentified ->
+                                            listener.onClick(
+                                                    this,
+                                                    podcastIdentified
+                                            )
+                            );
+                    podcastsRecyclerView.setAdapter(adapter);
+                    podcastIdentifiedsItemRangerOptionalBehaviorSubject.onNext(
+                            Optional.of(
+                                    new PodcastIdentifiedsItemRanger(
+                                            podcastsRecyclerView,
+                                            adapter,
+                                            linearLayoutManager
+                                    )
+                            )
+                    );
+
+                    viewCreation.switchMapToStart().subscribe(
+                            start -> {
+                                final Disposable adapterSetPodcastIdentifiedsDisposable = listener
+                                        .podcastIdentifiedsAsyncValueObservable(this)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(
+                                                podcastIdentifiedsAsyncValue ->
+                                                        podcastIdentifiedsAsyncValue.act(
+                                                                podcastIdentifiedListLoading -> {
+                                                                    progressBar.setVisibility(View.VISIBLE);
+                                                                    progressTextView.setVisibility(View.VISIBLE);
+                                                                    errorTextView.setVisibility(View.GONE);
+                                                                    podcastsRecyclerView.setVisibility(View.GONE);
+                                                                },
+                                                                podcastIdentifiedListFailed -> {
+                                                                    progressBar.setVisibility(View.GONE);
+                                                                    progressTextView.setVisibility(View.GONE);
+                                                                    errorTextView.setVisibility(View.VISIBLE);
+                                                                    podcastsRecyclerView.setVisibility(View.GONE);
+                                                                },
+                                                                podcastIdentifiedListLoadedButUpdating -> {
+                                                                    progressBar.setVisibility(View.GONE);
+                                                                    progressTextView.setVisibility(View.GONE);
+                                                                    errorTextView.setVisibility(View.GONE);
+                                                                    podcastsRecyclerView.setVisibility(View.VISIBLE);
+
+                                                                    final Bundle args = new Bundle();
+                                                                    args.putParcelableArray(
+                                                                            PODCAST_PARCELABLES_KEY,
+                                                                            podcastIdentifiedListLoadedButUpdating.value
+                                                                                    .stream()
+                                                                                    .map(PodcastIdentifiedHolder::new)
+                                                                                    .toArray(PodcastIdentifiedHolder[]::new)
+                                                                    );
+                                                                    start.setArguments(args);
+                                                                    adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdating.value);
+                                                                },
+                                                                podcastIdentifiedListLoadedButUpdateFailed -> {
+                                                                    progressBar.setVisibility(View.GONE);
+                                                                    progressTextView.setVisibility(View.GONE);
+                                                                    errorTextView.setVisibility(View.GONE);
+                                                                    podcastsRecyclerView.setVisibility(View.VISIBLE);
+
+                                                                    final Bundle args = new Bundle();
+                                                                    args.putParcelableArray(
+                                                                            PODCAST_PARCELABLES_KEY,
+                                                                            podcastIdentifiedListLoadedButUpdateFailed.value
+                                                                                    .stream()
+                                                                                    .map(PodcastIdentifiedHolder::new)
+                                                                                    .toArray(PodcastIdentifiedHolder[]::new)
+                                                                    );
+                                                                    start.setArguments(args);
+                                                                    adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdateFailed.value);
+                                                                },
+                                                                podcastIdentifiedListLoaded -> {
+                                                                    progressBar.setVisibility(View.GONE);
+                                                                    progressTextView.setVisibility(View.GONE);
+                                                                    errorTextView.setVisibility(View.GONE);
+                                                                    podcastsRecyclerView.setVisibility(View.VISIBLE);
+
+                                                                    final Bundle args = new Bundle();
+                                                                    args.putParcelableArray(
+                                                                            PODCAST_PARCELABLES_KEY,
+                                                                            podcastIdentifiedListLoaded.value
+                                                                                    .stream()
+                                                                                    .map(PodcastIdentifiedHolder::new)
+                                                                                    .toArray(PodcastIdentifiedHolder[]::new)
+                                                                    );
+                                                                    start.setArguments(args);
+                                                                    adapter.setPodcastIdentifieds(podcastIdentifiedListLoaded.value);
+                                                                }
+                                                        ),
+                                                throwable -> {
+                                                    listener.onPodcastIdentifiedsError(
+                                                            this,
+                                                            throwable
                                                     );
-                                                    viewCreation.activityCreationObservable.subscribe(
-                                                            activityCreation -> {
-                                                                activityCreation.startObservable.subscribe(
-                                                                        start -> {
-                                                                            final Disposable adapterSetPodcastIdentifiedsDisposable = listener
-                                                                                    .podcastIdentifiedsAsyncValueObservable(this)
-                                                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                                                    .subscribe(
-                                                                                            podcastIdentifiedsAsyncValue ->
-                                                                                                    podcastIdentifiedsAsyncValue.act(
-                                                                                                            podcastIdentifiedListLoading -> {
-                                                                                                                progressBar.setVisibility(View.VISIBLE);
-                                                                                                                progressTextView.setVisibility(View.VISIBLE);
-                                                                                                                errorTextView.setVisibility(View.GONE);
-                                                                                                                podcastsRecyclerView.setVisibility(View.GONE);
-                                                                                                            },
-                                                                                                            podcastIdentifiedListFailed -> {
-                                                                                                                progressBar.setVisibility(View.GONE);
-                                                                                                                progressTextView.setVisibility(View.GONE);
-                                                                                                                errorTextView.setVisibility(View.VISIBLE);
-                                                                                                                podcastsRecyclerView.setVisibility(View.GONE);
-                                                                                                            },
-                                                                                                            podcastIdentifiedListLoadedButUpdating -> {
-                                                                                                                progressBar.setVisibility(View.GONE);
-                                                                                                                progressTextView.setVisibility(View.GONE);
-                                                                                                                errorTextView.setVisibility(View.GONE);
-                                                                                                                podcastsRecyclerView.setVisibility(View.VISIBLE);
-
-                                                                                                                final Bundle args = new Bundle();
-                                                                                                                args.putParcelableArray(
-                                                                                                                        PODCAST_PARCELABLES_KEY,
-                                                                                                                        podcastIdentifiedListLoadedButUpdating.value
-                                                                                                                                .stream()
-                                                                                                                                .map(PodcastIdentifiedHolder::new)
-                                                                                                                                .toArray(PodcastIdentifiedHolder[]::new)
-                                                                                                                );
-                                                                                                                start.setArguments(args);
-                                                                                                                adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdating.value);
-                                                                                                            },
-                                                                                                            podcastIdentifiedListLoadedButUpdateFailed -> {
-                                                                                                                progressBar.setVisibility(View.GONE);
-                                                                                                                progressTextView.setVisibility(View.GONE);
-                                                                                                                errorTextView.setVisibility(View.GONE);
-                                                                                                                podcastsRecyclerView.setVisibility(View.VISIBLE);
-
-                                                                                                                final Bundle args = new Bundle();
-                                                                                                                args.putParcelableArray(
-                                                                                                                        PODCAST_PARCELABLES_KEY,
-                                                                                                                        podcastIdentifiedListLoadedButUpdateFailed.value
-                                                                                                                                .stream()
-                                                                                                                                .map(PodcastIdentifiedHolder::new)
-                                                                                                                                .toArray(PodcastIdentifiedHolder[]::new)
-                                                                                                                );
-                                                                                                                start.setArguments(args);
-                                                                                                                adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdateFailed.value);
-                                                                                                            },
-                                                                                                            podcastIdentifiedListLoaded -> {
-                                                                                                                progressBar.setVisibility(View.GONE);
-                                                                                                                progressTextView.setVisibility(View.GONE);
-                                                                                                                errorTextView.setVisibility(View.GONE);
-                                                                                                                podcastsRecyclerView.setVisibility(View.VISIBLE);
-
-                                                                                                                final Bundle args = new Bundle();
-                                                                                                                args.putParcelableArray(
-                                                                                                                        PODCAST_PARCELABLES_KEY,
-                                                                                                                        podcastIdentifiedListLoaded.value
-                                                                                                                                .stream()
-                                                                                                                                .map(PodcastIdentifiedHolder::new)
-                                                                                                                                .toArray(PodcastIdentifiedHolder[]::new)
-                                                                                                                );
-                                                                                                                start.setArguments(args);
-                                                                                                                adapter.setPodcastIdentifieds(podcastIdentifiedListLoaded.value);
-                                                                                                            }
-                                                                                                    ),
-                                                                                            throwable -> {
-                                                                                                listener.onPodcastIdentifiedsError(
-                                                                                                        this,
-                                                                                                        throwable
-                                                                                                );
-                                                                                                Log.e(
-                                                                                                        TAG,
-                                                                                                        "Error loading podcast list",
-                                                                                                        throwable
-                                                                                                );
-                                                                                            }
-                                                                                    );
-                                                                            start.onStopCompletable.subscribe(
-                                                                                    adapterSetPodcastIdentifiedsDisposable::dispose
-                                                                            ).isDisposed();
-                                                                        }
-                                                                ).isDisposed();
-                                                            }
-                                                    ).isDisposed();
-                                                },
-                                                Functions.ON_ERROR_MISSING,
-                                                () -> podcastIdentifiedsItemRangerOptionalBehaviorSubject.onNext(Optional.empty())
-                                        ).isDisposed()
+                                                    Log.e(
+                                                            TAG,
+                                                            "Error loading podcast list",
+                                                            throwable
+                                                    );
+                                                }
+                                        );
+                                start.onStopCompletable.subscribe(
+                                        adapterSetPodcastIdentifiedsDisposable::dispose
                                 ).isDisposed();
                             }
+                    ).isDisposed();
+
+                    viewCreation.onDestroyViewCompletable.subscribe(
+                            () -> podcastIdentifiedsItemRangerOptionalBehaviorSubject.onNext(Optional.empty())
                     ).isDisposed();
                 }
         ).isDisposed();

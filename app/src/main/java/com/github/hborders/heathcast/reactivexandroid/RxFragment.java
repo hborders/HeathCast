@@ -11,6 +11,8 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.NonnullPair;
+import com.github.hborders.heathcast.core.Triple;
 
 import java.util.Objects;
 
@@ -128,6 +130,20 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
                     ", activityCreationObservable=" + activityCreationObservable +
                     ", onDestroyViewCompletable=" + onDestroyViewCompletable +
                     '}';
+        }
+
+        public final Observable<Start> switchMapToStart() {
+            return activityCreationObservable.switchMap(
+              activityCreation -> activityCreation.startObservable
+            );
+        }
+
+        public final Observable<Resume> switchMapToResume() {
+            return activityCreationObservable.switchMap(
+                    activityCreation -> activityCreation.startObservable.switchMap(
+                            start -> start.resumeObservable
+                    )
+            );
         }
     }
 
@@ -271,6 +287,45 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         } else {
             throw new IllegalStateException();
         }
+    }
+
+    protected final Observable<
+            NonnullPair<
+                    Attachment<F, L>,
+                    FragmentCreation
+                    >
+            > switchMapToFragmentCreation(
+            Observable<Attachment<F, L>> attachmentObservable
+    ) {
+        return attachmentObservable.switchMap(
+                attachment -> attachment.fragmenCreationObservable.map(
+                        fragmentCreation -> new NonnullPair<>(attachment, fragmentCreation)
+                )
+        );
+    }
+
+    protected final Observable<
+            Triple<
+                    Attachment<F, L>,
+                    FragmentCreation,
+                    ViewCreation
+                    >
+            > switchMapToViewCreation(
+            Observable<Attachment<F, L>> attachmentObservable
+    ) {
+        return attachmentObservable.switchMap(
+                attachment -> attachment.fragmenCreationObservable.switchMap(
+                        fragmentCreation -> fragmentCreation.viewCreationObservableObservable.switchMap(
+                                viewCreationObservable -> viewCreationObservable.map(
+                                        viewCreation -> new Triple<>(
+                                                attachment,
+                                                fragmentCreation,
+                                                viewCreation
+                                        )
+                                )
+                        )
+                )
+        );
     }
 
     private void superSetArguments(@Nullable Bundle args) {
