@@ -168,15 +168,11 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                     errorTextView.setVisibility(View.GONE);
                                                                     podcastsRecyclerView.setVisibility(View.VISIBLE);
 
-                                                                    final Bundle args = new Bundle();
-                                                                    args.putParcelableArray(
-                                                                            PODCAST_PARCELABLES_KEY,
-                                                                            podcastIdentifiedListLoadedButUpdating.value
-                                                                                    .stream()
-                                                                                    .map(PodcastIdentifiedHolder::new)
-                                                                                    .toArray(PodcastIdentifiedHolder[]::new)
+                                                                    start.setArguments(
+                                                                            podcastIdentifiedBundle(
+                                                                                    podcastIdentifiedListLoadedButUpdating.value
+                                                                            )
                                                                     );
-                                                                    start.setArguments(args);
                                                                     adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdating.value);
                                                                 },
                                                                 podcastIdentifiedListLoadedButUpdateFailed -> {
@@ -185,15 +181,11 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                     errorTextView.setVisibility(View.GONE);
                                                                     podcastsRecyclerView.setVisibility(View.VISIBLE);
 
-                                                                    final Bundle args = new Bundle();
-                                                                    args.putParcelableArray(
-                                                                            PODCAST_PARCELABLES_KEY,
-                                                                            podcastIdentifiedListLoadedButUpdateFailed.value
-                                                                                    .stream()
-                                                                                    .map(PodcastIdentifiedHolder::new)
-                                                                                    .toArray(PodcastIdentifiedHolder[]::new)
+                                                                    start.setArguments(
+                                                                            podcastIdentifiedBundle(
+                                                                                    podcastIdentifiedListLoadedButUpdateFailed.value
+                                                                            )
                                                                     );
-                                                                    start.setArguments(args);
                                                                     adapter.setPodcastIdentifieds(podcastIdentifiedListLoadedButUpdateFailed.value);
                                                                 },
                                                                 podcastIdentifiedListLoaded -> {
@@ -202,15 +194,11 @@ public final class PodcastListFragment2 extends RxFragment<
                                                                     errorTextView.setVisibility(View.GONE);
                                                                     podcastsRecyclerView.setVisibility(View.VISIBLE);
 
-                                                                    final Bundle args = new Bundle();
-                                                                    args.putParcelableArray(
-                                                                            PODCAST_PARCELABLES_KEY,
-                                                                            podcastIdentifiedListLoaded.value
-                                                                                    .stream()
-                                                                                    .map(PodcastIdentifiedHolder::new)
-                                                                                    .toArray(PodcastIdentifiedHolder[]::new)
+                                                                    start.setArguments(
+                                                                            podcastIdentifiedBundle(
+                                                                                    podcastIdentifiedListLoaded.value
+                                                                            )
                                                                     );
-                                                                    start.setArguments(args);
                                                                     adapter.setPodcastIdentifieds(podcastIdentifiedListLoaded.value);
                                                                 }
                                                         ),
@@ -312,5 +300,17 @@ public final class PodcastListFragment2 extends RxFragment<
                             );
                         })
                 ).orElse(Observable.empty()));
+    }
+
+    private static Bundle podcastIdentifiedBundle(List<Identified<Podcast>> podcastIdentifieds) {
+        final Bundle podcastIdentifiedBundle = new Bundle();
+        podcastIdentifiedBundle.putParcelableArray(
+                PODCAST_PARCELABLES_KEY,
+                podcastIdentifieds
+                        .stream()
+                        .map(PodcastIdentifiedHolder::new)
+                        .toArray(PodcastIdentifiedHolder[]::new)
+        );
+        return podcastIdentifiedBundle;
     }
 }
