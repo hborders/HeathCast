@@ -1,7 +1,6 @@
 package com.github.hborders.heathcast.parcelables;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -15,7 +14,7 @@ import javax.annotation.Nullable;
 import static com.github.hborders.heathcast.android.ParcelUtil.readURL;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
-public final class PodcastIdentifiedHolder implements Parcelable, UnparcelableHolder<Identified<Podcast>> {
+public final class PodcastIdentifiedHolder implements UnparcelableHolder<Identified<Podcast>> {
     @Nullable
     public final Identified<Podcast> podcastIdentified;
 
