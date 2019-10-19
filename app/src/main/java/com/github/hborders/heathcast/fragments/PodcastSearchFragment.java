@@ -21,7 +21,6 @@ import com.github.hborders.heathcast.services.ServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -89,19 +88,6 @@ public final class PodcastSearchFragment extends Fragment
 
     public PodcastSearchFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment PodcastSearchFragment.
-     */
-    public static PodcastSearchFragment newInstance() {
-        PodcastSearchFragment fragment = new PodcastSearchFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -201,7 +187,7 @@ public final class PodcastSearchFragment extends Fragment
                                                 )
                                                 .orElse(
                                                         new NonnullPair<>(
-                                                                AsyncValue.loaded(new PodcastIdentifiedList(Collections.emptyList())),
+                                                                AsyncValue.loaded(new PodcastIdentifiedList()),
                                                                 false
                                                         )
                                                 )

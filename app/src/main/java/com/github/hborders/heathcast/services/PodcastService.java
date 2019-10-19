@@ -155,28 +155,6 @@ public final class PodcastService {
                     final Observable<PodcastIdentifiedList> podcastIdentifiedListObservable =
                             database.observeQueryForPodcastIdentifieds2(podcastSearchIdentified.identifier);
 
-//                    final CompletableSubject completableSubject =
-//                            completableSubjectsByPodcastSearch.computeIfAbsent(
-//                                    podcastSearch,
-//                                    __ -> CompletableSubject.create()
-//                            );
-//                    final Disposable searchForPodcastsDisposable =
-//                            searchForPodcasts(
-//                                    networkPauser,
-//                                    podcastSearch.search
-//                            )
-//                                    .doOnSuccess(
-//                                            podcastSearchResponse -> {
-//                                                completableSubjectsByPodcastSearch.remove(podcastSearch);
-//                                                database.replacePodcastSearchPodcasts(
-//                                                        podcastSearchIdentified,
-//                                                        podcastSearchResponse.podcasts
-//                                                );
-//                                            }
-//                                    )
-//                                    .ignoreElement()
-//                                    .subscribe(completableSubject::onComplete);
-
                     final CompletableSubject newCompletableSubject = CompletableSubject.create();
                     final CompletableSubject completableSubject =
                             completableSubjectsByPodcastSearch.computeIfAbsent(
@@ -209,6 +187,7 @@ public final class PodcastService {
                             podcastIdentifiedListObservable,
                             Single.concat(
                                     Single.just(ServiceResponse.RemoteStatus.loading()),
+                                    ~~Fix this next~~
                                     // this is a data race.
                                     // completableSubject can complete before podcastIdentifiedListObservable
                                     // emits another value. That's bad. The only way around this
@@ -301,6 +280,15 @@ public final class PodcastService {
                         }
                 );
     }
+
+//    public Observable<ServiceResponse<PodcastIdentifiedList>> fetchEpisodes2(
+//            @Nullable NetworkPauser networkPauser,
+//            URL url
+//    ) {
+//        // need to cache fetched episodes
+//        // need to build component for performing network fetches that supports client caching
+//        // so I can reuse all the code in searchForPodcasts2
+//    }
 
     public Single<List<Identified<Episode>>> fetchEpisodes(URL url) {
         final Request request = new Request.Builder().url(url).build();
