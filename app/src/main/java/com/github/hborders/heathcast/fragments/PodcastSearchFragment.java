@@ -293,7 +293,7 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public void onClick(
+    public void onClickPodcastIdentified(
             PodcastListFragment2 podcastListFragment,
             Identified<Podcast> podcastIdentified
     ) {

@@ -31,6 +31,27 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 public final class EpisodeListFragment extends Fragment {
+
+    public interface EpisodeListFragmentListener {
+        void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment);
+
+        Observable<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalObservable(
+                EpisodeListFragment episodeListFragment
+        );
+
+        void onEpisodeIdentifiedsOptionalError(
+                EpisodeListFragment episodeListFragment,
+                Throwable throwable
+        );
+
+        void onClick(
+                EpisodeListFragment episodeListFragment,
+                Identified<Episode> episodeIdentified
+        );
+
+        void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment);
+    }
+
     private static final String TAG = "EpisodeList";
     private static final String EPISODE_PARCELABLES_KEY = "episodeParcelables";
 
@@ -45,10 +66,6 @@ public final class EpisodeListFragment extends Fragment {
 
     public EpisodeListFragment() {
         // Required empty public constructor
-    }
-
-    public static EpisodeListFragment newInstance() {
-        return new EpisodeListFragment();
     }
 
     @Override
@@ -117,7 +134,24 @@ public final class EpisodeListFragment extends Fragment {
                 .episodeIdentifiedsOptionalObservable(this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        this::updateEpisodeIdentifiedsOptional,
+                        episodeIdentifiedsOptional -> {
+                            final Bundle args = new Bundle();
+                            args.putParcelableArray(
+                                    EPISODE_PARCELABLES_KEY,
+                                    episodeIdentifiedsOptional
+                                            .map(episodeIdentifieds ->
+                                                    episodeIdentifieds
+                                                            .stream()
+                                                            .map(EpisodeIdentifiedHolder::new)
+                                                            .toArray(EpisodeIdentifiedHolder[]::new)
+                                            )
+                                            .orElse(null)
+                            );
+                            setArguments(args);
+                            Objects.requireNonNull(this.adapter).setEpisodeIdentifieds(
+                                    episodeIdentifiedsOptional.orElse(Collections.emptyList())
+                            );
+                        },
                         throwable -> {
                             Objects.requireNonNull(this.listener).onEpisodeIdentifiedsOptionalError(
                                     this,
@@ -176,45 +210,5 @@ public final class EpisodeListFragment extends Fragment {
         listener.onEpisodeListFragmentWillDetach(this);
 
         super.onDetach();
-    }
-
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private void updateEpisodeIdentifiedsOptional(Optional<List<Identified<Episode>>> episodeIdentifiedsOptional) {
-        final Bundle args = new Bundle();
-        args.putParcelableArray(
-                EPISODE_PARCELABLES_KEY,
-                episodeIdentifiedsOptional
-                        .map(episodeIdentifieds ->
-                                episodeIdentifieds
-                                        .stream()
-                                        .map(EpisodeIdentifiedHolder::new)
-                                        .toArray(EpisodeIdentifiedHolder[]::new)
-                        )
-                        .orElse(null)
-        );
-        setArguments(args);
-        Objects.requireNonNull(this.adapter).setEpisodeIdentifieds(
-                episodeIdentifiedsOptional.orElse(Collections.emptyList())
-        );
-    }
-
-    public interface EpisodeListFragmentListener {
-        void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment);
-
-        Observable<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalObservable(
-                EpisodeListFragment episodeListFragment
-        );
-
-        void onEpisodeIdentifiedsOptionalError(
-                EpisodeListFragment episodeListFragment,
-                Throwable throwable
-        );
-
-        void onClick(
-                EpisodeListFragment episodeListFragment,
-                Identified<Episode> episodeIdentified
-        );
-
-        void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment);
     }
 }

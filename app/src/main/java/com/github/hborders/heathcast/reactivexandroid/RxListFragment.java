@@ -43,13 +43,13 @@ public abstract class RxListFragment<
         );
     }
 
-    protected interface OnError<
+    protected interface OnItemListAsyncValueError<
             F extends RxListFragment<F, L, U, H>,
             L,
             U,
             H extends UnparcelableHolder<U>
             > {
-        void onError(
+        void onItemListAsyncValueError(
                 L listener,
                 F fragment,
                 Throwable throwable
@@ -84,7 +84,7 @@ public abstract class RxListFragment<
     private static final String ITEM_HOLDERS_KEY = "itemHolders";
 
     private final ItemListAsyncValueObservableProvider<F, L, U, H> itemListAsyncValueObservableProvider;
-    private final OnError<F, L, U, H> onError;
+    private final OnItemListAsyncValueError<F, L, U, H> onItemListAsyncValueError;
     private final Class<H> holderClass;
     private final BehaviorSubject<Optional<ItemRanger>> itemRangerOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
@@ -95,7 +95,7 @@ public abstract class RxListFragment<
             WillDetach<F, L> willDetach,
             int layoutResource,
             ItemListAsyncValueObservableProvider<F, L, U, H> itemListAsyncValueObservableProvider,
-            OnError<F, L, U, H> onError,
+            OnItemListAsyncValueError<F, L, U, H> onItemListAsyncValueError,
             Class<H> holderClass
     ) {
         super(
@@ -106,7 +106,7 @@ public abstract class RxListFragment<
         );
 
         this.itemListAsyncValueObservableProvider = itemListAsyncValueObservableProvider;
-        this.onError = onError;
+        this.onItemListAsyncValueError = onItemListAsyncValueError;
         this.holderClass = holderClass;
     }
 
@@ -176,6 +176,9 @@ public abstract class RxListFragment<
 
 
     protected abstract H[] holderArray(List<U> items);
+
+
+    protected abstract void onItemListAsyncValueError(Throwable throwable);
 
     protected abstract void subscribeToAttachmentObservable2(
             Observable<Attachment<F, L>> attachmentObservable
@@ -292,12 +295,14 @@ public abstract class RxListFragment<
                                                                             );
                                                                         }
                                                                 ),
-                                                        throwable ->
-                                                                onError.onError(
-                                                                        listener,
-                                                                        getSelf(),
-                                                                        throwable
-                                                                )
+                                                        throwable -> {
+                                                            onItemListAsyncValueError(throwable);
+                                                            onItemListAsyncValueError.onItemListAsyncValueError(
+                                                                    listener,
+                                                                    getSelf(),
+                                                                    throwable
+                                                            );
+                                                        }
                                                 );
                                 start.onStopCompletable.subscribe(
                                         adapterSetPodcastIdentifiedsDisposable::dispose

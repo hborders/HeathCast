@@ -1,5 +1,6 @@
 package com.github.hborders.heathcast.fragments;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,13 +40,15 @@ public final class PodcastListFragment2 extends RxListFragment<
                 Throwable throwable
         );
 
-        void onClick(
+        void onClickPodcastIdentified(
                 PodcastListFragment2 podcastListFragment,
-                Identified<Podcast> identifiedPodcast
+                Identified<Podcast> podcastIdentified
         );
 
         void onPodcastListFragmentListenerWillDetach(PodcastListFragment2 podcastListFragment);
     }
+
+    private static final String TAG = "PodcastList";
 
     public PodcastListFragment2() {
         super(
@@ -100,7 +103,7 @@ public final class PodcastListFragment2 extends RxListFragment<
         return new PodcastRecyclerViewAdapter(
                 initialItems,
                 podcastIdentified ->
-                        listener.onClick(
+                        listener.onClickPodcastIdentified(
                                 this,
                                 podcastIdentified
                         )
@@ -113,6 +116,11 @@ public final class PodcastListFragment2 extends RxListFragment<
                 .stream()
                 .map(PodcastIdentifiedHolder::new)
                 .toArray(PodcastIdentifiedHolder[]::new);
+    }
+
+    @Override
+    protected void onItemListAsyncValueError(Throwable throwable) {
+        Log.e(TAG, "Error Loading Podcasts", throwable);
     }
 
     @Override
