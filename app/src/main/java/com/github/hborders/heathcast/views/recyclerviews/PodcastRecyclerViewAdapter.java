@@ -15,16 +15,17 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecyclerViewAdapter.PodcastViewHolder> {
+public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
+        Identified<Podcast>,
+        PodcastRecyclerViewAdapter.PodcastViewHolder> {
 
-    private List<Identified<Podcast>> podcastIdentifieds;
     private final PodcastRecyclerViewAdapterListener listener;
 
     public PodcastRecyclerViewAdapter(
             List<Identified<Podcast>> identifiedPodcasts,
             PodcastRecyclerViewAdapterListener listener
     ) {
-        this.podcastIdentifieds = identifiedPodcasts;
+        super(identifiedPodcasts);
         this.listener = listener;
     }
 
@@ -39,11 +40,12 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
     }
 
     @Override
-    public void onBindViewHolder(PodcastViewHolder holder, int position) {
-        final Identified<Podcast> identifiedPodcast = podcastIdentifieds.get(position);
-        final Podcast podcast = identifiedPodcast.model;
+    public void onBindViewHolder(
+            PodcastViewHolder holder,
+            Identified<Podcast> podcastIdentified) {
+        final Podcast podcast = podcastIdentified.model;
         holder.nameTextView.setText(podcast.name);
-        holder.itemView.setOnClickListener(itemView -> listener.onClick(identifiedPodcast));
+        holder.itemView.setOnClickListener(itemView -> listener.onClick(podcastIdentified));
         Picasso.get().cancelRequest(holder.artworkImageView);
         if (podcast.artworkURL != null) {
             final String artworkUrlString = podcast.artworkURL.toExternalForm();
@@ -51,17 +53,7 @@ public class PodcastRecyclerViewAdapter extends RecyclerView.Adapter<PodcastRecy
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return podcastIdentifieds.size();
-    }
-
-    public void setPodcastIdentifieds(List<Identified<Podcast>> podcastIdentifieds) {
-        this.podcastIdentifieds = podcastIdentifieds;
-        notifyDataSetChanged();
-    }
-
-    static final class PodcastViewHolder extends RecyclerView.ViewHolder {
+    public static final class PodcastViewHolder extends RecyclerView.ViewHolder {
         final ImageView artworkImageView;
         final TextView nameTextView;
 

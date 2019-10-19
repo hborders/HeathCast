@@ -66,14 +66,13 @@ public final class PodcastIdentifiedList implements List<Identified<Podcast>> {
         return podcastIdentifieds.iterator();
     }
 
-    @Nullable
     @Override
     public Object[] toArray() {
         return podcastIdentifieds.toArray();
     }
 
     @Override
-    public <T> T[] toArray(@Nullable T[] a) {
+    public <T> T[] toArray(T[] a) {
         return podcastIdentifieds.toArray(a);
     }
 

@@ -185,7 +185,7 @@ public final class PodcastListFragment extends Fragment {
                                             .toArray(PodcastIdentifiedHolder[]::new)
                             );
                             setArguments(args);
-                            Objects.requireNonNull(this.adapter).setPodcastIdentifieds(podcastIdentifieds);
+                            Objects.requireNonNull(this.adapter).setItems(podcastIdentifieds);
                         },
                         throwable -> {
                             Objects.requireNonNull(this.listener).onPodcastIdentifiedsError(
