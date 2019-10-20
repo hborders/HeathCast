@@ -187,7 +187,6 @@ public final class PodcastService {
                             podcastIdentifiedListObservable,
                             Single.concat(
                                     Single.just(ServiceResponse.RemoteStatus.loading()),
-                                    ~~Fix this next~~
                                     // this is a data race.
                                     // completableSubject can complete before podcastIdentifiedListObservable
                                     // emits another value. That's bad. The only way around this
@@ -198,10 +197,10 @@ public final class PodcastService {
                                             ServiceResponse.RemoteStatus.complete()
                                     ).onErrorReturn(ServiceResponse.RemoteStatus::failed)
                             ).toObservable(),
-                            (identifieds, remoteStatus) ->
+                            (podcastIdentifiedList, remoteStatus) ->
                                     new ServiceResponse<>(
                                             PodcastIdentifiedList.class,
-                                            identifieds,
+                                            podcastIdentifiedList,
                                             remoteStatus
                                     )
                     ).doOnDispose(searchForPodcastsDisposable::dispose);
