@@ -193,6 +193,10 @@ public final class PodcastService {
                                     // is to append a version number to our data in the database
                                     // then we can check that and know that we're seeing data from
                                     // our search.
+                                    // Actually no. Instead of appending a version number to our data,
+                                    // we can modify SqlBrite to include a marker with modifications
+                                    // and then we can roll all the markers for a given transaction
+                                    // up into a Set and send them with the query.
                                     completableSubject.toSingleDefault(
                                             ServiceResponse.RemoteStatus.complete()
                                     ).onErrorReturn(ServiceResponse.RemoteStatus::failed)
