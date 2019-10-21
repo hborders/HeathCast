@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public final class PodcastIdentifiedList extends ArrayList<Identified<Podcast>> {
+
+    public PodcastIdentifiedList(int initialCapacity) {
+        super(initialCapacity);
+    }
+
     public PodcastIdentifiedList(Collection<Identified<Podcast>> podcastIdentifieds) {
         super(podcastIdentifieds);
     }

@@ -181,8 +181,12 @@ public final class Database {
                         + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
                 podcastSearchIdentifier.id
         )
-                .mapToList(PodcastTable::getPodcastIdentified)
-                .map(PodcastIdentifiedList::new);
+                .lift(
+                        new QueryToSpecificArrayListOperator<>(
+                                PodcastTable::getPodcastIdentified,
+                                PodcastIdentifiedList::new
+                        )
+                );
     }
 
     public Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
