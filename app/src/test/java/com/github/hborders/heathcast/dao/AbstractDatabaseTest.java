@@ -6,14 +6,14 @@ import javax.annotation.Nullable;
 
 import io.reactivex.schedulers.Schedulers;
 
-public class AbstractDatabaseTest {
+public class AbstractDatabaseTest<N> {
     @Nullable
-    private Database database;
+    private Database<N> database;
 
-    protected final Database getDatabase() {
-        @Nullable final Database initialDatabase = this.database;
+    protected final Database<N> getDatabase() {
+        @Nullable final Database<N> initialDatabase = this.database;
         if (initialDatabase == null) {
-            final Database newDatabase = new Database(
+            final Database<N> newDatabase = new Database<>(
                     ApplicationProvider.getApplicationContext(),
                     null, // in-memory
                     Schedulers.trampoline()

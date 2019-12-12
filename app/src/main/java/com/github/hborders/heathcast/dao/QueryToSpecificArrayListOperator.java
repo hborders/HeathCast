@@ -19,7 +19,7 @@ import android.database.Cursor;
 
 import androidx.annotation.Nullable;
 
-import com.squareup.sqlbrite3.SqlBrite;
+import com.stealthmountain.sqldim.SqlDim;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.plugins.RxJavaPlugins;
 
-final class QueryToSpecificArrayListOperator<L extends ArrayList<T>, T> implements ObservableOperator<L, SqlBrite.Query> {
+final class QueryToSpecificArrayListOperator<L extends ArrayList<T>, T> implements ObservableOperator<L, SqlDim.Query> {
 
     interface NewSpecificArrayList<L extends ArrayList<T>, T> {
         L newSpecificArrayList(int initialCapacity);
@@ -47,7 +47,7 @@ final class QueryToSpecificArrayListOperator<L extends ArrayList<T>, T> implemen
         this.newSpecificArrayList = newSpecificArrayList;
     }
 
-    @Override public Observer<? super SqlBrite.Query> apply(Observer<? super L> observer) {
+    @Override public Observer<? super SqlDim.Query> apply(Observer<? super L> observer) {
         return new MappingObserver<L, T>(
                 observer,
                 mapper,
@@ -55,7 +55,7 @@ final class QueryToSpecificArrayListOperator<L extends ArrayList<T>, T> implemen
         );
     }
 
-    private static final class MappingObserver<L extends ArrayList<T>, T> extends DisposableObserver<SqlBrite.Query> {
+    private static final class MappingObserver<L extends ArrayList<T>, T> extends DisposableObserver<SqlDim.Query> {
         private final Observer<? super L> downstream;
         private final Function<Cursor, T> mapper;
         private final NewSpecificArrayList<L, T> newSpecificArrayList;
@@ -74,7 +74,7 @@ final class QueryToSpecificArrayListOperator<L extends ArrayList<T>, T> implemen
             downstream.onSubscribe(this);
         }
 
-        @Override public void onNext(SqlBrite.Query query) {
+        @Override public void onNext(SqlDim.Query query) {
             try {
                 @Nullable final Cursor cursor = query.run();
                 if (cursor == null || isDisposed()) {

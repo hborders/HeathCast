@@ -47,7 +47,7 @@ public final class MainActivity extends AppCompatActivity
 
     private final BehaviorSubject<Optional<PodcastSearchFragment>> podcastSearchFragmentOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
-    private final PodcastService podcastService = new PodcastService(this);
+    private final PodcastService<Object> podcastService = new PodcastService<>(this);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,11 +65,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(@Nullable MenuItem item) {
-        if (item == null) {
-            return super.onOptionsItemSelected(item);
-        }
-
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.

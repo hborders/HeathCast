@@ -40,8 +40,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public final class PodcastService {
-    private final Database database;
+public final class PodcastService<N> {
+    private final Database<N> database;
     private final Scheduler scheduler;
     private final OkHttpClient okHttpClient;
     private final Gson gson;
@@ -66,7 +66,7 @@ public final class PodcastService {
             Scheduler scheduler
     ) {
         this(
-                new Database(
+                new Database<>(
                         context,
                         null,
                         scheduler
@@ -76,7 +76,7 @@ public final class PodcastService {
     }
 
     public PodcastService(
-            Database database,
+            Database<N> database,
             Scheduler scheduler
     ) {
         this(
@@ -89,7 +89,7 @@ public final class PodcastService {
     }
 
     public PodcastService(
-            Database database,
+            Database<N> database,
             Scheduler scheduler,
             OkHttpClient okHttpClient,
             Gson gson,

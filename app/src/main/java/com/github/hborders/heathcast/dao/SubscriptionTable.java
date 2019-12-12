@@ -8,12 +8,12 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
+import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.Subscription;
-import com.github.hborders.heathcast.android.CursorUtil;
-import com.squareup.sqlbrite3.BriteDatabase;
+import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +25,7 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 
-public final class SubscriptionTable extends Table {
+public final class SubscriptionTable<N> extends Table<N> {
     static final String TABLE_SUBSCRIPTION = "subscription";
 
     private static final String ID = "_id";
@@ -34,12 +34,12 @@ public final class SubscriptionTable extends Table {
 
     private static final String[] COLUMNS_ID = new String[]{ID};
 
-    SubscriptionTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+    SubscriptionTable(DimDatabase<N> dimDatabase) {
+        super(dimDatabase);
     }
 
     Optional<Identifier<Subscription>> insertSubscription(Identifier<Podcast> podcastIdentifier) {
-        final long id = briteDatabase.insert(
+        final long id = dimDatabase.insert(
                 TABLE_SUBSCRIPTION,
                 CONFLICT_ABORT,
                 getSubscriptionContentValues(podcastIdentifier)
@@ -62,7 +62,7 @@ public final class SubscriptionTable extends Table {
             Identifier<Subscription> referenceSubscriptionIdentifier
     ) {
         SupportSQLiteStatement statement =
-                briteDatabase.getWritableDatabase().compileStatement(
+                dimDatabase.getWritableDatabase().compileStatement(
                         "UPDATE " + TABLE_SUBSCRIPTION + " "
                                 + " SET " + SORT + " = ("
                                 + "   CASE WHEN ("
@@ -101,7 +101,7 @@ public final class SubscriptionTable extends Table {
         statement.bindLong(2, referenceSubscriptionIdentifier.id);
         statement.bindLong(3, referenceSubscriptionIdentifier.id);
         statement.bindLong(4, movingSubscriptionIdentifier.id);
-        return briteDatabase.executeUpdateDelete(
+        return dimDatabase.executeUpdateDelete(
                 TABLE_SUBSCRIPTION,
                 statement
         );
@@ -112,7 +112,7 @@ public final class SubscriptionTable extends Table {
             Identifier<Subscription> referenceSubscriptionIdentifier
     ) {
         SupportSQLiteStatement statement =
-                briteDatabase.getWritableDatabase().compileStatement(
+                dimDatabase.getWritableDatabase().compileStatement(
                         "UPDATE " + TABLE_SUBSCRIPTION + " "
                                 + " SET " + SORT + " = ("
                                 + "   CASE WHEN ("
@@ -151,14 +151,14 @@ public final class SubscriptionTable extends Table {
         statement.bindLong(2, referenceSubscriptionIdentifier.id);
         statement.bindLong(3, referenceSubscriptionIdentifier.id);
         statement.bindLong(4, movingSubscriptionIdentifier.id);
-        return briteDatabase.executeUpdateDelete(
+        return dimDatabase.executeUpdateDelete(
                 TABLE_SUBSCRIPTION,
                 statement
         );
     }
 
     int deleteSubscription(Identifier<Subscription> subscriptionIdentifier) {
-        return briteDatabase.delete(
+        return dimDatabase.delete(
                 TABLE_SUBSCRIPTION,
                 ID + " = ?",
                 Long.toString(subscriptionIdentifier.id)
@@ -166,7 +166,7 @@ public final class SubscriptionTable extends Table {
     }
 
     Observable<List<Identified<Subscription>>> observeQueryForSubscriptions() {
-        return briteDatabase.createQuery(
+        return dimDatabase.createQuery(
                 Arrays.asList(
                         PodcastTable.TABLE_PODCAST,
                         SubscriptionTable.TABLE_SUBSCRIPTION
@@ -194,7 +194,7 @@ public final class SubscriptionTable extends Table {
                                 PODCAST_ID + " = ?",
                                 new Object[]{podcastIdentifier.id}
                         ).create();
-        return briteDatabase.createQuery(
+        return dimDatabase.createQuery(
                 Arrays.asList(
                         PodcastTable.TABLE_PODCAST,
                         SubscriptionTable.TABLE_SUBSCRIPTION

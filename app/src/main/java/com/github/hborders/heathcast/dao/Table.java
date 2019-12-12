@@ -11,7 +11,7 @@ import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.core.SortedSetUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
-import com.squareup.sqlbrite3.BriteDatabase;
+import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,13 +32,13 @@ import javax.annotation.Nullable;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 import static com.github.hborders.heathcast.core.ListUtil.indexedStream;
 
-abstract class Table {
+abstract class Table<N> {
     protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
 
-    protected final BriteDatabase briteDatabase;
+    protected final DimDatabase<N> dimDatabase;
 
-    protected Table(BriteDatabase briteDatabase) {
-        this.briteDatabase = briteDatabase;
+    protected Table(DimDatabase<N> dimDatabase) {
+        this.dimDatabase = dimDatabase;
     }
 
     protected static void putIdentifier(ContentValues contentValues, String key, Identified<?> identified) {
@@ -63,13 +63,13 @@ abstract class Table {
             Function<M, Optional<Identifier<M>>> modelInserter,
             Function<Identified<M>, Integer> identifiedUpdater
     ) {
-        try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+        try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
             final S secondaryKey = modelSecondaryKeyGetter.apply(model);
 
             final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
                     upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
             @Nullable final Identifier<M> upsertedIdentifier;
-            try (final Cursor primaryAndSecondaryKeyCursor = briteDatabase.query(primaryAndSecondaryKeyQuery)) {
+            try (final Cursor primaryAndSecondaryKeyCursor = dimDatabase.query(primaryAndSecondaryKeyQuery)) {
                 if (primaryAndSecondaryKeyCursor.moveToNext()) {
                     final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
                     final Identifier<M> upsertingIdentifier = new Identifier<>(
@@ -117,7 +117,7 @@ abstract class Table {
         if (models.isEmpty()) {
             return Collections.emptyList();
         } else {
-            try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+            try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
                 final SortedSetUtil<NonnullPair<Integer, M>> indexedModelSortedSetUtil =
                         new SortedSetUtil<>(
                                 Comparator.comparing(
@@ -147,7 +147,7 @@ abstract class Table {
                 // preserves that order as well.
                 final LinkedHashSet<S> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
                 final List<Identified<M>> updatingIdentifieds = new ArrayList<>(models.size());
-                try (final Cursor primaryKeyAndSecondaryKeyCursor = briteDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
+                try (final Cursor primaryKeyAndSecondaryKeyCursor = dimDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
                     while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
                         final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
                         final S secondaryKey = upsertAdapter.getSecondaryKey(primaryKeyAndSecondaryKeyCursor);

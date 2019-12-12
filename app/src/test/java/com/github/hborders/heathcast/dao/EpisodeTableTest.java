@@ -32,13 +32,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
-public class EpisodeTableTest extends AbstractDatabaseTest {
+public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
-    private EpisodeTable getTestObject() {
+    private EpisodeTable<Object> getTestObject() {
         return getDatabase().episodeTable;
     }
 
-    private PodcastTable getPodcastTable() {
+    private PodcastTable<Object> getPodcastTable() {
         return getDatabase().podcastTable;
     }
 

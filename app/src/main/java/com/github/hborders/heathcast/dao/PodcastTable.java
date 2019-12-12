@@ -12,7 +12,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.squareup.sqlbrite3.BriteDatabase;
+import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +33,7 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNullableString
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
-final class PodcastTable extends Table {
+final class PodcastTable<N> extends Table<N> {
     static final String TABLE_PODCAST = "podcast";
 
     static final String ARTWORK_URL = "artwork_url";
@@ -59,12 +59,12 @@ final class PodcastTable extends Table {
             cursor -> CursorUtil.getNonnullString(cursor, FEED_URL)
     );
 
-    PodcastTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+    PodcastTable(DimDatabase<N> dimDatabase) {
+        super(dimDatabase);
     }
 
     Optional<Identifier<Podcast>> insertPodcast(Podcast podcast) {
-        final long id = briteDatabase.insert(
+        final long id = dimDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastContentValues(podcast)
@@ -82,7 +82,7 @@ final class PodcastTable extends Table {
     }
 
     int updatePodcastIdentified(Identified<Podcast> identifiedPodcast) {
-        return briteDatabase.update(
+        return dimDatabase.update(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastIdentifiedContentValues(identifiedPodcast),
@@ -119,12 +119,12 @@ final class PodcastTable extends Table {
 
     int deletePodcast(Identifier<Podcast> podcastIdentifier) {
         final SupportSQLiteStatement deleteStatement =
-                briteDatabase.getWritableDatabase().compileStatement(
+                dimDatabase.getWritableDatabase().compileStatement(
                         "DELETE FROM " + TABLE_PODCAST
                                 + " WHERE " + ID + " = ?"
                 );
         deleteStatement.bindLong(1, podcastIdentifier.id);
-        return briteDatabase.executeUpdateDelete(
+        return dimDatabase.executeUpdateDelete(
                 new HashSet<>(
                         Arrays.asList(
                                 TABLE_PODCAST,
@@ -137,7 +137,7 @@ final class PodcastTable extends Table {
 
     int deletePodcasts(Collection<Identifier<Podcast>> podcastIdentifiers) {
         final String[] idStrings = idStrings(podcastIdentifiers);
-        return briteDatabase.delete(
+        return dimDatabase.delete(
                 TABLE_PODCAST,
                 ID + inPlaceholderClause(podcastIdentifiers.size()),
                 idStrings
@@ -151,7 +151,7 @@ final class PodcastTable extends Table {
                         .columns(COLUMNS_ALL)
                         .create();
 
-        return briteDatabase
+        return dimDatabase
                 .createQuery(
                         TABLE_PODCAST,
                         query
@@ -172,7 +172,7 @@ final class PodcastTable extends Table {
                                 new Object[]{podcastIdentifier.id}
                         ).create();
 
-        return briteDatabase
+        return dimDatabase
                 .createQuery(
                         TABLE_PODCAST,
                         query

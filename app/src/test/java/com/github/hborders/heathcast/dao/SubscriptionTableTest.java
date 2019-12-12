@@ -24,13 +24,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
-public final class SubscriptionTableTest extends AbstractDatabaseTest {
+public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
 
-    private SubscriptionTable getTestObject() {
+    private SubscriptionTable<Object> getTestObject() {
         return getDatabase().subscriptionTable;
     }
 
-    private PodcastTable getPodcastTable() {
+    private PodcastTable<Object> getPodcastTable() {
         return getDatabase().podcastTable;
     }
 

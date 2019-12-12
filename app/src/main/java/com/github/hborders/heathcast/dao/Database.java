@@ -18,8 +18,8 @@ import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
-import com.squareup.sqlbrite3.BriteDatabase;
-import com.squareup.sqlbrite3.SqlBrite;
+import com.stealthmountain.sqldim.DimDatabase;
+import com.stealthmountain.sqldim.SqlDim;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,13 +30,13 @@ import javax.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
-public final class Database {
-    private final BriteDatabase briteDatabase;
-    final PodcastSearchTable podcastSearchTable;
-    final PodcastTable podcastTable;
-    final EpisodeTable episodeTable;
-    private final PodcastSearchResultTable podcastSearchResultTable;
-    final SubscriptionTable subscriptionTable;
+public final class Database<N> {
+    private final DimDatabase<N> briteDatabase;
+    final PodcastSearchTable<N> podcastSearchTable;
+    final PodcastTable<N> podcastTable;
+    final EpisodeTable<N> episodeTable;
+    private final PodcastSearchResultTable<N> podcastSearchResultTable;
+    final SubscriptionTable<N> subscriptionTable;
 
     public Database(
             Context context,
@@ -50,16 +50,16 @@ public final class Database {
                 .build();
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
         final SupportSQLiteOpenHelper supportSQLiteOpenHelper = factory.create(configuration);
-        final SqlBrite sqlBrite = new SqlBrite.Builder().build();
+        final SqlDim<N> sqlBrite = new SqlDim.Builder<N>().build();
         briteDatabase = sqlBrite.wrapDatabaseHelper(
                 supportSQLiteOpenHelper,
                 scheduler
         );
-        podcastSearchTable = new PodcastSearchTable(briteDatabase);
-        podcastTable = new PodcastTable(briteDatabase);
-        episodeTable = new EpisodeTable(briteDatabase);
-        podcastSearchResultTable = new PodcastSearchResultTable(briteDatabase);
-        subscriptionTable = new SubscriptionTable(briteDatabase);
+        podcastSearchTable = new PodcastSearchTable<>(briteDatabase);
+        podcastTable = new PodcastTable<>(briteDatabase);
+        episodeTable = new EpisodeTable<>(briteDatabase);
+        podcastSearchResultTable = new PodcastSearchResultTable<>(briteDatabase);
+        subscriptionTable = new SubscriptionTable<>(briteDatabase);
     }
 
     public Optional<Identified<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
@@ -76,7 +76,7 @@ public final class Database {
             Identified<PodcastSearch> podcastSearchIdentified,
             List<Podcast> podcasts
     ) {
-        try (final BriteDatabase.Transaction transaction = briteDatabase.newTransaction()) {
+        try (final DimDatabase.Transaction<N> transaction = briteDatabase.newTransaction()) {
             podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.identifier);
             ListUtil.indexedStream(podcasts).forEach(indexedPodcast ->
                     podcastTable.upsertPodcast(indexedPodcast.second).ifPresent(

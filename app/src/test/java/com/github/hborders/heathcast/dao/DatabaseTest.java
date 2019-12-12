@@ -34,7 +34,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
-public class DatabaseTest extends AbstractDatabaseTest {
+public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     private final Podcast podcast1;
     private final Podcast podcast11;
@@ -170,7 +170,7 @@ public class DatabaseTest extends AbstractDatabaseTest {
         );
     }
 
-    private Database getTestObject() {
+    private Database<Object> getTestObject() {
         return getDatabase();
     }
 

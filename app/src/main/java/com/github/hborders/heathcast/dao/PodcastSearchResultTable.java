@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.squareup.sqlbrite3.BriteDatabase;
+import com.stealthmountain.sqldim.DimDatabase;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
 import static com.github.hborders.heathcast.dao.PodcastSearchTable.CREATE_FOREIGN_KEY_PODCAST_SEARCH;
@@ -15,7 +15,7 @@ import static com.github.hborders.heathcast.dao.PodcastSearchTable.FOREIGN_KEY_P
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 
-final class PodcastSearchResultTable extends Table {
+final class PodcastSearchResultTable<N> extends Table<N> {
     static final String TABLE_PODCAST_SEARCH_RESULT = "podcast_search_result";
 
     static final String ID = "_id";
@@ -29,8 +29,8 @@ final class PodcastSearchResultTable extends Table {
             PODCAST_SEARCH_ID
     };
 
-    PodcastSearchResultTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+    PodcastSearchResultTable(DimDatabase<N> dimDatabase) {
+        super(dimDatabase);
     }
 
     long insertPodcastSearchResult(
@@ -43,7 +43,7 @@ final class PodcastSearchResultTable extends Table {
         values.put(PODCAST_SEARCH_ID, podcastSearchIdentifier.id);
         values.put(SORT, sort);
 
-        return briteDatabase.insert(
+        return dimDatabase.insert(
                 TABLE_PODCAST_SEARCH_RESULT,
                 CONFLICT_ABORT,
                 values
@@ -51,7 +51,7 @@ final class PodcastSearchResultTable extends Table {
     }
 
     int deletePodcastSearchResultsByPodcastSearchIdentifier(Identifier<PodcastSearch> podcastSearchIdentifier) {
-        return briteDatabase.delete(
+        return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH_RESULT,
                 PODCAST_SEARCH_ID + " = ?",
                 Long.toString(podcastSearchIdentifier.id)

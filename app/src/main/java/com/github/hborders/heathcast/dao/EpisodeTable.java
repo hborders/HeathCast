@@ -12,7 +12,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.squareup.sqlbrite3.BriteDatabase;
+import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +39,7 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNullableString
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
-final class EpisodeTable extends Table {
+final class EpisodeTable<N> extends Table<N> {
     static final String TABLE_EPISODE = "episode";
 
     private static final String ARTWORK_URL = "artwork_url";
@@ -76,15 +76,15 @@ final class EpisodeTable extends Table {
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
 
-    EpisodeTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+    EpisodeTable(DimDatabase<N> dimDatabase) {
+        super(dimDatabase);
     }
 
     Optional<Identifier<Episode>> insertEpisode(
             Identifier<Podcast> podcastIdentifier,
             Episode episode
     ) {
-        final long id = briteDatabase.insert(
+        final long id = dimDatabase.insert(
                 TABLE_EPISODE,
                 CONFLICT_ROLLBACK,
                 getEpisodeContentValues(
@@ -107,7 +107,7 @@ final class EpisodeTable extends Table {
     int updateEpisodeIdentified(
             Identifier<Podcast> podcastIdentifier,
             Identified<Episode> episodeIdentified) {
-        return briteDatabase.update(
+        return dimDatabase.update(
                 TABLE_EPISODE,
                 CONFLICT_ROLLBACK,
                 getEpisodeIdentifiedContentValues(
@@ -144,7 +144,7 @@ final class EpisodeTable extends Table {
     }
 
     int deleteEpisode(Identifier<Episode> episodeIdentifier) {
-        return briteDatabase.delete(
+        return dimDatabase.delete(
                 TABLE_EPISODE,
                 ID + " = ?",
                 Long.toString(episodeIdentifier.id)
@@ -153,7 +153,7 @@ final class EpisodeTable extends Table {
 
     int deleteEpisodes(Collection<Identifier<Episode>> episodeIdentifiers) {
         final String[] idStrings = idStrings(episodeIdentifiers);
-        return briteDatabase.delete(
+        return dimDatabase.delete(
                 TABLE_EPISODE,
                 ID + inPlaceholderClause(episodeIdentifiers.size()),
                 idStrings
@@ -167,7 +167,7 @@ final class EpisodeTable extends Table {
                         .columns(COLUMNS_ALL_BUT_PODCAST_ID)
                         .create();
 
-        return briteDatabase
+        return dimDatabase
                 .createQuery(
                         Arrays.asList(
                                 TABLE_PODCAST,
@@ -191,7 +191,7 @@ final class EpisodeTable extends Table {
                         .columns(COLUMNS_ALL_BUT_PODCAST_ID)
                         .create();
 
-        return briteDatabase
+        return dimDatabase
                 .createQuery(
                         Arrays.asList(
                                 TABLE_PODCAST,
@@ -214,7 +214,7 @@ final class EpisodeTable extends Table {
                                 new Object[]{episodeIdentifier.id}
                         ).create();
 
-        return briteDatabase
+        return dimDatabase
                 .createQuery(
                         Arrays.asList(
                                 TABLE_PODCAST,

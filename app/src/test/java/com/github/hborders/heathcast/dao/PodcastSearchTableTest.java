@@ -22,13 +22,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
-public final class PodcastSearchTableTest extends AbstractDatabaseTest {
+public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     private final PodcastSearch podcastSearch1 = new PodcastSearch("Search1");
     private final PodcastSearch podcastSearch2 = new PodcastSearch("Search2");
     private final PodcastSearch podcastSearch3 = new PodcastSearch("Search3");
 
-    private PodcastSearchTable getTestObject() {
+    private PodcastSearchTable<Object> getTestObject() {
         return getDatabase().podcastSearchTable;
     }
 

@@ -11,7 +11,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.squareup.sqlbrite3.BriteDatabase;
+import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +26,7 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.android.CursorUtil.getNonnullString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
-final class PodcastSearchTable extends Table {
+final class PodcastSearchTable<N> extends Table<N> {
     static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
     static final String ID = "_id";
@@ -54,8 +54,8 @@ final class PodcastSearchTable extends Table {
             cursor -> CursorUtil.getNonnullString(cursor, SEARCH)
     );
 
-    PodcastSearchTable(BriteDatabase briteDatabase) {
-        super(briteDatabase);
+    PodcastSearchTable(DimDatabase<N> dimDatabase) {
+        super(dimDatabase);
     }
 
     Optional<Identifier<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
@@ -71,7 +71,7 @@ final class PodcastSearchTable extends Table {
     }
 
     private Optional<Identifier<PodcastSearch>> insertPodcastSearch(PodcastSearch podcastSearch) {
-        final long id = briteDatabase.insert(
+        final long id = dimDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchContentValues(podcastSearch)
@@ -90,7 +90,7 @@ final class PodcastSearchTable extends Table {
 
     private int updatePodcastSearchIdentified(
             Identified<PodcastSearch> podcastSearchIdentified) {
-        return briteDatabase.update(
+        return dimDatabase.update(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchIdentifiedContentValues(podcastSearchIdentified),
@@ -100,7 +100,7 @@ final class PodcastSearchTable extends Table {
     }
 
     int deletePodcastSearchById(Identifier<PodcastSearch> podcastSearchIdentifier) {
-        return briteDatabase.delete(
+        return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH,
                 ID + " = ?",
                 Long.toString(podcastSearchIdentifier.id)
@@ -114,7 +114,7 @@ final class PodcastSearchTable extends Table {
             idStrings[i] = Long.toString(podcastSearchIdentifier.id);
             i++;
         }
-        return briteDatabase.delete(
+        return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH,
                 ID + inPlaceholderClause(podcastSearchIdentifiers.size()),
                 idStrings
@@ -131,7 +131,7 @@ final class PodcastSearchTable extends Table {
                                 ID + " = ?",
                                 new Object[]{podcastSearchIdentifier.id})
                         .create();
-        try (final Cursor sortCursor = briteDatabase.query(query)) {
+        try (final Cursor sortCursor = dimDatabase.query(query)) {
             if (sortCursor.moveToNext()) {
                 return sortCursor.getLong(0);
             } else {
@@ -152,7 +152,7 @@ final class PodcastSearchTable extends Table {
                         )
                         .create();
 
-        return briteDatabase
+        return dimDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
                 .mapToList(PodcastSearchTable::getPodcastSearchIdentified);
     }
@@ -169,7 +169,7 @@ final class PodcastSearchTable extends Table {
                                 new Object[]{podcastSearchIdentifier.id}
                         ).create();
 
-        return briteDatabase
+        return dimDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
                 .mapToOptional(PodcastSearchTable::getPodcastSearchIdentified);
     }
