@@ -3,6 +3,7 @@ package com.github.hborders.heathcast.services;
 import android.content.Context;
 
 import com.github.hborders.heathcast.core.Result;
+import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
@@ -28,11 +29,8 @@ import javax.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.disposables.Disposables;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.CompletableSubject;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -40,8 +38,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public final class PodcastService<N> {
-    private final Database<N> database;
+public final class PodcastService {
+    private final Database<Object> database;
     private final Scheduler scheduler;
     private final OkHttpClient okHttpClient;
     private final Gson gson;
@@ -49,10 +47,6 @@ public final class PodcastService<N> {
 
     private final ConcurrentHashMap<PodcastSearch, BehaviorSubject<ServiceRequestState>> serviceRequestStateBehaviorSubjectsByPodcastSearch =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<
-            PodcastSearch,
-            CompletableSubject
-            > completableSubjectsByPodcastSearch = new ConcurrentHashMap<>();
 
     public PodcastService(Context context) {
         this(
@@ -76,7 +70,7 @@ public final class PodcastService<N> {
     }
 
     public PodcastService(
-            Database<N> database,
+            Database<Object> database,
             Scheduler scheduler
     ) {
         this(
@@ -89,7 +83,7 @@ public final class PodcastService<N> {
     }
 
     public PodcastService(
-            Database<N> database,
+            Database<Object> database,
             Scheduler scheduler,
             OkHttpClient okHttpClient,
             Gson gson,
@@ -134,7 +128,7 @@ public final class PodcastService<N> {
         ).subscribeOn(scheduler);
     }
 
-    public Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
+    public Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
             PodcastSearch podcastSearch
     ) {
         return searchForPodcasts2(
@@ -143,7 +137,7 @@ public final class PodcastService<N> {
         );
     }
 
-    public Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
+    public Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
             @Nullable NetworkPauser networkPauser,
             PodcastSearch podcastSearch
     ) {
@@ -152,62 +146,98 @@ public final class PodcastService<N> {
 
         return podcastSearchIdentifiedOptional.map(
                 podcastSearchIdentified -> {
-                    final Observable<PodcastIdentifiedList> podcastIdentifiedListObservable =
-                            database.observeQueryForPodcastIdentifieds2(podcastSearchIdentified.identifier);
-
-                    final CompletableSubject newCompletableSubject = CompletableSubject.create();
-                    final CompletableSubject completableSubject =
-                            completableSubjectsByPodcastSearch.computeIfAbsent(
-                                    podcastSearch,
-                                    __ -> newCompletableSubject
-                            );
-                    final Disposable searchForPodcastsDisposable;
-                    if (completableSubject == newCompletableSubject) {
-                        searchForPodcastsDisposable =
-                                searchForPodcasts(
-                                        networkPauser,
-                                        podcastSearch.search
-                                )
-                                        .doOnSuccess(
-                                                podcastSearchResponse -> {
-                                                    completableSubjectsByPodcastSearch.remove(podcastSearch);
-                                                    database.replacePodcastSearchPodcasts(
-                                                            podcastSearchIdentified,
-                                                            podcastSearchResponse.podcasts
+                    final Object marker = new Object();
+                    final Observable<Tuple<Boolean, PodcastIdentifiedList>> sawMarkerAndPodcastIdentifiedListObservable =
+                            database
+                                    .observeMarkedQueryForPodcastIdentifieds2(podcastSearchIdentified.identifier)
+                                    .scan(new Tuple<>(
+                                                    false,
+                                                    new PodcastIdentifiedList()
+                                            ),
+                                            (sawMarkerAndPodcastIdentifiedList, podcastIdentifiedListMarkedValue) -> {
+                                                final boolean sawMarker = sawMarkerAndPodcastIdentifiedList.first;
+                                                if (sawMarker ||
+                                                        podcastIdentifiedListMarkedValue.markers.contains(marker)) {
+                                                    return new Tuple<>(
+                                                            true,
+                                                            podcastIdentifiedListMarkedValue.value
+                                                    );
+                                                } else {
+                                                    return new Tuple<>(
+                                                            false,
+                                                            podcastIdentifiedListMarkedValue.value
                                                     );
                                                 }
-                                        )
-                                        .ignoreElement()
-                                        .subscribe(completableSubject::onComplete);
-                    } else {
-                        searchForPodcastsDisposable = Disposables.disposed();
-                    }
+                                            }
+                                    );
+                    final Observable<ServiceResponse0> podcastSearchServiceResponseObservable =
+                            searchForPodcasts(
+                                    networkPauser,
+                                    podcastSearch.search
+                            )
+                                    .subscribeOn(scheduler)
+                                    .observeOn(scheduler)
+                                    .doOnSuccess(podcastSearchResponse ->
+                                            database.replacePodcastSearchPodcasts(
+                                                    marker,
+                                                    podcastSearchIdentified,
+                                                    podcastSearchResponse.podcasts
+                                            )
+                                    )
+                                    .map(ignored -> ServiceResponse0.complete())
+                                    .doOnError(ignored -> database.markPodcastSearchFailure(marker))
+                                    .onErrorReturnItem(ServiceResponse0.failed())
+                                    .toObservable().startWith(ServiceResponse0.loading());
 
                     return Observable.combineLatest(
-                            podcastIdentifiedListObservable,
-                            Single.concat(
-                                    Single.just(ServiceResponse.RemoteStatus.loading()),
-                                    // this is a data race.
-                                    // completableSubject can complete before podcastIdentifiedListObservable
-                                    // emits another value. That's bad. The only way around this
-                                    // is to append a version number to our data in the database
-                                    // then we can check that and know that we're seeing data from
-                                    // our search.
-                                    // Actually no. Instead of appending a version number to our data,
-                                    // we can modify SqlBrite to include a marker with modifications
-                                    // and then we can roll all the markers for a given transaction
-                                    // up into a Set and send them with the query.
-                                    completableSubject.toSingleDefault(
-                                            ServiceResponse.RemoteStatus.complete()
-                                    ).onErrorReturn(ServiceResponse.RemoteStatus::failed)
-                            ).toObservable(),
-                            (podcastIdentifiedList, remoteStatus) ->
-                                    new ServiceResponse<>(
-                                            PodcastIdentifiedList.class,
-                                            podcastIdentifiedList,
-                                            remoteStatus
-                                    )
-                    ).doOnDispose(searchForPodcastsDisposable::dispose);
+                            podcastSearchServiceResponseObservable,
+                            sawMarkerAndPodcastIdentifiedListObservable,
+                            (podcastSearchServiceResponse, sawMarkerAndPodcastIdentifiedList) -> {
+                                final boolean sawMarker = sawMarkerAndPodcastIdentifiedList.first;
+                                final PodcastIdentifiedList podcastIdentifiedList = sawMarkerAndPodcastIdentifiedList.second;
+                                return podcastSearchServiceResponse.reduce(
+                                        loading -> {
+                                            // we don't care if we saw the marker because we don't know if
+                                            // we completed or failed
+                                            return ServiceResponse1.loading(
+                                                    PodcastIdentifiedList.class,
+                                                    podcastIdentifiedList
+                                            );
+                                        },
+                                        complete -> {
+                                            if (sawMarker) {
+                                                return ServiceResponse1.complete(
+                                                        PodcastIdentifiedList.class,
+                                                        podcastIdentifiedList
+                                                );
+                                            } else {
+                                                // we haven't seen the marker yet, so
+                                                // even though the service finished, the database
+                                                // transaction hasn't completed, so stay loading
+                                                return ServiceResponse1.loading(
+                                                        PodcastIdentifiedList.class,
+                                                        podcastIdentifiedList
+                                                );
+                                            }
+                                        },
+                                        failed -> {
+                                            if (sawMarker) {
+                                                return ServiceResponse1.failed(
+                                                        PodcastIdentifiedList.class,
+                                                        podcastIdentifiedList
+                                                );
+                                            } else {
+                                                // we haven't seen the marker yet, so
+                                                // even though the service finished, the database
+                                                // transaction hasn't completed, so stay loading
+                                                return ServiceResponse1.loading(
+                                                        PodcastIdentifiedList.class,
+                                                        podcastIdentifiedList
+                                                );
+                                            }
+                                        }
+                                );
+                            });
                 }
         ).orElse(Observable.error(new UpsertPodcastSearchException(podcastSearch)));
     }
@@ -335,7 +365,7 @@ public final class PodcastService<N> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PodcastSearchResponse that = (PodcastSearchResponse) o;

@@ -2,6 +2,8 @@ package com.github.hborders.heathcast.models;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public final class Subscription {
     public final Identified<Podcast> podcastIdentified;
 
@@ -10,7 +12,7 @@ public final class Subscription {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Subscription that = (Subscription) o;

@@ -2,6 +2,8 @@ package com.github.hborders.heathcast.core;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public abstract class AsyncValue<T> {
     public static <T> AsyncValue<T> loading(Class<T> valueClass) {
         return new Loading<>(valueClass);
@@ -62,7 +64,7 @@ public abstract class AsyncValue<T> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Loading<?> loading = (Loading<?>) o;
@@ -117,7 +119,7 @@ public abstract class AsyncValue<T> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Failed<?> failed = (Failed<?>) o;
@@ -169,7 +171,7 @@ public abstract class AsyncValue<T> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             LoadedButUpdating<?> that = (LoadedButUpdating<?>) o;
@@ -225,7 +227,7 @@ public abstract class AsyncValue<T> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             LoadedButUpdateFailed<?> that = (LoadedButUpdateFailed<?>) o;
@@ -277,7 +279,7 @@ public abstract class AsyncValue<T> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Loaded<?> loaded = (Loaded<?>) o;

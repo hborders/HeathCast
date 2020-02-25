@@ -2,6 +2,7 @@ package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -156,34 +157,36 @@ public final class PodcastSearchFragment extends Fragment
                                 podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.onNext(
                                         podcastIdentifiedListServiceResponseOptional
                                                 .map(
-                                                        podcastIdentifiedListServiceResponse ->
-                                                                podcastIdentifiedListServiceResponse.remoteStatus.reduce(
-                                                                        loading ->
-                                                                                new NonnullPair<>(
-                                                                                        podcastIdentifiedListServiceResponse.value.isEmpty() ?
-                                                                                                AsyncValue.loading(PodcastIdentifiedList.class) :
-                                                                                                AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
-                                                                                        true
-                                                                                ),
-                                                                        failed ->
-                                                                                new NonnullPair<>(
-                                                                                        podcastIdentifiedListServiceResponse.value.isEmpty() ?
-                                                                                                AsyncValue.failed(
-                                                                                                        PodcastIdentifiedList.class,
-                                                                                                        failed.throwable
-                                                                                                ) :
-                                                                                                AsyncValue.loadedButUpdateFailed(
-                                                                                                        podcastIdentifiedListServiceResponse.value,
-                                                                                                        failed.throwable
-                                                                                                ),
-                                                                                        false
-                                                                                ),
-                                                                        complete ->
-                                                                                new NonnullPair<>(
-                                                                                        AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
-                                                                                        false
-                                                                                )
-                                                                )
+                                                        podcastIdentifiedListServiceResponse -> {
+                                                            Log.d("PodcastList", "RemoteStatus: " + podcastIdentifiedListServiceResponse.remoteStatus.getClass().getSimpleName());
+                                                            return podcastIdentifiedListServiceResponse.remoteStatus.reduce(
+                                                                    loading ->
+                                                                            new NonnullPair<>(
+                                                                                    podcastIdentifiedListServiceResponse.value.isEmpty() ?
+                                                                                            AsyncValue.loading(PodcastIdentifiedList.class) :
+                                                                                            AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
+                                                                                    true
+                                                                            ),
+                                                                    failed ->
+                                                                            new NonnullPair<>(
+                                                                                    podcastIdentifiedListServiceResponse.value.isEmpty() ?
+                                                                                            AsyncValue.failed(
+                                                                                                    PodcastIdentifiedList.class,
+                                                                                                    failed.throwable
+                                                                                            ) :
+                                                                                            AsyncValue.loadedButUpdateFailed(
+                                                                                                    podcastIdentifiedListServiceResponse.value,
+                                                                                                    failed.throwable
+                                                                                            ),
+                                                                                    false
+                                                                            ),
+                                                                    complete ->
+                                                                            new NonnullPair<>(
+                                                                                    AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
+                                                                                    false
+                                                                            )
+                                                            );
+                                                        }
                                                 )
                                                 .orElse(
                                                         new NonnullPair<>(

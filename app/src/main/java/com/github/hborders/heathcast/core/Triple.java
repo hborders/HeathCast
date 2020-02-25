@@ -2,6 +2,8 @@ package com.github.hborders.heathcast.core;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public final class Triple<A, B, C> {
     public final A first;
     public final B second;
@@ -18,7 +20,7 @@ public final class Triple<A, B, C> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Triple<?, ?, ?> triple = (Triple<?, ?, ?>) o;

@@ -53,7 +53,7 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Identif
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PodcastIdentifiedHolder that = (PodcastIdentifiedHolder) o;

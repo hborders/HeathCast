@@ -119,7 +119,7 @@ public final class DelegatingIdlingResource implements IdlingResource {
             }
 
             @Override
-            public boolean equals(Object o) {
+            public boolean equals(@Nullable Object o) {
                 if (this == o) return true;
                 return o != null && getClass() == o.getClass();
             }
@@ -152,7 +152,7 @@ public final class DelegatingIdlingResource implements IdlingResource {
             }
 
             @Override
-            public boolean equals(Object o) {
+            public boolean equals(@Nullable Object o) {
                 if (this == o) return true;
                 if (o == null || getClass() != o.getClass()) return false;
                 HasInnerIdlingResource that = (HasInnerIdlingResource) o;
@@ -186,7 +186,7 @@ public final class DelegatingIdlingResource implements IdlingResource {
             }
 
             @Override
-            public boolean equals(Object o) {
+            public boolean equals(@Nullable Object o) {
                 if (this == o) return true;
                 return o != null && getClass() == o.getClass();
             }

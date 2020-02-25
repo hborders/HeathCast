@@ -5,10 +5,9 @@ buildscript {
         google()
         mavenCentral()
         jcenter()
-
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0-alpha08'
+        classpath 'com.android.tools.build:gradle:4.0.0-alpha09'
 
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
         

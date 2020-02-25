@@ -63,7 +63,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EpisodeIdentifiedHolder that = (EpisodeIdentifiedHolder) o;

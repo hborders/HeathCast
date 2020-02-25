@@ -1,5 +1,7 @@
 package com.github.hborders.heathcast.core;
 
+import androidx.annotation.Nullable;
+
 import java.util.Objects;
 
 public abstract class Either<L, R> {
@@ -65,7 +67,7 @@ public abstract class Either<L, R> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Left<?, ?> left = (Left<?, ?>) o;
@@ -108,7 +110,7 @@ public abstract class Either<L, R> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Right<?, ?> right = (Right<?, ?>) o;

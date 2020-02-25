@@ -2,6 +2,8 @@ package com.github.hborders.heathcast.models;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public final class Identified<M> {
     public final Identifier<M> identifier;
     public final M model;
@@ -15,7 +17,7 @@ public final class Identified<M> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Identified<?> that = (Identified<?>) o;

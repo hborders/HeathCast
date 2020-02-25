@@ -4,6 +4,8 @@ import com.github.hborders.heathcast.models.PodcastSearch;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public final class UpsertPodcastSearchException extends Exception {
     public final PodcastSearch podcastSearch;
 
@@ -13,7 +15,7 @@ public final class UpsertPodcastSearchException extends Exception {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UpsertPodcastSearchException that = (UpsertPodcastSearchException) o;

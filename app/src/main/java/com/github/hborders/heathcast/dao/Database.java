@@ -20,6 +20,7 @@ import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.stealthmountain.sqldim.DimDatabase;
 import com.stealthmountain.sqldim.SqlDim;
+import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
 public final class Database<N> {
-    private final DimDatabase<N> briteDatabase;
+    private final DimDatabase<N> dimDatabase;
     final PodcastSearchTable<N> podcastSearchTable;
     final PodcastTable<N> podcastTable;
     final EpisodeTable<N> episodeTable;
@@ -51,15 +52,15 @@ public final class Database<N> {
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
         final SupportSQLiteOpenHelper supportSQLiteOpenHelper = factory.create(configuration);
         final SqlDim<N> sqlBrite = new SqlDim.Builder<N>().build();
-        briteDatabase = sqlBrite.wrapDatabaseHelper(
+        dimDatabase = sqlBrite.wrapDatabaseHelper(
                 supportSQLiteOpenHelper,
                 scheduler
         );
-        podcastSearchTable = new PodcastSearchTable<>(briteDatabase);
-        podcastTable = new PodcastTable<>(briteDatabase);
-        episodeTable = new EpisodeTable<>(briteDatabase);
-        podcastSearchResultTable = new PodcastSearchResultTable<>(briteDatabase);
-        subscriptionTable = new SubscriptionTable<>(briteDatabase);
+        podcastSearchTable = new PodcastSearchTable<>(dimDatabase);
+        podcastTable = new PodcastTable<>(dimDatabase);
+        episodeTable = new EpisodeTable<>(dimDatabase);
+        podcastSearchResultTable = new PodcastSearchResultTable<>(dimDatabase);
+        subscriptionTable = new SubscriptionTable<>(dimDatabase);
     }
 
     public Optional<Identified<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
@@ -73,10 +74,11 @@ public final class Database<N> {
     }
 
     public void replacePodcastSearchPodcasts(
+            N marker,
             Identified<PodcastSearch> podcastSearchIdentified,
             List<Podcast> podcasts
     ) {
-        try (final DimDatabase.Transaction<N> transaction = briteDatabase.newTransaction()) {
+        try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
             podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.identifier);
             ListUtil.indexedStream(podcasts).forEach(indexedPodcast ->
                     podcastTable.upsertPodcast(indexedPodcast.second).ifPresent(
@@ -89,8 +91,12 @@ public final class Database<N> {
                     )
             );
 
-            transaction.markSuccessful();
+            transaction.markSuccessful(marker);
         }
+    }
+
+    public void markPodcastSearchFailure(N marker) {
+        podcastTable.triggerMarked(marker);
     }
 
     public Optional<Identified<Podcast>> upsertPodcast(Podcast podcast) {
@@ -138,7 +144,7 @@ public final class Database<N> {
     public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
             Identifier<PodcastSearch> podcastSearchIdentifier
     ) {
-        return briteDatabase.createQuery(
+        return dimDatabase.createQuery(
                 Arrays.asList(
                         PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
                         PodcastTable.TABLE_PODCAST,
@@ -162,7 +168,7 @@ public final class Database<N> {
     public Observable<PodcastIdentifiedList> observeQueryForPodcastIdentifieds2(
             Identifier<PodcastSearch> podcastSearchIdentifier
     ) {
-        return briteDatabase.createQuery(
+        return dimDatabase.createQuery(
                 Arrays.asList(
                         PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
                         PodcastTable.TABLE_PODCAST,
@@ -181,11 +187,37 @@ public final class Database<N> {
                         + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
                 podcastSearchIdentifier.id
         )
-                .lift(
-                        new QueryToSpecificArrayListOperator<>(
-                                PodcastTable::getPodcastIdentified,
-                                PodcastIdentifiedList::new
-                        )
+                .mapToSpecificList(
+                        PodcastTable::getPodcastIdentified,
+                        PodcastIdentifiedList::new
+                );
+    }
+
+    public Observable<MarkedValue<N, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds2(
+            Identifier<PodcastSearch> podcastSearchIdentifier
+    ) {
+        return dimDatabase.createMarkedQuery(
+                Arrays.asList(
+                        PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
+                        PodcastTable.TABLE_PODCAST,
+                        PodcastSearchTable.TABLE_PODCAST_SEARCH
+                ),
+                "SELECT "
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ARTWORK_URL + " AS " + PodcastTable.ARTWORK_URL + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.AUTHOR + " AS " + PodcastTable.AUTHOR + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.FEED_URL + " AS " + PodcastTable.FEED_URL + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " AS " + PodcastTable.ID + ","
+                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.NAME + " AS " + PodcastTable.NAME + " "
+                        + "FROM " + PodcastTable.TABLE_PODCAST + " "
+                        + "INNER JOIN " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + " "
+                        + "  ON " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_ID + " "
+                        + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
+                        + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
+                podcastSearchIdentifier.id
+        )
+                .mapToSpecificList(
+                        (cursor, ns) -> PodcastTable.getPodcastIdentified(cursor),
+                        PodcastIdentifiedList::new
                 );
     }
 

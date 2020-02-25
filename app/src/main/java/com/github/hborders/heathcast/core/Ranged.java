@@ -2,11 +2,13 @@ package com.github.hborders.heathcast.core;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public abstract class Ranged<E extends Comparable<E>> {
     private Ranged() {
     }
 
-    public abstract <R> R switchRanged(
+    public abstract <R> R reduceRanged(
             Function<Open<E>, R> openFunction,
             Function<OpenStart<E>, R> openStartFunction,
             Function<OpenEnd<E>, R> openEndFunction,
@@ -22,7 +24,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public <R> R switchRanged(
+        public <R> R reduceRanged(
                 Function<Open<E>, R> openFunction,
                 Function<OpenStart<E>, R> openStartFunction,
                 Function<OpenEnd<E>, R> openEndFunction,
@@ -32,7 +34,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             return o != null && getClass() == o.getClass();
         }
@@ -56,7 +58,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public <R> R switchRanged(
+        public <R> R reduceRanged(
                 Function<Open<E>, R> openFunction,
                 Function<OpenStart<E>, R> openStartFunction,
                 Function<OpenEnd<E>, R> openEndFunction,
@@ -66,7 +68,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             OpenStart<?> openStart = (OpenStart<?>) o;
@@ -94,7 +96,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             OpenEnd<?> openEnd = (OpenEnd<?>) o;
@@ -114,7 +116,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public <R> R switchRanged(
+        public <R> R reduceRanged(
                 Function<Open<E>, R> openFunction,
                 Function<OpenStart<E>, R> openStartFunction,
                 Function<OpenEnd<E>, R> openEndFunction,
@@ -142,7 +144,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public <R> R switchRanged(
+        public <R> R reduceRanged(
                 Function<Open<E>, R> openFunction,
                 Function<OpenStart<E>, R> openStartFunction,
                 Function<OpenEnd<E>, R> openEndFunction,
@@ -152,7 +154,7 @@ public abstract class Ranged<E extends Comparable<E>> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 

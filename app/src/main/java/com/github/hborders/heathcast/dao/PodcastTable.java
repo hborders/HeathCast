@@ -144,6 +144,13 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
+    void triggerMarked(N marker) {
+        dimDatabase.triggerMarked(
+                marker,
+                TABLE_PODCAST
+        );
+    }
+
     Observable<Set<Identified<Podcast>>> observeQueryForAllPodcastIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder

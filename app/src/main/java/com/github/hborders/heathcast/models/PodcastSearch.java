@@ -2,6 +2,8 @@ package com.github.hborders.heathcast.models;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public final class PodcastSearch {
     public final String search;
 
@@ -14,7 +16,7 @@ public final class PodcastSearch {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PodcastSearch that = (PodcastSearch) o;

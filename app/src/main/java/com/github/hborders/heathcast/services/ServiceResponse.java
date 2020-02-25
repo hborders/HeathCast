@@ -5,6 +5,8 @@ import com.github.hborders.heathcast.core.VoidFunction;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public final class ServiceResponse<T> {
     public final Class<T> valueClass;
     public final T value;
@@ -21,7 +23,7 @@ public final class ServiceResponse<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ServiceResponse<?> that = (ServiceResponse<?>) o;
@@ -110,7 +112,7 @@ public final class ServiceResponse<T> {
             }
 
             @Override
-            public boolean equals(Object o) {
+            public boolean equals(@Nullable Object o) {
                 if (this == o) return true;
                 if (o == null || getClass() != o.getClass()) return false;
                 Failed failed = (Failed) o;

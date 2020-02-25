@@ -1,14 +1,15 @@
 package com.github.hborders.heathcast.core;
 
+import androidx.annotation.Nullable;
+
 import java.util.Objects;
 
-import javax.annotation.Nullable;
-
-public final class NonnullPair<F, S> {
+// Not abstract to allow reification
+public class Tuple<F, S> {
     public final F first;
     public final S second;
 
-    public NonnullPair(
+    public Tuple(
             F first,
             S second
     ) {
@@ -16,33 +17,33 @@ public final class NonnullPair<F, S> {
         this.second = second;
     }
 
-    @Override
-    public boolean equals(@Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NonnullPair<?, ?> that = (NonnullPair<?, ?>) o;
-        return first.equals(that.first) &&
-                second.equals(that.second);
+    public final F getFirst() {
+        return first;
+    }
+
+    public final S getSecond() {
+        return second;
     }
 
     @Override
-    public int hashCode() {
+    public final boolean equals(@Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tuple<?, ?> tuple = (Tuple<?, ?>) o;
+        return first.equals(tuple.first) &&
+                second.equals(tuple.second);
+    }
+
+    @Override
+    public final int hashCode() {
         return Objects.hash(first, second);
     }
 
     @Override
     public String toString() {
-        return "NonnullPair{" +
+        return "Tuple{" +
                 "first=" + first +
                 ", second=" + second +
                 '}';
-    }
-
-    public F getFirst() {
-        return first;
-    }
-
-    public S getSecond() {
-        return second;
     }
 }
