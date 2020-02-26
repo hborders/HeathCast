@@ -23,7 +23,7 @@ import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.services.PodcastService;
-import com.github.hborders.heathcast.services.ServiceResponse;
+import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
@@ -47,7 +47,7 @@ public final class MainActivity extends AppCompatActivity
 
     private final BehaviorSubject<Optional<PodcastSearchFragment>> podcastSearchFragmentOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
-    private final PodcastService<Object> podcastService = new PodcastService<>(this);
+    private final PodcastService podcastService = new PodcastService(this);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,7 +122,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
+    public Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
             PodcastSearchFragment podcastSearchFragment,
             PodcastSearch podcastSearch
     ) {

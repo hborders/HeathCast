@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.core.NonnullPair;
+import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.core.SortedSetUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -118,18 +118,18 @@ abstract class Table<N> {
             return Collections.emptyList();
         } else {
             try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
-                final SortedSetUtil<NonnullPair<Integer, M>> indexedModelSortedSetUtil =
+                final SortedSetUtil<Tuple<Integer, M>> indexedModelSortedSetUtil =
                         new SortedSetUtil<>(
                                 Comparator.comparing(
                                         indexedModel ->
                                                 indexedModel.first
                                 )
                         );
-                final Map<S, SortedSet<NonnullPair<Integer, M>>> indexedModelSetsBySecondaryKey =
+                final Map<S, SortedSet<Tuple<Integer, M>>> indexedModelSetsBySecondaryKey =
                         indexedStream(models)
                                 .collect(
                                         Collectors.toMap(
-                                                modelSecondaryKeyGetter.compose(NonnullPair::getSecond),
+                                                modelSecondaryKeyGetter.compose(Tuple::getSecond),
                                                 indexedModelSortedSetUtil::singletonSortedSet,
                                                 indexedModelSortedSetUtil::union,
                                                 // LinkedHashMap is important here to ensure that
@@ -151,7 +151,7 @@ abstract class Table<N> {
                     while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
                         final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
                         final S secondaryKey = upsertAdapter.getSecondaryKey(primaryKeyAndSecondaryKeyCursor);
-                        @Nullable final Set<NonnullPair<Integer, M>> indexedModelSet =
+                        @Nullable final Set<Tuple<Integer, M>> indexedModelSet =
                                 indexedModelSetsBySecondaryKey.get(secondaryKey);
                         if (indexedModelSet == null) {
                             throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
@@ -180,7 +180,7 @@ abstract class Table<N> {
                                 )
                         );
                 for (final S secondaryKey : insertingSecondaryKeys) {
-                    @Nullable final Set<NonnullPair<Integer, M>> indexedModelSet =
+                    @Nullable final Set<Tuple<Integer, M>> indexedModelSet =
                             indexedModelSetsBySecondaryKey.get(secondaryKey);
                     if (indexedModelSet == null) {
                         throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
@@ -189,7 +189,7 @@ abstract class Table<N> {
                         final Optional<Identifier<M>> identifierOptional =
                                 modelInserter.apply(model);
                         if (identifierOptional.isPresent()) {
-                            for (final NonnullPair<Integer, M> indexedModel : indexedModelSet) {
+                            for (final Tuple<Integer, M> indexedModel : indexedModelSet) {
                                 upsertedIdentifiers.set(
                                         indexedModel.first,
                                         identifierOptional
@@ -204,12 +204,12 @@ abstract class Table<N> {
                     if (rowCount == 1) {
                         final S secondaryKey =
                                 modelSecondaryKeyGetter.apply(updatingIdentified.model);
-                        @Nullable final Set<NonnullPair<Integer, M>> indexedModelSet =
+                        @Nullable final Set<Tuple<Integer, M>> indexedModelSet =
                                 indexedModelSetsBySecondaryKey.get(secondaryKey);
                         if (indexedModelSet == null) {
                             throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
                         } else {
-                            for (final NonnullPair<Integer, M> indexedModel : indexedModelSet) {
+                            for (final Tuple<Integer, M> indexedModel : indexedModelSet) {
                                 upsertedIdentifiers.set(
                                         indexedModel.first,
                                         Optional.of(updatingIdentified.identifier)

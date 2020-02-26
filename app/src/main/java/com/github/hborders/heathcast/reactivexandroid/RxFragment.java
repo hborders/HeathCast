@@ -11,8 +11,8 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.core.Triple;
+import com.github.hborders.heathcast.core.Tuple;
 
 import java.util.Objects;
 
@@ -134,7 +134,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
         public final Observable<Start> switchMapToStart() {
             return activityCreationObservable.switchMap(
-              activityCreation -> activityCreation.startObservable
+                    activityCreation -> activityCreation.startObservable
             );
         }
 
@@ -290,7 +290,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     }
 
     protected final Observable<
-            NonnullPair<
+            Tuple<
                     Attachment<F, L>,
                     FragmentCreation
                     >
@@ -299,7 +299,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     ) {
         return attachmentObservable.switchMap(
                 attachment -> attachment.fragmenCreationObservable.map(
-                        fragmentCreation -> new NonnullPair<>(attachment, fragmentCreation)
+                        fragmentCreation -> new Tuple<>(attachment, fragmentCreation)
                 )
         );
     }

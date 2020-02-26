@@ -8,12 +8,12 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.core.AsyncValue;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.reactivexandroid.RxListFragment;
+import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
@@ -31,14 +31,11 @@ public final class PodcastListFragment2 extends RxListFragment<
     public interface PodcastListFragmentListener {
         void onPodcastListFragmentListenerAttached(PodcastListFragment2 podcastListFragment);
 
-        Observable<AsyncValue<PodcastIdentifiedList>> podcastIdentifiedsAsyncValueObservable(
+        Observable<ServiceResponse1<PodcastIdentifiedList>> podcastIdentifiedsServiceResponseObservable(
                 PodcastListFragment2 podcastListFragment
         );
 
-        void onPodcastIdentifiedsError(
-                PodcastListFragment2 podcastListFragment,
-                Throwable throwable
-        );
+        void onPodcastIdentifiedsFailed(PodcastListFragment2 podcastListFragment);
 
         void onClickPodcastIdentified(
                 PodcastListFragment2 podcastListFragment,
@@ -56,8 +53,8 @@ public final class PodcastListFragment2 extends RxListFragment<
                 PodcastListFragmentListener::onPodcastListFragmentListenerAttached,
                 PodcastListFragmentListener::onPodcastListFragmentListenerWillDetach,
                 R.layout.fragment_podcast_list_2,
-                PodcastListFragmentListener::podcastIdentifiedsAsyncValueObservable,
-                PodcastListFragmentListener::onPodcastIdentifiedsError,
+                PodcastListFragmentListener::podcastIdentifiedsServiceResponseObservable,
+                PodcastListFragmentListener::onPodcastIdentifiedsFailed,
                 PodcastIdentifiedHolder.class
         );
     }
@@ -119,8 +116,8 @@ public final class PodcastListFragment2 extends RxListFragment<
     }
 
     @Override
-    protected void onItemListAsyncValueError(Throwable throwable) {
-        Log.e(TAG, "Error Loading Podcasts", throwable);
+    protected void onItemListServiceResponseFailed() {
+        Log.e(TAG, "Error Loading Podcasts");
     }
 
     @Override

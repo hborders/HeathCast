@@ -2,7 +2,6 @@ package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +11,11 @@ import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.core.AsyncValue;
-import com.github.hborders.heathcast.core.NonnullPair;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.services.ServiceResponse;
+import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -72,7 +69,7 @@ public final class PodcastSearchFragment extends Fragment
     // See com.github.hborders.heathcast.reactivexdemo.ConnectableObservableTest
     // Also, we need to reset this every time we create a view so that we can throw away
     // past PodcastIdentifiedLists. All that data is saved in the PodcastListFragment.
-    private final Observable<Optional<ServiceResponse<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
+    private final Observable<Optional<ServiceResponse1<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
             queryOptionalPublishSubject.switchMap(
                     queryOptional -> queryOptional.map(
                             query -> Objects.requireNonNull(listener)
@@ -82,7 +79,7 @@ public final class PodcastSearchFragment extends Fragment
                                     ).map(Optional::of)
                     ).orElse(Observable.just(Optional.empty()))
             );
-    private final BehaviorSubject<NonnullPair<AsyncValue<PodcastIdentifiedList>, Boolean>> podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject =
+    private final BehaviorSubject<ServiceResponse1<PodcastIdentifiedList>> podcastIdentifiedListServiceResponseBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
     private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
@@ -154,44 +151,12 @@ public final class PodcastSearchFragment extends Fragment
         podcastIdentifiedListServiceResponseOptionalDisposable =
                 podcastIdentifiedListServiceResponseOptionalObservable.subscribe(
                         podcastIdentifiedListServiceResponseOptional ->
-                                podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.onNext(
+                                podcastIdentifiedListServiceResponseBehaviorSubject.onNext(
                                         podcastIdentifiedListServiceResponseOptional
-                                                .map(
-                                                        podcastIdentifiedListServiceResponse -> {
-                                                            Log.d("PodcastList", "RemoteStatus: " + podcastIdentifiedListServiceResponse.remoteStatus.getClass().getSimpleName());
-                                                            return podcastIdentifiedListServiceResponse.remoteStatus.reduce(
-                                                                    loading ->
-                                                                            new NonnullPair<>(
-                                                                                    podcastIdentifiedListServiceResponse.value.isEmpty() ?
-                                                                                            AsyncValue.loading(PodcastIdentifiedList.class) :
-                                                                                            AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
-                                                                                    true
-                                                                            ),
-                                                                    failed ->
-                                                                            new NonnullPair<>(
-                                                                                    podcastIdentifiedListServiceResponse.value.isEmpty() ?
-                                                                                            AsyncValue.failed(
-                                                                                                    PodcastIdentifiedList.class,
-                                                                                                    failed.throwable
-                                                                                            ) :
-                                                                                            AsyncValue.loadedButUpdateFailed(
-                                                                                                    podcastIdentifiedListServiceResponse.value,
-                                                                                                    failed.throwable
-                                                                                            ),
-                                                                                    false
-                                                                            ),
-                                                                    complete ->
-                                                                            new NonnullPair<>(
-                                                                                    AsyncValue.loaded(podcastIdentifiedListServiceResponse.value),
-                                                                                    false
-                                                                            )
-                                                            );
-                                                        }
-                                                )
                                                 .orElse(
-                                                        new NonnullPair<>(
-                                                                AsyncValue.loaded(new PodcastIdentifiedList()),
-                                                                false
+                                                        ServiceResponse1.complete(
+                                                                PodcastIdentifiedList.class,
+                                                                new PodcastIdentifiedList()
                                                         )
                                                 )
                                 )
@@ -261,18 +226,15 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public Observable<AsyncValue<PodcastIdentifiedList>> podcastIdentifiedsAsyncValueObservable(
+    public Observable<ServiceResponse1<PodcastIdentifiedList>> podcastIdentifiedsServiceResponseObservable(
             PodcastListFragment2 podcastListFragment
     ) {
-        return podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.map(
-                NonnullPair::getFirst
-        );
+        return podcastIdentifiedListServiceResponseBehaviorSubject;
     }
 
     @Override
-    public void onPodcastIdentifiedsError(
-            PodcastListFragment2 podcastListFragment,
-            Throwable throwable
+    public void onPodcastIdentifiedsFailed(
+            PodcastListFragment2 podcastListFragment
     ) {
         Snackbar.make(
                 requireView(),
@@ -319,15 +281,19 @@ public final class PodcastSearchFragment extends Fragment
 
 
     public Observable<Boolean> getSearchingObservable() {
-        return podcastIdentifiedListAsyncValueAndSearchingBehaviorSubject.map(
-                NonnullPair::getSecond
+        return podcastIdentifiedListServiceResponseBehaviorSubject.map(
+                podcastIdentifiedListServiceResponse -> podcastIdentifiedListServiceResponse.reduce(
+                        loading -> true,
+                        complete -> false,
+                        failed -> false
+                )
         );
     }
 
     public interface PodcastSearchFragmentListener {
         void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment);
 
-        Observable<ServiceResponse<PodcastIdentifiedList>> searchForPodcasts2(
+        Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
                 PodcastSearchFragment podcastSearchFragment,
                 PodcastSearch podcastSearch
         );

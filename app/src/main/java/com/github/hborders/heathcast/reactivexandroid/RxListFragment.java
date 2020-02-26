@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.core.AsyncValue;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
+import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
 
@@ -31,28 +31,27 @@ public abstract class RxListFragment<
         H extends UnparcelableHolder<U>
         > extends RxFragment<F, L> {
 
-    protected interface ItemListAsyncValueObservableProvider<
+    protected interface ItemListServiceResponseObservableProvider<
             F extends RxListFragment<F, L, U, H>,
             L,
             U,
             H extends UnparcelableHolder<U>
             > {
-        Observable<? extends AsyncValue<? extends List<U>>> itemListAsyncValueObservable(
+        Observable<? extends ServiceResponse1<? extends List<U>>> itemListServiceResponseObservable(
                 L listener,
                 F fragment
         );
     }
 
-    protected interface OnItemListAsyncValueError<
+    protected interface OnItemListServiceResponseFailed<
             F extends RxListFragment<F, L, U, H>,
             L,
             U,
             H extends UnparcelableHolder<U>
             > {
-        void onItemListAsyncValueError(
+        void onItemListServiceResponseFailed(
                 L listener,
-                F fragment,
-                Throwable throwable
+                F fragment
         );
     }
 
@@ -83,8 +82,8 @@ public abstract class RxListFragment<
 
     private static final String ITEM_HOLDERS_KEY = "itemHolders";
 
-    private final ItemListAsyncValueObservableProvider<F, L, U, H> itemListAsyncValueObservableProvider;
-    private final OnItemListAsyncValueError<F, L, U, H> onItemListAsyncValueError;
+    private final ItemListServiceResponseObservableProvider<F, L, U, H> itemListServiceResponseObservableProvider;
+    private final OnItemListServiceResponseFailed<F, L, U, H> onItemListServiceResponseFailed;
     private final Class<H> holderClass;
     private final BehaviorSubject<Optional<ItemRanger>> itemRangerOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
@@ -94,8 +93,8 @@ public abstract class RxListFragment<
             OnAttached<F, L> onAttached,
             WillDetach<F, L> willDetach,
             int layoutResource,
-            ItemListAsyncValueObservableProvider<F, L, U, H> itemListAsyncValueObservableProvider,
-            OnItemListAsyncValueError<F, L, U, H> onItemListAsyncValueError,
+            ItemListServiceResponseObservableProvider<F, L, U, H> itemListServiceResponseObservableProvider,
+            OnItemListServiceResponseFailed<F, L, U, H> onItemListServiceResponseFailed,
             Class<H> holderClass
     ) {
         super(
@@ -105,8 +104,8 @@ public abstract class RxListFragment<
                 layoutResource
         );
 
-        this.itemListAsyncValueObservableProvider = itemListAsyncValueObservableProvider;
-        this.onItemListAsyncValueError = onItemListAsyncValueError;
+        this.itemListServiceResponseObservableProvider = itemListServiceResponseObservableProvider;
+        this.onItemListServiceResponseFailed = onItemListServiceResponseFailed;
         this.holderClass = holderClass;
     }
 
@@ -178,7 +177,7 @@ public abstract class RxListFragment<
     protected abstract H[] holderArray(List<U> items);
 
 
-    protected abstract void onItemListAsyncValueError(Throwable throwable);
+    protected abstract void onItemListServiceResponseFailed();
 
     protected abstract void subscribeToAttachmentObservable2(
             Observable<Attachment<F, L>> attachmentObservable
@@ -229,78 +228,66 @@ public abstract class RxListFragment<
                     viewCreation.switchMapToStart().subscribe(
                             start -> {
                                 final Disposable adapterSetPodcastIdentifiedsDisposable =
-                                        itemListAsyncValueObservableProvider.itemListAsyncValueObservable(
+                                        itemListServiceResponseObservableProvider.itemListServiceResponseObservable(
                                                 listener,
                                                 getSelf()
                                         )
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(
-                                                        asyncValue ->
-                                                                asyncValue.act(
-                                                                        listLoading -> {
-                                                                            progressBar.setVisibility(View.VISIBLE);
-                                                                            progressTextView.setVisibility(View.VISIBLE);
-                                                                            errorTextView.setVisibility(View.GONE);
-                                                                            recyclerView.setVisibility(View.GONE);
-                                                                        },
-                                                                        listFailed -> {
-                                                                            progressBar.setVisibility(View.GONE);
-                                                                            progressTextView.setVisibility(View.GONE);
-                                                                            errorTextView.setVisibility(View.VISIBLE);
-                                                                            recyclerView.setVisibility(View.GONE);
-                                                                        },
-                                                                        listLoadedButUpdating -> {
-                                                                            progressBar.setVisibility(View.GONE);
-                                                                            progressTextView.setVisibility(View.GONE);
-                                                                            errorTextView.setVisibility(View.GONE);
-                                                                            recyclerView.setVisibility(View.VISIBLE);
+                                                        itemListServiceResponse -> {
+                                                            itemListServiceResponse.act(
+                                                                    loading -> {
+                                                                        progressBar.setVisibility(View.VISIBLE);
+                                                                        progressTextView.setVisibility(View.VISIBLE);
+                                                                        errorTextView.setVisibility(View.GONE);
+                                                                        recyclerView.setVisibility(View.VISIBLE);
 
-                                                                            start.setArguments(
-                                                                                    argumentsBundle(
-                                                                                            listLoadedButUpdating.value
-                                                                                    )
-                                                                            );
-                                                                            listRecyclerViewAdapter.setItems(
-                                                                                    listLoadedButUpdating.value
-                                                                            );
-                                                                        },
-                                                                        listLoadedButUpdateFailed -> {
-                                                                            progressBar.setVisibility(View.GONE);
-                                                                            progressTextView.setVisibility(View.GONE);
-                                                                            errorTextView.setVisibility(View.GONE);
-                                                                            recyclerView.setVisibility(View.VISIBLE);
+                                                                        start.setArguments(
+                                                                                argumentsBundle(
+                                                                                        loading.value
+                                                                                )
+                                                                        );
+                                                                        listRecyclerViewAdapter.setItems(
+                                                                                loading.value
+                                                                        );
+                                                                    },
+                                                                    complete -> {
+                                                                        progressBar.setVisibility(View.GONE);
+                                                                        progressTextView.setVisibility(View.GONE);
+                                                                        errorTextView.setVisibility(View.GONE);
+                                                                        recyclerView.setVisibility(View.VISIBLE);
 
-                                                                            start.setArguments(
-                                                                                    argumentsBundle(
-                                                                                            listLoadedButUpdateFailed.value
-                                                                                    )
-                                                                            );
-                                                                            listRecyclerViewAdapter.setItems(
-                                                                                    listLoadedButUpdateFailed.value
-                                                                            );
-                                                                        },
-                                                                        listLoaded -> {
-                                                                            progressBar.setVisibility(View.GONE);
-                                                                            progressTextView.setVisibility(View.GONE);
-                                                                            errorTextView.setVisibility(View.GONE);
-                                                                            recyclerView.setVisibility(View.VISIBLE);
+                                                                        start.setArguments(
+                                                                                argumentsBundle(
+                                                                                        complete.value
+                                                                                )
+                                                                        );
+                                                                        listRecyclerViewAdapter.setItems(
+                                                                                complete.value
+                                                                        );
+                                                                    },
+                                                                    failed -> {
+                                                                        progressBar.setVisibility(View.GONE);
+                                                                        progressTextView.setVisibility(View.GONE);
+                                                                        errorTextView.setVisibility(View.VISIBLE);
+                                                                        recyclerView.setVisibility(View.VISIBLE);
 
-                                                                            start.setArguments(
-                                                                                    argumentsBundle(
-                                                                                            listLoaded.value
-                                                                                    )
-                                                                            );
-                                                                            listRecyclerViewAdapter.setItems(
-                                                                                    listLoaded.value
-                                                                            );
-                                                                        }
-                                                                ),
+                                                                        start.setArguments(
+                                                                                argumentsBundle(
+                                                                                        failed.value
+                                                                                )
+                                                                        );
+                                                                        listRecyclerViewAdapter.setItems(
+                                                                                failed.value
+                                                                        );
+                                                                    }
+                                                            );
+                                                        },
                                                         throwable -> {
-                                                            onItemListAsyncValueError(throwable);
-                                                            onItemListAsyncValueError.onItemListAsyncValueError(
+                                                            onItemListServiceResponseFailed();
+                                                            onItemListServiceResponseFailed.onItemListServiceResponseFailed(
                                                                     listener,
-                                                                    getSelf(),
-                                                                    throwable
+                                                                    getSelf()
                                                             );
                                                         }
                                                 );
