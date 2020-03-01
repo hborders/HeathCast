@@ -7,7 +7,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 
 public final class IdentifiedMatchers {
     private IdentifiedMatchers() {
@@ -18,7 +18,7 @@ public final class IdentifiedMatchers {
     }
 
     public static <M, I extends Identified<M>> Matcher<I> identifiedIdentifier(Identifier<M> identifier) {
-        return identifiedIdentifier(is(identifier));
+        return identifiedIdentifier(equalTo(identifier));
     }
 
     public static <M, I extends Identified<M>> Matcher<I> identifiedModel(Matcher<M> modelMatcher) {
@@ -26,7 +26,7 @@ public final class IdentifiedMatchers {
     }
 
     public static <M, I extends Identified<M>> Matcher<I> identifiedModel(M model) {
-        return identifiedModel(is(model));
+        return identifiedModel(equalTo(model));
     }
 
     public static final class IdentifiedIdentifierMatcher<M, I extends Identified<M>> extends TypeSafeMatcher<I> {

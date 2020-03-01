@@ -165,35 +165,7 @@ public final class Database<N> {
         ).mapToList(PodcastTable::getPodcastIdentified);
     }
 
-    public Observable<PodcastIdentifiedList> observeQueryForPodcastIdentifieds2(
-            Identifier<PodcastSearch> podcastSearchIdentifier
-    ) {
-        return dimDatabase.createQuery(
-                Arrays.asList(
-                        PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT,
-                        PodcastTable.TABLE_PODCAST,
-                        PodcastSearchTable.TABLE_PODCAST_SEARCH
-                ),
-                "SELECT "
-                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ARTWORK_URL + " AS " + PodcastTable.ARTWORK_URL + ","
-                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.AUTHOR + " AS " + PodcastTable.AUTHOR + ","
-                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.FEED_URL + " AS " + PodcastTable.FEED_URL + ","
-                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " AS " + PodcastTable.ID + ","
-                        + PodcastTable.TABLE_PODCAST + "." + PodcastTable.NAME + " AS " + PodcastTable.NAME + " "
-                        + "FROM " + PodcastTable.TABLE_PODCAST + " "
-                        + "INNER JOIN " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + " "
-                        + "  ON " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_ID + " "
-                        + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
-                        + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
-                podcastSearchIdentifier.id
-        )
-                .mapToSpecificList(
-                        PodcastTable::getPodcastIdentified,
-                        PodcastIdentifiedList::new
-                );
-    }
-
-    public Observable<MarkedValue<N, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds2(
+    public Observable<MarkedValue<N, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds(
             Identifier<PodcastSearch> podcastSearchIdentifier
     ) {
         return dimDatabase.createMarkedQuery(

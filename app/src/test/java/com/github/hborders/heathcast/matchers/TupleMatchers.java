@@ -6,15 +6,15 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 
 public final class TupleMatchers {
     public static <F, S> Matcher<Tuple<F, S>> tupleFirst(F first) {
-        return tupleFirst(is(first));
+        return tupleFirst(equalTo(first));
     }
 
     public static <F, S> Matcher<Tuple<F, S>> tupleSecond(S second) {
-        return tupleSecond(is(second));
+        return tupleSecond(equalTo(second));
     }
 
     public static <F, S> Matcher<Tuple<F, S>> tuple(

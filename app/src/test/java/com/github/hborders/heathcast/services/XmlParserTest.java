@@ -1,9 +1,9 @@
 package com.github.hborders.heathcast.services;
 
+import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.core.URLUtil;
 
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public final class XmlParserTest {
@@ -124,7 +124,7 @@ public final class XmlParserTest {
 
         assertThat(
                 actual,
-                is(
+                equalTo(
                         Arrays.asList(
                                 new Identified<>(
                                         new Identifier<>(

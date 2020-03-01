@@ -19,8 +19,8 @@ import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -156,7 +156,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 final int deleteCount = getTestObject().deleteSubscription(subscriptionIdentifier2);
                 assertThat(
                         deleteCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -383,7 +383,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -488,7 +488,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -579,7 +579,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -686,7 +686,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -807,7 +807,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -929,7 +929,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -1051,7 +1051,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final Subscription subscription1 = new Subscription(
@@ -1207,7 +1207,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         movedSubscriptionCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 subscriptionTestObserver.assertValueSequence(

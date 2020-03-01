@@ -76,7 +76,19 @@ public final class PodcastService {
         this(
                 database,
                 scheduler,
-                new OkHttpClient(),
+                new OkHttpClient()
+        );
+    }
+
+    public PodcastService(
+            Database<Object> database,
+            Scheduler scheduler,
+            OkHttpClient okHttpClient
+    ) {
+        this(
+                database,
+                scheduler,
+                okHttpClient,
                 new Gson(),
                 ReactivexOkHttpCallAdapter.createWithScheduler(scheduler)
         );
@@ -149,27 +161,24 @@ public final class PodcastService {
                     final Object marker = new Object();
                     final Observable<Tuple<Boolean, PodcastIdentifiedList>> sawMarkerAndPodcastIdentifiedListObservable =
                             database
-                                    .observeMarkedQueryForPodcastIdentifieds2(podcastSearchIdentified.identifier)
-                                    .scan(new Tuple<>(
+                                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.identifier)
+                                    .scan(
+                                            new Tuple<>(
                                                     false,
                                                     new PodcastIdentifiedList()
                                             ),
                                             (sawMarkerAndPodcastIdentifiedList, podcastIdentifiedListMarkedValue) -> {
-                                                final boolean sawMarker = sawMarkerAndPodcastIdentifiedList.first;
-                                                if (sawMarker ||
-                                                        podcastIdentifiedListMarkedValue.markers.contains(marker)) {
-                                                    return new Tuple<>(
-                                                            true,
-                                                            podcastIdentifiedListMarkedValue.value
-                                                    );
-                                                } else {
-                                                    return new Tuple<>(
-                                                            false,
-                                                            podcastIdentifiedListMarkedValue.value
-                                                    );
-                                                }
+                                                final boolean oldSawMarker = sawMarkerAndPodcastIdentifiedList.first;
+                                                final boolean newSawMarker = oldSawMarker || podcastIdentifiedListMarkedValue.markers.contains(marker);
+                                                return new Tuple<>(
+                                                        newSawMarker,
+                                                        podcastIdentifiedListMarkedValue.value
+                                                );
                                             }
-                                    );
+                                    )
+                                    // scan emits the initial accumulator value as the first itme
+                                    // and we don't want that
+                                    .skip(1);
                     final Observable<ServiceResponse0> podcastSearchServiceResponseObservable =
                             searchForPodcasts(
                                     networkPauser,

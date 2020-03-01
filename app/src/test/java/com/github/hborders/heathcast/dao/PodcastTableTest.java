@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -119,7 +119,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     );
             assertThat(
                     updatedRowCount,
-                    is(1)
+                    equalTo(1)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -166,7 +166,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     );
             assertThat(
                     updatedRowCount,
-                    is(1)
+                    equalTo(1)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -284,7 +284,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     getTestObject().upsertPodcast(podcast2).orElse(null);
             assertThat(
                     podcastIdentifier2,
-                    is(podcastIdentifier1)
+                    equalTo(podcastIdentifier1)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -338,7 +338,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     );
             assertThat(
                     upsertedPodcastIdentifiers,
-                    is(
+                    equalTo(
                             Arrays.asList(
                                     Optional.of(podcastIdentifier1),
                                     Optional.of(podcastIdentifier1)
@@ -397,7 +397,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
             if (podcastIdentifier != null) {
                 assertThat(
                         upsertedPodcastIdentifierOptionals,
-                        is(
+                        equalTo(
                                 Collections.nCopies(
                                         upsertingPodcasts.size(),
                                         Optional.of(podcastIdentifier)
@@ -494,7 +494,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 if (insertedPodcastIdentifier != null) {
                     assertThat(
                             upsertedPodcastIdentifierOptionals,
-                            is(
+                            equalTo(
                                     Arrays.asList(
                                             Optional.of(insertedPodcastIdentifier),
                                             Optional.of(insertedPodcastIdentifier),
@@ -560,7 +560,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
             );
             assertThat(
                     updatedRowCount,
-                    is(1)
+                    equalTo(1)
             );
 
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -608,7 +608,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
             );
             assertThat(
                     updatedRowCount,
-                    is(0)
+                    equalTo(0)
             );
 
             final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -737,7 +737,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
             final int deleteCount = getTestObject().deletePodcast(podcastIdentifier1);
             assertThat(
                     deleteCount,
-                    is(1)
+                    equalTo(1)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
@@ -799,7 +799,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
             );
             assertThat(
                     deleteCount,
-                    is(2)
+                    equalTo(2)
             );
 
             final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();

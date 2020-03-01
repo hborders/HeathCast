@@ -27,8 +27,8 @@ import io.reactivex.observers.TestObserver;
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -189,7 +189,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         updatedRowCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final TestObserver<Set<Identified<Episode>>> episodeTestObserver = new TestObserver<>();
@@ -260,7 +260,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         updatedRowCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final TestObserver<Set<Identified<Episode>>> episodeTestObserver = new TestObserver<>();
@@ -469,7 +469,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 } else {
                     assertThat(
                             episodeIdentifierOptionals,
-                            is(
+                            equalTo(
                                     Collections.nCopies(
                                             upsertingEpisodes.size(),
                                             Optional.of(episodeIdentifier1)
@@ -630,7 +630,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         } else {
                             assertThat(
                                     upsertedEpisodeIdentifierOptionals,
-                                    is(
+                                    equalTo(
                                             Arrays.asList(
                                                     Optional.of(insertedEpisodeIdentifier),
                                                     Optional.of(insertedEpisodeIdentifier),
@@ -720,7 +720,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         updatedRowCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final TestObserver<Set<Identified<Episode>>> episodeTestObserver = new TestObserver<>();
@@ -796,7 +796,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         updatedRowCount,
-                        is(0)
+                        equalTo(0)
                 );
             }
         }
@@ -1190,7 +1190,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 final int deletedEpisodeCount = getTestObject().deleteEpisode(episodeIdentifier1);
                 assertThat(
                         deletedEpisodeCount,
-                        is(1)
+                        equalTo(1)
                 );
 
                 final TestObserver<List<Identified<Episode>>> episodeTestObserver = new TestObserver<>();
@@ -1290,7 +1290,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 );
                 assertThat(
                         deletedEpisodeCount,
-                        is(2)
+                        equalTo(2)
                 );
 
                 final TestObserver<List<Identified<Episode>>> episodeTestObserver = new TestObserver<>();

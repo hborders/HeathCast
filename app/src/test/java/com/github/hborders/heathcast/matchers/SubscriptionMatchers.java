@@ -8,7 +8,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 
 public final class SubscriptionMatchers {
     private SubscriptionMatchers() {
@@ -19,7 +19,7 @@ public final class SubscriptionMatchers {
     }
 
     public static Matcher<Subscription> subscriptionPodcastIdentified(Identified<Podcast> podcastIdentified) {
-        return subscriptionPodcastIdentified(is(podcastIdentified));
+        return subscriptionPodcastIdentified(equalTo(podcastIdentified));
     }
 
     public static final class SubscriptionPodcastIdentifiedMatcher extends TypeSafeMatcher<Subscription> {

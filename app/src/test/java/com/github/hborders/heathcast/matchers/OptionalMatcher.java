@@ -7,8 +7,8 @@ import org.hamcrest.core.IsNull;
 
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.equalTo;
 
 public final class OptionalMatcher<T> extends TypeSafeMatcher<Optional<T>> {
     public static <T> Matcher<Optional<T>> optionalIsNotPresent() {
@@ -20,7 +20,7 @@ public final class OptionalMatcher<T> extends TypeSafeMatcher<Optional<T>> {
     }
 
     public static <T> Matcher<Optional<T>> optionalValue(T value) {
-        return optionalValue(is(value));
+        return optionalValue(equalTo(value));
     }
 
     public static <T> Matcher<Optional<T>> optionalValue(Matcher<T> valueMatcher) {

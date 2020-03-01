@@ -6,14 +6,14 @@ import org.hamcrest.collection.IsIterableContainingInOrder;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 
 public final class IsIterableContainingInOrderUtil {
     private IsIterableContainingInOrderUtil() {
     }
 
     public static <E> Matcher<Iterable<? extends E>> containsNothing() {
-        return is(Collections.emptyList());
+        return equalTo(Collections.emptyList());
     }
 
     public static <E> Matcher<Iterable<? extends E>> containsInOrder(Matcher<? super E> itemMatcher1) {

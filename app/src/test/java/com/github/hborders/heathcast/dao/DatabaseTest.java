@@ -1,15 +1,16 @@
 package com.github.hborders.heathcast.dao;
 
 import com.github.hborders.heathcast.core.Result;
-import com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 import com.github.hborders.heathcast.util.DateUtil;
+import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,10 +28,13 @@ import javax.annotation.Nullable;
 import io.reactivex.observers.TestObserver;
 
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
+import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
-import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
-import static org.hamcrest.CoreMatchers.is;
+import static com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder.specificallyContains;
+import static com.github.hborders.heathcast.matchers.MarkedValueMatchers.markedValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -185,22 +189,24 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
-            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver1 =
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastIdentifiedsTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
-                    .subscribe(podcastTestObserver1);
-            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
+                    .subscribe(podcastIdentifiedsTestObserver1);
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastIdentifiedsTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
-                    .subscribe(podcastTestObserver2);
+                    .subscribe(podcastIdentifiedsTestObserver2);
 
 
-            podcastTestObserver1.assertValueThat(containsNothing());
-            podcastTestObserver2.assertValueThat(containsNothing());
+            podcastIdentifiedsTestObserver1.assertValueThat(empty());
+            podcastIdentifiedsTestObserver2.assertValueThat(empty());
 
+            final Object marker = new Object();
             getTestObject().replacePodcastSearchPodcasts(
+                    marker,
                     podcastSearchIdentified1,
                     Arrays.asList(
                             podcast1,
@@ -209,20 +215,20 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            podcastTestObserver1.assertValueSequenceThat(
-                    IsIterableContainingInOrderUtil.containsInOrder(
-                            containsNothing(),
-                            IsIterableContainingInOrderUtil.containsInOrder(
+            podcastIdentifiedsTestObserver1.assertValueSequenceThat(
+                    containsInOrder(
+                            specificallyEmpty(),
+                            containsInOrder(
                                     identifiedModel(podcast1),
                                     identifiedModel(podcast2),
                                     identifiedModel(podcast3)
                             )
                     )
             );
-            podcastTestObserver2.assertValueSequenceThat(
-                    IsIterableContainingInOrderUtil.containsInOrder(
-                            containsNothing(),
-                            containsNothing()
+            podcastIdentifiedsTestObserver2.assertValueSequenceThat(
+                    containsInOrder(
+                            specificallyEmpty(),
+                            specificallyEmpty()
                     )
             );
         }
@@ -239,7 +245,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
+            final Object marker1 = new Object();
             getTestObject().replacePodcastSearchPodcasts(
+                    marker1,
                     podcastSearchIdentified1,
                     Arrays.asList(
                             podcast11,
@@ -247,7 +255,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                             podcast3
                     )
             );
+            final Object marker2 = new Object();
             getTestObject().replacePodcastSearchPodcasts(
+                    marker2,
                     podcastSearchIdentified1,
                     Arrays.asList(
                             podcast12,
@@ -256,27 +266,51 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver1 =
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastIdentifiedsTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
-                    .subscribe(podcastTestObserver1);
-            final MatcherTestObserver<List<Identified<Podcast>>> podcastTestObserver2 =
+                    .subscribe(podcastIdentifiedsTestObserver1);
+            final MatcherTestObserver<List<Identified<Podcast>>> podcastIdentifiedsTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
-                    .subscribe(podcastTestObserver2);
+                    .subscribe(podcastIdentifiedsTestObserver2);
 
-            podcastTestObserver1.assertValueSequenceThat(
-                    IsIterableContainingInOrderUtil.containsInOrder(
-                            IsIterableContainingInOrderUtil.containsInOrder(
+            podcastIdentifiedsTestObserver1.assertValueSequenceThat(
+                    containsInOrder(
+                            containsInOrder(
                                     identifiedModel(podcast12),
                                     identifiedModel(podcast2),
                                     identifiedModel(podcast4)
                             )
                     )
             );
-            podcastTestObserver2.assertValueThat(containsNothing());
+            podcastIdentifiedsTestObserver2.assertValueThat(empty());
+
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver1 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
+                    .subscribe(podcastIdentifiedsMarkedValueTestObserver1);
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver2 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
+                    .subscribe(podcastIdentifiedsMarkedValueTestObserver2);
+
+            podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast12),
+                                            identifiedModel(podcast2),
+                                            identifiedModel(podcast4)
+                                    )
+                            )
+                    )
+            );
+            podcastIdentifiedsMarkedValueTestObserver2.assertValueThat(markedValue(specificallyEmpty()));
         }
     }
 
@@ -291,7 +325,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
+            final Object marker1 = new Object();
             getTestObject().replacePodcastSearchPodcasts(
+                    marker1,
                     podcastSearchIdentified1,
                     Arrays.asList(
                             podcast1,
@@ -300,7 +336,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                             podcast4
                     )
             );
+            final Object marker2 = new Object();
             getTestObject().replacePodcastSearchPodcasts(
+                    marker2,
                     podcastSearchIdentified2,
                     Arrays.asList(
                             podcast5,
@@ -323,7 +361,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     .subscribe(podcastTestObserver2);
 
             podcastTestObserver1.assertValueSequenceThat(
-                    IsIterableContainingInOrderUtil.containsInOrder(
+                    containsInOrder(
                             containsInOrder(
                                     identifiedModel(podcast1),
                                     identifiedModel(podcast2),
@@ -333,12 +371,49 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
             podcastTestObserver2.assertValueSequenceThat(
-                    IsIterableContainingInOrderUtil.containsInOrder(
+                    containsInOrder(
                             containsInOrder(
                                     identifiedModel(podcast5),
                                     identifiedModel(podcast4),
                                     identifiedModel(podcast3),
                                     identifiedModel(podcast2)
+                            )
+                    )
+            );
+
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver1 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
+                    .subscribe(podcastIdentifiedsMarkedValueTestObserver1);
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver2 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
+                    .subscribe(podcastIdentifiedsMarkedValueTestObserver2);
+
+
+            podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast1),
+                                            identifiedModel(podcast2),
+                                            identifiedModel(podcast3),
+                                            identifiedModel(podcast4)
+                                    )
+                            )
+                    )
+            );
+            podcastIdentifiedsMarkedValueTestObserver2.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast5),
+                                            identifiedModel(podcast4),
+                                            identifiedModel(podcast3),
+                                            identifiedModel(podcast2)
+                                    )
                             )
                     )
             );
@@ -356,7 +431,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
+            final Object marker1 = new Object();
             getTestObject().replacePodcastSearchPodcasts(
+                    marker1,
                     podcastSearchIdentified1,
                     Arrays.asList(
                             podcast1,
@@ -365,7 +442,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                             podcast4
                     )
             );
+            final Object marker2 = new Object();
             getTestObject().replacePodcastSearchPodcasts(
+                    marker2,
                     podcastSearchIdentified2,
                     Arrays.asList(
                             podcast5,
@@ -409,10 +488,47 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver1 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
+                    .subscribe(podcastIdentifiedsMarkedValueTestObserver1);
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver2 =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
+                    .subscribe(podcastIdentifiedsMarkedValueTestObserver2);
+
+
+            podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast1),
+                                            identifiedModel(podcast2),
+                                            identifiedModel(podcast3),
+                                            identifiedModel(podcast4)
+                                    )
+                            )
+                    )
+            );
+            podcastIdentifiedsMarkedValueTestObserver2.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast5),
+                                            identifiedModel(podcast4),
+                                            identifiedModel(podcast3),
+                                            identifiedModel(podcast2)
+                                    )
+                            )
+                    )
+            );
+
             final boolean deleted = getTestObject().deletePodcastSearch(podcastSearchIdentified2.identifier);
             assertThat(
                     deleted,
-                    is(true)
+                    equalTo(true)
             );
 
             podcastTestObserver1.assertValueSequenceThat(
@@ -440,7 +556,44 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                                     identifiedModel(podcast3),
                                     identifiedModel(podcast2)
                             ),
-                            containsNothing()
+                            specificallyEmpty()
+                    )
+            );
+
+            podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast1),
+                                            identifiedModel(podcast2),
+                                            identifiedModel(podcast3),
+                                            identifiedModel(podcast4)
+                                    )
+                            ),
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast1),
+                                            identifiedModel(podcast2),
+                                            identifiedModel(podcast3),
+                                            identifiedModel(podcast4)
+                                    )
+                            )
+                    )
+            );
+
+            podcastIdentifiedsMarkedValueTestObserver2.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyContains(
+                                            identifiedModel(podcast5),
+                                            identifiedModel(podcast4),
+                                            identifiedModel(podcast3),
+                                            identifiedModel(podcast2)
+                                    )
+                            ),
+                            markedValue(
+                                    specificallyEmpty()
+                            )
                     )
             );
         }
@@ -509,7 +662,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             final boolean deleted = getTestObject().deletePodcast(podcastIdentified2.identifier);
             assertThat(
                     deleted,
-                    is(true)
+                    equalTo(true)
             );
 
             episodeTestObserver1.assertValueSequenceThat(
@@ -534,7 +687,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                                     identifiedModel(episode22),
                                     identifiedModel(episode23)
                             ),
-                            containsNothing()
+                            specificallyEmpty()
                     )
             );
         }
