@@ -114,9 +114,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/PodcastServiceSearchTest_testSearchForPlanetMoneyThenTheIndicator.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -232,6 +230,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/libs" />
       <recent name="$PROJECT_DIR$/app/src/main/res/drawable" />
       <recent name="$PROJECT_DIR$/app/src/main/res/mipmap-xxxhdpi" />
       <recent name="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26" />
@@ -264,7 +263,7 @@
       <recent name="com.github.hborders.heathcast.core" />
     </key>
   </component>
-  <component name="RunManager" selected="Android JUnit.Unit Tests">
+  <component name="RunManager" selected="Android JUnit.PodcastServiceSearchTest.testSearchForPlanetMoneyThenTheIndicator">
     <configuration name="PodcastServiceSearchTest" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
       <module name="app" />
       <extension name="coverage">
@@ -277,6 +276,25 @@
       <option name="MAIN_CLASS_NAME" value="com.github.hborders.heathcast.services.PodcastServiceSearchTest" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea -Djavax.net.ssl.trustStoreType=JKS" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PodcastServiceSearchTest.testSearchForPlanetMoneyThenTheIndicator" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <module name="app" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.github.hborders.heathcast.services.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.github.hborders.heathcast.services" />
+      <option name="MAIN_CLASS_NAME" value="com.github.hborders.heathcast.services.PodcastServiceSearchTest" />
+      <option name="METHOD_NAME" value="testSearchForPlanetMoneyThenTheIndicator" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea -Djavax.net.ssl.trustStoreType=JKS" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -455,10 +473,12 @@
       <item itemvalue="Android Instrumented Tests.searchForPlanetMon...() (1)" />
       <item itemvalue="Android JUnit.Unit Tests" />
       <item itemvalue="Android JUnit.PodcastServiceSearchTest" />
+      <item itemvalue="Android JUnit.PodcastServiceSearchTest.testSearchForPlanetMoneyThenTheIndicator" />
       <item itemvalue="Java Scratch.Scratch" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Android JUnit.PodcastServiceSearchTest.testSearchForPlanetMoneyThenTheIndicator" />
         <item itemvalue="Android JUnit.PodcastServiceSearchTest" />
         <item itemvalue="Java Scratch.Scratch" />
         <item itemvalue="Android Instrumented Tests.SearchEspressoTest" />
@@ -500,10 +520,10 @@
     </state>
     <state x="485" y="312" key="#PSD/0.23.1920.1100@0.23.1920.1100" timestamp="1583074873382" />
     <state x="485" y="312" key="#PSD/3840.2400" timestamp="1577555866836" />
-    <state x="355" y="221" width="1144" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1583075270490">
+    <state x="355" y="221" width="1144" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1583126652935">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="355" y="221" width="1144" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1583075270490" />
+    <state x="355" y="221" width="1144" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1583126652935" />
     <state x="773" y="288" key="#com.intellij.ide.util.MemberChooser" timestamp="1583001200261">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -524,25 +544,25 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="DiffContextDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1583043743061" />
-    <state width="1920" height="301" key="GridCell.Tab.0.bottom" timestamp="1583075279350">
+    <state width="1920" height="301" key="GridCell.Tab.0.bottom" timestamp="1583126663566">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="301" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1583075279350" />
+    <state width="1920" height="301" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1583126663566" />
     <state width="1878" height="304" key="GridCell.Tab.0.bottom/3840.2400" timestamp="1577555866836" />
-    <state width="1920" height="301" key="GridCell.Tab.0.center" timestamp="1583075279350">
+    <state width="1920" height="301" key="GridCell.Tab.0.center" timestamp="1583126663564">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="301" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1583075279350" />
+    <state width="1920" height="301" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1583126663564" />
     <state width="1878" height="304" key="GridCell.Tab.0.center/3840.2400" timestamp="1577555866836" />
-    <state width="1920" height="301" key="GridCell.Tab.0.left" timestamp="1583075279349">
+    <state width="1920" height="301" key="GridCell.Tab.0.left" timestamp="1583126663564">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="301" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1583075279349" />
+    <state width="1920" height="301" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1583126663564" />
     <state width="1878" height="304" key="GridCell.Tab.0.left/3840.2400" timestamp="1577555866836" />
-    <state width="1920" height="301" key="GridCell.Tab.0.right" timestamp="1583075279350">
+    <state width="1920" height="301" key="GridCell.Tab.0.right" timestamp="1583126663565">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="301" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1583075279350" />
+    <state width="1920" height="301" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1583126663565" />
     <state width="1878" height="304" key="GridCell.Tab.0.right/3840.2400" timestamp="1577555866836" />
     <state width="1920" height="371" key="GridCell.Tab.1.bottom" timestamp="1583075241038">
       <screen x="0" y="23" width="1920" height="1100" />
