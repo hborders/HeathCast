@@ -20,7 +20,6 @@ import static com.github.hborders.heathcast.matchers.ServiceResponse1Matchers.se
 import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.emptyIterable;
 
 @org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner.class)
 //@org.junit.runner.RunWith(org.junit.runners.BlockJUnit4ClassRunner.class)
@@ -82,7 +81,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(
-                                not(emptyIterable())
+                                not(empty())
                         )
                 )
         );
@@ -147,7 +146,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(
-                                not(emptyIterable())
+                                not(empty())
                         )
                 )
         );
@@ -169,17 +168,18 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                 new MatcherTestObserver<>();
         final MatcherTestObserver<ServiceResponse1<PodcastIdentifiedList>> planetMoneyMatcherTestObserver2 =
                 new MatcherTestObserver<>();
-        final NetworkPauser planetMoneyNetworkPauser = new NetworkPauser();
+        final NetworkPauser planetMoneyNetworkPauser1 = new NetworkPauser();
         final PodcastSearch planetMoneyPodcastSearch = new PodcastSearch("Planet Money");
         getTestObject()
                 .searchForPodcasts2(
-                        planetMoneyNetworkPauser,
+                        planetMoneyNetworkPauser1,
                         planetMoneyPodcastSearch
                 )
                 .subscribe(planetMoneyMatcherTestObserver1);
+        final NetworkPauser planetMoneyNetworkPauser2 = new NetworkPauser();
         getTestObject()
                 .searchForPodcasts2(
-                        planetMoneyNetworkPauser,
+                        planetMoneyNetworkPauser2,
                         planetMoneyPodcastSearch
                 )
                 .subscribe(planetMoneyMatcherTestObserver2);
@@ -203,11 +203,13 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         planetMoneyMatcherTestObserver1.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponse1Loading(empty()),
+                        // a second empty loading is expected because the new search
+                        // causes an upsert, which will trigger a new fetch
                         serviceResponse1Loading(empty())
                 )
         );
 
-        planetMoneyNetworkPauser.resume();
+        planetMoneyNetworkPauser1.resume();
 
         planetMoneyMatcherTestObserver1.awaitCount(4);
 
@@ -216,17 +218,33 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         serviceResponse1Loading(
                                 empty()
                         ),
-                        // there is a race where List<Identified<Podcast>> or ServiceRequestState
-                        // could change first, so just ignore this value.
-                        anything(),
+                        serviceResponse1Loading(empty()),
                         // there is a race where List<Identified<Podcast>> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(
-                                not(emptyIterable())
+                                not(empty())
                         )
                 )
         );
+
+        planetMoneyMatcherTestObserver2.awaitCount(2);
+
+        planetMoneyMatcherTestObserver2.assertValueSequenceThat(
+                containsInOrder(
+                        serviceResponse1Loading(
+                                empty()
+                        ),
+                        // the first request finished, so we should get results
+                        // from it, but we're still loading because our request didn't
+                        // finish
+                        serviceResponse1Loading(
+                                not(empty())
+                        )
+                )
+        );
+
+        planetMoneyNetworkPauser2.resume();
 
         planetMoneyMatcherTestObserver2.awaitCount(4);
 
@@ -235,11 +253,14 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         serviceResponse1Loading(
                                 empty()
                         ),
+                        serviceResponse1Loading(
+                                not(empty())
+                        ),
                         // there is a race where List<Identified<Podcast>> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(
-                                not(emptyIterable())
+                                not(empty())
                         )
                 )
         );
