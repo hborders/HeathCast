@@ -8,10 +8,11 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
+import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.android.CursorUtil;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -24,7 +25,6 @@ import java.util.Set;
 import io.reactivex.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
-import static com.github.hborders.heathcast.dao.EpisodeTable.TABLE_EPISODE;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putURLAsString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.android.CursorUtil.getNonnullString;
@@ -32,6 +32,7 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNonnullURLFrom
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
+import static com.github.hborders.heathcast.dao.EpisodeTable.TABLE_EPISODE;
 
 final class PodcastTable<N> extends Table<N> {
     static final String TABLE_PODCAST = "podcast";
@@ -72,12 +73,7 @@ final class PodcastTable<N> extends Table<N> {
         if (id == -1) {
             return Optional.empty();
         } else {
-            return Optional.of(
-                    new Identifier<>(
-                            Podcast.class,
-                            id
-                    )
-            );
+            return Optional.of(new PodcastIdentifier(id));
         }
     }
 
@@ -93,12 +89,11 @@ final class PodcastTable<N> extends Table<N> {
 
     Optional<Identifier<Podcast>> upsertPodcast(Podcast podcast) {
         return upsertModel(
-                TABLE_PODCAST,
                 upsertAdapter,
-                Podcast.class,
                 String.class,
                 podcast,
                 podcast_ -> podcast_.feedURL.toExternalForm(),
+                PodcastIdentifier::new,
                 this::insertPodcast,
                 this::updatePodcastIdentified
         );
@@ -106,12 +101,11 @@ final class PodcastTable<N> extends Table<N> {
 
     List<Optional<Identifier<Podcast>>> upsertPodcasts(List<Podcast> podcasts) {
         return upsertModels(
-                TABLE_PODCAST,
                 upsertAdapter,
-                Podcast.class,
                 String.class,
                 podcasts,
                 podcast -> podcast.feedURL.toExternalForm(),
+                PodcastIdentifier::new,
                 this::insertPodcast,
                 this::updatePodcastIdentified
         );
@@ -202,15 +196,29 @@ final class PodcastTable<N> extends Table<N> {
 
     static Identified<Podcast> getPodcastIdentified(Cursor cursor) {
         return new Identified<>(
-                new Identifier<>(
-                        Podcast.class,
-                        getNonnullInt(cursor, ID)
+                new PodcastIdentifier(
+                        getNonnullInt(
+                                cursor,
+                                ID
+                        )
                 ),
                 new Podcast(
-                        getNullableURLFromString(cursor, ARTWORK_URL),
-                        getNullableString(cursor, AUTHOR),
-                        getNonnullURLFromString(cursor, FEED_URL),
-                        getNonnullString(cursor, NAME)
+                        getNullableURLFromString(
+                                cursor,
+                                ARTWORK_URL
+                        ),
+                        getNullableString(
+                                cursor,
+                                AUTHOR
+                        ),
+                        getNonnullURLFromString(
+                                cursor,
+                                FEED_URL
+                        ),
+                        getNonnullString(
+                                cursor,
+                                NAME
+                        )
                 )
         );
     }
@@ -218,17 +226,35 @@ final class PodcastTable<N> extends Table<N> {
     static ContentValues getPodcastContentValues(Podcast podcast) {
         final ContentValues values = new ContentValues(5);
 
-        putURLAsString(values, ARTWORK_URL, podcast.artworkURL);
-        values.put(AUTHOR, podcast.author);
-        putURLAsString(values, FEED_URL, podcast.feedURL);
-        values.put(NAME, podcast.name);
+        putURLAsString(
+                values,
+                ARTWORK_URL
+                , podcast.artworkURL
+        );
+        values.put(
+                AUTHOR,
+                podcast.author
+        );
+        putURLAsString(
+                values,
+                FEED_URL,
+                podcast.feedURL
+        );
+        values.put(
+                NAME,
+                podcast.name
+        );
 
         return values;
     }
 
     static ContentValues getPodcastIdentifiedContentValues(Identified<Podcast> identifiedPodcast) {
         final ContentValues values = getPodcastContentValues(identifiedPodcast.model);
-        putIdentifier(values, ID, identifiedPodcast);
+        putIdentifier(
+                values,
+                ID,
+                identifiedPodcast
+        );
         return values;
     }
 }

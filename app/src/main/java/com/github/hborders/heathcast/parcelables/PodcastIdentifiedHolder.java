@@ -3,8 +3,8 @@ package com.github.hborders.heathcast.parcelables;
 import android.os.Parcel;
 
 import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 
 import java.net.URL;
 import java.util.Objects;
@@ -35,10 +35,7 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Identif
 
             if (feedURL != null && name != null) {
                 podcastIdentified = new Identified<>(
-                        new Identifier<>(
-                                Podcast.class,
-                                id
-                        ),
+                        new PodcastIdentifier(id),
                         new Podcast(
                                 artworkURL,
                                 author,

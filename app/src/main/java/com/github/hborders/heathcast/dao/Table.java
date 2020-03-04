@@ -7,8 +7,8 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.core.SortedSetUtil;
+import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.stealthmountain.sqldim.DimDatabase;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.function.Function; // this is for method references, so we can't use nullability.
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -33,7 +34,7 @@ import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 import static com.github.hborders.heathcast.core.ListUtil.indexedStream;
 
 abstract class Table<N> {
-    protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
+    @SuppressWarnings("unused") protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
 
     protected final DimDatabase<N> dimDatabase;
 
@@ -49,18 +50,17 @@ abstract class Table<N> {
         contentValues.put(key, identifier.id);
     }
 
-    @SuppressWarnings("unused")
-    protected final <M, S> Optional<Identifier<M>> upsertModel(
-            String tableName,
+
+    protected final <I extends Identifier<M>, M, S> Optional<I> upsertModel(
             UpsertAdapter<S> upsertAdapter,
-            Class<M> modelClass,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
             // however, we don't actually need the parameter, so we suppress unused.
-            Class<S> secondaryKeyClass,
+            @SuppressWarnings("unused") Class<S> secondaryKeyClass,
             M model,
             Function<M, S> modelSecondaryKeyGetter,
-            Function<M, Optional<Identifier<M>>> modelInserter,
+            Function<Long, I> identifierFactory,
+            Function<M, Optional<I>> modelInserter,
             Function<Identified<M>, Integer> identifiedUpdater
     ) {
         try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
@@ -68,14 +68,11 @@ abstract class Table<N> {
 
             final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
                     upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
-            @Nullable final Identifier<M> upsertedIdentifier;
+            @Nullable final I upsertedIdentifier;
             try (final Cursor primaryAndSecondaryKeyCursor = dimDatabase.query(primaryAndSecondaryKeyQuery)) {
                 if (primaryAndSecondaryKeyCursor.moveToNext()) {
                     final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
-                    final Identifier<M> upsertingIdentifier = new Identifier<>(
-                            modelClass,
-                            primaryKey
-                    );
+                    final I upsertingIdentifier = identifierFactory.apply(primaryKey);
                     int rowCount = identifiedUpdater.apply(
                             new Identified<>(
                                     upsertingIdentifier,
@@ -100,18 +97,17 @@ abstract class Table<N> {
         }
     }
 
-    @SuppressWarnings("unused")
-    protected final <M, S> List<Optional<Identifier<M>>> upsertModels(
-            String tableName,
+
+    protected final <I extends Identifier<M>, M, S> List<Optional<I>> upsertModels(
             UpsertAdapter<S> upsertAdapter,
-            Class<M> modelClass,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
             // however, we don't actually need the parameter, so we suppress unused.
-            Class<S> secondaryKeyClass,
+            @SuppressWarnings("unused") Class<S> secondaryKeyClass,
             List<M> models,
             Function<M, S> modelSecondaryKeyGetter,
-            Function<M, Optional<Identifier<M>>> modelInserter,
+            Function<Long, I> identifierFactory,
+            Function<M, Optional<I>> modelInserter,
             Function<Identified<M>, Integer> identifiedUpdater
     ) {
         if (models.isEmpty()) {
@@ -146,7 +142,10 @@ abstract class Table<N> {
                 // the above LinkedHashMap preserves that order in its keySet, and LinkedHashSet
                 // preserves that order as well.
                 final LinkedHashSet<S> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
-                final List<Identified<M>> updatingIdentifieds = new ArrayList<>(models.size());
+                final int updatingSize = models.size();
+                final List<Identified<M>> updatingIdentifieds = new ArrayList<>(updatingSize);
+                // Remove updatingIdentifiers once we reify Identifier within Identified
+                final List<I> updatingIdentifiers = new ArrayList<>(updatingSize);
                 try (final Cursor primaryKeyAndSecondaryKeyCursor = dimDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
                     while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
                         final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
@@ -159,20 +158,19 @@ abstract class Table<N> {
                             final M model = indexedModelSet.iterator().next().second;
                             insertingSecondaryKeys.remove(secondaryKey);
 
+                            final I updatingIdentifier = identifierFactory.apply(primaryKey);
                             updatingIdentifieds.add(
                                     new Identified<>(
-                                            new Identifier<>(
-                                                    modelClass,
-                                                    primaryKey
-                                            ),
+                                            updatingIdentifier,
                                             model
                                     )
                             );
+                            updatingIdentifiers.add(updatingIdentifier);
                         }
                     }
                 }
 
-                final ArrayList<Optional<Identifier<M>>> upsertedIdentifiers =
+                final ArrayList<Optional<I>> upsertedIdentifiers =
                         new ArrayList<>(
                                 Collections.nCopies(
                                         models.size(),
@@ -186,7 +184,7 @@ abstract class Table<N> {
                         throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
                     } else {
                         final M model = indexedModelSet.iterator().next().second;
-                        final Optional<Identifier<M>> identifierOptional =
+                        final Optional<I> identifierOptional =
                                 modelInserter.apply(model);
                         if (identifierOptional.isPresent()) {
                             for (final Tuple<Integer, M> indexedModel : indexedModelSet) {
@@ -199,7 +197,12 @@ abstract class Table<N> {
                     }
                 }
 
-                for (final Identified<M> updatingIdentified : updatingIdentifieds) {
+                final Iterator<Identified<M>> updatingIdentifiedIterator = updatingIdentifieds.iterator();
+                // Remove updatingIdentifiers once we reify Identifier within Identified
+                final Iterator<I> updatingIdentifierIterator = updatingIdentifiers.iterator();
+                while (updatingIdentifiedIterator.hasNext() && updatingIdentifierIterator.hasNext()) {
+                    final Identified<M> updatingIdentified = updatingIdentifiedIterator.next();
+                    final I updatingIdentifier = updatingIdentifierIterator.next();
                     final int rowCount = identifiedUpdater.apply(updatingIdentified);
                     if (rowCount == 1) {
                         final S secondaryKey =
@@ -212,7 +215,7 @@ abstract class Table<N> {
                             for (final Tuple<Integer, M> indexedModel : indexedModelSet) {
                                 upsertedIdentifiers.set(
                                         indexedModel.first,
-                                        Optional.of(updatingIdentified.identifier)
+                                        Optional.of(updatingIdentifier)
                                 );
                             }
                         }

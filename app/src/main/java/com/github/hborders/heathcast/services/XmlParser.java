@@ -1,10 +1,10 @@
 package com.github.hborders.heathcast.services;
 
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.android.DurationUtil;
 import com.github.hborders.heathcast.core.URLUtil;
+import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentifier;
+import com.github.hborders.heathcast.models.Identified;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -91,10 +91,7 @@ final class XmlParser {
                 @Nullable final Episode episode = readEpisode(parser);
                 if (episode != null) {
                     identifiedEpisodes.add(new Identified<>(
-                            new Identifier<>(
-                                    Episode.class,
-                                    0
-                            ),
+                            new EpisodeIdentifier(0),
                             episode
                     ));
                 }

@@ -7,10 +7,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
+import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.android.CursorUtil;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Collection;
@@ -37,9 +38,6 @@ final class PodcastSearchTable<N> extends Table<N> {
     static final String CREATE_FOREIGN_KEY_PODCAST_SEARCH =
             "FOREIGN KEY(" + FOREIGN_KEY_PODCAST_SEARCH + ") REFERENCES " + TABLE_PODCAST_SEARCH + "(" + ID + ")";
 
-    private static final String[] COLUMNS_ID = new String[]{
-            ID
-    };
     private static final String[] COLUMNS_SORT = new String[]{
             SORT
     };
@@ -60,12 +58,11 @@ final class PodcastSearchTable<N> extends Table<N> {
 
     Optional<Identifier<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
         return upsertModel(
-                TABLE_PODCAST_SEARCH,
                 upsertAdapter,
-                PodcastSearch.class,
                 String.class,
                 podcastSearch,
                 PodcastSearch::getSearch,
+                PodcastSearchIdentifier::new,
                 this::insertPodcastSearch,
                 this::updatePodcastSearchIdentified);
     }
@@ -79,12 +76,7 @@ final class PodcastSearchTable<N> extends Table<N> {
         if (id == -1) {
             return Optional.empty();
         } else {
-            return Optional.of(
-                    new Identifier<>(
-                            PodcastSearch.class,
-                            id
-                    )
-            );
+            return Optional.of(new PodcastSearchIdentifier(id));
         }
     }
 
@@ -219,12 +211,18 @@ final class PodcastSearchTable<N> extends Table<N> {
     }
 
     static Identified<PodcastSearch> getPodcastSearchIdentified(Cursor cursor) {
-        return new Identified<>(new Identifier<>(
-                PodcastSearch.class,
-                getNonnullInt(cursor, ID)
-        ),
+        return new Identified<>(
+                new PodcastSearchIdentifier(
+                        getNonnullInt(
+                                cursor,
+                                ID
+                        )
+                ),
                 new PodcastSearch(
-                        getNonnullString(cursor, SEARCH)
+                        getNonnullString(
+                                cursor,
+                                SEARCH
+                        )
                 )
         );
     }

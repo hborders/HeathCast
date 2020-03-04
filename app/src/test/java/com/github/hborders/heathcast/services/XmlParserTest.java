@@ -2,8 +2,8 @@ package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentifier;
 import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 
 import org.junit.Test;
 
@@ -127,10 +127,7 @@ public final class XmlParserTest {
                 equalTo(
                         Arrays.asList(
                                 new Identified<>(
-                                        new Identifier<>(
-                                                Episode.class,
-                                                0
-                                        ),
+                                        new EpisodeIdentifier(0),
                                         new Episode(
                                                 Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/25/harbor-podcast_wide-2df74dc7ff65b4a6351bbe48f20e68a8da7ec3f2.jpg?s=1400")),
                                                 Duration.ofSeconds(20318742),
@@ -154,10 +151,7 @@ public final class XmlParserTest {
                                         )
                                 ),
                                 new Identified<>(
-                                        new Identifier<>(
-                                                Episode.class,
-                                                0
-                                        ),
+                                        new EpisodeIdentifier(0),
                                         new Episode(
                                                 Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/23/ap_931123921749_wide-0ea7c0a9c9dd1ee294bb65ba1b26c5154c0012e6.jpg?s=1400")),
                                                 Duration.ofSeconds(21678996),

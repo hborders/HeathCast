@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentifier;
 import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 
 import java.net.URL;
 import java.time.Duration;
@@ -43,10 +43,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
             @Nullable final URL url = readURL(in);
             if (title != null && url != null) {
                 episodeIdentified = new Identified<>(
-                        new Identifier<>(
-                                Episode.class,
-                                id
-                        ),
+                        new EpisodeIdentifier(id),
                         new Episode(
                                 artworkURL,
                                 duration,

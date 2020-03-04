@@ -13,6 +13,7 @@ import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.Subscription;
+import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -48,12 +49,7 @@ public final class SubscriptionTable<N> extends Table<N> {
         if (id == -1) {
             return Optional.empty();
         } else {
-            return Optional.of(
-                    new Identifier<>(
-                            Subscription.class,
-                            id
-                    )
-            );
+            return Optional.of(new SubscriptionIdentifier(id));
         }
     }
 
@@ -232,16 +228,22 @@ public final class SubscriptionTable<N> extends Table<N> {
     static ContentValues getSubscriptionContentValues(Identifier<Podcast> podcastIdentifier) {
         final ContentValues values = new ContentValues(1);
 
-        putIdentifier(values, PODCAST_ID, podcastIdentifier);
+        putIdentifier(
+                values,
+                PODCAST_ID,
+                podcastIdentifier
+        );
 
         return values;
     }
 
     static Identified<Subscription> getSubscriptionIdentified(Cursor cursor) {
         final Identified<Podcast> podcastIdentified = PodcastTable.getPodcastIdentified(cursor);
-        final Identifier<Subscription> subscriptionIdentifier = new Identifier<>(
-                Subscription.class,
-                CursorUtil.getNonnullLong(cursor, ID)
+        final Identifier<Subscription> subscriptionIdentifier = new SubscriptionIdentifier(
+                CursorUtil.getNonnullLong(
+                        cursor,
+                        ID
+                )
         );
         return new Identified<>(
                 subscriptionIdentifier,
@@ -250,9 +252,11 @@ public final class SubscriptionTable<N> extends Table<N> {
     }
 
     static Identifier<Subscription> getSubscriptionIdentifier(Cursor cursor) {
-        return new Identifier<>(
-                Subscription.class,
-                CursorUtil.getNonnullLong(cursor, ID)
+        return new SubscriptionIdentifier(
+                CursorUtil.getNonnullLong(
+                        cursor,
+                        ID
+                )
         );
     }
 }

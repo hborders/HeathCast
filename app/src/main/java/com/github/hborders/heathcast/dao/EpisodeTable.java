@@ -8,6 +8,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentifier;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
@@ -62,15 +63,6 @@ final class EpisodeTable<N> extends Table<N> {
             TITLE,
             URL,
     };
-//            new SingleColumnSecondaryKeyUpsertAdapter<>(
-//            TABLE_EPISODE,
-//            ID,
-//            URL,
-//            cursor -> CursorUtil.getNonnullString(
-//                    cursor,
-//                    URL
-//            )
-//    );
 
     static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
     static final String CREATE_FOREIGN_KEY_EPISODE =
@@ -95,12 +87,7 @@ final class EpisodeTable<N> extends Table<N> {
         if (id == -1) {
             return Optional.empty();
         } else {
-            return Optional.of(
-                    new Identifier<>(
-                            Episode.class,
-                            id
-                    )
-            );
+            return Optional.of(new EpisodeIdentifier(id));
         }
     }
 
@@ -126,12 +113,11 @@ final class EpisodeTable<N> extends Table<N> {
         final UpsertAdapter<String> upsertAdapter = new EpisodeTableUpsertAdapter(podcastIdentifier);
 
         return super.upsertModels(
-                TABLE_EPISODE,
                 upsertAdapter,
-                Episode.class,
                 String.class,
                 episodes,
                 episode -> episode.url.toExternalForm(),
+                EpisodeIdentifier::new,
                 episode -> insertEpisode(
                         podcastIdentifier,
                         episode
@@ -268,17 +254,37 @@ final class EpisodeTable<N> extends Table<N> {
 
     static Identified<Episode> getEpisodeIdentified(Cursor cursor) {
         return new Identified<>(
-                new Identifier<>(
-                        Episode.class,
-                        getNonnullInt(cursor, ID)
+                new EpisodeIdentifier(
+                        getNonnullInt(
+                                cursor,
+                                ID
+                        )
                 ),
                 new Episode(
-                        getNullableURLFromString(cursor, ARTWORK_URL),
-                        getNullableDurationFromLong(cursor, DURATION),
-                        getNullableDateFromLong(cursor, PUBLISH_TIME_MILLIS),
-                        getNullableString(cursor, SUMMARY),
-                        getNonnullString(cursor, TITLE),
-                        getNonnullURLFromString(cursor, URL)
+                        getNullableURLFromString(
+                                cursor,
+                                ARTWORK_URL
+                        ),
+                        getNullableDurationFromLong(
+                                cursor,
+                                DURATION
+                        ),
+                        getNullableDateFromLong(
+                                cursor,
+                                PUBLISH_TIME_MILLIS
+                        ),
+                        getNullableString(
+                                cursor,
+                                SUMMARY
+                        ),
+                        getNonnullString(
+                                cursor,
+                                TITLE
+                        ),
+                        getNonnullURLFromString(
+                                cursor,
+                                URL
+                        )
                 )
         );
     }
@@ -289,13 +295,39 @@ final class EpisodeTable<N> extends Table<N> {
     ) {
         final ContentValues values = new ContentValues(8);
 
-        putURLAsString(values, ARTWORK_URL, episode.artworkURL);
-        putDurationAsLong(values, DURATION, episode.duration);
-        putIdentifier(values, PODCAST_ID, podcastIdentifier);
-        putDateAsLong(values, PUBLISH_TIME_MILLIS, episode.publishDate);
-        values.put(SUMMARY, episode.summary);
-        values.put(TITLE, episode.title);
-        putURLAsString(values, URL, episode.url);
+        putURLAsString(
+                values,
+                ARTWORK_URL,
+                episode.artworkURL
+        );
+        putDurationAsLong(
+                values,
+                DURATION,
+                episode.duration
+        );
+        putIdentifier(
+                values,
+                PODCAST_ID,
+                podcastIdentifier
+        );
+        putDateAsLong(
+                values,
+                PUBLISH_TIME_MILLIS,
+                episode.publishDate
+        );
+        values.put(
+                SUMMARY,
+                episode.summary
+        );
+        values.put(
+                TITLE,
+                episode.title
+        );
+        putURLAsString(
+                values,
+                URL,
+                episode.url
+        );
 
         return values;
     }
@@ -309,7 +341,11 @@ final class EpisodeTable<N> extends Table<N> {
                 episodeIdentified.model
         );
 
-        putIdentifier(values, ID, episodeIdentified);
+        putIdentifier(
+                values,
+                ID,
+                episodeIdentified
+        );
 
         return values;
     }
