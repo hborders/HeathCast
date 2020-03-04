@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,7 +34,8 @@ import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 import static com.github.hborders.heathcast.core.ListUtil.indexedStream;
 
 abstract class Table<N> {
-    @SuppressWarnings("unused") protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
+    @SuppressWarnings("unused")
+    protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
 
     protected final DimDatabase<N> dimDatabase;
 
@@ -42,7 +43,7 @@ abstract class Table<N> {
         this.dimDatabase = dimDatabase;
     }
 
-    protected static void putIdentifier(ContentValues contentValues, String key, Identified<?> identified) {
+    protected static void putIdentifier(ContentValues contentValues, String key, Identified<?, ?> identified) {
         putIdentifier(contentValues, key, identified.identifier);
     }
 
@@ -51,7 +52,7 @@ abstract class Table<N> {
     }
 
 
-    protected final <I extends Identifier<M>, M, S> Optional<I> upsertModel(
+    protected final <I extends Identifier<M>, J extends Identified<I, M>, M, S> Optional<I> upsertModel(
             UpsertAdapter<S> upsertAdapter,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
@@ -60,8 +61,9 @@ abstract class Table<N> {
             M model,
             Function<M, S> modelSecondaryKeyGetter,
             Function<Long, I> identifierFactory,
+            BiFunction<I, M, J> identifiedFactory,
             Function<M, Optional<I>> modelInserter,
-            Function<Identified<M>, Integer> identifiedUpdater
+            Function<J, Integer> identifiedUpdater
     ) {
         try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
             final S secondaryKey = modelSecondaryKeyGetter.apply(model);
@@ -73,12 +75,11 @@ abstract class Table<N> {
                 if (primaryAndSecondaryKeyCursor.moveToNext()) {
                     final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
                     final I upsertingIdentifier = identifierFactory.apply(primaryKey);
-                    int rowCount = identifiedUpdater.apply(
-                            new Identified<>(
-                                    upsertingIdentifier,
-                                    model
-                            )
+                    final J updatingIdentified = identifiedFactory.apply(
+                            upsertingIdentifier,
+                            model
                     );
+                    int rowCount = identifiedUpdater.apply(updatingIdentified);
                     if (rowCount == 1) {
                         upsertedIdentifier = upsertingIdentifier;
                     } else {
@@ -98,7 +99,7 @@ abstract class Table<N> {
     }
 
 
-    protected final <I extends Identifier<M>, M, S> List<Optional<I>> upsertModels(
+    protected final <I extends Identifier<M>, J extends Identified<I, M>, M, S> List<Optional<I>> upsertModels(
             UpsertAdapter<S> upsertAdapter,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
@@ -107,8 +108,9 @@ abstract class Table<N> {
             List<M> models,
             Function<M, S> modelSecondaryKeyGetter,
             Function<Long, I> identifierFactory,
+            BiFunction<I, M, J> identifiedFactory,
             Function<M, Optional<I>> modelInserter,
-            Function<Identified<M>, Integer> identifiedUpdater
+            Function<J, Integer> identifiedUpdater
     ) {
         if (models.isEmpty()) {
             return Collections.emptyList();
@@ -142,10 +144,7 @@ abstract class Table<N> {
                 // the above LinkedHashMap preserves that order in its keySet, and LinkedHashSet
                 // preserves that order as well.
                 final LinkedHashSet<S> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
-                final int updatingSize = models.size();
-                final List<Identified<M>> updatingIdentifieds = new ArrayList<>(updatingSize);
-                // Remove updatingIdentifiers once we reify Identifier within Identified
-                final List<I> updatingIdentifiers = new ArrayList<>(updatingSize);
+                final List<J> updatingIdentifieds = new ArrayList<>(models.size());
                 try (final Cursor primaryKeyAndSecondaryKeyCursor = dimDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
                     while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
                         final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
@@ -159,13 +158,11 @@ abstract class Table<N> {
                             insertingSecondaryKeys.remove(secondaryKey);
 
                             final I updatingIdentifier = identifierFactory.apply(primaryKey);
-                            updatingIdentifieds.add(
-                                    new Identified<>(
-                                            updatingIdentifier,
-                                            model
-                                    )
+                            final J updatingIdentified = identifiedFactory.apply(
+                                    updatingIdentifier,
+                                    model
                             );
-                            updatingIdentifiers.add(updatingIdentifier);
+                            updatingIdentifieds.add(updatingIdentified);
                         }
                     }
                 }
@@ -197,12 +194,7 @@ abstract class Table<N> {
                     }
                 }
 
-                final Iterator<Identified<M>> updatingIdentifiedIterator = updatingIdentifieds.iterator();
-                // Remove updatingIdentifiers once we reify Identifier within Identified
-                final Iterator<I> updatingIdentifierIterator = updatingIdentifiers.iterator();
-                while (updatingIdentifiedIterator.hasNext() && updatingIdentifierIterator.hasNext()) {
-                    final Identified<M> updatingIdentified = updatingIdentifiedIterator.next();
-                    final I updatingIdentifier = updatingIdentifierIterator.next();
+                for (final J updatingIdentified : updatingIdentifieds) {
                     final int rowCount = identifiedUpdater.apply(updatingIdentified);
                     if (rowCount == 1) {
                         final S secondaryKey =
@@ -215,7 +207,7 @@ abstract class Table<N> {
                             for (final Tuple<Integer, M> indexedModel : indexedModelSet) {
                                 upsertedIdentifiers.set(
                                         indexedModel.first,
-                                        Optional.of(updatingIdentifier)
+                                        Optional.of(updatingIdentified.identifier)
                                 );
                             }
                         }

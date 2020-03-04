@@ -39,7 +39,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
         if (podcastSearchIdentifier1 == null) {
             fail();
         } else {
-            final TestObserver<List<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
+            final TestObserver<List<PodcastSearchIdentified>> podcastSearchTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastSearchTestObserver);
@@ -70,7 +70,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentifier3 == null) {
             fail();
         } else {
-            final TestObserver<List<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
+            final TestObserver<List<PodcastSearchIdentified>> podcastSearchTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastSearchTestObserver);
@@ -116,7 +116,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(podcastSearchIdentifier1)
             );
 
-            final TestObserver<List<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
+            final TestObserver<List<PodcastSearchIdentified>> podcastSearchTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastSearchTestObserver);
@@ -189,7 +189,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(1)
             );
 
-            final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<List<PodcastSearchIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -252,7 +252,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(2)
             );
 
-            final TestObserver<List<Identified<PodcastSearch>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<List<PodcastSearchIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -314,7 +314,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentifier2 == null) {
             fail();
         } else {
-            final TestObserver<Optional<Identified<PodcastSearch>>> podcastSearchTestObserver = new TestObserver<>();
+            final TestObserver<Optional<PodcastSearchIdentified>> podcastSearchTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastSearchIdentified(podcastSearchIdentifier1)
                     .subscribe(podcastSearchTestObserver);

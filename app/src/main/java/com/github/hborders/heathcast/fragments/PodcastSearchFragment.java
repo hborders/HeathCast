@@ -11,8 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.services.ServiceResponse1;
@@ -246,7 +245,7 @@ public final class PodcastSearchFragment extends Fragment
     @Override
     public void onClickPodcastIdentified(
             PodcastListFragment2 podcastListFragment,
-            Identified<Podcast> podcastIdentified
+            PodcastIdentified podcastIdentified
     ) {
         Objects.requireNonNull(listener).onClickPodcastIdentified(
                 this,
@@ -300,7 +299,7 @@ public final class PodcastSearchFragment extends Fragment
 
         void onClickPodcastIdentified(
                 PodcastSearchFragment podcastSearchFragment,
-                Identified<Podcast> podcastIdentified
+                PodcastIdentified podcastIdentified
         );
 
         void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment);

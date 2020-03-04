@@ -15,13 +15,12 @@ import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.fragments.MainFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.Subscription;
+import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.google.android.material.snackbar.Snackbar;
@@ -132,7 +131,7 @@ public final class MainActivity extends AppCompatActivity
     @Override
     public void onClickPodcastIdentified(
             PodcastSearchFragment podcastSearchFragment,
-            Identified<Podcast> podcastIdentified
+            PodcastIdentified podcastIdentified
     ) {
         requireNavController().navigate(
                 R.id.action_podcastSearchFragment_to_podcastFragment,
@@ -152,7 +151,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Single<List<Identified<Episode>>> fetchEpisodes(
+    public Single<List<EpisodeIdentified>> fetchEpisodes(
             PodcastFragment podcastFragment,
             URL url
     ) {
@@ -160,17 +159,17 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
+    public Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
             PodcastFragment podcastFragment,
-            Identifier<Podcast> podcastIdentifier
+            PodcastIdentifier podcastIdentifier
     ) {
         return podcastService.observeQueryForPodcastIdentified(podcastIdentifier);
     }
 
     @Override
-    public Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(
+    public Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(
             PodcastFragment podcastFragment,
-            Identifier<Podcast> podcastIdentifier
+            PodcastIdentifier podcastIdentifier
     ) {
         return podcastService.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
@@ -178,19 +177,19 @@ public final class MainActivity extends AppCompatActivity
     @Override
     public void requestedSubscribe(
             PodcastFragment podcastFragment,
-            Identifier<Podcast> podcastIdentifier
+            PodcastIdentifier podcastIdentifier
     ) {
         podcastService
                 .subscribe(podcastIdentifier)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<Optional<Identifier<Subscription>>>() {
+                .subscribe(new SingleObserver<Optional<SubscriptionIdentifier>>() {
                                @Override
                                public void onSubscribe(Disposable d) {
                                    // don't dispose this should be fast, and disposal is pointless anyway
                                }
 
                                @Override
-                               public void onSuccess(Optional<Identifier<Subscription>> subscriptionIdentifierOptional) {
+                               public void onSuccess(Optional<SubscriptionIdentifier> subscriptionIdentifierOptional) {
                                    @Nullable final View contentView = findContentView();
                                    if (contentView != null) {
                                        Snackbar.make(
@@ -221,7 +220,7 @@ public final class MainActivity extends AppCompatActivity
     @Override
     public void requestedUnsubscribe(
             PodcastFragment podcastFragment,
-            Identifier<Subscription> subscriptionIdentifier
+            SubscriptionIdentifier subscriptionIdentifier
     ) {
         podcastService
                 .unsubscribe(subscriptionIdentifier)

@@ -5,13 +5,14 @@ import android.content.Context;
 import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.dao.Database;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.Subscription;
+import com.github.hborders.heathcast.models.PodcastSearchIdentified;
+import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
@@ -108,31 +109,31 @@ public final class PodcastService {
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
     }
 
-    public Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
+    public Observable<List<PodcastSearchIdentified>> observeQueryForAllPodcastSearchIdentifieds() {
         return database.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-    public Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
-            Identifier<Podcast> podcastIdentifier
+    public Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
+            PodcastIdentifier podcastIdentifier
     ) {
         return database.observeQueryForPodcastIdentified(podcastIdentifier);
     }
 
-    public Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(
-            Identifier<Podcast> podcastIdentifier
+    public Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(
+            PodcastIdentifier podcastIdentifier
     ) {
         return database.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Single<Optional<Identifier<Subscription>>> subscribe(Identifier<Podcast> podcastIdentifier) {
-        return Single.<Optional<Identifier<Subscription>>>create(source ->
+    public Single<Optional<SubscriptionIdentifier>> subscribe(PodcastIdentifier podcastIdentifier) {
+        return Single.<Optional<SubscriptionIdentifier>>create(source ->
                 source.onSuccess(
                         database.subscribe(podcastIdentifier)
                 )
         ).subscribeOn(scheduler);
     }
 
-    public Single<Result> unsubscribe(Identifier<Subscription> subscriptionIdentifier) {
+    public Single<Result> unsubscribe(SubscriptionIdentifier subscriptionIdentifier) {
         return Single.<Result>create(source ->
                 source.onSuccess(
                         database.unsubscribe(subscriptionIdentifier)
@@ -153,7 +154,7 @@ public final class PodcastService {
             @Nullable NetworkPauser networkPauser,
             PodcastSearch podcastSearch
     ) {
-        final Optional<Identified<PodcastSearch>> podcastSearchIdentifiedOptional =
+        final Optional<PodcastSearchIdentified> podcastSearchIdentifiedOptional =
                 database.upsertPodcastSearch(podcastSearch);
 
         return podcastSearchIdentifiedOptional.map(
@@ -332,7 +333,7 @@ public final class PodcastService {
 //        // so I can reuse all the code in searchForPodcasts2
 //    }
 
-    public Single<List<Identified<Episode>>> fetchEpisodes(URL url) {
+    public Single<List<EpisodeIdentified>> fetchEpisodes(URL url) {
         final Request request = new Request.Builder().url(url).build();
         final Call call = okHttpClient.newCall(request);
 
@@ -349,7 +350,7 @@ public final class PodcastService {
                                         return Single.error(new Exception("No responseBody"));
                                     } else {
                                         try {
-                                            final List<Identified<Episode>> identifiedEpisodes =
+                                            final List<EpisodeIdentified> identifiedEpisodes =
                                                     XmlParser.parseEpisodeList(responseBody.byteStream());
                                             return Single.just(identifiedEpisodes);
                                         } finally {

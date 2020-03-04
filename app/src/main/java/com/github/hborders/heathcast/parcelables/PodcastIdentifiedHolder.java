@@ -2,8 +2,8 @@ package com.github.hborders.heathcast.parcelables;
 
 import android.os.Parcel;
 
-import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 
 import java.net.URL;
@@ -14,11 +14,11 @@ import javax.annotation.Nullable;
 import static com.github.hborders.heathcast.android.ParcelUtil.readURL;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
-public final class PodcastIdentifiedHolder implements UnparcelableHolder<Identified<Podcast>> {
+public final class PodcastIdentifiedHolder implements UnparcelableHolder<PodcastIdentified> {
     @Nullable
-    public final Identified<Podcast> podcastIdentified;
+    public final PodcastIdentified podcastIdentified;
 
-    public PodcastIdentifiedHolder(Identified<Podcast> podcastIdentified) {
+    public PodcastIdentifiedHolder(PodcastIdentified podcastIdentified) {
         this.podcastIdentified = podcastIdentified;
     }
 
@@ -34,7 +34,7 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Identif
             @Nullable final String name = in.readString();
 
             if (feedURL != null && name != null) {
-                podcastIdentified = new Identified<>(
+                podcastIdentified = new PodcastIdentified(
                         new PodcastIdentifier(id),
                         new Podcast(
                                 artworkURL,
@@ -91,7 +91,7 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Identif
 
     @Nullable
     @Override
-    public Identified<Podcast> getUnparcelable() {
+    public PodcastIdentified getUnparcelable() {
         return podcastIdentified;
     }
 

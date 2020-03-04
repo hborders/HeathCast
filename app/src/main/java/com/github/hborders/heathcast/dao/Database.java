@@ -12,12 +12,17 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import com.github.hborders.heathcast.core.ListUtil;
 import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.PodcastSearchIdentified;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.github.hborders.heathcast.models.Subscription;
+import com.github.hborders.heathcast.models.SubscriptionIdentified;
+import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 import com.stealthmountain.sqldim.SqlDim;
 import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
@@ -63,10 +68,10 @@ public final class Database<N> {
         subscriptionTable = new SubscriptionTable<>(dimDatabase);
     }
 
-    public Optional<Identified<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
+    public Optional<PodcastSearchIdentified> upsertPodcastSearch(PodcastSearch podcastSearch) {
         return podcastSearchTable
                 .upsertPodcastSearch(podcastSearch)
-                .map(podcastSearchIdentifier -> new Identified<>(
+                .map(podcastSearchIdentifier -> new PodcastSearchIdentified(
                                 podcastSearchIdentifier,
                                 podcastSearch
                         )
@@ -75,7 +80,7 @@ public final class Database<N> {
 
     public void replacePodcastSearchPodcasts(
             N marker,
-            Identified<PodcastSearch> podcastSearchIdentified,
+            PodcastSearchIdentified podcastSearchIdentified,
             List<Podcast> podcasts
     ) {
         try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
@@ -99,10 +104,10 @@ public final class Database<N> {
         podcastTable.triggerMarked(marker);
     }
 
-    public Optional<Identified<Podcast>> upsertPodcast(Podcast podcast) {
+    public Optional<PodcastIdentified> upsertPodcast(Podcast podcast) {
         return podcastTable
                 .upsertPodcast(podcast)
-                .map(podcastIdentifier -> new Identified<>(
+                .map(podcastIdentifier -> new PodcastIdentified(
                                 podcastIdentifier,
                                 podcast
                         )
@@ -110,7 +115,7 @@ public final class Database<N> {
     }
 
     public void upsertEpisodesForPodcast(
-            Identifier<Podcast> podcastIdentifier,
+            PodcastIdentifier podcastIdentifier,
             List<Episode> episodes
     ) {
         episodeTable.upsertEpisodes(
@@ -119,30 +124,30 @@ public final class Database<N> {
         );
     }
 
-    public Optional<Identified<Subscription>> subscribe(Identified<Podcast> podcastIdentified) {
+    public Optional<SubscriptionIdentified> subscribe(PodcastIdentified podcastIdentified) {
         return subscribe(podcastIdentified.identifier)
-                .map(subscriptionIdentifier -> new Identified<>(
+                .map(subscriptionIdentifier -> new SubscriptionIdentified(
                                 subscriptionIdentifier,
                                 new Subscription(podcastIdentified)
                         )
                 );
     }
 
-    public Optional<Identifier<Subscription>> subscribe(Identifier<Podcast> podcastIdentifier) {
+    public Optional<SubscriptionIdentifier> subscribe(PodcastIdentifier podcastIdentifier) {
         return subscriptionTable.insertSubscription(podcastIdentifier);
     }
 
-    public Result unsubscribe(Identifier<Subscription> subscriptionIdentifier) {
+    public Result unsubscribe(SubscriptionIdentifier subscriptionIdentifier) {
         final int deleteCount = subscriptionTable.deleteSubscription(subscriptionIdentifier);
         return deleteCount > 0 ? Result.Success.INSTANCE : Result.Failure.INSTANCE;
     }
 
-    public Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
+    public Observable<List<PodcastSearchIdentified>> observeQueryForAllPodcastSearchIdentifieds() {
         return podcastSearchTable.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-    public Observable<List<Identified<Podcast>>> observeQueryForPodcastIdentifieds(
-            Identifier<PodcastSearch> podcastSearchIdentifier
+    public Observable<List<PodcastIdentified>> observeQueryForPodcastIdentifieds(
+            PodcastSearchIdentifier podcastSearchIdentifier
     ) {
         return dimDatabase.createQuery(
                 Arrays.asList(
@@ -166,7 +171,7 @@ public final class Database<N> {
     }
 
     public Observable<MarkedValue<N, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds(
-            Identifier<PodcastSearch> podcastSearchIdentifier
+            PodcastSearchIdentifier podcastSearchIdentifier
     ) {
         return dimDatabase.createMarkedQuery(
                 Arrays.asList(
@@ -193,34 +198,34 @@ public final class Database<N> {
                 );
     }
 
-    public Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
-            Identifier<Podcast> podcastIdentifier
+    public Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
+            PodcastIdentifier podcastIdentifier
     ) {
         return podcastTable.observeQueryForPodcastIdentified(podcastIdentifier);
     }
 
-    public Observable<List<Identified<Subscription>>> observeQueryForSubscriptions() {
+    public Observable<List<SubscriptionIdentified>> observeQueryForSubscriptions() {
         return subscriptionTable.observeQueryForSubscriptions();
     }
 
-    public Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(
-            Identifier<Podcast> podcastIdentifier
+    public Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(
+            PodcastIdentifier podcastIdentifier
     ) {
         return subscriptionTable.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(
-            Identifier<Podcast> podcastIdentifier
+    public Observable<List<EpisodeIdentified>> observeQueryForEpisodeIdentifiedsForPodcast(
+            PodcastIdentifier podcastIdentifier
     ) {
         return episodeTable.observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier);
     }
 
-    public boolean deletePodcast(Identifier<Podcast> podcastIdentifier) {
+    public boolean deletePodcast(PodcastIdentifier podcastIdentifier) {
         final int deleteCount = podcastTable.deletePodcast(podcastIdentifier);
         return deleteCount > 0;
     }
 
-    public boolean deletePodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+    public boolean deletePodcastSearch(PodcastSearchIdentifier podcastSearchIdentifier) {
         final int deleteCount = podcastSearchTable.deletePodcastSearchById(podcastSearchIdentifier);
         return deleteCount > 0;
     }

@@ -10,18 +10,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecyclerViewAdapter.EpisodeViewHolder> {
 
-    private List<Identified<Episode>> episodeIdentifieds;
+    private List<EpisodeIdentified> episodeIdentifieds;
     private final EpisodeRecyclerViewAdapterListener listener;
 
     public EpisodeRecyclerViewAdapter(
-            List<Identified<Episode>> episodeIdentifieds,
+            List<EpisodeIdentified> episodeIdentifieds,
             EpisodeRecyclerViewAdapterListener listener
     ) {
         this.episodeIdentifieds = episodeIdentifieds;
@@ -40,10 +40,10 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
 
     @Override
     public void onBindViewHolder(EpisodeViewHolder holder, int position) {
-        Identified<Episode> identifiedEpisode = episodeIdentifieds.get(position);
-        final Episode episode = identifiedEpisode.model;
+        EpisodeIdentified episodeIdentified = episodeIdentifieds.get(position);
+        final Episode episode = episodeIdentified.model;
         holder.titleTextView.setText(episode.title);
-        holder.itemView.setOnClickListener(itemView -> listener.onClick(identifiedEpisode));
+        holder.itemView.setOnClickListener(itemView -> listener.onClick(episodeIdentified));
         Picasso.get().cancelRequest(holder.artworkImageView);
         if (episode.artworkURL != null) {
             final String artworkUrlString = episode.artworkURL.toExternalForm();
@@ -56,7 +56,7 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
         return episodeIdentifieds.size();
     }
 
-    public void setEpisodeIdentifieds(List<Identified<Episode>> episodeIdentifieds) {
+    public void setEpisodeIdentifieds(List<EpisodeIdentified> episodeIdentifieds) {
         this.episodeIdentifieds = episodeIdentifieds;
         notifyDataSetChanged();
     }
@@ -74,6 +74,6 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
     }
 
     public interface EpisodeRecyclerViewAdapterListener {
-        void onClick(Identified<Episode> identifiedEpisode);
+        void onClick(EpisodeIdentified episodeIdentified);
     }
 }

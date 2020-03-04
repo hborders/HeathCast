@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.Identified;
 
 import java.net.URL;
 import java.time.Duration;
@@ -21,11 +21,11 @@ import static com.github.hborders.heathcast.android.ParcelUtil.writeDate;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeDuration;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
-public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHolder<Identified<Episode>> {
+public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHolder<EpisodeIdentified> {
     @Nullable
-    public final Identified<Episode> episodeIdentified;
+    public final EpisodeIdentified episodeIdentified;
 
-    public EpisodeIdentifiedHolder(Identified<Episode> episodeIdentified) {
+    public EpisodeIdentifiedHolder(EpisodeIdentified episodeIdentified) {
         this.episodeIdentified = episodeIdentified;
     }
 
@@ -42,7 +42,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
             @Nullable final String title = in.readString();
             @Nullable final URL url = readURL(in);
             if (title != null && url != null) {
-                episodeIdentified = new Identified<>(
+                episodeIdentified = new EpisodeIdentified(
                         new EpisodeIdentifier(id),
                         new Episode(
                                 artworkURL,
@@ -103,7 +103,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
 
     @Nullable
     @Override
-    public Identified<Episode> getUnparcelable() {
+    public EpisodeIdentified getUnparcelable() {
         return episodeIdentified;
     }
 

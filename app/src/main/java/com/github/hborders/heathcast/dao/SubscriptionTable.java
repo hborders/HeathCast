@@ -9,10 +9,10 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.Subscription;
+import com.github.hborders.heathcast.models.SubscriptionIdentified;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
@@ -39,7 +39,7 @@ public final class SubscriptionTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<Identifier<Subscription>> insertSubscription(Identifier<Podcast> podcastIdentifier) {
+    Optional<SubscriptionIdentifier> insertSubscription(PodcastIdentifier podcastIdentifier) {
         final long id = dimDatabase.insert(
                 TABLE_SUBSCRIPTION,
                 CONFLICT_ABORT,
@@ -54,8 +54,8 @@ public final class SubscriptionTable<N> extends Table<N> {
     }
 
     int moveSubscriptionIdentifiedBefore(
-            Identifier<Subscription> movingSubscriptionIdentifier,
-            Identifier<Subscription> referenceSubscriptionIdentifier
+            SubscriptionIdentifier movingSubscriptionIdentifier,
+            SubscriptionIdentifier referenceSubscriptionIdentifier
     ) {
         SupportSQLiteStatement statement =
                 dimDatabase.getWritableDatabase().compileStatement(
@@ -104,8 +104,8 @@ public final class SubscriptionTable<N> extends Table<N> {
     }
 
     int moveSubscriptionIdentifiedAfter(
-            Identifier<Subscription> movingSubscriptionIdentifier,
-            Identifier<Subscription> referenceSubscriptionIdentifier
+            SubscriptionIdentifier movingSubscriptionIdentifier,
+            SubscriptionIdentifier referenceSubscriptionIdentifier
     ) {
         SupportSQLiteStatement statement =
                 dimDatabase.getWritableDatabase().compileStatement(
@@ -153,7 +153,7 @@ public final class SubscriptionTable<N> extends Table<N> {
         );
     }
 
-    int deleteSubscription(Identifier<Subscription> subscriptionIdentifier) {
+    int deleteSubscription(SubscriptionIdentifier subscriptionIdentifier) {
         return dimDatabase.delete(
                 TABLE_SUBSCRIPTION,
                 ID + " = ?",
@@ -161,7 +161,7 @@ public final class SubscriptionTable<N> extends Table<N> {
         );
     }
 
-    Observable<List<Identified<Subscription>>> observeQueryForSubscriptions() {
+    Observable<List<SubscriptionIdentified>> observeQueryForSubscriptions() {
         return dimDatabase.createQuery(
                 Arrays.asList(
                         PodcastTable.TABLE_PODCAST,
@@ -181,7 +181,7 @@ public final class SubscriptionTable<N> extends Table<N> {
         ).mapToList(SubscriptionTable::getSubscriptionIdentified);
     }
 
-    Observable<Optional<Identifier<Subscription>>> observeQueryForSubscriptionIdentifier(Identifier<Podcast> podcastIdentifier) {
+    Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(PodcastIdentifier podcastIdentifier) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_SUBSCRIPTION)
@@ -225,7 +225,7 @@ public final class SubscriptionTable<N> extends Table<N> {
                 + " ON " + TABLE_SUBSCRIPTION + "(" + SORT + ")");
     }
 
-    static ContentValues getSubscriptionContentValues(Identifier<Podcast> podcastIdentifier) {
+    static ContentValues getSubscriptionContentValues(PodcastIdentifier podcastIdentifier) {
         final ContentValues values = new ContentValues(1);
 
         putIdentifier(
@@ -237,21 +237,21 @@ public final class SubscriptionTable<N> extends Table<N> {
         return values;
     }
 
-    static Identified<Subscription> getSubscriptionIdentified(Cursor cursor) {
-        final Identified<Podcast> podcastIdentified = PodcastTable.getPodcastIdentified(cursor);
-        final Identifier<Subscription> subscriptionIdentifier = new SubscriptionIdentifier(
+    static SubscriptionIdentified getSubscriptionIdentified(Cursor cursor) {
+        final PodcastIdentified podcastIdentified = PodcastTable.getPodcastIdentified(cursor);
+        final SubscriptionIdentifier subscriptionIdentifier = new SubscriptionIdentifier(
                 CursorUtil.getNonnullLong(
                         cursor,
                         ID
                 )
         );
-        return new Identified<>(
+        return new SubscriptionIdentified(
                 subscriptionIdentifier,
                 new Subscription(podcastIdentified)
         );
     }
 
-    static Identifier<Subscription> getSubscriptionIdentifier(Cursor cursor) {
+    static SubscriptionIdentifier getSubscriptionIdentifier(Cursor cursor) {
         return new SubscriptionIdentifier(
                 CursorUtil.getNonnullLong(
                         cursor,

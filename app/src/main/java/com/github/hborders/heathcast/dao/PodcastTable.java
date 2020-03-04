@@ -12,6 +12,7 @@ import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
@@ -64,7 +65,7 @@ final class PodcastTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<Identifier<Podcast>> insertPodcast(Podcast podcast) {
+    Optional<PodcastIdentifier> insertPodcast(Podcast podcast) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
@@ -77,7 +78,7 @@ final class PodcastTable<N> extends Table<N> {
         }
     }
 
-    int updatePodcastIdentified(Identified<Podcast> identifiedPodcast) {
+    int updatePodcastIdentified(PodcastIdentified identifiedPodcast) {
         return dimDatabase.update(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
@@ -87,31 +88,33 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    Optional<Identifier<Podcast>> upsertPodcast(Podcast podcast) {
+    Optional<PodcastIdentifier> upsertPodcast(Podcast podcast) {
         return upsertModel(
                 upsertAdapter,
                 String.class,
                 podcast,
                 podcast_ -> podcast_.feedURL.toExternalForm(),
                 PodcastIdentifier::new,
+                PodcastIdentified::new,
                 this::insertPodcast,
                 this::updatePodcastIdentified
         );
     }
 
-    List<Optional<Identifier<Podcast>>> upsertPodcasts(List<Podcast> podcasts) {
+    List<Optional<PodcastIdentifier>> upsertPodcasts(List<Podcast> podcasts) {
         return upsertModels(
                 upsertAdapter,
                 String.class,
                 podcasts,
                 podcast -> podcast.feedURL.toExternalForm(),
                 PodcastIdentifier::new,
+                PodcastIdentified::new,
                 this::insertPodcast,
                 this::updatePodcastIdentified
         );
     }
 
-    int deletePodcast(Identifier<Podcast> podcastIdentifier) {
+    int deletePodcast(PodcastIdentifier podcastIdentifier) {
         final SupportSQLiteStatement deleteStatement =
                 dimDatabase.getWritableDatabase().compileStatement(
                         "DELETE FROM " + TABLE_PODCAST
@@ -129,7 +132,7 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    int deletePodcasts(Collection<Identifier<Podcast>> podcastIdentifiers) {
+    int deletePodcasts(Collection<PodcastIdentifier> podcastIdentifiers) {
         final String[] idStrings = idStrings(podcastIdentifiers);
         return dimDatabase.delete(
                 TABLE_PODCAST,
@@ -145,7 +148,7 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    Observable<Set<Identified<Podcast>>> observeQueryForAllPodcastIdentifieds() {
+    Observable<Set<PodcastIdentified>> observeQueryForAllPodcastIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST)
@@ -161,8 +164,8 @@ final class PodcastTable<N> extends Table<N> {
                 .map(HashSet::new);
     }
 
-    Observable<Optional<Identified<Podcast>>> observeQueryForPodcastIdentified(
-            Identifier<Podcast> podcastIdentifier
+    Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
+            PodcastIdentifier podcastIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
@@ -194,8 +197,8 @@ final class PodcastTable<N> extends Table<N> {
                 + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
     }
 
-    static Identified<Podcast> getPodcastIdentified(Cursor cursor) {
-        return new Identified<>(
+    static PodcastIdentified getPodcastIdentified(Cursor cursor) {
+        return new PodcastIdentified(
                 new PodcastIdentifier(
                         getNonnullInt(
                                 cursor,
@@ -248,7 +251,7 @@ final class PodcastTable<N> extends Table<N> {
         return values;
     }
 
-    static ContentValues getPodcastIdentifiedContentValues(Identified<Podcast> identifiedPodcast) {
+    static ContentValues getPodcastIdentifiedContentValues(PodcastIdentified identifiedPodcast) {
         final ContentValues values = getPodcastContentValues(identifiedPodcast.model);
         putIdentifier(
                 values,

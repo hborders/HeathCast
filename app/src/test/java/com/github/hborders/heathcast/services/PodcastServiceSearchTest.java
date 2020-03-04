@@ -30,7 +30,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
 
     @Test
     public void testSearchForPlanetMoneyThenTheIndicator() throws Throwable {
-        final MatcherTestObserver<List<Identified<PodcastSearch>>> podcastSearchIdentifiedsMatcherTestObserver =
+        final MatcherTestObserver<List<PodcastSearchIdentified>> podcastSearchIdentifiedsMatcherTestObserver =
                 new MatcherTestObserver<>();
         getTestObject()
                 .observeQueryForAllPodcastSearchIdentifieds()
@@ -77,7 +77,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         serviceResponse1Loading(
                                 specificallyEmpty()
                         ),
-                        // there is a race where List<Identified<Podcast>> or ServiceRequestState
+                        // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(
@@ -142,7 +142,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         serviceResponse1Loading(
                                 empty()
                         ),
-                        // there is a race where List<Identified<Podcast>> or ServiceRequestState
+                        // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(
@@ -154,7 +154,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
 
     @Test
     public void testSearchForPlanetMoneyTwiceQuickly() throws Throwable {
-        final MatcherTestObserver<List<Identified<PodcastSearch>>> podcastSearchIdentifiedsMatcherTestObserver =
+        final MatcherTestObserver<List<PodcastSearchIdentified>> podcastSearchIdentifiedsMatcherTestObserver =
                 new MatcherTestObserver<>();
         getTestObject()
                 .observeQueryForAllPodcastSearchIdentifieds()
@@ -219,7 +219,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                                 empty()
                         ),
                         serviceResponse1Loading(empty()),
-                        // there is a race where List<Identified<Podcast>> or ServiceRequestState
+                        // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(
@@ -256,7 +256,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                         serviceResponse1Loading(
                                 not(empty())
                         ),
-                        // there is a race where List<Identified<Podcast>> or ServiceRequestState
+                        // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponse1Complete(

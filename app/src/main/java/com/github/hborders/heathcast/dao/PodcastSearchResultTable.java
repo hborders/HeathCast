@@ -5,7 +5,7 @@ import android.content.ContentValues;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.stealthmountain.sqldim.DimDatabase;
 
@@ -34,7 +34,7 @@ final class PodcastSearchResultTable<N> extends Table<N> {
     }
 
     long insertPodcastSearchResult(
-            Identifier<Podcast> podcastIdentifier,
+            PodcastIdentifier podcastIdentifier,
             Identifier<PodcastSearch> podcastSearchIdentifier,
             int sort
     ) {

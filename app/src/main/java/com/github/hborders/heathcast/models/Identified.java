@@ -1,15 +1,17 @@
 package com.github.hborders.heathcast.models;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-public final class Identified<M> {
-    public final Identifier<M> identifier;
+public abstract class Identified<I extends Identifier<M>, M> {
+    public final I identifier;
     public final M model;
 
     public Identified(
-            Identifier<M> identifier,
+            I identifier,
             M model
     ) {
         this.identifier = identifier;
@@ -17,22 +19,30 @@ public final class Identified<M> {
     }
 
     @Override
-    public boolean equals(@Nullable Object o) {
+    public final boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Identified<?> that = (Identified<?>) o;
+        Identified<?, ?> that = (Identified<?, ?>) o;
         return identifier.equals(that.identifier) &&
                 model.equals(that.model);
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(identifier, model);
     }
 
     @Override
-    public String toString() {
-        return "Identified{" +
+    public final String toString() {
+        @SuppressWarnings("rawtypes") final Class<? extends Identified> clazz = getClass();
+        @NonNull final String simpleName;
+        if (clazz.isAnonymousClass()) {
+            simpleName = "Identified$";
+        } else {
+            simpleName = clazz.getSimpleName();
+        }
+
+        return simpleName + "{" +
                 "identifier=" + identifier +
                 ", model=" + model +
                 '}';

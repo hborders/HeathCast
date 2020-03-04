@@ -41,12 +41,12 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed"),
                 "name1"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier =
+        @Nullable final PodcastIdentifier podcastIdentifier =
                 getTestObject().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -70,12 +70,12 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed"),
                 "name1"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier =
+        @Nullable final PodcastIdentifier podcastIdentifier =
                 getTestObject().insertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -99,7 +99,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed"),
                 "name1"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier =
+        @Nullable final PodcastIdentifier podcastIdentifier =
                 getTestObject().insertPodcast(podcast1).orElse(null);
         if (podcastIdentifier == null) {
             fail();
@@ -122,7 +122,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(1)
             );
 
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -146,7 +146,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed"),
                 "name1"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier =
+        @Nullable final PodcastIdentifier podcastIdentifier =
                 getTestObject().insertPodcast(podcast1).orElse(null);
         if (podcastIdentifier == null) {
             fail();
@@ -169,7 +169,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(1)
             );
 
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -193,13 +193,13 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+        @Nullable final PodcastIdentifier podcastIdentifier1 =
                 getTestObject().insertPodcast(podcast1).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
         } else {
-            @Nullable final Identifier<Podcast> podcastIdentifier2 =
-                    ((Callable<Identifier<Podcast>>) () -> {
+            @Nullable final PodcastIdentifier podcastIdentifier2 =
+                    ((Callable<PodcastIdentifier>) () -> {
                         final Podcast podcast2 = new Podcast(
                                 new URL("http://example.com/artwork2"),
                                 "author2",
@@ -215,7 +215,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
 
             assertNull(podcastIdentifier2);
 
-            final TestObserver<Set<Identified<Podcast>>> allPodcastsTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> allPodcastsTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(allPodcastsTestObserver);
@@ -239,12 +239,12 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier =
+        @Nullable final PodcastIdentifier podcastIdentifier =
                 getTestObject().upsertPodcast(podcast).orElse(null);
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -262,7 +262,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertExistingPodcastWithSameFeedUpdatesPodcast() throws Exception {
-        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+        @Nullable final PodcastIdentifier podcastIdentifier1 =
                 getTestObject().insertPodcast(
                         new Podcast(
                                 new URL("http://example.com/artwork"),
@@ -280,14 +280,14 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     new URL("http://example.com/feed"),
                     "name2"
             );
-            @Nullable final Identifier<Podcast> podcastIdentifier2 =
+            @Nullable final PodcastIdentifier podcastIdentifier2 =
                     getTestObject().upsertPodcast(podcast2).orElse(null);
             assertThat(
                     podcastIdentifier2,
                     equalTo(podcastIdentifier1)
             );
 
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -305,7 +305,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertExistingPodcastWithSameFeedTwiceTogetherUpdatesPodcastWithFirstPodcast() throws Exception {
-        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+        @Nullable final PodcastIdentifier podcastIdentifier1 =
                 getTestObject().insertPodcast(
                         new Podcast(
                                 new URL("http://example.com/artwork"),
@@ -329,7 +329,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     new URL("http://example.com/feed"),
                     "name3"
             );
-            final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifiers =
+            final List<Optional<PodcastIdentifier>> upsertedPodcastIdentifiers =
                     getTestObject().upsertPodcasts(
                             Arrays.asList(
                                     podcast2,
@@ -346,7 +346,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -387,12 +387,12 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 podcast2,
                 podcast3
         );
-        final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifierOptionals =
+        final List<Optional<PodcastIdentifier>> upsertedPodcastIdentifierOptionals =
                 getTestObject().upsertPodcasts(
                         upsertingPodcasts
                 );
         if (upsertedPodcastIdentifierOptionals.size() == upsertingPodcasts.size()) {
-            @Nullable final Identifier<Podcast> podcastIdentifier =
+            @Nullable final PodcastIdentifier podcastIdentifier =
                     upsertedPodcastIdentifierOptionals.get(0).orElse(null);
             if (podcastIdentifier != null) {
                 assertThat(
@@ -405,7 +405,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                         )
                 );
 
-                final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+                final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForAllPodcastIdentifieds()
                         .subscribe(podcastTestObserver);
@@ -428,7 +428,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertNewPodcastWithSameFeedThriceTogetherAndExistingPodcastWithSameFeedThriceTogetherInsertsFirstOfNewAndUpdatesFirstOfExisting() throws Exception {
-        @Nullable final Identifier<Podcast> existingPodcastIdentifier =
+        @Nullable final PodcastIdentifier existingPodcastIdentifier =
                 getTestObject().insertPodcast(
                         new Podcast(
                                 new URL("http://example.com/artwork1"),
@@ -484,12 +484,12 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     podcast6,
                     podcast7
             );
-            final List<Optional<Identifier<Podcast>>> upsertedPodcastIdentifierOptionals =
+            final List<Optional<PodcastIdentifier>> upsertedPodcastIdentifierOptionals =
                     getTestObject().upsertPodcasts(
                             upsertingPodcasts
                     );
             if (upsertedPodcastIdentifierOptionals.size() == upsertingPodcasts.size()) {
-                @Nullable final Identifier<Podcast> insertedPodcastIdentifier =
+                @Nullable final PodcastIdentifier insertedPodcastIdentifier =
                         upsertedPodcastIdentifierOptionals.get(0).orElse(null);
                 if (insertedPodcastIdentifier != null) {
                     assertThat(
@@ -506,7 +506,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                             )
                     );
 
-                    final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+                    final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
                     getTestObject()
                             .observeQueryForAllPodcastIdentifieds()
                             .subscribe(podcastTestObserver);
@@ -541,7 +541,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed11"),
                 "name11"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier11 =
+        @Nullable final PodcastIdentifier podcastIdentifier11 =
                 getTestObject().insertPodcast(podcast11).orElse(null);
         if (podcastIdentifier11 == null) {
             fail();
@@ -563,7 +563,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(1)
             );
 
-            final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Optional<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentified(podcastIdentifier11)
                     .subscribe(podcastTestObserver);
@@ -587,7 +587,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed11"),
                 "name11"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier =
+        @Nullable final PodcastIdentifier podcastIdentifier =
                 getTestObject().insertPodcast(podcast11).orElse(null);
         if (podcastIdentifier == null) {
             fail();
@@ -611,7 +611,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(0)
             );
 
-            final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Optional<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentified(podcastIdentifier)
                     .subscribe(podcastTestObserver);
@@ -629,7 +629,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed11"),
                 "name11"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier11 =
+        @Nullable final PodcastIdentifier podcastIdentifier11 =
                 getTestObject().insertPodcast(podcast11).orElse(null);
 
         final Podcast podcast2 = new Podcast(
@@ -638,14 +638,14 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed2"),
                 "name2"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+        @Nullable final PodcastIdentifier podcastIdentifier2 =
                 getTestObject().insertPodcast(podcast2).orElse(null);
         if (podcastIdentifier11 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {
             fail();
         } else {
-            final TestObserver<Optional<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Optional<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentified(podcastIdentifier11)
                     .subscribe(podcastTestObserver);
@@ -718,7 +718,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed1"),
                 "name1"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+        @Nullable final PodcastIdentifier podcastIdentifier1 =
                 getTestObject().insertPodcast(podcast1).orElse(null);
 
         final Podcast podcast2 = new Podcast(
@@ -727,7 +727,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed2"),
                 "name2"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+        @Nullable final PodcastIdentifier podcastIdentifier2 =
                 getTestObject().insertPodcast(podcast2).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
@@ -740,7 +740,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(1)
             );
 
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);
@@ -764,7 +764,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed1"),
                 "name1"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier1 =
+        @Nullable final PodcastIdentifier podcastIdentifier1 =
                 getTestObject().insertPodcast(podcast1).orElse(null);
 
         final Podcast podcast2 = new Podcast(
@@ -773,7 +773,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed2"),
                 "name2"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier2 =
+        @Nullable final PodcastIdentifier podcastIdentifier2 =
                 getTestObject().insertPodcast(podcast2).orElse(null);
 
         final Podcast podcast3 = new Podcast(
@@ -782,7 +782,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/feed3"),
                 "name3"
         );
-        @Nullable final Identifier<Podcast> podcastIdentifier3 =
+        @Nullable final PodcastIdentifier podcastIdentifier3 =
                 getTestObject().insertPodcast(podcast3).orElse(null);
         if (podcastIdentifier1 == null) {
             fail();
@@ -802,7 +802,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(2)
             );
 
-            final TestObserver<Set<Identified<Podcast>>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<Set<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastIdentifieds()
                     .subscribe(podcastTestObserver);

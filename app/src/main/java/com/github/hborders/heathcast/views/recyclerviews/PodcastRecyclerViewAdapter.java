@@ -9,20 +9,20 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
-        Identified<Podcast>,
+        PodcastIdentified,
         PodcastRecyclerViewAdapter.PodcastViewHolder> {
 
     private final PodcastRecyclerViewAdapterListener listener;
 
     public PodcastRecyclerViewAdapter(
-            List<Identified<Podcast>> identifiedPodcasts,
+            List<PodcastIdentified> identifiedPodcasts,
             PodcastRecyclerViewAdapterListener listener
     ) {
         super(identifiedPodcasts);
@@ -42,7 +42,7 @@ public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
     @Override
     public void onBindViewHolder(
             PodcastViewHolder holder,
-            Identified<Podcast> podcastIdentified) {
+            PodcastIdentified podcastIdentified) {
         final Podcast podcast = podcastIdentified.model;
         holder.nameTextView.setText(podcast.name);
         holder.itemView.setOnClickListener(itemView -> listener.onClick(podcastIdentified));
@@ -65,6 +65,6 @@ public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
     }
 
     public interface PodcastRecyclerViewAdapterListener {
-        void onClick(Identified<Podcast> podcastIdentified);
+        void onClick(PodcastIdentified podcastIdentified);
     }
 }

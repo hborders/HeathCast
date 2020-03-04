@@ -7,12 +7,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
-import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.android.CursorUtil;
+import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifier;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -25,9 +24,6 @@ import java.util.Set;
 import io.reactivex.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
-import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
-import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
-import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putDateAsLong;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putDurationAsLong;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putURLAsString;
@@ -39,6 +35,9 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNullableDurati
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
+import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
+import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
+import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 
 final class EpisodeTable<N> extends Table<N> {
     static final String TABLE_EPISODE = "episode";
@@ -72,8 +71,8 @@ final class EpisodeTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<Identifier<Episode>> insertEpisode(
-            Identifier<Podcast> podcastIdentifier,
+    Optional<EpisodeIdentifier> insertEpisode(
+            PodcastIdentifier podcastIdentifier,
             Episode episode
     ) {
         final long id = dimDatabase.insert(
@@ -92,8 +91,8 @@ final class EpisodeTable<N> extends Table<N> {
     }
 
     int updateEpisodeIdentified(
-            Identifier<Podcast> podcastIdentifier,
-            Identified<Episode> episodeIdentified) {
+            PodcastIdentifier podcastIdentifier,
+            EpisodeIdentified episodeIdentified) {
         return dimDatabase.update(
                 TABLE_EPISODE,
                 CONFLICT_ROLLBACK,
@@ -106,8 +105,8 @@ final class EpisodeTable<N> extends Table<N> {
         );
     }
 
-    List<Optional<Identifier<Episode>>> upsertEpisodes(
-            Identifier<Podcast> podcastIdentifier,
+    List<Optional<EpisodeIdentifier>> upsertEpisodes(
+            PodcastIdentifier podcastIdentifier,
             List<Episode> episodes
     ) {
         final UpsertAdapter<String> upsertAdapter = new EpisodeTableUpsertAdapter(podcastIdentifier);
@@ -118,6 +117,7 @@ final class EpisodeTable<N> extends Table<N> {
                 episodes,
                 episode -> episode.url.toExternalForm(),
                 EpisodeIdentifier::new,
+                EpisodeIdentified::new,
                 episode -> insertEpisode(
                         podcastIdentifier,
                         episode
@@ -129,7 +129,7 @@ final class EpisodeTable<N> extends Table<N> {
         );
     }
 
-    int deleteEpisode(Identifier<Episode> episodeIdentifier) {
+    int deleteEpisode(EpisodeIdentifier episodeIdentifier) {
         return dimDatabase.delete(
                 TABLE_EPISODE,
                 ID + " = ?",
@@ -137,7 +137,7 @@ final class EpisodeTable<N> extends Table<N> {
         );
     }
 
-    int deleteEpisodes(Collection<Identifier<Episode>> episodeIdentifiers) {
+    int deleteEpisodes(Collection<EpisodeIdentifier> episodeIdentifiers) {
         final String[] idStrings = idStrings(episodeIdentifiers);
         return dimDatabase.delete(
                 TABLE_EPISODE,
@@ -146,7 +146,7 @@ final class EpisodeTable<N> extends Table<N> {
         );
     }
 
-    Observable<Set<Identified<Episode>>> observeQueryForAllEpisodeIdentifieds() {
+    Observable<Set<EpisodeIdentified>> observeQueryForAllEpisodeIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_EPISODE)
@@ -165,7 +165,7 @@ final class EpisodeTable<N> extends Table<N> {
                 .map(HashSet::new);
     }
 
-    Observable<List<Identified<Episode>>> observeQueryForEpisodeIdentifiedsForPodcast(Identifier<Podcast> podcastIdentifier) {
+    Observable<List<EpisodeIdentified>> observeQueryForEpisodeIdentifiedsForPodcast(PodcastIdentifier podcastIdentifier) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_EPISODE)
@@ -188,8 +188,8 @@ final class EpisodeTable<N> extends Table<N> {
                 .mapToList(EpisodeTable::getEpisodeIdentified);
     }
 
-    Observable<Optional<Identified<Episode>>> observeQueryForEpisodeIdentified(
-            Identifier<Episode> episodeIdentifier
+    Observable<Optional<EpisodeIdentified>> observeQueryForEpisodeIdentified(
+            EpisodeIdentifier episodeIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
@@ -252,8 +252,8 @@ final class EpisodeTable<N> extends Table<N> {
                 + " ON " + TABLE_EPISODE + "(" + URL + ")");
     }
 
-    static Identified<Episode> getEpisodeIdentified(Cursor cursor) {
-        return new Identified<>(
+    static EpisodeIdentified getEpisodeIdentified(Cursor cursor) {
+        return new EpisodeIdentified(
                 new EpisodeIdentifier(
                         getNonnullInt(
                                 cursor,
@@ -290,7 +290,7 @@ final class EpisodeTable<N> extends Table<N> {
     }
 
     static ContentValues getEpisodeContentValues(
-            Identifier<Podcast> podcastIdentifier,
+            PodcastIdentifier podcastIdentifier,
             Episode episode
     ) {
         final ContentValues values = new ContentValues(8);
@@ -333,8 +333,8 @@ final class EpisodeTable<N> extends Table<N> {
     }
 
     static ContentValues getEpisodeIdentifiedContentValues(
-            Identifier<Podcast> podcastIdentifier,
-            Identified<Episode> episodeIdentified
+            PodcastIdentifier podcastIdentifier,
+            EpisodeIdentified episodeIdentified
     ) {
         final ContentValues values = getEpisodeContentValues(
                 podcastIdentifier,
@@ -351,9 +351,9 @@ final class EpisodeTable<N> extends Table<N> {
     }
 
     private static class EpisodeTableUpsertAdapter implements UpsertAdapter<String> {
-        private final Identifier<Podcast> podcastIdentifier;
+        private final PodcastIdentifier podcastIdentifier;
 
-        public EpisodeTableUpsertAdapter(Identifier<Podcast> podcastIdentifier) {
+        public EpisodeTableUpsertAdapter(PodcastIdentifier podcastIdentifier) {
             this.podcastIdentifier = podcastIdentifier;
         }
 

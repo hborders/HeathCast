@@ -5,9 +5,9 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 public final class Subscription {
-    public final Identified<Podcast> podcastIdentified;
+    public final PodcastIdentified podcastIdentified;
 
-    public Subscription(Identified<Podcast> podcastIdentified) {
+    public Subscription(PodcastIdentified podcastIdentified) {
         this.podcastIdentified = podcastIdentified;
     }
 

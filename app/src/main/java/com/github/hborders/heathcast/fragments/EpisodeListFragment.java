@@ -14,8 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.parcelables.EpisodeIdentifiedHolder;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
 
@@ -35,7 +34,7 @@ public final class EpisodeListFragment extends Fragment {
     public interface EpisodeListFragmentListener {
         void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment);
 
-        Observable<Optional<List<Identified<Episode>>>> episodeIdentifiedsOptionalObservable(
+        Observable<Optional<List<EpisodeIdentified>>> episodeIdentifiedsOptionalObservable(
                 EpisodeListFragment episodeListFragment
         );
 
@@ -46,7 +45,7 @@ public final class EpisodeListFragment extends Fragment {
 
         void onClick(
                 EpisodeListFragment episodeListFragment,
-                Identified<Episode> episodeIdentified
+                EpisodeIdentified episodeIdentified
         );
 
         void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment);
@@ -108,7 +107,7 @@ public final class EpisodeListFragment extends Fragment {
         final RecyclerView episodesRecyclerView =
                 view.requireViewById(R.id.fragment_episode_list_episodes_recycler_view);
         episodesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        @Nullable final List<Identified<Episode>> episodeIdentifieds =
+        @Nullable final List<EpisodeIdentified> episodeIdentifieds =
                 FragmentUtil.getUnparcelableHolderListArgument(
                         this,
                         EpisodeIdentifiedHolder.class,
@@ -116,10 +115,10 @@ public final class EpisodeListFragment extends Fragment {
                 );
         final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(
                 episodeIdentifieds == null ? Collections.emptyList() : episodeIdentifieds,
-                identifiedEpisode ->
+                episodeIdentified ->
                         Objects.requireNonNull(this.listener).onClick(
                                 this,
-                                identifiedEpisode
+                                episodeIdentified
                         )
         );
         this.adapter = adapter;

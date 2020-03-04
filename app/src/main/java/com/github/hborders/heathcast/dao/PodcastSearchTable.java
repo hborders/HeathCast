@@ -8,9 +8,9 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.PodcastSearchIdentified;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
@@ -56,18 +56,19 @@ final class PodcastSearchTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<Identifier<PodcastSearch>> upsertPodcastSearch(PodcastSearch podcastSearch) {
+    Optional<PodcastSearchIdentifier> upsertPodcastSearch(PodcastSearch podcastSearch) {
         return upsertModel(
                 upsertAdapter,
                 String.class,
                 podcastSearch,
                 PodcastSearch::getSearch,
                 PodcastSearchIdentifier::new,
+                PodcastSearchIdentified::new,
                 this::insertPodcastSearch,
                 this::updatePodcastSearchIdentified);
     }
 
-    private Optional<Identifier<PodcastSearch>> insertPodcastSearch(PodcastSearch podcastSearch) {
+    private Optional<PodcastSearchIdentifier> insertPodcastSearch(PodcastSearch podcastSearch) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
@@ -81,7 +82,7 @@ final class PodcastSearchTable<N> extends Table<N> {
     }
 
     private int updatePodcastSearchIdentified(
-            Identified<PodcastSearch> podcastSearchIdentified) {
+            PodcastSearchIdentified podcastSearchIdentified) {
         return dimDatabase.update(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
@@ -132,7 +133,7 @@ final class PodcastSearchTable<N> extends Table<N> {
         }
     }
 
-    Observable<List<Identified<PodcastSearch>>> observeQueryForAllPodcastSearchIdentifieds() {
+    Observable<List<PodcastSearchIdentified>> observeQueryForAllPodcastSearchIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_PODCAST_SEARCH)
@@ -149,7 +150,7 @@ final class PodcastSearchTable<N> extends Table<N> {
                 .mapToList(PodcastSearchTable::getPodcastSearchIdentified);
     }
 
-    Observable<Optional<Identified<PodcastSearch>>> observeQueryForPodcastSearchIdentified(
+    Observable<Optional<PodcastSearchIdentified>> observeQueryForPodcastSearchIdentified(
             Identifier<PodcastSearch> podcastSearchIdentifier
     ) {
         final SupportSQLiteQuery query =
@@ -210,8 +211,8 @@ final class PodcastSearchTable<N> extends Table<N> {
                 + " ON " + TABLE_PODCAST_SEARCH + "(" + SORT + ")");
     }
 
-    static Identified<PodcastSearch> getPodcastSearchIdentified(Cursor cursor) {
-        return new Identified<>(
+    static PodcastSearchIdentified getPodcastSearchIdentified(Cursor cursor) {
+        return new PodcastSearchIdentified(
                 new PodcastSearchIdentifier(
                         getNonnullInt(
                                 cursor,
@@ -233,7 +234,7 @@ final class PodcastSearchTable<N> extends Table<N> {
         return values;
     }
 
-    static ContentValues getPodcastSearchIdentifiedContentValues(Identified<PodcastSearch> identifiedPodcastSearch) {
+    static ContentValues getPodcastSearchIdentifiedContentValues(PodcastSearchIdentified identifiedPodcastSearch) {
         final ContentValues values = getPodcastSearchContentValues(identifiedPodcastSearch.model);
 
         putIdentifier(values, ID, identifiedPodcastSearch);

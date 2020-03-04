@@ -120,7 +120,7 @@ public final class XmlParserTest {
                         "  </channel>" +
                         "</rss>";
         final InputStream xmlInputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        final List<Identified<Episode>> actual = XmlParser.parseEpisodeList(xmlInputStream);
+        final List<EpisodeIdentified> actual = XmlParser.parseEpisodeList(xmlInputStream);
 
         assertThat(
                 actual,

@@ -3,8 +3,8 @@ package com.github.hborders.heathcast.services;
 import com.github.hborders.heathcast.android.DurationUtil;
 import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.Identified;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -36,7 +36,7 @@ final class XmlParser {
             Locale.US
     );
 
-    static List<Identified<Episode>> parseEpisodeList(InputStream in) throws XmlPullParserException, IOException {
+    static List<EpisodeIdentified> parseEpisodeList(InputStream in) throws XmlPullParserException, IOException {
         try {
             XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
             xmlPullParserFactory.setNamespaceAware(true);
@@ -50,7 +50,7 @@ final class XmlParser {
         }
     }
 
-    private static List<Identified<Episode>> readEpisodesFromRss(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static List<EpisodeIdentified> readEpisodesFromRss(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(
                 XmlPullParser.START_TAG,
                 "",
@@ -72,14 +72,14 @@ final class XmlParser {
         return Collections.emptyList();
     }
 
-    private static List<Identified<Episode>> readEpisodesFromChannel(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static List<EpisodeIdentified> readEpisodesFromChannel(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(
                 XmlPullParser.START_TAG,
                 "",
                 "channel"
         );
 
-        final List<Identified<Episode>> identifiedEpisodes = new ArrayList<>();
+        final List<EpisodeIdentified> identifiedEpisodes = new ArrayList<>();
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -90,7 +90,7 @@ final class XmlParser {
             if ("item".equals(tagName)) {
                 @Nullable final Episode episode = readEpisode(parser);
                 if (episode != null) {
-                    identifiedEpisodes.add(new Identified<>(
+                    identifiedEpisodes.add(new EpisodeIdentified(
                             new EpisodeIdentifier(0),
                             episode
                     ));

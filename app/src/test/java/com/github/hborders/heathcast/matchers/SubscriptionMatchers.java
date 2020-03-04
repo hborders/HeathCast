@@ -14,18 +14,18 @@ public final class SubscriptionMatchers {
     private SubscriptionMatchers() {
     }
 
-    public static Matcher<Subscription> subscriptionPodcastIdentified(Matcher<Identified<Podcast>> podcastIdentifiedMatcher) {
+    public static Matcher<Subscription> subscriptionPodcastIdentified(Matcher<PodcastIdentified> podcastIdentifiedMatcher) {
         return new SubscriptionPodcastIdentifiedMatcher(podcastIdentifiedMatcher);
     }
 
-    public static Matcher<Subscription> subscriptionPodcastIdentified(Identified<Podcast> podcastIdentified) {
+    public static Matcher<Subscription> subscriptionPodcastIdentified(PodcastIdentified podcastIdentified) {
         return subscriptionPodcastIdentified(equalTo(podcastIdentified));
     }
 
     public static final class SubscriptionPodcastIdentifiedMatcher extends TypeSafeMatcher<Subscription> {
-        private final Matcher<Identified<Podcast>> podIdentifiedMatcher;
+        private final Matcher<PodcastIdentified> podIdentifiedMatcher;
 
-        public SubscriptionPodcastIdentifiedMatcher(Matcher<Identified<Podcast>> podIdentifiedMatcher) {
+        public SubscriptionPodcastIdentifiedMatcher(Matcher<PodcastIdentified> podIdentifiedMatcher) {
             this.podIdentifiedMatcher = podIdentifiedMatcher;
         }
 

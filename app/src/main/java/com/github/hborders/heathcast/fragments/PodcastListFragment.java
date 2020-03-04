@@ -14,8 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
@@ -99,7 +98,7 @@ public final class PodcastListFragment extends Fragment {
                 view.requireViewById(R.id.fragment_podcast_list_podcasts_recycler_view);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         podcastsRecyclerView.setLayoutManager(linearLayoutManager);
-        @Nullable final List<Identified<Podcast>> podcastIdentifieds =
+        @Nullable final List<PodcastIdentified> podcastIdentifieds =
                 FragmentUtil.getUnparcelableHolderListArgument(
                         this,
                         PodcastIdentifiedHolder.class,
@@ -118,7 +117,7 @@ public final class PodcastListFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 if (itemRangeEnabled) {
-                    @Nullable final RecyclerView.Adapter adapter = recyclerView.getAdapter();
+                    @Nullable final RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
                     final Optional<ItemRange> itemRangeOptional;
                     if (adapter == null) {
                         itemRangeOptional = Optional.empty();
@@ -263,7 +262,7 @@ public final class PodcastListFragment extends Fragment {
     public interface PodcastListFragmentListener {
         void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment);
 
-        Observable<List<Identified<Podcast>>> podcastIdentifiedsObservable(
+        Observable<List<PodcastIdentified>> podcastIdentifiedsObservable(
                 PodcastListFragment podcastListFragment
         );
 
@@ -274,7 +273,7 @@ public final class PodcastListFragment extends Fragment {
 
         void onClick(
                 PodcastListFragment podcastListFragment,
-                Identified<Podcast> identifiedPodcast
+                PodcastIdentified identifiedPodcast
         );
 
         void onPodcastListFragmentListenerWillDetach(PodcastListFragment podcastListFragment);

@@ -8,8 +8,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.reactivexandroid.RxListFragment;
@@ -25,7 +24,7 @@ import io.reactivex.Observable;
 public final class PodcastListFragment2 extends RxListFragment<
         PodcastListFragment2,
         PodcastListFragment2.PodcastListFragmentListener,
-        Identified<Podcast>,
+        PodcastIdentified,
         PodcastIdentifiedHolder
         > {
     public interface PodcastListFragmentListener {
@@ -39,7 +38,7 @@ public final class PodcastListFragment2 extends RxListFragment<
 
         void onClickPodcastIdentified(
                 PodcastListFragment2 podcastListFragment,
-                Identified<Podcast> podcastIdentified
+                PodcastIdentified podcastIdentified
         );
 
         void onPodcastListFragmentListenerWillDetach(PodcastListFragment2 podcastListFragment);
@@ -93,8 +92,8 @@ public final class PodcastListFragment2 extends RxListFragment<
     }
 
     @Override
-    protected ListRecyclerViewAdapter<Identified<Podcast>, ?> createListRecyclerViewAdapter(
-            List<Identified<Podcast>> initialItems,
+    protected ListRecyclerViewAdapter<PodcastIdentified, ?> createListRecyclerViewAdapter(
+            List<PodcastIdentified> initialItems,
             PodcastListFragmentListener listener
     ) {
         return new PodcastRecyclerViewAdapter(
@@ -108,7 +107,7 @@ public final class PodcastListFragment2 extends RxListFragment<
     }
 
     @Override
-    protected PodcastIdentifiedHolder[] holderArray(List<Identified<Podcast>> items) {
+    protected PodcastIdentifiedHolder[] holderArray(List<PodcastIdentified> items) {
         return items
                 .stream()
                 .map(PodcastIdentifiedHolder::new)
