@@ -6,12 +6,14 @@ import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
+import com.github.hborders.heathcast.models.PodcastList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentified;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
@@ -109,7 +111,7 @@ public final class PodcastService {
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
     }
 
-    public Observable<List<PodcastSearchIdentified>> observeQueryForAllPodcastSearchIdentifieds() {
+    public Observable<PodcastSearchIdentifiedList> observeQueryForAllPodcastSearchIdentifieds() {
         return database.observeQueryForAllPodcastSearchIdentifieds();
     }
 
@@ -306,7 +308,7 @@ public final class PodcastService {
                                         response.close();
                                     }
 
-                                    final List<Podcast> podcasts =
+                                    final PodcastList podcasts =
                                             Optional
                                                     .ofNullable(podcastSearchResultsJson.results)
                                                     .filter(Objects::nonNull)
@@ -314,7 +316,7 @@ public final class PodcastService {
                                                     .orElseGet(Stream::empty)
                                                     .map(PodcastJson::toPodcast)
                                                     .filter(Objects::nonNull)
-                                                    .collect(Collectors.toList());
+                                                    .collect(Collectors.toCollection(PodcastList::new));
                                     return Single.just(new PodcastSearchResponse(podcasts));
                                 }
                             } else {
@@ -333,7 +335,7 @@ public final class PodcastService {
 //        // so I can reuse all the code in searchForPodcasts2
 //    }
 
-    public Single<List<EpisodeIdentified>> fetchEpisodes(URL url) {
+    public Single<EpisodeIdentifiedList> fetchEpisodes(URL url) {
         final Request request = new Request.Builder().url(url).build();
         final Call call = okHttpClient.newCall(request);
 
@@ -364,13 +366,13 @@ public final class PodcastService {
                                 response.close();
                             }
                         }
-                );
+                ).map(EpisodeIdentifiedList::new);
     }
 
     private static class PodcastSearchResponse {
-        private final List<Podcast> podcasts;
+        private final PodcastList podcasts;
 
-        private PodcastSearchResponse(List<Podcast> podcasts) {
+        private PodcastSearchResponse(PodcastList podcasts) {
             this.podcasts = podcasts;
         }
 

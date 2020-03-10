@@ -11,24 +11,26 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import com.github.hborders.heathcast.core.ListUtil;
 import com.github.hborders.heathcast.core.Result;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
+import com.github.hborders.heathcast.models.EpisodeList;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
+import com.github.hborders.heathcast.models.PodcastList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentified;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.models.SubscriptionIdentified;
+import com.github.hborders.heathcast.models.SubscriptionIdentifiedList;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 import com.stealthmountain.sqldim.SqlDim;
 import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -81,7 +83,7 @@ public final class Database<N> {
     public void replacePodcastSearchPodcasts(
             N marker,
             PodcastSearchIdentified podcastSearchIdentified,
-            List<Podcast> podcasts
+            PodcastList podcasts
     ) {
         try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
             podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.identifier);
@@ -116,7 +118,7 @@ public final class Database<N> {
 
     public void upsertEpisodesForPodcast(
             PodcastIdentifier podcastIdentifier,
-            List<Episode> episodes
+            EpisodeList episodes
     ) {
         episodeTable.upsertEpisodes(
                 podcastIdentifier,
@@ -142,11 +144,11 @@ public final class Database<N> {
         return deleteCount > 0 ? Result.Success.INSTANCE : Result.Failure.INSTANCE;
     }
 
-    public Observable<List<PodcastSearchIdentified>> observeQueryForAllPodcastSearchIdentifieds() {
+    public Observable<PodcastSearchIdentifiedList> observeQueryForAllPodcastSearchIdentifieds() {
         return podcastSearchTable.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-    public Observable<List<PodcastIdentified>> observeQueryForPodcastIdentifieds(
+    public Observable<PodcastIdentifiedList> observeQueryForPodcastIdentifieds(
             PodcastSearchIdentifier podcastSearchIdentifier
     ) {
         return dimDatabase.createQuery(
@@ -167,7 +169,10 @@ public final class Database<N> {
                         + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
                         + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
                 podcastSearchIdentifier.id
-        ).mapToList(PodcastTable::getPodcastIdentified);
+        ).mapToSpecificList(
+                PodcastTable::getPodcastIdentified,
+                PodcastIdentifiedList::new
+        );
     }
 
     public Observable<MarkedValue<N, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds(
@@ -204,7 +209,7 @@ public final class Database<N> {
         return podcastTable.observeQueryForPodcastIdentified(podcastIdentifier);
     }
 
-    public Observable<List<SubscriptionIdentified>> observeQueryForSubscriptions() {
+    public Observable<SubscriptionIdentifiedList> observeQueryForSubscriptions() {
         return subscriptionTable.observeQueryForSubscriptions();
     }
 
@@ -214,7 +219,7 @@ public final class Database<N> {
         return subscriptionTable.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Observable<List<EpisodeIdentified>> observeQueryForEpisodeIdentifiedsForPodcast(
+    public Observable<EpisodeIdentifiedList> observeQueryForEpisodeIdentifiedsForPodcast(
             PodcastIdentifier podcastIdentifier
     ) {
         return episodeTable.observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier);

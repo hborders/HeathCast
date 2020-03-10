@@ -13,11 +13,11 @@ import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.models.SubscriptionIdentified;
+import com.github.hborders.heathcast.models.SubscriptionIdentifiedList;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import io.reactivex.Observable;
@@ -161,7 +161,7 @@ public final class SubscriptionTable<N> extends Table<N> {
         );
     }
 
-    Observable<List<SubscriptionIdentified>> observeQueryForSubscriptions() {
+    Observable<SubscriptionIdentifiedList> observeQueryForSubscriptions() {
         return dimDatabase.createQuery(
                 Arrays.asList(
                         PodcastTable.TABLE_PODCAST,
@@ -178,7 +178,10 @@ public final class SubscriptionTable<N> extends Table<N> {
                         + "  ON " + TABLE_SUBSCRIPTION + "." + PODCAST_ID + " "
                         + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
                         + "ORDER BY " + TABLE_SUBSCRIPTION + "." + SORT
-        ).mapToList(SubscriptionTable::getSubscriptionIdentified);
+        ).mapToSpecificList(
+                SubscriptionTable::getSubscriptionIdentified,
+                SubscriptionIdentifiedList::new
+        );
     }
 
     Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(PodcastIdentifier podcastIdentifier) {

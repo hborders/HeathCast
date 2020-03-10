@@ -4,9 +4,8 @@ import android.content.ContentValues;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
@@ -35,7 +34,7 @@ final class PodcastSearchResultTable<N> extends Table<N> {
 
     long insertPodcastSearchResult(
             PodcastIdentifier podcastIdentifier,
-            Identifier<PodcastSearch> podcastSearchIdentifier,
+            PodcastSearchIdentifier podcastSearchIdentifier,
             int sort
     ) {
         final ContentValues values = new ContentValues(3);
@@ -50,7 +49,7 @@ final class PodcastSearchResultTable<N> extends Table<N> {
         );
     }
 
-    int deletePodcastSearchResultsByPodcastSearchIdentifier(Identifier<PodcastSearch> podcastSearchIdentifier) {
+    int deletePodcastSearchResultsByPodcastSearchIdentifier(PodcastSearchIdentifier podcastSearchIdentifier) {
         return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH_RESULT,
                 PODCAST_SEARCH_ID + " = ?",

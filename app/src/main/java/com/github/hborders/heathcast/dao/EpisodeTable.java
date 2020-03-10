@@ -10,13 +10,15 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedSet;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
+import com.github.hborders.heathcast.models.EpisodeList;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -107,7 +109,7 @@ final class EpisodeTable<N> extends Table<N> {
 
     List<Optional<EpisodeIdentifier>> upsertEpisodes(
             PodcastIdentifier podcastIdentifier,
-            List<Episode> episodes
+            EpisodeList episodes
     ) {
         final UpsertAdapter<String> upsertAdapter = new EpisodeTableUpsertAdapter(podcastIdentifier);
 
@@ -146,7 +148,7 @@ final class EpisodeTable<N> extends Table<N> {
         );
     }
 
-    Observable<Set<EpisodeIdentified>> observeQueryForAllEpisodeIdentifieds() {
+    Observable<EpisodeIdentifiedSet> observeQueryForAllEpisodeIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_EPISODE)
@@ -162,10 +164,10 @@ final class EpisodeTable<N> extends Table<N> {
                         query
                 )
                 .mapToList(EpisodeTable::getEpisodeIdentified)
-                .map(HashSet::new);
+                .map(EpisodeIdentifiedSet::new);
     }
 
-    Observable<List<EpisodeIdentified>> observeQueryForEpisodeIdentifiedsForPodcast(PodcastIdentifier podcastIdentifier) {
+    Observable<EpisodeIdentifiedList> observeQueryForEpisodeIdentifiedsForPodcast(PodcastIdentifier podcastIdentifier) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_EPISODE)
@@ -185,7 +187,10 @@ final class EpisodeTable<N> extends Table<N> {
                         ),
                         query
                 )
-                .mapToList(EpisodeTable::getEpisodeIdentified);
+                .mapToSpecificList(
+                        EpisodeTable::getEpisodeIdentified,
+                        EpisodeIdentifiedList::new
+                );
     }
 
     Observable<Optional<EpisodeIdentified>> observeQueryForEpisodeIdentified(

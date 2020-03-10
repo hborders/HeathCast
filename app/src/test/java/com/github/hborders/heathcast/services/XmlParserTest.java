@@ -2,8 +2,9 @@ package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.Identified;
 
 import org.junit.Test;
 
@@ -15,7 +16,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -120,13 +120,13 @@ public final class XmlParserTest {
                         "  </channel>" +
                         "</rss>";
         final InputStream xmlInputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        final List<EpisodeIdentified> actual = XmlParser.parseEpisodeList(xmlInputStream);
+        final EpisodeIdentifiedList actual = XmlParser.parseEpisodeList(xmlInputStream);
 
         assertThat(
                 actual,
                 equalTo(
                         Arrays.asList(
-                                new Identified<>(
+                                new EpisodeIdentified(
                                         new EpisodeIdentifier(0),
                                         new Episode(
                                                 Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/25/harbor-podcast_wide-2df74dc7ff65b4a6351bbe48f20e68a8da7ec3f2.jpg?s=1400")),
@@ -150,7 +150,7 @@ public final class XmlParserTest {
                                                 Objects.requireNonNull(URLUtil.fromString("https://play.podtrac.com/npr-510289/npr.mc.tritondigital.com/NPR_510289/media/anon.npr-mp3/npr/pmoney/2019/01/20190125_pmoney_pmpod890.mp3?orgId=1&d=1272&p=510289&story=688849249&t=podcast&e=688849249&ft=pod&f=510289"))
                                         )
                                 ),
-                                new Identified<>(
+                                new EpisodeIdentified(
                                         new EpisodeIdentifier(0),
                                         new Episode(
                                                 Objects.requireNonNull(URLUtil.fromString("https://media.npr.org/assets/img/2019/01/23/ap_931123921749_wide-0ea7c0a9c9dd1ee294bb65ba1b26c5154c0012e6.jpg?s=1400")),

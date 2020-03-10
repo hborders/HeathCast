@@ -1,13 +1,12 @@
 package com.github.hborders.heathcast.services;
 
-import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Objects;
 
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
@@ -30,7 +29,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
 
     @Test
     public void testSearchForPlanetMoneyThenTheIndicator() throws Throwable {
-        final MatcherTestObserver<List<PodcastSearchIdentified>> podcastSearchIdentifiedsMatcherTestObserver =
+        final MatcherTestObserver<PodcastSearchIdentifiedList> podcastSearchIdentifiedsMatcherTestObserver =
                 new MatcherTestObserver<>();
         getTestObject()
                 .observeQueryForAllPodcastSearchIdentifieds()
@@ -154,7 +153,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
 
     @Test
     public void testSearchForPlanetMoneyTwiceQuickly() throws Throwable {
-        final MatcherTestObserver<List<PodcastSearchIdentified>> podcastSearchIdentifiedsMatcherTestObserver =
+        final MatcherTestObserver<PodcastSearchIdentifiedList> podcastSearchIdentifiedsMatcherTestObserver =
                 new MatcherTestObserver<>();
         getTestObject()
                 .observeQueryForAllPodcastSearchIdentifieds()

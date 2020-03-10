@@ -1,16 +1,15 @@
 package com.github.hborders.heathcast.dao;
 
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.PodcastSearchIdentified;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -34,19 +33,19 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertPodcastSearch() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
         } else {
-            final TestObserver<List<PodcastSearchIdentified>> podcastSearchTestObserver = new TestObserver<>();
+            final TestObserver<PodcastSearchIdentifiedList> podcastSearchTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastSearchTestObserver);
 
             podcastSearchTestObserver.assertValue(
-                    Collections.singletonList(
-                            new Identified<>(
+                    new PodcastSearchIdentifiedList(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier1,
                                     podcastSearch1
                             )
@@ -57,11 +56,11 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertNewPodcastSearchSortsItFirst() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
@@ -70,22 +69,22 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentifier3 == null) {
             fail();
         } else {
-            final TestObserver<List<PodcastSearchIdentified>> podcastSearchTestObserver = new TestObserver<>();
+            final TestObserver<PodcastSearchIdentifiedList> podcastSearchTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastSearchTestObserver);
 
             podcastSearchTestObserver.assertValue(
-                    Arrays.asList(
-                            new Identified<>(
+                    new PodcastSearchIdentifiedList(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier3,
                                     podcastSearch3
                             ),
-                            new Identified<>(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier2,
                                     podcastSearch2
                             ),
-                            new Identified<>(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier1,
                                     podcastSearch1
                             )
@@ -96,11 +95,11 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertExistingPodcastSearchReturnsExistingIdentifierAndSortsIfFirst() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
@@ -109,29 +108,29 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
         } else if (podcastSearchIdentifier3 == null) {
             fail();
         } else {
-            @Nullable final Identifier<PodcastSearch> existingPodcastSearchIdentifier =
+            @Nullable final PodcastSearchIdentifier existingPodcastSearchIdentifier =
                     getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
             assertThat(
                     existingPodcastSearchIdentifier,
                     equalTo(podcastSearchIdentifier1)
             );
 
-            final TestObserver<List<PodcastSearchIdentified>> podcastSearchTestObserver = new TestObserver<>();
+            final TestObserver<PodcastSearchIdentifiedList> podcastSearchTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastSearchTestObserver);
 
             podcastSearchTestObserver.assertValue(
-                    Arrays.asList(
-                            new Identified<>(
+                    new PodcastSearchIdentifiedList(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier1,
                                     podcastSearch1
                             ),
-                            new Identified<>(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier3,
                                     podcastSearch3
                             ),
-                            new Identified<>(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier2,
                                     podcastSearch2
                             )
@@ -142,11 +141,11 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertExistingFirstPodcastSearchKeepsPreviousSortValue() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
@@ -174,9 +173,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeleteExistingPodcastSearchById() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
@@ -189,14 +188,14 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(1)
             );
 
-            final TestObserver<List<PodcastSearchIdentified>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<PodcastSearchIdentifiedList> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
-                    Collections.singletonList(
-                            new Identified<>(
+                    new PodcastSearchIdentifiedList(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier2,
                                     podcastSearch2
                             )
@@ -207,9 +206,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeleteMissingPodcastSearchById() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
@@ -228,11 +227,11 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeleteExistingPodcastSearchesByIds() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
@@ -252,14 +251,14 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(2)
             );
 
-            final TestObserver<List<PodcastSearchIdentified>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<PodcastSearchIdentifiedList> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForAllPodcastSearchIdentifieds()
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
-                    Collections.singletonList(
-                            new Identified<>(
+                    new PodcastSearchIdentifiedList(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier3,
                                     podcastSearch3
                             )
@@ -270,11 +269,11 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeleteMissingPodcastSearchesByIds() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier3 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier3 =
                 getTestObject().upsertPodcastSearch(podcastSearch3).orElse(null);
         if (podcastSearchIdentifier1 == null) {
             fail();
@@ -304,9 +303,9 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testObserveQueryForPodcastSearchIdentified() {
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier1 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier1 =
                 getTestObject().upsertPodcastSearch(podcastSearch1).orElse(null);
-        @Nullable final Identifier<PodcastSearch> podcastSearchIdentifier2 =
+        @Nullable final PodcastSearchIdentifier podcastSearchIdentifier2 =
                 getTestObject().upsertPodcastSearch(podcastSearch2).orElse(null);
 
         if (podcastSearchIdentifier1 == null) {
@@ -321,7 +320,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
 
             podcastSearchTestObserver.assertValue(
                     Optional.of(
-                            new Identified<>(
+                            new PodcastSearchIdentified(
                                     podcastSearchIdentifier1,
                                     podcastSearch1
                             )
@@ -333,7 +332,7 @@ public final class PodcastSearchTableTest extends AbstractDatabaseTest<Object> {
             podcastSearchTestObserver.assertValueSequence(
                     Arrays.asList(
                             Optional.of(
-                                    new Identified<>(
+                                    new PodcastSearchIdentified(
                                             podcastSearchIdentifier1,
                                             podcastSearch1
                                     )

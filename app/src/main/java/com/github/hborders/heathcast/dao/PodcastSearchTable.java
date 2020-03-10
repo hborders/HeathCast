@@ -8,14 +8,13 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentified;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -92,7 +91,7 @@ final class PodcastSearchTable<N> extends Table<N> {
         );
     }
 
-    int deletePodcastSearchById(Identifier<PodcastSearch> podcastSearchIdentifier) {
+    int deletePodcastSearchById(PodcastSearchIdentifier podcastSearchIdentifier) {
         return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH,
                 ID + " = ?",
@@ -100,10 +99,10 @@ final class PodcastSearchTable<N> extends Table<N> {
         );
     }
 
-    int deletePodcastSearchesByIds(Collection<Identifier<PodcastSearch>> podcastSearchIdentifiers) {
+    int deletePodcastSearchesByIds(Collection<PodcastSearchIdentifier> podcastSearchIdentifiers) {
         final String[] idStrings = new String[podcastSearchIdentifiers.size()];
         int i = 0;
-        for (Identifier<PodcastSearch> podcastSearchIdentifier : podcastSearchIdentifiers) {
+        for (PodcastSearchIdentifier podcastSearchIdentifier : podcastSearchIdentifiers) {
             idStrings[i] = Long.toString(podcastSearchIdentifier.id);
             i++;
         }
@@ -115,7 +114,7 @@ final class PodcastSearchTable<N> extends Table<N> {
     }
 
     @Nullable
-    Long sortForPodcastSearch(Identifier<PodcastSearch> podcastSearchIdentifier) {
+    Long sortForPodcastSearch(PodcastSearchIdentifier podcastSearchIdentifier) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_PODCAST_SEARCH)
@@ -133,7 +132,7 @@ final class PodcastSearchTable<N> extends Table<N> {
         }
     }
 
-    Observable<List<PodcastSearchIdentified>> observeQueryForAllPodcastSearchIdentifieds() {
+    Observable<PodcastSearchIdentifiedList> observeQueryForAllPodcastSearchIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_PODCAST_SEARCH)
@@ -147,11 +146,14 @@ final class PodcastSearchTable<N> extends Table<N> {
 
         return dimDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
-                .mapToList(PodcastSearchTable::getPodcastSearchIdentified);
+                .mapToSpecificList(
+                        PodcastSearchTable::getPodcastSearchIdentified,
+                        PodcastSearchIdentifiedList::new
+                );
     }
 
     Observable<Optional<PodcastSearchIdentified>> observeQueryForPodcastSearchIdentified(
-            Identifier<PodcastSearch> podcastSearchIdentifier
+            PodcastSearchIdentifier podcastSearchIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder

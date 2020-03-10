@@ -13,31 +13,31 @@ public final class IdentifiedMatchers {
     private IdentifiedMatchers() {
     }
 
-    public static <M, I extends Identified<M>> Matcher<I> identifiedIdentifier(Matcher<Identifier<M>> identifierMatcher) {
-        return new IdentifiedIdentifierMatcher<M, I>(identifierMatcher);
+    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedIdentifier(Matcher<I> identifierMatcher) {
+        return new IdentifiedIdentifierMatcher<>(identifierMatcher);
     }
 
-    public static <M, I extends Identified<M>> Matcher<I> identifiedIdentifier(Identifier<M> identifier) {
+    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedIdentifier(I identifier) {
         return identifiedIdentifier(equalTo(identifier));
     }
 
-    public static <M, I extends Identified<M>> Matcher<I> identifiedModel(Matcher<M> modelMatcher) {
-        return new IdentifiedModelMatcher<M, I>(modelMatcher);
+    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedModel(Matcher<M> modelMatcher) {
+        return new IdentifiedModelMatcher<>(modelMatcher);
     }
 
-    public static <M, I extends Identified<M>> Matcher<I> identifiedModel(M model) {
+    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedModel(M model) {
         return identifiedModel(equalTo(model));
     }
 
-    public static final class IdentifiedIdentifierMatcher<M, I extends Identified<M>> extends TypeSafeMatcher<I> {
-        private final Matcher<Identifier<M>> identifierMatcher;
+    public static final class IdentifiedIdentifierMatcher<I extends Identifier<M>, J extends Identified<I, M>, M> extends TypeSafeMatcher<J> {
+        private final Matcher<I> identifierMatcher;
 
-        public IdentifiedIdentifierMatcher(Matcher<Identifier<M>> identifierMatcher) {
+        public IdentifiedIdentifierMatcher(Matcher<I> identifierMatcher) {
             this.identifierMatcher = identifierMatcher;
         }
 
         @Override
-        protected boolean matchesSafely(I item) {
+        protected boolean matchesSafely(J item) {
             return identifierMatcher.matches(item.identifier);
         }
 
@@ -49,7 +49,7 @@ public final class IdentifiedMatchers {
         }
     }
 
-    public static final class IdentifiedModelMatcher<M, I extends Identified<M>> extends TypeSafeMatcher<I> {
+    public static final class IdentifiedModelMatcher<I extends Identifier<M>, J extends Identified<I, M>, M> extends TypeSafeMatcher<J> {
         private final Matcher<M> modelMatcher;
 
         public IdentifiedModelMatcher(Matcher<M> modelMatcher) {
@@ -57,7 +57,7 @@ public final class IdentifiedMatchers {
         }
 
         @Override
-        protected boolean matchesSafely(I item) {
+        protected boolean matchesSafely(J item) {
             return modelMatcher.matches(item.model);
         }
 

@@ -17,6 +17,7 @@ import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.core.Function;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
@@ -283,7 +284,7 @@ public final class PodcastFragment extends Fragment
     public interface PodcastFragmentListener {
         void onPodcastFragmentAttached(PodcastFragment podcastFragment);
 
-        Single<List<EpisodeIdentified>> fetchEpisodes(
+        Single<EpisodeIdentifiedList> fetchEpisodes(
                 PodcastFragment podcastFragment,
                 URL url
         );

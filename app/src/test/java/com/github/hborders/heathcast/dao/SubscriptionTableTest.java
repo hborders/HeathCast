@@ -1,10 +1,11 @@
 package com.github.hborders.heathcast.dao;
 
-import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.models.SubscriptionIdentified;
+import com.github.hborders.heathcast.models.SubscriptionIdentifiedList;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 
 import org.junit.Test;
@@ -13,8 +14,6 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -49,7 +48,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+            final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                     new TestObserver<>();
             getTestObject()
                     .observeQueryForSubscriptions()
@@ -63,12 +62,12 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else {
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Collections.emptyList(),
-                                Collections.singletonList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(),
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier,
                                                 new Subscription(
-                                                        new Identified<>(
+                                                        new PodcastIdentified(
                                                                 podcastIdentifier,
                                                                 podcast
                                                         )
@@ -149,7 +148,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier4 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -162,59 +161,59 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 final Subscription subscription4 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier4,
                                 podcast4
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier4,
                                                 subscription4
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier4,
                                                 subscription4
                                         )
@@ -277,41 +276,41 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier3 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
                         .subscribe(subscriptionTestObserver);
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 subscriptionTestObserver.assertValue(
-                        Arrays.asList(
-                                new Identified<>(
+                        new SubscriptionIdentifiedList(
+                                new SubscriptionIdentified(
                                         subscriptionIdentifier1,
                                         subscription1
                                 ),
-                                new Identified<>(
+                                new SubscriptionIdentified(
                                         subscriptionIdentifier2,
                                         subscription2
                                 ),
-                                new Identified<>(
+                                new SubscriptionIdentified(
                                         subscriptionIdentifier3,
                                         subscription3
                                 )
@@ -373,7 +372,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier3 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -389,49 +388,49 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
@@ -478,7 +477,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier2 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -494,35 +493,35 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         )
@@ -569,7 +568,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier2 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -585,35 +584,35 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         )
@@ -676,7 +675,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier3 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -692,49 +691,49 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
@@ -797,7 +796,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier3 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -813,49 +812,49 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         )
@@ -919,7 +918,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier3 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -935,49 +934,49 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
@@ -1040,7 +1039,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier3 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
 
                 getTestObject()
@@ -1057,49 +1056,49 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         )
@@ -1162,41 +1161,41 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentifier3 == null) {
                 fail();
             } else {
-                final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
                         .subscribe(subscriptionTestObserver);
 
                 final Subscription subscription1 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier1,
                                 podcast1
                         )
                 );
                 final Subscription subscription2 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier2,
                                 podcast2
                         )
                 );
                 final Subscription subscription3 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier3,
                                 podcast3
                         )
                 );
                 subscriptionTestObserver.assertValue(
-                        Arrays.asList(
-                                new Identified<>(
+                        new SubscriptionIdentifiedList(
+                                new SubscriptionIdentified(
                                         subscriptionIdentifier1,
                                         subscription1
                                 ),
-                                new Identified<>(
+                                new SubscriptionIdentified(
                                         subscriptionIdentifier2,
                                         subscription2
                                 ),
-                                new Identified<>(
+                                new SubscriptionIdentified(
                                         subscriptionIdentifier3,
                                         subscription3
                                 )
@@ -1214,30 +1213,30 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
 
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
                                 ),
-                                Arrays.asList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier1,
                                                 subscription1
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier2,
                                                 subscription2
                                         ),
-                                        new Identified<>(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier3,
                                                 subscription3
                                         )
@@ -1261,7 +1260,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+            final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                     new TestObserver<>();
             getTestObject()
                     .observeQueryForSubscriptions()
@@ -1279,7 +1278,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                         new URL("http://example.com/feed1"),
                         "name12"
                 );
-                final PodcastIdentified podcastIdentified12 = new Identified<>(
+                final PodcastIdentified podcastIdentified12 = new PodcastIdentified(
                         podcastIdentifier,
                         podcast12
                 );
@@ -1288,7 +1287,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 );
 
                 final Subscription subscription11 = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier,
                                 podcast11
                         )
@@ -1299,15 +1298,15 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
 
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Collections.emptyList(),
-                                Collections.singletonList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(),
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier,
                                                 subscription11
                                         )
                                 ),
-                                Collections.singletonList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier,
                                                 subscription12
                                         )
@@ -1331,7 +1330,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final TestObserver<List<SubscriptionIdentified>> subscriptionTestObserver =
+            final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
                     new TestObserver<>();
             getTestObject()
                     .observeQueryForSubscriptions()
@@ -1346,7 +1345,7 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
                 getPodcastTable().deletePodcast(podcastIdentifier);
 
                 final Subscription subscription = new Subscription(
-                        new Identified<>(
+                        new PodcastIdentified(
                                 podcastIdentifier,
                                 podcast
                         )
@@ -1354,14 +1353,14 @@ public final class SubscriptionTableTest extends AbstractDatabaseTest<Object> {
 
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                Collections.emptyList(),
-                                Collections.singletonList(
-                                        new Identified<>(
+                                new SubscriptionIdentifiedList(),
+                                new SubscriptionIdentifiedList(
+                                        new SubscriptionIdentified(
                                                 subscriptionIdentifier,
                                                 subscription
                                         )
                                 ),
-                                Collections.emptyList()
+                                new SubscriptionIdentifiedList()
                         )
                 );
             }

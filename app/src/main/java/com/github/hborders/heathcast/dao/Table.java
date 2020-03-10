@@ -99,13 +99,13 @@ abstract class Table<N> {
     }
 
 
-    protected final <I extends Identifier<M>, J extends Identified<I, M>, M, S> List<Optional<I>> upsertModels(
+    protected final <I extends Identifier<M>, J extends Identified<I, M>, L extends List<M>, M, S> List<Optional<I>> upsertModels(
             UpsertAdapter<S> upsertAdapter,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
             // however, we don't actually need the parameter, so we suppress unused.
             @SuppressWarnings("unused") Class<S> secondaryKeyClass,
-            List<M> models,
+            L models,
             Function<M, S> modelSecondaryKeyGetter,
             Function<Long, I> identifierFactory,
             BiFunction<I, M, J> identifiedFactory,

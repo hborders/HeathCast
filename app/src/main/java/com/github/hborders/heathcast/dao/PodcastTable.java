@@ -9,10 +9,9 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedSet;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
@@ -21,7 +20,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import io.reactivex.Observable;
 
@@ -148,7 +146,7 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    Observable<Set<PodcastIdentified>> observeQueryForAllPodcastIdentifieds() {
+    Observable<PodcastIdentifiedSet> observeQueryForAllPodcastIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST)
@@ -161,7 +159,7 @@ final class PodcastTable<N> extends Table<N> {
                         query
                 )
                 .mapToList(PodcastTable::getPodcastIdentified)
-                .map(HashSet::new);
+                .map(PodcastIdentifiedSet::new);
     }
 
     Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(

@@ -15,7 +15,7 @@ import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.fragments.MainFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
@@ -26,7 +26,6 @@ import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -151,7 +150,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Single<List<EpisodeIdentified>> fetchEpisodes(
+    public Single<EpisodeIdentifiedList> fetchEpisodes(
             PodcastFragment podcastFragment,
             URL url
     ) {
