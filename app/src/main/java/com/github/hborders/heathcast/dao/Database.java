@@ -21,6 +21,7 @@ import com.github.hborders.heathcast.models.PodcastList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentified;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifiedOpt;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.models.SubscriptionIdentified;
@@ -70,10 +71,12 @@ public final class Database<N> {
         subscriptionTable = new SubscriptionTable<>(dimDatabase);
     }
 
-    public Optional<PodcastSearchIdentified> upsertPodcastSearch(PodcastSearch podcastSearch) {
+    public PodcastSearchIdentifiedOpt upsertPodcastSearch(PodcastSearch podcastSearch) {
         return podcastSearchTable
                 .upsertPodcastSearch(podcastSearch)
-                .map(podcastSearchIdentifier -> new PodcastSearchIdentified(
+                .map(
+                        PodcastSearchIdentifiedOpt.FACTORY,
+                        podcastSearchIdentifier -> new PodcastSearchIdentified(
                                 podcastSearchIdentifier,
                                 podcastSearch
                         )

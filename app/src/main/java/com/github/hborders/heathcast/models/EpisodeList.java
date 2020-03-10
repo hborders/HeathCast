@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class EpisodeList extends ArrayList<Episode> {
+public final class EpisodeList extends ArrayList<Episode> {
     public EpisodeList() {
     }
 

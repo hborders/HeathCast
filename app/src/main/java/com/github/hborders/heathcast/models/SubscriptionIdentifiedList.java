@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class SubscriptionIdentifiedList extends ArrayList<SubscriptionIdentified> {
+public final class SubscriptionIdentifiedList extends ArrayList<SubscriptionIdentified> {
     public SubscriptionIdentifiedList() {
     }
 

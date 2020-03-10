@@ -12,6 +12,7 @@ import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentified;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifierOpt;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Collection;
@@ -55,7 +56,7 @@ final class PodcastSearchTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<PodcastSearchIdentifier> upsertPodcastSearch(PodcastSearch podcastSearch) {
+    PodcastSearchIdentifierOpt upsertPodcastSearch(PodcastSearch podcastSearch) {
         return upsertModel(
                 upsertAdapter,
                 String.class,
@@ -64,19 +65,21 @@ final class PodcastSearchTable<N> extends Table<N> {
                 PodcastSearchIdentifier::new,
                 PodcastSearchIdentified::new,
                 this::insertPodcastSearch,
-                this::updatePodcastSearchIdentified);
+                this::updatePodcastSearchIdentified,
+                PodcastSearchIdentifierOpt.FACTORY
+        );
     }
 
-    private Optional<PodcastSearchIdentifier> insertPodcastSearch(PodcastSearch podcastSearch) {
+    private PodcastSearchIdentifierOpt insertPodcastSearch(PodcastSearch podcastSearch) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchContentValues(podcastSearch)
         );
         if (id == -1) {
-            return Optional.empty();
+            return PodcastSearchIdentifierOpt.EMPTY;
         } else {
-            return Optional.of(new PodcastSearchIdentifier(id));
+            return new PodcastSearchIdentifierOpt(new PodcastSearchIdentifier(id));
         }
     }
 

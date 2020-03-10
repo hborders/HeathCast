@@ -13,13 +13,14 @@ import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedSet;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
+import com.github.hborders.heathcast.models.EpisodeIdentifierOpt;
+import com.github.hborders.heathcast.models.EpisodeIdentifierOptList;
 import com.github.hborders.heathcast.models.EpisodeList;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -73,7 +74,7 @@ final class EpisodeTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<EpisodeIdentifier> insertEpisode(
+    EpisodeIdentifierOpt insertEpisode(
             PodcastIdentifier podcastIdentifier,
             Episode episode
     ) {
@@ -86,9 +87,9 @@ final class EpisodeTable<N> extends Table<N> {
                 )
         );
         if (id == -1) {
-            return Optional.empty();
+            return EpisodeIdentifierOpt.EMPTY;
         } else {
-            return Optional.of(new EpisodeIdentifier(id));
+            return new EpisodeIdentifierOpt(new EpisodeIdentifier(id));
         }
     }
 
@@ -107,7 +108,7 @@ final class EpisodeTable<N> extends Table<N> {
         );
     }
 
-    List<Optional<EpisodeIdentifier>> upsertEpisodes(
+    EpisodeIdentifierOptList upsertEpisodes(
             PodcastIdentifier podcastIdentifier,
             EpisodeList episodes
     ) {
@@ -127,7 +128,9 @@ final class EpisodeTable<N> extends Table<N> {
                 episodeIdentified -> updateEpisodeIdentified(
                         podcastIdentifier,
                         episodeIdentified
-                )
+                ),
+                EpisodeIdentifierOpt.FACTORY,
+                EpisodeIdentifierOptList::new
         );
     }
 

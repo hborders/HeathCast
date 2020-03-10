@@ -1,7 +1,5 @@
 package com.github.hborders.heathcast.models;
 
-import androidx.annotation.NonNull;
-
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -35,7 +33,7 @@ public abstract class Identified<I extends Identifier<M>, M> {
     @Override
     public final String toString() {
         @SuppressWarnings("rawtypes") final Class<? extends Identified> clazz = getClass();
-        @NonNull final String simpleName;
+        final String simpleName;
         if (clazz.isAnonymousClass()) {
             simpleName = "Identified$";
         } else {

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class PodcastIdentifiedSet extends HashSet<PodcastIdentified> {
+public final class PodcastIdentifiedSet extends HashSet<PodcastIdentified> {
     public PodcastIdentifiedSet() {
     }
 
