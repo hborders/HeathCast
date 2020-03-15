@@ -15,12 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -98,14 +97,15 @@ public final class PodcastListFragment extends Fragment {
                 view.requireViewById(R.id.fragment_podcast_list_podcasts_recycler_view);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         podcastsRecyclerView.setLayoutManager(linearLayoutManager);
-        @Nullable final List<PodcastIdentified> podcastIdentifieds =
-                FragmentUtil.getUnparcelableHolderListArgument(
+        @Nullable final PodcastIdentifiedList podcastIdentifieds =
+                FragmentUtil.getUnparcelableListArgument(
                         this,
                         PodcastIdentifiedHolder.class,
+                        PodcastIdentifiedList::new,
                         PODCAST_PARCELABLES_KEY
                 );
         final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
-                podcastIdentifieds == null ? Collections.emptyList() : podcastIdentifieds,
+                podcastIdentifieds == null ? new PodcastIdentifiedList() : podcastIdentifieds,
                 identifiedPodcast ->
                         Objects.requireNonNull(this.listener).onClick(
                                 this,
@@ -262,7 +262,7 @@ public final class PodcastListFragment extends Fragment {
     public interface PodcastListFragmentListener {
         void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment);
 
-        Observable<List<PodcastIdentified>> podcastIdentifiedsObservable(
+        Observable<PodcastIdentifiedList> podcastIdentifiedsObservable(
                 PodcastListFragment podcastListFragment
         );
 

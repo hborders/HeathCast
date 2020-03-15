@@ -20,8 +20,10 @@ import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
+import com.github.hborders.heathcast.models.URLOpt;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
@@ -44,7 +46,7 @@ public final class PodcastFragment extends Fragment
     private static final String TAG = "podcast";
     private static final String PODCAST_PARCELABLE_KEY = "podcast";
 
-    private BehaviorSubject<Optional<PodcastIdentified>> podcastIdentifiedOptionalBehaviorSubject =
+    private BehaviorSubject<PodcastIdentifiedOpt> podcastIdentifiedOptBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
     private PodcastFragmentListener listener;
@@ -108,11 +110,11 @@ public final class PodcastFragment extends Fragment
         final TextView authorTextView = view.requireViewById(R.id.fragment_podcast_author_text_view);
         final TextView missingTextView = view.requireViewById(R.id.fragment_podcast_missing_text_view);
 
-        final Function<Optional<PodcastIdentified>, Void> updateWithPodcastIdentifiedOptionalFunction =
-                podcastIdentifiedOptional -> {
-                    podcastIdentifiedOptionalBehaviorSubject.onNext(podcastIdentifiedOptional);
+        final Function<PodcastIdentifiedOpt, Void> updateWithPodcastIdentifiedOptionalFunction =
+                podcastIdentifiedOpt -> {
+                    podcastIdentifiedOptBehaviorSubject.onNext(podcastIdentifiedOpt);
                     @Nullable final PodcastIdentified identifiedPodcast =
-                            podcastIdentifiedOptional.orElse(null);
+                            podcastIdentifiedOpt.orNull();
                     if (identifiedPodcast == null) {
                         constraintLayout.setVisibility(View.GONE);
                         missingTextView.setVisibility(View.VISIBLE);
@@ -132,12 +134,12 @@ public final class PodcastFragment extends Fragment
                     }
                     return null;
                 };
-        final PodcastIdentified identifiedPodcast = FragmentUtil.requireUnparcelableHolderArgument(
+        final PodcastIdentified identifiedPodcast = FragmentUtil.requireUnparcelableArgument(
                 this,
                 PodcastIdentifiedHolder.class,
                 PODCAST_PARCELABLE_KEY
         );
-        updateWithPodcastIdentifiedOptionalFunction.apply(Optional.of(identifiedPodcast));
+        updateWithPodcastIdentifiedOptionalFunction.apply(new PodcastIdentifiedOpt(identifiedPodcast));
 
         @Nullable final Disposable oldPodcastIdentifiedDisposable = podcastIdentifiedDisposable;
         if (oldPodcastIdentifiedDisposable != null) {
@@ -150,7 +152,7 @@ public final class PodcastFragment extends Fragment
                                 identifiedPodcast.identifier
                         )
                         .observeOn(AndroidSchedulers.mainThread())
-                        .onErrorReturnItem(Optional.empty())
+                        .onErrorReturnItem(PodcastIdentifiedOpt.EMPTY)
                         .subscribe(updateWithPodcastIdentifiedOptionalFunction::apply);
 
         final Button subscribedButton = view.requireViewById(R.id.fragment_podcast_subscribed_button);
@@ -222,28 +224,29 @@ public final class PodcastFragment extends Fragment
 
     @Override
     public void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment) {
-        final PodcastIdentified identifiedPodcast = FragmentUtil.requireUnparcelableHolderArgument(
+        final PodcastIdentified identifiedPodcast = FragmentUtil.requireUnparcelableArgument(
                 this,
                 PodcastIdentifiedHolder.class,
                 PODCAST_PARCELABLE_KEY
         );
-        podcastIdentifiedOptionalBehaviorSubject.onNext(Optional.of(identifiedPodcast));
+        podcastIdentifiedOptBehaviorSubject.onNext(new PodcastIdentifiedOpt(identifiedPodcast));
     }
 
     @Override
     public Observable<Optional<List<EpisodeIdentified>>> episodeIdentifiedsOptionalObservable(
             EpisodeListFragment episodeListFragment
     ) {
-        return podcastIdentifiedOptionalBehaviorSubject
-                .map(podcastIdentifiedOptional ->
-                        podcastIdentifiedOptional.map(podcastIdentified ->
-                                podcastIdentified.model.feedURL
+        return podcastIdentifiedOptBehaviorSubject
+                .map(podcastIdentifiedOpt ->
+                        podcastIdentifiedOpt.map(
+                                URLOpt.FACTORY,
+                                podcastIdentified -> podcastIdentified.model.feedURL
                         )
                 )
                 .distinctUntilChanged()
-                .switchMap(feedURLOptional -> {
+                .switchMap(feedURLOpt -> {
                     @Nullable final URL feedURL =
-                            feedURLOptional.orElse(null);
+                            feedURLOpt.orNull();
                     final Single<Optional<List<EpisodeIdentified>>> episodeIdentifiedsOptionalSingle;
                     if (feedURL == null) {
                         episodeIdentifiedsOptionalSingle = Single.just(Optional.empty());
@@ -278,7 +281,7 @@ public final class PodcastFragment extends Fragment
 
     @Override
     public void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment) {
-        podcastIdentifiedOptionalBehaviorSubject.onNext(Optional.empty());
+        podcastIdentifiedOptBehaviorSubject.onNext(PodcastIdentifiedOpt.EMPTY);
     }
 
     public interface PodcastFragmentListener {
@@ -289,7 +292,7 @@ public final class PodcastFragment extends Fragment
                 URL url
         );
 
-        Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
+        Observable<PodcastIdentifiedOpt> observeQueryForPodcastIdentified(
                 PodcastFragment podcastFragment,
                 PodcastIdentifier podcastIdentifier
         );

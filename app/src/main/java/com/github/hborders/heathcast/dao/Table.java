@@ -7,9 +7,9 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.core.CapacityListFactory;
+import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Opt;
-import com.github.hborders.heathcast.core.Opt.OptFactory;
+import com.github.hborders.heathcast.core.Opt.Factory;
 import com.github.hborders.heathcast.core.SortedSetUtil;
 import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.models.Identified;
@@ -35,13 +35,13 @@ import javax.annotation.Nullable;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 import static com.github.hborders.heathcast.core.ListUtil.indexedStream;
 
-abstract class Table<N> {
+abstract class Table<MarkerType> {
     @SuppressWarnings("unused")
     protected static final Object[] EMPTY_BIND_ARGS = new Object[0];
 
-    protected final DimDatabase<N> dimDatabase;
+    protected final DimDatabase<MarkerType> dimDatabase;
 
-    protected Table(DimDatabase<N> dimDatabase) {
+    protected Table(DimDatabase<MarkerType> dimDatabase) {
         this.dimDatabase = dimDatabase;
     }
 
@@ -53,39 +53,38 @@ abstract class Table<N> {
         contentValues.put(key, identifier.id);
     }
 
-
     protected final <
-            I extends Identifier<M>,
-            J extends Identified<I, M>,
-            M,
-            OF extends OptFactory<P, I>,
-            P extends Opt<I>,
-            S
-            > P upsertModel(
-            UpsertAdapter<S> upsertAdapter,
+            IdentifierType extends Identifier<ModelType>,
+            IdentifiedType extends Identified<IdentifierType, ModelType>,
+            ModelType,
+            IdentifierOptFactoryType extends Factory<IdentifierOptType, IdentifierType>,
+            IdentifierOptType extends Opt<IdentifierType>,
+            SecondaryKeyType
+            > IdentifierOptType upsertModel(
+            UpsertAdapter<SecondaryKeyType> upsertAdapter,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
             // however, we don't actually need the parameter, so we suppress unused.
-            @SuppressWarnings("unused") Class<S> secondaryKeyClass,
-            M model,
-            Function<M, S> modelSecondaryKeyGetter,
-            Function<Long, I> identifierFactory,
-            BiFunction<I, M, J> identifiedFactory,
-            Function<M, P> modelInserter,
-            Function<J, Integer> identifiedUpdater,
-            OF optFactory
+            @SuppressWarnings("unused") Class<SecondaryKeyType> secondaryKeyClass,
+            ModelType model,
+            Function<ModelType, SecondaryKeyType> modelSecondaryKeyGetter,
+            Function<Long, IdentifierType> identifierFactory,
+            BiFunction<IdentifierType, ModelType, IdentifiedType> identifiedFactory,
+            Function<ModelType, IdentifierOptType> modelInserter,
+            Function<IdentifiedType, Integer> identifiedUpdater,
+            IdentifierOptFactoryType optFactory
     ) {
-        try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
-            final S secondaryKey = modelSecondaryKeyGetter.apply(model);
+        try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
+            final SecondaryKeyType secondaryKey = modelSecondaryKeyGetter.apply(model);
 
             final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
                     upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
-            @Nullable final P upsertedIdentifierOpt;
+            @Nullable final IdentifierOptType upsertedIdentifierOpt;
             try (final Cursor primaryAndSecondaryKeyCursor = dimDatabase.query(primaryAndSecondaryKeyQuery)) {
                 if (primaryAndSecondaryKeyCursor.moveToNext()) {
                     final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
-                    final I upsertingIdentifier = identifierFactory.apply(primaryKey);
-                    final J updatingIdentified = identifiedFactory.apply(
+                    final IdentifierType upsertingIdentifier = identifierFactory.apply(primaryKey);
+                    final IdentifiedType updatingIdentified = identifiedFactory.apply(
                             upsertingIdentifier,
                             model
                     );
@@ -109,42 +108,41 @@ abstract class Table<N> {
 
 
     protected final <
-            CLF extends CapacityListFactory<L, P>,
-            I extends Identifier<M>,
-            J extends Identified<I, M>,
-            K extends List<M>,
-            L extends List<P>,
-            M,
-            OF extends OptFactory<P, I>,
-            P extends Opt<I>,
-            S
-            > L upsertModels(
-            UpsertAdapter<S> upsertAdapter,
+            IdentifierType extends Identifier<ModelType>,
+            IdentifiedType extends Identified<IdentifierType, ModelType>,
+            ModelListType extends List<ModelType>,
+            IdentifierOptListType extends List<IdentifierOptType>,
+            ModelType,
+            IdentifierOptFactoryType extends Factory<IdentifierOptType, IdentifierType>,
+            IdentifierOptType extends Opt<IdentifierType>,
+            SecondaryKeyType
+            > IdentifierOptListType upsertModels(
+            UpsertAdapter<SecondaryKeyType> upsertAdapter,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
             // however, we don't actually need the parameter, so we suppress unused.
-            @SuppressWarnings("unused") Class<S> secondaryKeyClass,
-            K models,
-            Function<M, S> modelSecondaryKeyGetter,
-            Function<Long, I> identifierFactory,
-            BiFunction<I, M, J> identifiedFactory,
-            Function<M, P> modelInserter,
-            Function<J, Integer> identifiedUpdater,
-            OF optFactory,
-            CLF capacityListFactory
+            @SuppressWarnings("unused") Class<SecondaryKeyType> secondaryKeyClass,
+            ModelListType models,
+            Function<ModelType, SecondaryKeyType> modelSecondaryKeyGetter,
+            Function<Long, IdentifierType> identifierFactory,
+            BiFunction<IdentifierType, ModelType, IdentifiedType> identifiedFactory,
+            Function<ModelType, IdentifierOptType> modelInserter,
+            Function<IdentifiedType, Integer> identifiedUpdater,
+            IdentifierOptFactoryType optFactory,
+            CollectionFactory.Capacity<IdentifierOptListType, IdentifierOptType> capacityCollectionFactory
     ) {
         if (models.isEmpty()) {
-            return capacityListFactory.newList(0);
+            return capacityCollectionFactory.newCollection(0);
         } else {
-            try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
-                final SortedSetUtil<Tuple<Integer, M>> indexedModelSortedSetUtil =
+            try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
+                final SortedSetUtil<Tuple<Integer, ModelType>> indexedModelSortedSetUtil =
                         new SortedSetUtil<>(
                                 Comparator.comparing(
                                         indexedModel ->
                                                 indexedModel.first
                                 )
                         );
-                final Map<S, SortedSet<Tuple<Integer, M>>> indexedModelSetsBySecondaryKey =
+                final Map<SecondaryKeyType, SortedSet<Tuple<Integer, ModelType>>> indexedModelSetsBySecondaryKey =
                         indexedStream(models)
                                 .collect(
                                         Collectors.toMap(
@@ -164,22 +162,22 @@ abstract class Table<N> {
                 // elements in the same order as we receive them in the models list.
                 // the above LinkedHashMap preserves that order in its keySet, and LinkedHashSet
                 // preserves that order as well.
-                final LinkedHashSet<S> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
-                final List<J> updatingIdentifieds = new ArrayList<>(models.size());
+                final LinkedHashSet<SecondaryKeyType> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
+                final List<IdentifiedType> updatingIdentifieds = new ArrayList<>(models.size());
                 try (final Cursor primaryKeyAndSecondaryKeyCursor = dimDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
                     while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
                         final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
-                        final S secondaryKey = upsertAdapter.getSecondaryKey(primaryKeyAndSecondaryKeyCursor);
-                        @Nullable final Set<Tuple<Integer, M>> indexedModelSet =
+                        final SecondaryKeyType secondaryKey = upsertAdapter.getSecondaryKey(primaryKeyAndSecondaryKeyCursor);
+                        @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
                                 indexedModelSetsBySecondaryKey.get(secondaryKey);
                         if (indexedModelSet == null) {
                             throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
                         } else {
-                            final M model = indexedModelSet.iterator().next().second;
+                            final ModelType model = indexedModelSet.iterator().next().second;
                             insertingSecondaryKeys.remove(secondaryKey);
 
-                            final I updatingIdentifier = identifierFactory.apply(primaryKey);
-                            final J updatingIdentified = identifiedFactory.apply(
+                            final IdentifierType updatingIdentifier = identifierFactory.apply(primaryKey);
+                            final IdentifiedType updatingIdentified = identifiedFactory.apply(
                                     updatingIdentifier,
                                     model
                             );
@@ -189,21 +187,21 @@ abstract class Table<N> {
                 }
 
                 final int capacity = models.size();
-                final L upsertedIdentifierOpts = capacityListFactory.newList(capacity);
+                final IdentifierOptListType upsertedIdentifierOpts = capacityCollectionFactory.newCollection(capacity);
                 for (int i=0; i < capacity; i++) {
                     upsertedIdentifierOpts.add(optFactory.empty());
                 }
-                for (final S secondaryKey : insertingSecondaryKeys) {
-                    @Nullable final Set<Tuple<Integer, M>> indexedModelSet =
+                for (final SecondaryKeyType secondaryKey : insertingSecondaryKeys) {
+                    @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
                             indexedModelSetsBySecondaryKey.get(secondaryKey);
                     if (indexedModelSet == null) {
                         throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
                     } else {
-                        final M model = indexedModelSet.iterator().next().second;
-                        final P identifierOpt =
+                        final ModelType model = indexedModelSet.iterator().next().second;
+                        final IdentifierOptType identifierOpt =
                                 modelInserter.apply(model);
                         if (identifierOpt.value != null) {
-                            for (final Tuple<Integer, M> indexedModel : indexedModelSet) {
+                            for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
                                 upsertedIdentifierOpts.set(
                                         indexedModel.first,
                                         identifierOpt
@@ -213,17 +211,17 @@ abstract class Table<N> {
                     }
                 }
 
-                for (final J updatingIdentified : updatingIdentifieds) {
+                for (final IdentifiedType updatingIdentified : updatingIdentifieds) {
                     final int rowCount = identifiedUpdater.apply(updatingIdentified);
                     if (rowCount == 1) {
-                        final S secondaryKey =
+                        final SecondaryKeyType secondaryKey =
                                 modelSecondaryKeyGetter.apply(updatingIdentified.model);
-                        @Nullable final Set<Tuple<Integer, M>> indexedModelSet =
+                        @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
                                 indexedModelSetsBySecondaryKey.get(secondaryKey);
                         if (indexedModelSet == null) {
                             throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
                         } else {
-                            for (final Tuple<Integer, M> indexedModel : indexedModelSet) {
+                            for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
                                 upsertedIdentifierOpts.set(
                                         indexedModel.first,
                                         optFactory.of(updatingIdentified.identifier)
@@ -240,7 +238,11 @@ abstract class Table<N> {
         }
     }
 
-    protected static String[] idStrings(Collection<? extends Identifier<?>> identifiers) {
+    protected static <
+            IdentifierType extends Identifier<ModelType>,
+            ModelType,
+            IdentifierCollectionType extends Collection<IdentifierType>
+            > String[] idStrings(IdentifierCollectionType identifiers) {
         final String[] idStrings = new String[identifiers.size()];
         int i = 0;
         for (Identifier<?> identifier : identifiers) {
@@ -251,25 +253,25 @@ abstract class Table<N> {
         return idStrings;
     }
 
-    protected interface UpsertAdapter<S> {
-        SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<S> secondaryKeys);
+    protected interface UpsertAdapter<SecondaryKeyType> {
+        SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<SecondaryKeyType> secondaryKeys);
 
         long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor);
 
-        S getSecondaryKey(Cursor primaryAndSecondaryKeyCursor);
+        SecondaryKeyType getSecondaryKey(Cursor primaryAndSecondaryKeyCursor);
     }
 
-    protected static class SingleColumnSecondaryKeyUpsertAdapter<S> implements UpsertAdapter<S> {
+    protected static class SingleColumnSecondaryKeyUpsertAdapter<SecondaryKeyType> implements UpsertAdapter<SecondaryKeyType> {
         private final String tableName;
         private final String primaryKeyColumnName;
         private final String secondaryKeyColumnName;
-        private final Function<Cursor, S> cursorSecondaryKeyGetter;
+        private final Function<Cursor, SecondaryKeyType> cursorSecondaryKeyGetter;
 
         public SingleColumnSecondaryKeyUpsertAdapter(
                 String tableName,
                 String primaryKeyColumnName,
                 String secondaryKeyColumnName,
-                Function<Cursor, S> cursorSecondaryKeyGetter
+                Function<Cursor, SecondaryKeyType> cursorSecondaryKeyGetter
         ) {
             this.tableName = tableName;
             this.primaryKeyColumnName = primaryKeyColumnName;
@@ -278,7 +280,7 @@ abstract class Table<N> {
         }
 
         @Override
-        public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<S> secondaryKeys) {
+        public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<SecondaryKeyType> secondaryKeys) {
             final String selection =
                     secondaryKeyColumnName + inPlaceholderClause(secondaryKeys.size());
             return SupportSQLiteQueryBuilder
@@ -303,7 +305,7 @@ abstract class Table<N> {
         }
 
         @Override
-        public S getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
+        public SecondaryKeyType getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
             return cursorSecondaryKeyGetter.apply(primaryAndSecondaryKeyCursor);
         }
     }

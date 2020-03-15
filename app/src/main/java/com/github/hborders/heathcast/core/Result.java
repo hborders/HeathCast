@@ -1,41 +1,38 @@
 package com.github.hborders.heathcast.core;
 
-public abstract class Result {
-    private Result() {
-    }
+public interface Result {
+    Result SUCCESS = new Result.Success();
+    Result FAILURE = new Result.Failure();
 
-    public static final class Success extends Result {
-        public static final Success INSTANCE = new Success();
-
+    final class Success extends EmptyEither.Left<
+            Success,
+            Failure
+            > implements Result {
         private Success() {
         }
-
-        @Override
-        public <T> T map(
-                Function<Success, T> successMapper,
-                Function<Failure, T> failureMapper
-        ) {
-            return successMapper.apply(this);
-        }
     }
 
-    public static final class Failure extends Result {
-        public static final Failure INSTANCE = new Failure();
-
+    final class Failure extends EmptyEither.Right<
+            Success,
+            Failure
+            > implements Result {
         private Failure() {
         }
-
-        @Override
-        public <T> T map(
-                Function<Success, T> successMapper,
-                Function<Failure, T> failureMapper
-        ) {
-            return failureMapper.apply(this);
-        }
     }
 
-    public abstract <T> T map(
-            Function<Success, T> successMapper,
-            Function<Failure, T> failureMapper
+    <T> T reduce(
+            Function<
+                    ? super Success,
+                    ? extends T
+                    > leftReducer,
+            Function<
+                    ? super Failure,
+                    ? extends T
+                    > rightReducer
+    );
+
+    void act(
+            VoidFunction<? super Success> leftAction,
+            VoidFunction<? super Failure> rightAction
     );
 }

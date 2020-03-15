@@ -12,11 +12,11 @@ public final class EpisodeIdentifiedSet extends HashSet<EpisodeIdentified> {
         super(initialCapacity);
     }
 
-    public EpisodeIdentifiedSet(Collection<EpisodeIdentified> episodeIdentifieds) {
-        super(episodeIdentifieds);
+    public EpisodeIdentifiedSet(Collection<EpisodeIdentified> items) {
+        super(items);
     }
 
-    public EpisodeIdentifiedSet(EpisodeIdentified... episodeIdentifieds) {
-        super(Arrays.asList(episodeIdentifieds));
+    public EpisodeIdentifiedSet(EpisodeIdentified... items) {
+        super(Arrays.asList(items));
     }
 }

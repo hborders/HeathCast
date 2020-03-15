@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class Opt<V> {
-    public interface OptFactory<P extends Opt<V>, V> {
+    public interface Factory<P extends Opt<V>, V> {
         P empty();
 
         P of(V v);
@@ -68,16 +68,16 @@ public abstract class Opt<V> {
                 '}';
     }
 
-    public boolean isPresent() {
+    public final boolean isPresent() {
         return value != null;
     }
 
     @Nullable
-    public V orNull() {
+    public final V orNull() {
         return value;
     }
 
-    public V orElse(V other) {
+    public final V orElse(V other) {
         final V v;
         if (value == null) {
             v = other;
@@ -87,7 +87,7 @@ public abstract class Opt<V> {
         return v;
     }
 
-    public V orElseGet(Supplier<? extends V> otherSupplier) {
+    public final V orElseGet(Supplier<? extends V> otherSupplier) {
         final V v;
         if (value == null) {
             v = otherSupplier.get();
@@ -97,7 +97,7 @@ public abstract class Opt<V> {
         return v;
     }
 
-    public <T extends Throwable> V orElseThrow(Supplier<? extends T> exceptionSupplier) throws T {
+    public final <T extends Throwable> V orElseThrow(Supplier<? extends T> exceptionSupplier) throws T {
         final V v;
         if (value == null) {
             final T throwable = exceptionSupplier.get();
@@ -108,7 +108,7 @@ public abstract class Opt<V> {
         return v;
     }
 
-    public <G extends OptFactory<Q, W>, Q extends Opt<W>, W> Q map(
+    public final <G extends Factory<Q, W>, Q extends Opt<W>, W> Q map(
             G optFactory,
             Function<? super V, W> mapper
     ) {
@@ -122,7 +122,7 @@ public abstract class Opt<V> {
         return q;
     }
 
-    public <G extends OptFactory<Q, W>, Q extends Opt<W>, W> Q flatMap(
+    public final <G extends Factory<Q, W>, Q extends Opt<W>, W> Q flatMap(
             G optFactory,
             Function<? super V, Q> mapper
     ) {
@@ -135,13 +135,13 @@ public abstract class Opt<V> {
         return q;
     }
 
-    public void act(VoidFunction<V> action) {
+    public final void act(VoidFunction<V> action) {
         if (value != null) {
             action.apply(value);
         }
     }
 
-    public Optional<V> toOptional() {
+    public final Optional<V> toOptional() {
         return Optional.ofNullable(value);
     }
 }

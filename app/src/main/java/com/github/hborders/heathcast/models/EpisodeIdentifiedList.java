@@ -12,11 +12,11 @@ public final class EpisodeIdentifiedList extends ArrayList<EpisodeIdentified> {
         super(initialCapacity);
     }
 
-    public EpisodeIdentifiedList(Collection<EpisodeIdentified> episodeIdentifieds) {
-        super(episodeIdentifieds);
+    public EpisodeIdentifiedList(Collection<EpisodeIdentified> items) {
+        super(items);
     }
 
-    public EpisodeIdentifiedList(EpisodeIdentified... episodeIdentifieds) {
-        super(Arrays.asList(episodeIdentifieds));
+    public EpisodeIdentifiedList(EpisodeIdentified... items) {
+        super(Arrays.asList(items));
     }
 }

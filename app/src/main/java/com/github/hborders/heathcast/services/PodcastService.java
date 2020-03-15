@@ -7,14 +7,15 @@ import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastList;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.PodcastSearchIdentified;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastSearchIdentifiedOpt;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
+import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
@@ -115,7 +116,7 @@ public final class PodcastService {
         return database.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-    public Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
+    public Observable<PodcastIdentifiedOpt> observeQueryForPodcastIdentified(
             PodcastIdentifier podcastIdentifier
     ) {
         return database.observeQueryForPodcastIdentified(podcastIdentifier);
@@ -127,8 +128,8 @@ public final class PodcastService {
         return database.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Single<Optional<SubscriptionIdentifier>> subscribe(PodcastIdentifier podcastIdentifier) {
-        return Single.<Optional<SubscriptionIdentifier>>create(source ->
+    public Single<SubscriptionIdentifierOpt> subscribe(PodcastIdentifier podcastIdentifier) {
+        return Single.<SubscriptionIdentifierOpt>create(source ->
                 source.onSuccess(
                         database.subscribe(podcastIdentifier)
                 )
@@ -143,7 +144,7 @@ public final class PodcastService {
         ).subscribeOn(scheduler);
     }
 
-    public Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
+    public Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
             PodcastSearch podcastSearch
     ) {
         return searchForPodcasts2(
@@ -152,28 +153,34 @@ public final class PodcastService {
         );
     }
 
-    public Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
+    public Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
             @Nullable NetworkPauser networkPauser,
             PodcastSearch podcastSearch
     ) {
-        final Optional<PodcastSearchIdentified> podcastSearchIdentifiedOptional =
+        final PodcastSearchIdentifiedOpt podcastSearchIdentifiedOpt =
                 database.upsertPodcastSearch(podcastSearch);
 
-        return podcastSearchIdentifiedOptional.map(
+        final class SawMarkerAndPodcastIdentifiedList extends Tuple<Boolean, PodcastIdentifiedList> {
+            public SawMarkerAndPodcastIdentifiedList(Boolean sawMarker, PodcastIdentifiedList podcastIdentifiedList) {
+                super(sawMarker, podcastIdentifiedList);
+            }
+        }
+
+        return podcastSearchIdentifiedOpt.toOptional().map(
                 podcastSearchIdentified -> {
                     final Object marker = new Object();
-                    final Observable<Tuple<Boolean, PodcastIdentifiedList>> sawMarkerAndPodcastIdentifiedListObservable =
+                    final Observable<SawMarkerAndPodcastIdentifiedList> sawMarkerAndPodcastIdentifiedListObservable =
                             database
                                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.identifier)
                                     .scan(
-                                            new Tuple<>(
+                                            new SawMarkerAndPodcastIdentifiedList(
                                                     false,
                                                     new PodcastIdentifiedList()
                                             ),
                                             (sawMarkerAndPodcastIdentifiedList, podcastIdentifiedListMarkedValue) -> {
                                                 final boolean oldSawMarker = sawMarkerAndPodcastIdentifiedList.first;
                                                 final boolean newSawMarker = oldSawMarker || podcastIdentifiedListMarkedValue.markers.contains(marker);
-                                                return new Tuple<>(
+                                                return new SawMarkerAndPodcastIdentifiedList(
                                                         newSawMarker,
                                                         podcastIdentifiedListMarkedValue.value
                                                 );
@@ -182,7 +189,7 @@ public final class PodcastService {
                                     // scan emits the initial accumulator value as the first itme
                                     // and we don't want that
                                     .skip(1);
-                    final Observable<ServiceResponse0> podcastSearchServiceResponseObservable =
+                    final Observable<EmptyServiceResponse> podcastSearchServiceResponseObservable =
                             searchForPodcasts(
                                     networkPauser,
                                     podcastSearch.search
@@ -196,12 +203,12 @@ public final class PodcastService {
                                                     podcastSearchResponse.podcasts
                                             )
                                     )
-                                    .map(ignored -> ServiceResponse0.complete())
+                                    .map(ignored -> EmptyServiceResponse.COMPLETE)
                                     .doOnError(ignored -> database.markPodcastSearchFailure(marker))
-                                    .onErrorReturnItem(ServiceResponse0.failed())
-                                    .toObservable().startWith(ServiceResponse0.loading());
+                                    .onErrorReturnItem(EmptyServiceResponse.FAILED)
+                                    .toObservable().startWith(EmptyServiceResponse.LOADING);
 
-                    return Observable.combineLatest(
+                    return Observable.<EmptyServiceResponse, SawMarkerAndPodcastIdentifiedList, PodcastIdentifiedListServiceResponse>combineLatest(
                             podcastSearchServiceResponseObservable,
                             sawMarkerAndPodcastIdentifiedListObservable,
                             (podcastSearchServiceResponse, sawMarkerAndPodcastIdentifiedList) -> {
@@ -211,39 +218,34 @@ public final class PodcastService {
                                         loading -> {
                                             // we don't care if we saw the marker because we don't know if
                                             // we completed or failed
-                                            return ServiceResponse1.loading(
-                                                    PodcastIdentifiedList.class,
+                                            return new PodcastIdentifiedListServiceResponse.Loading(
                                                     podcastIdentifiedList
                                             );
                                         },
                                         complete -> {
                                             if (sawMarker) {
-                                                return ServiceResponse1.complete(
-                                                        PodcastIdentifiedList.class,
+                                                return new PodcastIdentifiedListServiceResponse.Complete(
                                                         podcastIdentifiedList
                                                 );
                                             } else {
                                                 // we haven't seen the marker yet, so
                                                 // even though the service finished, the database
                                                 // transaction hasn't completed, so stay loading
-                                                return ServiceResponse1.loading(
-                                                        PodcastIdentifiedList.class,
+                                                return new PodcastIdentifiedListServiceResponse.Loading(
                                                         podcastIdentifiedList
                                                 );
                                             }
                                         },
                                         failed -> {
                                             if (sawMarker) {
-                                                return ServiceResponse1.failed(
-                                                        PodcastIdentifiedList.class,
+                                                return new PodcastIdentifiedListServiceResponse.Failed(
                                                         podcastIdentifiedList
                                                 );
                                             } else {
                                                 // we haven't seen the marker yet, so
                                                 // even though the service finished, the database
                                                 // transaction hasn't completed, so stay loading
-                                                return ServiceResponse1.loading(
-                                                        PodcastIdentifiedList.class,
+                                                return new PodcastIdentifiedListServiceResponse.Loading(
                                                         podcastIdentifiedList
                                                 );
                                             }

@@ -11,18 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
         PodcastIdentified,
+        PodcastIdentifiedList,
         PodcastRecyclerViewAdapter.PodcastViewHolder> {
 
     private final PodcastRecyclerViewAdapterListener listener;
 
     public PodcastRecyclerViewAdapter(
-            List<PodcastIdentified> identifiedPodcasts,
+            PodcastIdentifiedList identifiedPodcasts,
             PodcastRecyclerViewAdapterListener listener
     ) {
         super(identifiedPodcasts);

@@ -5,28 +5,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public abstract class ListRecyclerViewAdapter<
-        U,
-        VH extends RecyclerView.ViewHolder
-        > extends RecyclerView.Adapter<VH> {
-    private List<U> items;
+        UnparcelableType,
+        UnparcelableListType extends List<UnparcelableType>,
+        ViewHolderType extends RecyclerView.ViewHolder
+        > extends RecyclerView.Adapter<ViewHolderType> {
+    private UnparcelableListType items;
 
-    protected ListRecyclerViewAdapter(List<U> items) {
+    protected ListRecyclerViewAdapter(UnparcelableListType items) {
         this.items = items;
     }
 
     protected abstract void onBindViewHolder(
-            VH holder,
-            U item
+            ViewHolderType holder,
+            UnparcelableType item
     );
 
-    public final void setItems(List<U> items) {
+    public final void setItems(UnparcelableListType items) {
         this.items = items;
         notifyDataSetChanged();
     }
 
     @Override
-    public final void onBindViewHolder(VH holder, int position) {
-        final U item = items.get(position);
+    public final void onBindViewHolder(ViewHolderType holder, int position) {
+        final UnparcelableType item = items.get(position);
         onBindViewHolder(
                 holder,
                 item

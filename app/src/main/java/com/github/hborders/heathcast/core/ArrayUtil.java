@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class ArrayUtil {
-    private ArrayUtil() {}
-
+    private ArrayUtil() {
+    }
 
     @Nonnull
     public static <E> List<E> asList(@Nullable E[] array) {

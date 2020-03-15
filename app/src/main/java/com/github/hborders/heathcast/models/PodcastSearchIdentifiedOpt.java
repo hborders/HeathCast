@@ -2,12 +2,12 @@ package com.github.hborders.heathcast.models;
 
 import com.github.hborders.heathcast.core.Opt;
 
-public class PodcastSearchIdentifiedOpt extends Opt<PodcastSearchIdentified> {
+public final class PodcastSearchIdentifiedOpt extends Opt<PodcastSearchIdentified> {
     public static final PodcastSearchIdentifiedOpt EMPTY = new PodcastSearchIdentifiedOpt();
-    public static final PodcastSearchIdentifiedOptFactory FACTORY = new PodcastSearchIdentifiedOptFactory();
+    public static final Factory FACTORY = new Factory();
 
-    public static final class PodcastSearchIdentifiedOptFactory implements Opt.OptFactory<PodcastSearchIdentifiedOpt, PodcastSearchIdentified> {
-        private PodcastSearchIdentifiedOptFactory() {
+    public static final class Factory implements Opt.Factory<PodcastSearchIdentifiedOpt, PodcastSearchIdentified> {
+        private Factory() {
         }
 
         @Override
@@ -16,8 +16,8 @@ public class PodcastSearchIdentifiedOpt extends Opt<PodcastSearchIdentified> {
         }
 
         @Override
-        public PodcastSearchIdentifiedOpt of(PodcastSearchIdentified podcastSearchIdentified) {
-            return new PodcastSearchIdentifiedOpt(podcastSearchIdentified);
+        public PodcastSearchIdentifiedOpt of(PodcastSearchIdentified value) {
+            return new PodcastSearchIdentifiedOpt(value);
         }
     }
 

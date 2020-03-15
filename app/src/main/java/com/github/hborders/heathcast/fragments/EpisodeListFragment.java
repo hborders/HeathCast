@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.parcelables.EpisodeIdentifiedHolder;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
 
@@ -108,9 +109,10 @@ public final class EpisodeListFragment extends Fragment {
                 view.requireViewById(R.id.fragment_episode_list_episodes_recycler_view);
         episodesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         @Nullable final List<EpisodeIdentified> episodeIdentifieds =
-                FragmentUtil.getUnparcelableHolderListArgument(
+                FragmentUtil.getUnparcelableListArgument(
                         this,
                         EpisodeIdentifiedHolder.class,
+                        EpisodeIdentifiedList::new,
                         EPISODE_PARCELABLES_KEY
                 );
         final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(

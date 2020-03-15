@@ -12,11 +12,11 @@ public final class PodcastIdentifiedSet extends HashSet<PodcastIdentified> {
         super(initialCapacity);
     }
 
-    public PodcastIdentifiedSet(Collection<PodcastIdentified> podcastIdentifieds) {
-        super(podcastIdentifieds);
+    public PodcastIdentifiedSet(Collection<PodcastIdentified> items) {
+        super(items);
     }
 
-    public PodcastIdentifiedSet(PodcastIdentified... podcastIdentifieds) {
-        super(Arrays.asList(podcastIdentifieds));
+    public PodcastIdentifiedSet(PodcastIdentified... items) {
+        super(Arrays.asList(items));
     }
 }

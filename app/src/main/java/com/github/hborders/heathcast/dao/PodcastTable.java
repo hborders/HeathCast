@@ -11,15 +11,17 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
 import com.github.hborders.heathcast.models.PodcastIdentifiedSet;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
+import com.github.hborders.heathcast.models.PodcastIdentifierOpt;
+import com.github.hborders.heathcast.models.PodcastIdentifierOptList;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 import io.reactivex.Observable;
 
@@ -63,16 +65,16 @@ final class PodcastTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<PodcastIdentifier> insertPodcast(Podcast podcast) {
+    PodcastIdentifierOpt insertPodcast(Podcast podcast) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastContentValues(podcast)
         );
         if (id == -1) {
-            return Optional.empty();
+            return PodcastIdentifierOpt.EMPTY;
         } else {
-            return Optional.of(new PodcastIdentifier(id));
+            return new PodcastIdentifierOpt(new PodcastIdentifier(id));
         }
     }
 
@@ -86,7 +88,7 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    Optional<PodcastIdentifier> upsertPodcast(Podcast podcast) {
+    PodcastIdentifierOpt upsertPodcast(Podcast podcast) {
         return upsertModel(
                 upsertAdapter,
                 String.class,
@@ -95,11 +97,12 @@ final class PodcastTable<N> extends Table<N> {
                 PodcastIdentifier::new,
                 PodcastIdentified::new,
                 this::insertPodcast,
-                this::updatePodcastIdentified
+                this::updatePodcastIdentified,
+                PodcastIdentifierOpt.FACTORY
         );
     }
 
-    List<Optional<PodcastIdentifier>> upsertPodcasts(List<Podcast> podcasts) {
+    PodcastIdentifierOptList upsertPodcasts(List<Podcast> podcasts) {
         return upsertModels(
                 upsertAdapter,
                 String.class,
@@ -108,7 +111,9 @@ final class PodcastTable<N> extends Table<N> {
                 PodcastIdentifier::new,
                 PodcastIdentified::new,
                 this::insertPodcast,
-                this::updatePodcastIdentified
+                this::updatePodcastIdentified,
+                PodcastIdentifierOpt.FACTORY,
+                PodcastIdentifierOptList::new
         );
     }
 
@@ -162,7 +167,7 @@ final class PodcastTable<N> extends Table<N> {
                 .map(PodcastIdentifiedSet::new);
     }
 
-    Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
+    Observable<PodcastIdentifiedOpt> observeQueryForPodcastIdentified(
             PodcastIdentifier podcastIdentifier
     ) {
         final SupportSQLiteQuery query =
@@ -179,7 +184,8 @@ final class PodcastTable<N> extends Table<N> {
                         TABLE_PODCAST,
                         query
                 )
-                .mapToOptional(PodcastTable::getPodcastIdentified);
+                .mapToOptional(PodcastTable::getPodcastIdentified)
+                .map(PodcastIdentifiedOpt.FACTORY::fromOptional);
     }
 
     static void createPodcastTable(SupportSQLiteDatabase db) {

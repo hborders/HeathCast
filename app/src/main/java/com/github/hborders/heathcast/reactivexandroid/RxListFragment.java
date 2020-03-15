@@ -10,12 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
-import com.github.hborders.heathcast.services.ServiceResponse1;
+import com.github.hborders.heathcast.services.ServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,33 +25,278 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
 public abstract class RxListFragment<
-        F extends RxListFragment<F, L, U, H>,
-        L,
-        U,
-        H extends UnparcelableHolder<U>
-        > extends RxFragment<F, L> {
+        FragmentType extends RxListFragment<
+                FragmentType,
+                ListenerType,
+                AttachmentType,
+                AttachmentFactoryType,
+                UnparcelableType,
+                UnparcelableHolderType,
+                UnparcelableHolderFactoryType,
+                UnparcelableHolderArrayFactoryType,
+                UnparcelableListType,
+                UnparcelableCapacityCollectionFactoryType,
+                ListRecyclerViewAdapterType,
+                ViewHolderType,
+                ServiceResponseType,
+                ServiceResponseLoadingType,
+                ServiceResponseCompleteType,
+                ServiceResponseFailedType
+                >,
+        ListenerType,
+        AttachmentType extends RxFragment.Attachment<
+                FragmentType,
+                ListenerType,
+                AttachmentType,
+                AttachmentFactoryType
+                >,
+        AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                FragmentType,
+                ListenerType,
+                AttachmentType,
+                AttachmentFactoryType
+                >,
+        UnparcelableType,
+        UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+        UnparcelableHolderFactoryType extends UnparcelableHolder.Factory<
+                UnparcelableType,
+                UnparcelableHolderType
+                >,
+        UnparcelableHolderArrayFactoryType extends UnparcelableHolder.ArrayFactory<
+                UnparcelableType,
+                UnparcelableHolderType
+                >,
+        UnparcelableListType extends List<UnparcelableType>,
+        UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
+                UnparcelableListType,
+                UnparcelableType
+                >,
+        ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
+                UnparcelableType,
+                UnparcelableListType,
+                ViewHolderType
+                >,
+        ViewHolderType extends RecyclerView.ViewHolder,
+        ServiceResponseType extends ServiceResponse<
+                ServiceResponseLoadingType,
+                ServiceResponseCompleteType,
+                ServiceResponseFailedType,
+                UnparcelableListType,
+                UnparcelableListType,
+                UnparcelableListType
+                >,
+        ServiceResponseLoadingType extends ServiceResponse.Loading<
+                ServiceResponseLoadingType,
+                ServiceResponseCompleteType,
+                ServiceResponseFailedType,
+                UnparcelableListType,
+                UnparcelableListType,
+                UnparcelableListType
+                >,
+        ServiceResponseCompleteType extends ServiceResponse.Complete<
+                ServiceResponseLoadingType,
+                ServiceResponseCompleteType,
+                ServiceResponseFailedType,
+                UnparcelableListType,
+                UnparcelableListType,
+                UnparcelableListType
+                >,
+        ServiceResponseFailedType extends ServiceResponse.Failed<
+                ServiceResponseLoadingType,
+                ServiceResponseCompleteType,
+                ServiceResponseFailedType,
+                UnparcelableListType,
+                UnparcelableListType,
+                UnparcelableListType
+                >
+        > extends RxFragment<
+        FragmentType,
+        ListenerType,
+        AttachmentType,
+        AttachmentFactoryType
+        > {
 
     protected interface ItemListServiceResponseObservableProvider<
-            F extends RxListFragment<F, L, U, H>,
-            L,
-            U,
-            H extends UnparcelableHolder<U>
+            FragmentType extends RxListFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType,
+                    UnparcelableType,
+                    UnparcelableHolderType,
+                    UnparcelableHolderFactoryType,
+                    UnparcelableHolderArrayFactoryType,
+                    UnparcelableListType,
+                    UnparcelableCapacityCollectionFactoryType,
+                    ListRecyclerViewAdapterType,
+                    ViewHolderType,
+                    ServiceResponseType,
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableHolderFactoryType extends UnparcelableHolder.Factory<
+                    UnparcelableType,
+                    UnparcelableHolderType
+                    >,
+            UnparcelableHolderArrayFactoryType extends UnparcelableHolder.ArrayFactory<
+                    UnparcelableType,
+                    UnparcelableHolderType
+                    >,
+            UnparcelableListType extends List<UnparcelableType>,
+            UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
+                    UnparcelableListType,
+                    UnparcelableType
+                    >,
+            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
+                    UnparcelableType,
+                    UnparcelableListType,
+                    ViewHolderType
+                    >,
+            ViewHolderType extends RecyclerView.ViewHolder,
+            ServiceResponseType extends ServiceResponse<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >,
+            ServiceResponseLoadingType extends ServiceResponse.Loading<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >,
+            ServiceResponseCompleteType extends ServiceResponse.Complete<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >,
+            ServiceResponseFailedType extends ServiceResponse.Failed<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >
             > {
-        Observable<? extends ServiceResponse1<? extends List<U>>> itemListServiceResponseObservable(
-                L listener,
-                F fragment
+        Observable<ServiceResponseType> itemListServiceResponseObservable(
+                ListenerType listener,
+                FragmentType fragment
         );
     }
 
     protected interface OnItemListServiceResponseFailed<
-            F extends RxListFragment<F, L, U, H>,
-            L,
-            U,
-            H extends UnparcelableHolder<U>
+            FragmentType extends RxListFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType,
+                    UnparcelableType,
+                    UnparcelableHolderType,
+                    UnparcelableHolderFactoryType,
+                    UnparcelableHolderArrayFactoryType,
+                    UnparcelableListType,
+                    UnparcelableCapacityCollectionFactoryType,
+                    ListRecyclerViewAdapterType,
+                    ViewHolderType,
+                    ServiceResponseType,
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableHolderFactoryType extends UnparcelableHolder.Factory<
+                    UnparcelableType,
+                    UnparcelableHolderType
+                    >,
+            UnparcelableHolderArrayFactoryType extends UnparcelableHolder.ArrayFactory<
+                    UnparcelableType,
+                    UnparcelableHolderType
+                    >,
+            UnparcelableListType extends List<UnparcelableType>,
+            UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
+                    UnparcelableListType,
+                    UnparcelableType
+                    >,
+            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
+                    UnparcelableType,
+                    UnparcelableListType,
+                    ViewHolderType
+                    >,
+            ViewHolderType extends RecyclerView.ViewHolder,
+            ServiceResponseType extends ServiceResponse<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >,
+            ServiceResponseLoadingType extends ServiceResponse.Loading<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >,
+            ServiceResponseCompleteType extends ServiceResponse.Complete<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >,
+            ServiceResponseFailedType extends ServiceResponse.Failed<
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType,
+                    UnparcelableListType,
+                    UnparcelableListType,
+                    UnparcelableListType
+                    >
             > {
         void onItemListServiceResponseFailed(
-                L listener,
-                F fragment
+                ListenerType listener,
+                FragmentType fragment
         );
     }
 
@@ -82,28 +327,117 @@ public abstract class RxListFragment<
 
     private static final String ITEM_HOLDERS_KEY = "itemHolders";
 
-    private final ItemListServiceResponseObservableProvider<F, L, U, H> itemListServiceResponseObservableProvider;
-    private final OnItemListServiceResponseFailed<F, L, U, H> onItemListServiceResponseFailed;
-    private final Class<H> holderClass;
+    private final UnparcelableHolderFactoryType unparcelableHolderFactory;
+    private final UnparcelableHolderArrayFactoryType unparcelableHolderArrayFactory;
+    private final UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory;
+    private final ItemListServiceResponseObservableProvider<
+            FragmentType,
+            ListenerType,
+            AttachmentType,
+            AttachmentFactoryType,
+            UnparcelableType,
+            UnparcelableHolderType,
+            UnparcelableHolderFactoryType,
+            UnparcelableHolderArrayFactoryType,
+            UnparcelableListType,
+            UnparcelableCapacityCollectionFactoryType,
+            ListRecyclerViewAdapterType,
+            ViewHolderType,
+            ServiceResponseType,
+            ServiceResponseLoadingType,
+            ServiceResponseCompleteType,
+            ServiceResponseFailedType
+            > itemListServiceResponseObservableProvider;
+    private final OnItemListServiceResponseFailed<
+            FragmentType,
+            ListenerType,
+            AttachmentType,
+            AttachmentFactoryType,
+            UnparcelableType,
+            UnparcelableHolderType,
+            UnparcelableHolderFactoryType,
+            UnparcelableHolderArrayFactoryType,
+            UnparcelableListType,
+            UnparcelableCapacityCollectionFactoryType,
+            ListRecyclerViewAdapterType,
+            ViewHolderType,
+            ServiceResponseType,
+            ServiceResponseLoadingType,
+            ServiceResponseCompleteType,
+            ServiceResponseFailedType
+            > onItemListServiceResponseFailed;
+    private final Class<UnparcelableHolderType> holderClass;
     private final BehaviorSubject<Optional<ItemRanger>> itemRangerOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
 
     protected RxListFragment(
-            Class<L> listenerClass,
-            OnAttached<F, L> onAttached,
-            WillDetach<F, L> willDetach,
+            Class<ListenerType> listenerClass,
+            AttachmentFactoryType attachmentFactory,
+            OnAttached<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    > onAttached,
+            WillDetach<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    > willDetach,
             int layoutResource,
-            ItemListServiceResponseObservableProvider<F, L, U, H> itemListServiceResponseObservableProvider,
-            OnItemListServiceResponseFailed<F, L, U, H> onItemListServiceResponseFailed,
-            Class<H> holderClass
+            UnparcelableHolderFactoryType unparcelableHolderFactory,
+            UnparcelableHolderArrayFactoryType unparcelableHolderArrayFactory,
+            UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory,
+            ItemListServiceResponseObservableProvider<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType,
+                    UnparcelableType,
+                    UnparcelableHolderType,
+                    UnparcelableHolderFactoryType,
+                    UnparcelableHolderArrayFactoryType,
+                    UnparcelableListType,
+                    UnparcelableCapacityCollectionFactoryType,
+                    ListRecyclerViewAdapterType,
+                    ViewHolderType,
+                    ServiceResponseType,
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType
+                    > itemListServiceResponseObservableProvider,
+            OnItemListServiceResponseFailed<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType,
+                    UnparcelableType,
+                    UnparcelableHolderType,
+                    UnparcelableHolderFactoryType,
+                    UnparcelableHolderArrayFactoryType,
+                    UnparcelableListType,
+                    UnparcelableCapacityCollectionFactoryType,
+                    ListRecyclerViewAdapterType,
+                    ViewHolderType,
+                    ServiceResponseType,
+                    ServiceResponseLoadingType,
+                    ServiceResponseCompleteType,
+                    ServiceResponseFailedType
+                    > onItemListServiceResponseFailed,
+            Class<UnparcelableHolderType> holderClass
     ) {
         super(
                 listenerClass,
+                attachmentFactory,
                 onAttached,
                 willDetach,
                 layoutResource
         );
 
+        this.unparcelableHolderFactory = unparcelableHolderFactory;
+        this.unparcelableHolderArrayFactory = unparcelableHolderArrayFactory;
+        this.unparcelableCapacityCollectionFactory = unparcelableCapacityCollectionFactory;
         this.itemListServiceResponseObservableProvider = itemListServiceResponseObservableProvider;
         this.onItemListServiceResponseFailed = onItemListServiceResponseFailed;
         this.holderClass = holderClass;
@@ -159,7 +493,6 @@ public abstract class RxListFragment<
                 ).orElse(Observable.empty()));
     }
 
-
     protected abstract ProgressBar requireProgressBar(View view);
 
     protected abstract TextView requireProgressTextView(View view);
@@ -168,30 +501,26 @@ public abstract class RxListFragment<
 
     protected abstract RecyclerView requireRecyclerView(View view);
 
-    protected abstract ListRecyclerViewAdapter<U, ?> createListRecyclerViewAdapter(
-            List<U> initialItems,
-            L listener
+    protected abstract ListRecyclerViewAdapterType createListRecyclerViewAdapter(
+            List<UnparcelableType> initialItems,
+            ListenerType listener
     );
-
-
-    protected abstract H[] holderArray(List<U> items);
-
 
     protected abstract void onItemListServiceResponseFailed();
 
     protected abstract void subscribeToAttachmentObservable2(
-            Observable<Attachment<F, L>> attachmentObservable
+            Observable<AttachmentType> attachmentObservable
     );
 
     @Override
-    protected void subscribeToAttachmentObservable(
-            Observable<Attachment<F, L>> attachmentObservable
+    protected final void subscribeToAttachmentObservable(
+            Observable<AttachmentType> attachmentObservable
     ) {
         switchMapToViewCreation(attachmentObservable).subscribe(
                 attachmentFragmentCreationViewCreationTriple -> {
                     final Context context =
                             attachmentFragmentCreationViewCreationTriple.first.context;
-                    final L listener =
+                    final ListenerType listener =
                             attachmentFragmentCreationViewCreationTriple.first.listener;
                     final ViewCreation viewCreation =
                             attachmentFragmentCreationViewCreationTriple.third;
@@ -203,13 +532,14 @@ public abstract class RxListFragment<
                     final LinearLayoutManager linearLayoutManager =
                             new LinearLayoutManager(context);
                     recyclerView.setLayoutManager(linearLayoutManager);
-                    final List<U> initialItems =
-                            FragmentUtil.getUnparcelableHolderListArgumentOptional(
+                    final UnparcelableListType initialItems =
+                            FragmentUtil.getUnparcelableListArgumentOptional(
                                     this,
                                     holderClass,
+                                    unparcelableCapacityCollectionFactory,
                                     ITEM_HOLDERS_KEY
-                            ).orElse(Collections.emptyList());
-                    final ListRecyclerViewAdapter<U, ?> listRecyclerViewAdapter =
+                            ).orElse(unparcelableCapacityCollectionFactory.newCollection(0));
+                    final ListRecyclerViewAdapterType listRecyclerViewAdapter =
                             createListRecyclerViewAdapter(
                                     initialItems,
                                     listener
@@ -234,55 +564,53 @@ public abstract class RxListFragment<
                                         )
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(
-                                                        itemListServiceResponse -> {
-                                                            itemListServiceResponse.act(
-                                                                    loading -> {
-                                                                        progressBar.setVisibility(View.VISIBLE);
-                                                                        progressTextView.setVisibility(View.VISIBLE);
-                                                                        errorTextView.setVisibility(View.GONE);
-                                                                        recyclerView.setVisibility(View.VISIBLE);
+                                                        itemListServiceResponse -> itemListServiceResponse.act(
+                                                                loading -> {
+                                                                    progressBar.setVisibility(View.VISIBLE);
+                                                                    progressTextView.setVisibility(View.VISIBLE);
+                                                                    errorTextView.setVisibility(View.GONE);
+                                                                    recyclerView.setVisibility(View.VISIBLE);
 
-                                                                        start.setArguments(
-                                                                                argumentsBundle(
-                                                                                        loading.value
-                                                                                )
-                                                                        );
-                                                                        listRecyclerViewAdapter.setItems(
-                                                                                loading.value
-                                                                        );
-                                                                    },
-                                                                    complete -> {
-                                                                        progressBar.setVisibility(View.GONE);
-                                                                        progressTextView.setVisibility(View.GONE);
-                                                                        errorTextView.setVisibility(View.GONE);
-                                                                        recyclerView.setVisibility(View.VISIBLE);
+                                                                    start.setArguments(
+                                                                            argumentsBundle(
+                                                                                    loading.value
+                                                                            )
+                                                                    );
+                                                                    listRecyclerViewAdapter.setItems(
+                                                                            loading.value
+                                                                    );
+                                                                },
+                                                                complete -> {
+                                                                    progressBar.setVisibility(View.GONE);
+                                                                    progressTextView.setVisibility(View.GONE);
+                                                                    errorTextView.setVisibility(View.GONE);
+                                                                    recyclerView.setVisibility(View.VISIBLE);
 
-                                                                        start.setArguments(
-                                                                                argumentsBundle(
-                                                                                        complete.value
-                                                                                )
-                                                                        );
-                                                                        listRecyclerViewAdapter.setItems(
-                                                                                complete.value
-                                                                        );
-                                                                    },
-                                                                    failed -> {
-                                                                        progressBar.setVisibility(View.GONE);
-                                                                        progressTextView.setVisibility(View.GONE);
-                                                                        errorTextView.setVisibility(View.VISIBLE);
-                                                                        recyclerView.setVisibility(View.VISIBLE);
+                                                                    start.setArguments(
+                                                                            argumentsBundle(
+                                                                                    complete.value
+                                                                            )
+                                                                    );
+                                                                    listRecyclerViewAdapter.setItems(
+                                                                            complete.value
+                                                                    );
+                                                                },
+                                                                failed -> {
+                                                                    progressBar.setVisibility(View.GONE);
+                                                                    progressTextView.setVisibility(View.GONE);
+                                                                    errorTextView.setVisibility(View.VISIBLE);
+                                                                    recyclerView.setVisibility(View.VISIBLE);
 
-                                                                        start.setArguments(
-                                                                                argumentsBundle(
-                                                                                        failed.value
-                                                                                )
-                                                                        );
-                                                                        listRecyclerViewAdapter.setItems(
-                                                                                failed.value
-                                                                        );
-                                                                    }
-                                                            );
-                                                        },
+                                                                    start.setArguments(
+                                                                            argumentsBundle(
+                                                                                    failed.value
+                                                                            )
+                                                                    );
+                                                                    listRecyclerViewAdapter.setItems(
+                                                                            failed.value
+                                                                    );
+                                                                }
+                                                        ),
                                                         throwable -> {
                                                             onItemListServiceResponseFailed();
                                                             onItemListServiceResponseFailed.onItemListServiceResponseFailed(
@@ -305,7 +633,14 @@ public abstract class RxListFragment<
         subscribeToAttachmentObservable2(attachmentObservable);
     }
 
-    private Bundle argumentsBundle(List<U> items) {
+    private UnparcelableHolderType[] holderArray(UnparcelableListType items) {
+        return items
+                .stream()
+                .map(unparcelableHolderFactory::newUnparcelableHolder)
+                .toArray(unparcelableHolderArrayFactory::newUnparcelableHolderArray);
+    }
+
+    private Bundle argumentsBundle(UnparcelableListType items) {
         final Bundle argumentsBundle = new Bundle();
         argumentsBundle.putParcelableArray(
                 ITEM_HOLDERS_KEY,

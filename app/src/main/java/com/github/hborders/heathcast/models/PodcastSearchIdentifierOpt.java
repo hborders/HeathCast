@@ -4,10 +4,10 @@ import com.github.hborders.heathcast.core.Opt;
 
 public final class PodcastSearchIdentifierOpt extends Opt<PodcastSearchIdentifier> {
     public static final PodcastSearchIdentifierOpt EMPTY = new PodcastSearchIdentifierOpt();
-    public static final PodcastSearchIdentifierOptFactory FACTORY = new PodcastSearchIdentifierOptFactory();
+    public static final Factory FACTORY = new Factory();
 
-    public static final class PodcastSearchIdentifierOptFactory implements OptFactory<PodcastSearchIdentifierOpt, PodcastSearchIdentifier> {
-        private PodcastSearchIdentifierOptFactory() {
+    public static final class Factory implements Opt.Factory<PodcastSearchIdentifierOpt, PodcastSearchIdentifier> {
+        private Factory() {
         }
 
         @Override
@@ -16,8 +16,8 @@ public final class PodcastSearchIdentifierOpt extends Opt<PodcastSearchIdentifie
         }
 
         @Override
-        public PodcastSearchIdentifierOpt of(PodcastSearchIdentifier podcastSearchIdentifier) {
-            return new PodcastSearchIdentifierOpt(podcastSearchIdentifier);
+        public PodcastSearchIdentifierOpt of(PodcastSearchIdentifier value) {
+            return new PodcastSearchIdentifierOpt(value);
         }
     }
 

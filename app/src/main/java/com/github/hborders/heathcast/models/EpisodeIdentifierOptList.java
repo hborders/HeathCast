@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class EpisodeIdentifierOptList extends ArrayList<EpisodeIdentifierOpt> {
+public final class EpisodeIdentifierOptList extends ArrayList<EpisodeIdentifierOpt> {
     public EpisodeIdentifierOptList() {
     }
 
@@ -12,11 +12,11 @@ public class EpisodeIdentifierOptList extends ArrayList<EpisodeIdentifierOpt> {
         super(capacity);
     }
 
-    public EpisodeIdentifierOptList(Collection<EpisodeIdentifierOpt> episodeIdentifierOpts) {
-        super(episodeIdentifierOpts);
+    public EpisodeIdentifierOptList(Collection<EpisodeIdentifierOpt> items) {
+        super(items);
     }
 
-    public EpisodeIdentifierOptList(EpisodeIdentifierOpt... episodeIdentifierOpts) {
-        super(Arrays.asList(episodeIdentifierOpts));
+    public EpisodeIdentifierOptList(EpisodeIdentifierOpt... items) {
+        super(Arrays.asList(items));
     }
 }

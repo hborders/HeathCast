@@ -12,11 +12,11 @@ public final class SubscriptionIdentifiedList extends ArrayList<SubscriptionIden
         super(initialCapacity);
     }
 
-    public SubscriptionIdentifiedList(Collection<? extends SubscriptionIdentified> c) {
-        super(c);
+    public SubscriptionIdentifiedList(Collection<? extends SubscriptionIdentified> items) {
+        super(items);
     }
 
-    public SubscriptionIdentifiedList(SubscriptionIdentified... subscriptionIdentifieds) {
-        super(Arrays.asList(subscriptionIdentifieds));
+    public SubscriptionIdentifiedList(SubscriptionIdentified... items) {
+        super(Arrays.asList(items));
     }
 }

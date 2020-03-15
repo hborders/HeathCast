@@ -2,8 +2,11 @@ package com.github.hborders.heathcast.dao;
 
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
 import com.github.hborders.heathcast.models.PodcastIdentifiedSet;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
+import com.github.hborders.heathcast.models.PodcastIdentifierOpt;
+import com.github.hborders.heathcast.models.PodcastIdentifierOptList;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,16 +16,15 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
@@ -41,7 +43,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name1"
         );
         @Nullable final PodcastIdentifier podcastIdentifier =
-                getTestObject().upsertPodcast(podcast).orElse(null);
+                getTestObject().upsertPodcast(podcast).orNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -70,7 +72,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name1"
         );
         @Nullable final PodcastIdentifier podcastIdentifier =
-                getTestObject().insertPodcast(podcast).orElse(null);
+                getTestObject().insertPodcast(podcast).orNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -99,7 +101,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name1"
         );
         @Nullable final PodcastIdentifier podcastIdentifier =
-                getTestObject().insertPodcast(podcast1).orElse(null);
+                getTestObject().insertPodcast(podcast1).orNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -146,7 +148,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name1"
         );
         @Nullable final PodcastIdentifier podcastIdentifier =
-                getTestObject().insertPodcast(podcast1).orElse(null);
+                getTestObject().insertPodcast(podcast1).orNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -193,7 +195,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name"
         );
         @Nullable final PodcastIdentifier podcastIdentifier1 =
-                getTestObject().insertPodcast(podcast1).orElse(null);
+                getTestObject().insertPodcast(podcast1).orNull();
         if (podcastIdentifier1 == null) {
             fail();
         } else {
@@ -206,7 +208,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                                 "name2"
                         );
                         try {
-                            return getTestObject().insertPodcast(podcast2).orElse(null);
+                            return getTestObject().insertPodcast(podcast2).orNull();
                         } catch (Throwable t) {
                             return null;
                         }
@@ -239,7 +241,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name"
         );
         @Nullable final PodcastIdentifier podcastIdentifier =
-                getTestObject().upsertPodcast(podcast).orElse(null);
+                getTestObject().upsertPodcast(podcast).orNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -269,7 +271,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                                 new URL("http://example.com/feed"),
                                 "name"
                         )
-                ).orElse(null);
+                ).orNull();
         if (podcastIdentifier1 == null) {
             fail();
         } else {
@@ -280,7 +282,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     "name2"
             );
             @Nullable final PodcastIdentifier podcastIdentifier2 =
-                    getTestObject().upsertPodcast(podcast2).orElse(null);
+                    getTestObject().upsertPodcast(podcast2).orNull();
             assertThat(
                     podcastIdentifier2,
                     equalTo(podcastIdentifier1)
@@ -312,7 +314,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                                 new URL("http://example.com/feed"),
                                 "name"
                         )
-                ).orElse(null);
+                ).orNull();
         if (podcastIdentifier1 == null) {
             fail();
         } else {
@@ -328,7 +330,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     new URL("http://example.com/feed"),
                     "name3"
             );
-            final List<Optional<PodcastIdentifier>> upsertedPodcastIdentifiers =
+            final PodcastIdentifierOptList upsertedPodcastIdentifierOpts =
                     getTestObject().upsertPodcasts(
                             Arrays.asList(
                                     podcast2,
@@ -336,11 +338,11 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                             )
                     );
             assertThat(
-                    upsertedPodcastIdentifiers,
+                    upsertedPodcastIdentifierOpts,
                     equalTo(
-                            Arrays.asList(
-                                    Optional.of(podcastIdentifier1),
-                                    Optional.of(podcastIdentifier1)
+                            new PodcastIdentifierOptList(
+                                    new PodcastIdentifierOpt(podcastIdentifier1),
+                                    new PodcastIdentifierOpt(podcastIdentifier1)
                             )
                     )
             );
@@ -386,20 +388,22 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 podcast2,
                 podcast3
         );
-        final List<Optional<PodcastIdentifier>> upsertedPodcastIdentifierOptionals =
+        final PodcastIdentifierOptList upsertedPodcastIdentifierOpts =
                 getTestObject().upsertPodcasts(
                         upsertingPodcasts
                 );
-        if (upsertedPodcastIdentifierOptionals.size() == upsertingPodcasts.size()) {
+        if (upsertedPodcastIdentifierOpts.size() == upsertingPodcasts.size()) {
             @Nullable final PodcastIdentifier podcastIdentifier =
-                    upsertedPodcastIdentifierOptionals.get(0).orElse(null);
+                    upsertedPodcastIdentifierOpts.get(0).orNull();
             if (podcastIdentifier != null) {
                 assertThat(
-                        upsertedPodcastIdentifierOptionals,
+                        upsertedPodcastIdentifierOpts,
                         equalTo(
-                                Collections.nCopies(
-                                        upsertingPodcasts.size(),
-                                        Optional.of(podcastIdentifier)
+                                new PodcastIdentifierOptList(
+                                        Collections.nCopies(
+                                                upsertingPodcasts.size(),
+                                                new PodcastIdentifierOpt(podcastIdentifier)
+                                        )
                                 )
                         )
                 );
@@ -418,10 +422,10 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                         )
                 );
             } else {
-                fail("Expected " + upsertingPodcasts.size() + " identifiers, but got: " + upsertedPodcastIdentifierOptionals);
+                fail("Expected " + upsertingPodcasts.size() + " identifiers, but got: " + upsertedPodcastIdentifierOpts);
             }
         } else {
-            fail("Expected " + upsertingPodcasts.size() + " identifiers, but got: " + upsertedPodcastIdentifierOptionals);
+            fail("Expected " + upsertingPodcasts.size() + " identifiers, but got: " + upsertedPodcastIdentifierOpts);
         }
     }
 
@@ -435,7 +439,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                                 new URL("http://example.com/feedB"),
                                 "name1"
                         )
-                ).orElse(null);
+                ).orNull();
         if (existingPodcastIdentifier == null) {
             fail();
         } else {
@@ -483,24 +487,24 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     podcast6,
                     podcast7
             );
-            final List<Optional<PodcastIdentifier>> upsertedPodcastIdentifierOptionals =
+            final PodcastIdentifierOptList upsertedPodcastIdentifierOpts =
                     getTestObject().upsertPodcasts(
                             upsertingPodcasts
                     );
-            if (upsertedPodcastIdentifierOptionals.size() == upsertingPodcasts.size()) {
+            if (upsertedPodcastIdentifierOpts.size() == upsertingPodcasts.size()) {
                 @Nullable final PodcastIdentifier insertedPodcastIdentifier =
-                        upsertedPodcastIdentifierOptionals.get(0).orElse(null);
+                        upsertedPodcastIdentifierOpts.get(0).orNull();
                 if (insertedPodcastIdentifier != null) {
                     assertThat(
-                            upsertedPodcastIdentifierOptionals,
+                            upsertedPodcastIdentifierOpts,
                             equalTo(
-                                    Arrays.asList(
-                                            Optional.of(insertedPodcastIdentifier),
-                                            Optional.of(insertedPodcastIdentifier),
-                                            Optional.of(insertedPodcastIdentifier),
-                                            Optional.of(existingPodcastIdentifier),
-                                            Optional.of(existingPodcastIdentifier),
-                                            Optional.of(existingPodcastIdentifier)
+                                    new PodcastIdentifierOptList(
+                                            new PodcastIdentifierOpt(insertedPodcastIdentifier),
+                                            new PodcastIdentifierOpt(insertedPodcastIdentifier),
+                                            new PodcastIdentifierOpt(insertedPodcastIdentifier),
+                                            new PodcastIdentifierOpt(existingPodcastIdentifier),
+                                            new PodcastIdentifierOpt(existingPodcastIdentifier),
+                                            new PodcastIdentifierOpt(existingPodcastIdentifier)
                                     )
                             )
                     );
@@ -523,10 +527,10 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                             )
                     );
                 } else {
-                    fail("Expected " + upsertingPodcasts.size() + " podcast identifiers, but got: " + upsertedPodcastIdentifierOptionals);
+                    fail("Expected " + upsertingPodcasts.size() + " podcast identifiers, but got: " + upsertedPodcastIdentifierOpts);
                 }
             } else {
-                fail("Expected " + upsertingPodcasts.size() + " podcast identifiers, but got: " + upsertedPodcastIdentifierOptionals);
+                fail("Expected " + upsertingPodcasts.size() + " podcast identifiers, but got: " + upsertedPodcastIdentifierOpts);
             }
         }
     }
@@ -539,7 +543,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name11"
         );
         @Nullable final PodcastIdentifier podcastIdentifier11 =
-                getTestObject().insertPodcast(podcast11).orElse(null);
+                getTestObject().insertPodcast(podcast11).orNull();
         if (podcastIdentifier11 == null) {
             fail();
         } else {
@@ -560,13 +564,13 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(1)
             );
 
-            final TestObserver<Optional<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<PodcastIdentifiedOpt> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentified(podcastIdentifier11)
                     .subscribe(podcastTestObserver);
             podcastTestObserver.assertValueSequence(
                     Collections.singleton(
-                            Optional.of(
+                            new PodcastIdentifiedOpt(
                                     new PodcastIdentified(
                                             podcastIdentifier11,
                                             podcast12
@@ -585,7 +589,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name11"
         );
         @Nullable final PodcastIdentifier podcastIdentifier =
-                getTestObject().insertPodcast(podcast11).orElse(null);
+                getTestObject().insertPodcast(podcast11).orNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
@@ -608,12 +612,12 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                     equalTo(0)
             );
 
-            final TestObserver<Optional<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<PodcastIdentifiedOpt> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentified(podcastIdentifier)
                     .subscribe(podcastTestObserver);
             podcastTestObserver.assertValue(
-                    Optional.empty()
+                    PodcastIdentifiedOpt.EMPTY
             );
         }
     }
@@ -627,7 +631,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name11"
         );
         @Nullable final PodcastIdentifier podcastIdentifier11 =
-                getTestObject().insertPodcast(podcast11).orElse(null);
+                getTestObject().insertPodcast(podcast11).orNull();
 
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -636,19 +640,19 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name2"
         );
         @Nullable final PodcastIdentifier podcastIdentifier2 =
-                getTestObject().insertPodcast(podcast2).orElse(null);
+                getTestObject().insertPodcast(podcast2).orNull();
         if (podcastIdentifier11 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {
             fail();
         } else {
-            final TestObserver<Optional<PodcastIdentified>> podcastTestObserver = new TestObserver<>();
+            final TestObserver<PodcastIdentifiedOpt> podcastTestObserver = new TestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentified(podcastIdentifier11)
                     .subscribe(podcastTestObserver);
 
             podcastTestObserver.assertValue(
-                    Optional.of(
+                    new PodcastIdentifiedOpt(
                             new PodcastIdentified(
                                     podcastIdentifier11,
                                     podcast11
@@ -670,13 +674,13 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
 
             podcastTestObserver.assertValueSequence(
                     Arrays.asList(
-                            Optional.of(
+                            new PodcastIdentifiedOpt(
                                     new PodcastIdentified(
                                             podcastIdentifier11,
                                             podcast11
                                     )
                             ),
-                            Optional.of(
+                            new PodcastIdentifiedOpt(
                                     new PodcastIdentified(
                                             podcastIdentifier11,
                                             podcast12
@@ -689,19 +693,19 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
 
             podcastTestObserver.assertValueSequence(
                     Arrays.asList(
-                            Optional.of(
+                            new PodcastIdentifiedOpt(
                                     new PodcastIdentified(
                                             podcastIdentifier11,
                                             podcast11
                                     )
                             ),
-                            Optional.of(
+                            new PodcastIdentifiedOpt(
                                     new PodcastIdentified(
                                             podcastIdentifier11,
                                             podcast12
                                     )
                             ),
-                            Optional.empty()
+                            PodcastIdentifiedOpt.EMPTY
                     )
             );
         }
@@ -716,7 +720,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name1"
         );
         @Nullable final PodcastIdentifier podcastIdentifier1 =
-                getTestObject().insertPodcast(podcast1).orElse(null);
+                getTestObject().insertPodcast(podcast1).orNull();
 
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -725,7 +729,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name2"
         );
         @Nullable final PodcastIdentifier podcastIdentifier2 =
-                getTestObject().insertPodcast(podcast2).orElse(null);
+                getTestObject().insertPodcast(podcast2).orNull();
         if (podcastIdentifier1 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {
@@ -762,7 +766,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name1"
         );
         @Nullable final PodcastIdentifier podcastIdentifier1 =
-                getTestObject().insertPodcast(podcast1).orElse(null);
+                getTestObject().insertPodcast(podcast1).orNull();
 
         final Podcast podcast2 = new Podcast(
                 new URL("http://example.com/artwork2"),
@@ -771,7 +775,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name2"
         );
         @Nullable final PodcastIdentifier podcastIdentifier2 =
-                getTestObject().insertPodcast(podcast2).orElse(null);
+                getTestObject().insertPodcast(podcast2).orNull();
 
         final Podcast podcast3 = new Podcast(
                 new URL("http://example.com/artwork3"),
@@ -780,7 +784,7 @@ public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
                 "name3"
         );
         @Nullable final PodcastIdentifier podcastIdentifier3 =
-                getTestObject().insertPodcast(podcast3).orElse(null);
+                getTestObject().insertPodcast(podcast3).orNull();
         if (podcastIdentifier1 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {

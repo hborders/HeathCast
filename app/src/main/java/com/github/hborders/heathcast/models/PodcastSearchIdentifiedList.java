@@ -12,11 +12,11 @@ public final class PodcastSearchIdentifiedList extends ArrayList<PodcastSearchId
         super(initialCapacity);
     }
 
-    public PodcastSearchIdentifiedList(Collection<PodcastSearchIdentified> podcastSearchIdentifieds) {
-        super(podcastSearchIdentifieds);
+    public PodcastSearchIdentifiedList(Collection<PodcastSearchIdentified> items) {
+        super(items);
     }
 
-    public PodcastSearchIdentifiedList(PodcastSearchIdentified... podcastSearchIdentifieds) {
-        super(Arrays.asList(podcastSearchIdentifieds));
+    public PodcastSearchIdentifiedList(PodcastSearchIdentified... items) {
+        super(Arrays.asList(items));
     }
 }

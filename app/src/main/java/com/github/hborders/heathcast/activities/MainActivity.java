@@ -17,12 +17,13 @@ import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
+import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
+import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastService;
-import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
@@ -120,7 +121,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
+    public Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
             PodcastSearchFragment podcastSearchFragment,
             PodcastSearch podcastSearch
     ) {
@@ -158,7 +159,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Observable<Optional<PodcastIdentified>> observeQueryForPodcastIdentified(
+    public Observable<PodcastIdentifiedOpt> observeQueryForPodcastIdentified(
             PodcastFragment podcastFragment,
             PodcastIdentifier podcastIdentifier
     ) {
@@ -181,14 +182,14 @@ public final class MainActivity extends AppCompatActivity
         podcastService
                 .subscribe(podcastIdentifier)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<Optional<SubscriptionIdentifier>>() {
+                .subscribe(new SingleObserver<SubscriptionIdentifierOpt>() {
                                @Override
                                public void onSubscribe(Disposable d) {
                                    // don't dispose this should be fast, and disposal is pointless anyway
                                }
 
                                @Override
-                               public void onSuccess(Optional<SubscriptionIdentifier> subscriptionIdentifierOptional) {
+                               public void onSuccess(SubscriptionIdentifierOpt subscriptionIdentifierOptional) {
                                    @Nullable final View contentView = findContentView();
                                    if (contentView != null) {
                                        Snackbar.make(
@@ -236,7 +237,7 @@ public final class MainActivity extends AppCompatActivity
                                    if (contentView != null) {
                                        Snackbar.make(
                                                contentView,
-                                               result.<Integer>map(
+                                               result.<Integer>reduce(
                                                        success -> R.string.fragment_podcast_unsubscribe_success,
                                                        failure -> R.string.fragment_podcast_unsubscribe_failure
                                                ),

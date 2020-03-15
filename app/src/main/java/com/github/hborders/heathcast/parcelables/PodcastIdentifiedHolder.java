@@ -15,6 +15,17 @@ import static com.github.hborders.heathcast.android.ParcelUtil.readURL;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
 public final class PodcastIdentifiedHolder implements UnparcelableHolder<PodcastIdentified> {
+    public interface Factory extends UnparcelableHolder.Factory<
+            PodcastIdentified,
+            PodcastIdentifiedHolder
+            > {
+    }
+    public interface ArrayFactory extends UnparcelableHolder.ArrayFactory<
+            PodcastIdentified,
+            PodcastIdentifiedHolder
+            > {
+    }
+
     @Nullable
     public final PodcastIdentified podcastIdentified;
 

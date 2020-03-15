@@ -24,18 +24,89 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.PublishSubject;
 
-public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment {
-    protected static final class Attachment<F extends RxFragment<F, L>, L> {
-        public final F fragment;
+public abstract class RxFragment<
+        FragmentType extends RxFragment<
+                FragmentType,
+                ListenerType,
+                AttachmentType,
+                AttachmentFactoryType
+                >,
+        ListenerType,
+        AttachmentType extends RxFragment.Attachment<
+                FragmentType,
+                ListenerType,
+                AttachmentType,
+                AttachmentFactoryType
+                >,
+        AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                FragmentType,
+                ListenerType,
+                AttachmentType,
+                AttachmentFactoryType
+                >
+        > extends Fragment {
+    public static abstract class Attachment<
+            FragmentType extends RxFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >
+            > {
+
+        public interface Factory<
+                FragmentType extends RxFragment<
+                        FragmentType,
+                        ListenerType,
+                        AttachmentType,
+                        AttachmentFactoryType
+                        >,
+                ListenerType,
+                AttachmentType extends RxFragment.Attachment<
+                        FragmentType,
+                        ListenerType,
+                        AttachmentType,
+                        AttachmentFactoryType
+                        >,
+                AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                        FragmentType,
+                        ListenerType,
+                        AttachmentType,
+                        AttachmentFactoryType
+                        >
+                > {
+            AttachmentType newAttachment(
+                    FragmentType fragment,
+                    Context context,
+                    ListenerType listener,
+                    Observable<FragmentCreation> fragmenCreationObservable,
+                    Completable onDetachCompletable
+            );
+        }
+
+        public final FragmentType fragment;
         public final Context context;
-        public final L listener;
+        public final ListenerType listener;
         public final Observable<FragmentCreation> fragmenCreationObservable;
         public final Completable onDetachCompletable;
 
-        private Attachment(
-                F fragment,
+        protected Attachment(
+                FragmentType fragment,
                 Context context,
-                L listener,
+                ListenerType listener,
                 Observable<FragmentCreation> fragmenCreationObservable,
                 Completable onDetachCompletable
         ) {
@@ -47,8 +118,16 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
 
         @Override
-        public String toString() {
-            return "Attachment{" +
+        public final String toString() {
+            @SuppressWarnings("rawtypes") final Class<? extends Attachment> clazz = getClass();
+            final String simpleName;
+            if (clazz.isAnonymousClass()) {
+                simpleName = "Attachment$";
+            } else {
+                simpleName = clazz.getSimpleName();
+            }
+
+            return simpleName + "{" +
                     "fragment=" + fragment +
                     ", context=" + context +
                     ", listener=" + listener +
@@ -58,7 +137,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
-    protected static final class FragmentCreation {
+    public static final class FragmentCreation {
         public static final class SaveInstanceState {
             public final Bundle outState;
 
@@ -103,7 +182,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
-    protected static class ViewCreation {
+    public static class ViewCreation {
         public final View view;
         @Nullable
         public final Bundle savedInstanceState;
@@ -147,7 +226,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
-    protected static final class ActivityCreation {
+    public static final class ActivityCreation {
         @Nullable
         public final Bundle savedInstanceState;
         public final Observable<Start> startObservable;
@@ -173,13 +252,13 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
-    protected static final class Start {
-        private final RxFragment<?, ?> fragment;
+    public static final class Start {
+        private final RxFragment<?, ?, ?, ?> fragment;
         public final Observable<Resume> resumeObservable;
         public final Completable onStopCompletable;
 
         private Start(
-                RxFragment<?, ?> fragment,
+                RxFragment<?, ?, ?, ?> fragment,
                 Observable<Resume> resumeObservable,
                 Completable onStopCompletable
         ) {
@@ -214,7 +293,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
-    protected static final class Resume {
+    public static final class Resume {
         public final Completable onPauseCompletable;
 
         private Resume(Completable onPauseCompletable) {
@@ -229,21 +308,68 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         }
     }
 
-    protected interface OnAttached<F extends RxFragment<F, L>, L> {
-        void onAttached(L listener, F fragment);
+    protected interface OnAttached<
+            FragmentType extends RxFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >
+            > {
+        void onAttached(
+                ListenerType listener,
+                FragmentType fragment
+        );
     }
 
-    protected interface WillDetach<F extends RxFragment<F, L>, L> {
-        void willDetach(L listener, F fragment);
+    protected interface WillDetach<
+            FragmentType extends RxFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >,
+            AttachmentFactoryType extends RxFragment.Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AttachmentFactoryType
+                    >
+            > {
+        void willDetach(
+                ListenerType listener,
+                FragmentType fragment
+        );
     }
 
-    private final Class<L> listenerClass;
-    private final OnAttached<F, L> onAttached;
-    private final WillDetach<F, L> willDetach;
+    private final Class<ListenerType> listenerClass;
+    private final AttachmentFactoryType attachmentFactory;
+    private final OnAttached<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> onAttached;
+    private final WillDetach<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> willDetach;
     @LayoutRes
     private final int layoutResource;
 
-    private BehaviorSubject<Attachment<F, L>> attachmentBehaviorSubject =
+    private BehaviorSubject<AttachmentType> attachmentBehaviorSubject =
             BehaviorSubject.create();
     private CompletableSubject onDetachCompletableSubject = CompletableSubject.create();
 
@@ -270,12 +396,14 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     private CompletableSubject onPauseCompletableSubject = CompletableSubject.create();
 
     protected RxFragment(
-            Class<L> listenerClass,
-            OnAttached<F, L> onAttached,
-            WillDetach<F, L> willDetach,
+            Class<ListenerType> listenerClass,
+            AttachmentFactoryType attachmentFactory,
+            OnAttached<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> onAttached,
+            WillDetach<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> willDetach,
             int layoutResource
     ) {
         this.listenerClass = listenerClass;
+        this.attachmentFactory = attachmentFactory;
         this.onAttached = onAttached;
         this.willDetach = willDetach;
         this.layoutResource = layoutResource;
@@ -291,11 +419,11 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
     protected final Observable<
             Tuple<
-                    Attachment<F, L>,
+                    AttachmentType,
                     FragmentCreation
                     >
             > switchMapToFragmentCreation(
-            Observable<Attachment<F, L>> attachmentObservable
+            Observable<AttachmentType> attachmentObservable
     ) {
         return attachmentObservable.switchMap(
                 attachment -> attachment.fragmenCreationObservable.map(
@@ -306,12 +434,12 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
 
     protected final Observable<
             Triple<
-                    Attachment<F, L>,
+                    AttachmentType,
                     FragmentCreation,
                     ViewCreation
                     >
             > switchMapToViewCreation(
-            Observable<Attachment<F, L>> attachmentObservable
+            Observable<AttachmentType> attachmentObservable
     ) {
         return attachmentObservable.switchMap(
                 attachment -> attachment.fragmenCreationObservable.switchMap(
@@ -343,7 +471,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     public final void onAttach(Context context) {
         super.onAttach(context);
 
-        final F self = getSelf();
+        final FragmentType self = getSelf();
         if (self.getClass() != getClass()) {
             throw new IllegalStateException(
                     "getSelf().getClass(): "
@@ -352,7 +480,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
             );
         }
 
-        final L listener = FragmentUtil.requireFragmentListener(
+        final ListenerType listener = FragmentUtil.requireFragmentListener(
                 self,
                 context,
                 listenerClass
@@ -362,15 +490,14 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
                 attachmentBehaviorSubject
         );
         onAttached.onAttached(listener, self);
-        attachmentBehaviorSubject.onNext(
-                new Attachment<>(
-                        self,
-                        context,
-                        listener,
-                        fragmentCreationPublishSubject,
-                        onDetachCompletableSubject
-                )
+        final AttachmentType attachment = attachmentFactory.newAttachment(
+                self,
+                context,
+                listener,
+                fragmentCreationPublishSubject,
+                onDetachCompletableSubject
         );
+        attachmentBehaviorSubject.onNext(attachment);
     }
 
     @Override
@@ -528,7 +655,7 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
     public final void onDetach() {
         super.onDetach();
 
-        Attachment<F, L> attachment = Objects.requireNonNull(attachmentBehaviorSubject.getValue());
+        AttachmentType attachment = Objects.requireNonNull(attachmentBehaviorSubject.getValue());
         willDetach.willDetach(attachment.listener, attachment.fragment);
         onDetachCompletableSubject.onComplete();
         attachmentBehaviorSubject.onComplete();
@@ -537,9 +664,13 @@ public abstract class RxFragment<F extends RxFragment<F, L>, L> extends Fragment
         attachmentBehaviorSubject = BehaviorSubject.create();
     }
 
-    protected abstract F getSelf();
+    protected final FragmentType getSelf() {
+        return (FragmentType) this;
+    }
+
+    ;
 
     protected abstract void subscribeToAttachmentObservable(
-            Observable<Attachment<F, L>> attachmentObservable
+            Observable<AttachmentType> attachmentObservable
     );
 }

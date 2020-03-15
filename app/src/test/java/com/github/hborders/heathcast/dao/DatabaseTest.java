@@ -185,9 +185,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testOuterReplacePodcastSearchResultsForFirstPodcastSearch() {
         @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
         @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
@@ -241,9 +241,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testOuterReplacePodcastSearchResultsUpdatesExistingPodcastSearchResults() {
         @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
         @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
@@ -321,9 +321,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testOuterReplacePodcastSearchResultsCanIncludePodcastsFromOtherSearchResults() {
         @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
         @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
@@ -427,9 +427,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testDeletePodcastSearchKeepsOtherSearchResultsWithSamePodcasts() {
         @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
         @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orElse(null);
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
@@ -606,9 +606,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testDeletePodcastDeletesEpisodes() {
         @Nullable final PodcastIdentified podcastIdentified1 =
-                getTestObject().upsertPodcast(podcast1).orElse(null);
+                getTestObject().upsertPodcast(podcast1).orNull();
         @Nullable final PodcastIdentified podcastIdentified2 =
-                getTestObject().upsertPodcast(podcast2).orElse(null);
+                getTestObject().upsertPodcast(podcast2).orNull();
         if (podcastIdentified1 == null) {
             fail();
         } else if (podcastIdentified2 == null) {
@@ -700,11 +700,11 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testDeletePodcastDeletesSubscription() {
         @Nullable final PodcastIdentified podcastIdentified1 =
-                getTestObject().upsertPodcast(podcast1).orElse(null);
+                getTestObject().upsertPodcast(podcast1).orNull();
         @Nullable final PodcastIdentified podcastIdentified2 =
-                getTestObject().upsertPodcast(podcast2).orElse(null);
+                getTestObject().upsertPodcast(podcast2).orNull();
         @Nullable final PodcastIdentified podcastIdentified3 =
-                getTestObject().upsertPodcast(podcast3).orElse(null);
+                getTestObject().upsertPodcast(podcast3).orNull();
         if (podcastIdentified1 == null) {
             fail();
         } else if (podcastIdentified2 == null) {
@@ -713,11 +713,11 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             fail();
         } else {
             @Nullable final SubscriptionIdentified subscriptionIdentified1 =
-                    getTestObject().subscribe(podcastIdentified1).orElse(null);
+                    getTestObject().subscribe(podcastIdentified1).orNull();
             @Nullable final SubscriptionIdentified subscriptionIdentified2 =
-                    getTestObject().subscribe(podcastIdentified2).orElse(null);
+                    getTestObject().subscribe(podcastIdentified2).orNull();
             @Nullable final SubscriptionIdentified subscriptionIdentified3 =
-                    getTestObject().subscribe(podcastIdentified3).orElse(null);
+                    getTestObject().subscribe(podcastIdentified3).orNull();
             if (subscriptionIdentified1 == null) {
                 fail();
             } else if (subscriptionIdentified2 == null) {
@@ -780,7 +780,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             } else {
                 final Result result1 = getTestObject()
                         .unsubscribe(subscriptionIdentifier1);
-                if (result1.map(
+                if (result1.reduce(
                         success -> false,
                         failure -> true
                 )) {
@@ -793,7 +793,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     } else {
                         final Result result2 = getTestObject()
                                 .unsubscribe(subscriptionIdentifier2);
-                        if (result2.map(
+                        if (result2.reduce(
                                 success -> false,
                                 failure -> true
                         )) {

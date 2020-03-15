@@ -14,7 +14,7 @@ import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.services.ServiceResponse1;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -68,7 +68,7 @@ public final class PodcastSearchFragment extends Fragment
     // See com.github.hborders.heathcast.reactivexdemo.ConnectableObservableTest
     // Also, we need to reset this every time we create a view so that we can throw away
     // past PodcastIdentifiedLists. All that data is saved in the PodcastListFragment.
-    private final Observable<Optional<ServiceResponse1<PodcastIdentifiedList>>> podcastIdentifiedListServiceResponseOptionalObservable =
+    private final Observable<Optional<PodcastIdentifiedListServiceResponse>> podcastIdentifiedListServiceResponseOptionalObservable =
             queryOptionalPublishSubject.switchMap(
                     queryOptional -> queryOptional.map(
                             query -> Objects.requireNonNull(listener)
@@ -78,7 +78,7 @@ public final class PodcastSearchFragment extends Fragment
                                     ).map(Optional::of)
                     ).orElse(Observable.just(Optional.empty()))
             );
-    private final BehaviorSubject<ServiceResponse1<PodcastIdentifiedList>> podcastIdentifiedListServiceResponseBehaviorSubject =
+    private final BehaviorSubject<PodcastIdentifiedListServiceResponse> podcastIdentifiedListServiceResponseBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
     private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
@@ -153,8 +153,7 @@ public final class PodcastSearchFragment extends Fragment
                                 podcastIdentifiedListServiceResponseBehaviorSubject.onNext(
                                         podcastIdentifiedListServiceResponseOptional
                                                 .orElse(
-                                                        ServiceResponse1.complete(
-                                                                PodcastIdentifiedList.class,
+                                                        new PodcastIdentifiedListServiceResponse.Complete(
                                                                 new PodcastIdentifiedList()
                                                         )
                                                 )
@@ -225,7 +224,7 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public Observable<ServiceResponse1<PodcastIdentifiedList>> podcastIdentifiedsServiceResponseObservable(
+    public Observable<PodcastIdentifiedListServiceResponse> podcastIdentifiedsServiceResponseObservable(
             PodcastListFragment2 podcastListFragment
     ) {
         return podcastIdentifiedListServiceResponseBehaviorSubject;
@@ -292,7 +291,7 @@ public final class PodcastSearchFragment extends Fragment
     public interface PodcastSearchFragmentListener {
         void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment);
 
-        Observable<ServiceResponse1<PodcastIdentifiedList>> searchForPodcasts2(
+        Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
                 PodcastSearchFragment podcastSearchFragment,
                 PodcastSearch podcastSearch
         );

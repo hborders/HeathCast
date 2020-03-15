@@ -15,6 +15,7 @@ import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.models.SubscriptionIdentified;
 import com.github.hborders.heathcast.models.SubscriptionIdentifiedList;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
+import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public final class SubscriptionTable<N> extends Table<N> {
         super(dimDatabase);
     }
 
-    Optional<SubscriptionIdentifier> insertSubscription(PodcastIdentifier podcastIdentifier) {
+    SubscriptionIdentifierOpt insertSubscription(PodcastIdentifier podcastIdentifier) {
         final long id = dimDatabase.insert(
                 TABLE_SUBSCRIPTION,
                 CONFLICT_ABORT,
@@ -47,9 +48,9 @@ public final class SubscriptionTable<N> extends Table<N> {
         );
 
         if (id == -1) {
-            return Optional.empty();
+            return SubscriptionIdentifierOpt.EMPTY;
         } else {
-            return Optional.of(new SubscriptionIdentifier(id));
+            return new SubscriptionIdentifierOpt(new SubscriptionIdentifier(id));
         }
     }
 

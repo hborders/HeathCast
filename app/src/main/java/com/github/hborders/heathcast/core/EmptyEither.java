@@ -4,23 +4,17 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public abstract class Either<
-        LeftType extends Either.Left<
+public abstract class EmptyEither<
+        LeftType extends EmptyEither.Left<
                 LeftType,
-                RightType,
-                LeftValueType,
-                RightValueType
+                RightType
                 >,
-        RightType extends Either.Right<
+        RightType extends EmptyEither.Right<
                 LeftType,
-                RightType,
-                LeftValueType,
-                RightValueType
-                >,
-        LeftValueType,
-        RightValueType
+                RightType
+                >
         > {
-    private Either() {
+    private EmptyEither() {
     }
 
     public abstract <T> T reduce(
@@ -41,43 +35,28 @@ public abstract class Either<
 
     // Not final to allow reification
     public static class Left<
-            LeftType extends Either.Left<
+            LeftType extends EmptyEither.Left<
                     LeftType,
-                    RightType,
-                    LeftValueType,
-                    RightValueType
+                    RightType
                     >,
-            RightType extends Either.Right<
+            RightType extends EmptyEither.Right<
                     LeftType,
-                    RightType,
-                    LeftValueType,
-                    RightValueType
-                    >,
-            LeftValueType,
-            RightValueType
-            > extends Either<
+                    RightType
+                    >
+            > extends EmptyEither<
             LeftType,
-            RightType,
-            LeftValueType,
-            RightValueType
+            RightType
             > {
-        public final LeftValueType value;
-
-        public Left(LeftValueType value) {
-            this.value = value;
-        }
-
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Left<?, ?, ?, ?> left = (Left<?, ?, ?, ?>) o;
-            return value.equals(left.value);
+            return true;
         }
 
         @Override
         public final int hashCode() {
-            return Objects.hash(value);
+            return Objects.hash(getClass());
         }
 
         @Override
@@ -91,7 +70,6 @@ public abstract class Either<
             }
 
             return simpleName + "{" +
-                    "value=" + value +
                     '}';
         }
 
@@ -117,10 +95,6 @@ public abstract class Either<
             leftAction.apply(getSelf());
         }
 
-        public LeftValueType getValue() {
-            return value;
-        }
-
         private LeftType getSelf() {
             return (LeftType) this;
         }
@@ -128,43 +102,28 @@ public abstract class Either<
 
     // Not final to allow reification
     public static class Right<
-            LeftType extends Either.Left<
+            LeftType extends EmptyEither.Left<
                     LeftType,
-                    RightType,
-                    LeftValueType,
-                    RightValueType
+                    RightType
                     >,
-            RightType extends Either.Right<
+            RightType extends EmptyEither.Right<
                     LeftType,
-                    RightType,
-                    LeftValueType,
-                    RightValueType
-                    >,
-            LeftValueType,
-            RightValueType
-            > extends Either<
+                    RightType
+                    >
+            > extends EmptyEither<
             LeftType,
-            RightType,
-            LeftValueType,
-            RightValueType
+            RightType
             > {
-        public final RightValueType value;
-
-        public Right(RightValueType value) {
-            this.value = value;
-        }
-
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Right<?, ?, ?, ?> right = (Right<?, ?, ?, ?>) o;
-            return value.equals(right.value);
+            return true;
         }
 
         @Override
         public final int hashCode() {
-            return Objects.hash(value);
+            return Objects.hash(getClass());
         }
 
         @Override
@@ -178,7 +137,6 @@ public abstract class Either<
             }
 
             return simpleName + "{" +
-                    "value=" + value +
                     '}';
         }
 
@@ -202,10 +160,6 @@ public abstract class Either<
                 VoidFunction<? super RightType> rightAction
         ) {
             rightAction.apply(getSelf());
-        }
-
-        public RightValueType getValue() {
-            return value;
         }
 
         private RightType getSelf() {

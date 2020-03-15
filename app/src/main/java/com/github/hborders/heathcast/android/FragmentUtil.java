@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.fragment.app.Fragment;
 
+import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 
 import java.util.List;
@@ -75,25 +77,31 @@ public final class FragmentUtil {
     }
 
     @Nullable
-    public static <U, H extends UnparcelableHolder<U>> U getUnparcelableHolderArgument(
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            > UnparcelableType getUnparcelableArgument(
             Fragment fragment,
-            Class<H> unparcelableHolderClass,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
             String key
     ) {
-        return BundleUtil.getUnparcelableHolder(
+        return BundleUtil.getUnparcelable(
                 fragment.getArguments(),
                 unparcelableHolderClass,
                 key
         );
     }
 
-    public static <U, H extends UnparcelableHolder<U>> Optional<U> getUnparcelableHolderArgumentOptional(
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            > Optional<UnparcelableType> getUnparcelableArgumentOptional(
             Fragment fragment,
-            Class<H> unparcelableHolderClass,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
             String key
     ) {
         return Optional.ofNullable(
-                getUnparcelableHolderArgument(
+                getUnparcelableArgument(
                         fragment,
                         unparcelableHolderClass,
                         key
@@ -101,13 +109,36 @@ public final class FragmentUtil {
         );
     }
 
-    public static <U, H extends UnparcelableHolder<U>> U requireUnparcelableHolderArgument(
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableOptType extends Opt<UnparcelableType>,
+            UnparcelableOptFactoryType extends Opt.Factory<UnparcelableOptType, UnparcelableType>
+            > Opt<UnparcelableType> getUnparcelableArgumentOpt(
             Fragment fragment,
-            Class<H> unparcelableHolderClass,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
+            UnparcelableOptFactoryType unparcelableOptFactory,
+            String key
+    ) {
+        return unparcelableOptFactory.ofNullable(
+                getUnparcelableArgument(
+                        fragment,
+                        unparcelableHolderClass,
+                        key
+                )
+        );
+    }
+
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            > UnparcelableType requireUnparcelableArgument(
+            Fragment fragment,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
             String key
     ) {
         return Objects.requireNonNull(
-                getUnparcelableHolderArgument(
+                getUnparcelableArgument(
                         fragment,
                         unparcelableHolderClass,
                         key
@@ -116,41 +147,82 @@ public final class FragmentUtil {
     }
 
     @Nullable
-    public static <U, H extends UnparcelableHolder<U>> List<U> getUnparcelableHolderListArgument(
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparceableListType extends List<UnparcelableType>
+            > UnparceableListType getUnparcelableListArgument(
             Fragment fragment,
-            Class<H> unparcelableHolderClass,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
+            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
             String key
     ) {
-        return BundleUtil.getUnparcelableHolderList(
+        return BundleUtil.getUnparcelableList(
                 fragment.getArguments(),
                 unparcelableHolderClass,
+                capacityCollectionFactory,
                 key
         );
     }
 
-    public static <U, H extends UnparcelableHolder<U>> Optional<List<U>> getUnparcelableHolderListArgumentOptional(
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparceableListType extends List<UnparcelableType>
+            > Optional<UnparceableListType> getUnparcelableListArgumentOptional(
             Fragment fragment,
-            Class<H> unparcelableHolderClass,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
+            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
             String key
     ) {
         return Optional.ofNullable(
-                getUnparcelableHolderListArgument(
+                getUnparcelableListArgument(
                         fragment,
                         unparcelableHolderClass,
+                        capacityCollectionFactory,
                         key
                 )
         );
     }
 
-    public static <U, H extends UnparcelableHolder<U>> List<U> requireUnparcelableHolderListArgument(
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparceableListType extends List<UnparcelableType>,
+            UnparcelableListOptType extends Opt<UnparceableListType>,
+            UnparcelableListOptFactoryType extends Opt.Factory<UnparcelableListOptType, UnparceableListType>
+            > UnparcelableListOptType getUnparcelableListArgumentOpt(
             Fragment fragment,
-            Class<H> unparcelableHolderClass,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
+            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
+            UnparcelableListOptFactoryType unparcelableListOptFactory,
+            String key
+    ) {
+        return unparcelableListOptFactory.ofNullable(
+                getUnparcelableListArgument(
+                        fragment,
+                        unparcelableHolderClass,
+                        capacityCollectionFactory,
+                        key
+                )
+        );
+    }
+
+    public static <
+            UnparcelableType,
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparceableListType extends List<UnparcelableType>
+            > UnparceableListType requireUnparcelableListArgument(
+            Fragment fragment,
+            Class<UnparcelableHolderType> unparcelableHolderClass,
+            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
             String key
     ) {
         return Objects.requireNonNull(
-                getUnparcelableHolderListArgument(
+                getUnparcelableListArgument(
                         fragment,
                         unparcelableHolderClass,
+                        capacityCollectionFactory,
                         key
                 )
         );

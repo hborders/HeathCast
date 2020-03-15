@@ -11,6 +11,7 @@ import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedOpt;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedSet;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
 import com.github.hborders.heathcast.models.EpisodeIdentifierOpt;
@@ -21,7 +22,6 @@ import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 
 import io.reactivex.Observable;
@@ -196,7 +196,7 @@ final class EpisodeTable<N> extends Table<N> {
                 );
     }
 
-    Observable<Optional<EpisodeIdentified>> observeQueryForEpisodeIdentified(
+    Observable<EpisodeIdentifiedOpt> observeQueryForEpisodeIdentified(
             EpisodeIdentifier episodeIdentifier
     ) {
         final SupportSQLiteQuery query =
@@ -216,7 +216,8 @@ final class EpisodeTable<N> extends Table<N> {
                         ),
                         query
                 )
-                .mapToOptional(EpisodeTable::getEpisodeIdentified);
+                .mapToOptional(EpisodeTable::getEpisodeIdentified)
+                .map(EpisodeIdentifiedOpt.FACTORY::fromOptional);
     }
 
     static void createEpisodeTable(SupportSQLiteDatabase db) {

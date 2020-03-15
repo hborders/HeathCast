@@ -12,11 +12,11 @@ public final class EpisodeList extends ArrayList<Episode> {
         super(initialCapacity);
     }
 
-    public EpisodeList(Collection<Episode> episodes) {
-        super(episodes);
+    public EpisodeList(Collection<Episode> items) {
+        super(items);
     }
 
-    public EpisodeList(Episode... episodes) {
-        super(Arrays.asList(episodes));
+    public EpisodeList(Episode... items) {
+        super(Arrays.asList(items));
     }
 }
