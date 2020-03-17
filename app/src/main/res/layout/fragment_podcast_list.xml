@@ -8,12 +8,12 @@
     tools:context=".fragments.PodcastListFragment">
 
     <ProgressBar
-        android:id="@+id/fragment_podcast_list_progress_bar"
+        android:id="@+id/fragment_podcast_list_empty_loading_progress_bar"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:indeterminate="true"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/fragment_podcast_list_progress_text_view"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_podcast_list_empty_loading_text_view"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,16 +22,16 @@
         app:layout_constraintWidth_percent=".5" />
 
     <TextView
-        android:id="@+id/fragment_podcast_list_progress_text_view"
+        android:id="@+id/fragment_podcast_list_empty_loading_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_podcast_list_progress"
+        android:text="@string/fragment_podcast_list_loading"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_podcast_list_progress_bar" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_podcast_list_empty_loading_progress_bar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragment_podcast_list_podcasts_recycler_view"

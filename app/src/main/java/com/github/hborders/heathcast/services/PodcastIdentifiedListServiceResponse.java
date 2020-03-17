@@ -2,20 +2,16 @@ package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 
-public interface PodcastIdentifiedListServiceResponse extends ServiceResponse<
+public interface PodcastIdentifiedListServiceResponse extends ServiceResponse1<
         PodcastIdentifiedListServiceResponse.Loading,
         PodcastIdentifiedListServiceResponse.Complete,
         PodcastIdentifiedListServiceResponse.Failed,
-        PodcastIdentifiedList,
-        PodcastIdentifiedList,
         PodcastIdentifiedList
         > {
-    final class Loading extends ServiceResponse.Loading<
+    final class Loading extends ServiceResponse1.Loading<
             Loading,
             Complete,
             Failed,
-            PodcastIdentifiedList,
-            PodcastIdentifiedList,
             PodcastIdentifiedList
             > implements PodcastIdentifiedListServiceResponse {
         public Loading(PodcastIdentifiedList value) {
@@ -23,12 +19,10 @@ public interface PodcastIdentifiedListServiceResponse extends ServiceResponse<
         }
     }
 
-    final class Complete extends ServiceResponse.Complete<
+    final class Complete extends ServiceResponse1.Complete<
             Loading,
             Complete,
             Failed,
-            PodcastIdentifiedList,
-            PodcastIdentifiedList,
             PodcastIdentifiedList
             > implements PodcastIdentifiedListServiceResponse {
         public Complete(PodcastIdentifiedList value) {
@@ -36,12 +30,10 @@ public interface PodcastIdentifiedListServiceResponse extends ServiceResponse<
         }
     }
 
-    final class Failed extends ServiceResponse.Failed<
+    final class Failed extends ServiceResponse1.Failed<
             Loading,
             Complete,
             Failed,
-            PodcastIdentifiedList,
-            PodcastIdentifiedList,
             PodcastIdentifiedList
             > implements PodcastIdentifiedListServiceResponse {
         public Failed(PodcastIdentifiedList value) {

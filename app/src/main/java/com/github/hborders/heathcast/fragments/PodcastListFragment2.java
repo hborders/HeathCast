@@ -3,8 +3,6 @@ package com.github.hborders.heathcast.fragments;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,8 +14,6 @@ import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.github.hborders.heathcast.reactivexandroid.RxListFragment;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
-
-import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -106,23 +102,37 @@ public final class PodcastListFragment2 extends RxListFragment<
     }
 
     @Override
-    protected ProgressBar requireProgressBar(View view) {
+    protected View findEmptyItemsLoadingView(View view) {
         return view.requireViewById(
-                R.id.fragment_podcast_list_progress_bar
+                R.id.fragment_podcast_list_empty_loading_group
         );
     }
 
     @Override
-    protected TextView requireProgressTextView(View view) {
+    protected View findNonEmptyItemsLoadingView(View view) {
         return view.requireViewById(
-                R.id.fragment_podcast_list_progress_text_view
+                R.id.fragment_podcast_list_non_empty_loading_group
         );
     }
 
     @Override
-    protected TextView requireErrorTextView(View view) {
+    protected View findEmptyItemsCompleteView(View view) {
         return view.requireViewById(
-                R.id.fragment_podcast_list_error_text_view
+                R.id.fragment_podcast_list_empty_complete_text_view
+        );
+    }
+
+    @Override
+    protected View findEmptyItemsErrorView(View view) {
+        return view.requireViewById(
+                R.id.fragment_podcast_list_empty_error_text_view
+        );
+    }
+
+    @Override
+    protected View findNonEmptyItemsErrorView(View view) {
+        return view.requireViewById(
+                R.id.fragment_podcast_list_non_empty_error_text_view
         );
     }
 
@@ -135,11 +145,11 @@ public final class PodcastListFragment2 extends RxListFragment<
 
     @Override
     protected PodcastRecyclerViewAdapter createListRecyclerViewAdapter(
-            List<PodcastIdentified> initialItems,
+            PodcastIdentifiedList initialItems,
             PodcastListFragmentListener listener
     ) {
         return new PodcastRecyclerViewAdapter(
-                new PodcastIdentifiedList(initialItems),
+                initialItems,
                 podcastIdentified ->
                         listener.onClickPodcastIdentified(
                                 this,

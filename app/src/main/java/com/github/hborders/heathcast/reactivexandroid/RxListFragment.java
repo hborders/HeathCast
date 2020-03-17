@@ -3,16 +3,15 @@ package com.github.hborders.heathcast.reactivexandroid;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
-import com.github.hborders.heathcast.services.ServiceResponse;
+import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
 
@@ -77,36 +76,28 @@ public abstract class RxListFragment<
                 ViewHolderType
                 >,
         ViewHolderType extends RecyclerView.ViewHolder,
-        ServiceResponseType extends ServiceResponse<
+        ServiceResponseType extends ServiceResponse1<
                 ServiceResponseLoadingType,
                 ServiceResponseCompleteType,
                 ServiceResponseFailedType,
-                UnparcelableListType,
-                UnparcelableListType,
                 UnparcelableListType
                 >,
-        ServiceResponseLoadingType extends ServiceResponse.Loading<
+        ServiceResponseLoadingType extends ServiceResponse1.Loading<
                 ServiceResponseLoadingType,
                 ServiceResponseCompleteType,
                 ServiceResponseFailedType,
-                UnparcelableListType,
-                UnparcelableListType,
                 UnparcelableListType
                 >,
-        ServiceResponseCompleteType extends ServiceResponse.Complete<
+        ServiceResponseCompleteType extends ServiceResponse1.Complete<
                 ServiceResponseLoadingType,
                 ServiceResponseCompleteType,
                 ServiceResponseFailedType,
-                UnparcelableListType,
-                UnparcelableListType,
                 UnparcelableListType
                 >,
-        ServiceResponseFailedType extends ServiceResponse.Failed<
+        ServiceResponseFailedType extends ServiceResponse1.Failed<
                 ServiceResponseLoadingType,
                 ServiceResponseCompleteType,
                 ServiceResponseFailedType,
-                UnparcelableListType,
-                UnparcelableListType,
                 UnparcelableListType
                 >
         > extends RxFragment<
@@ -169,36 +160,28 @@ public abstract class RxListFragment<
                     ViewHolderType
                     >,
             ViewHolderType extends RecyclerView.ViewHolder,
-            ServiceResponseType extends ServiceResponse<
+            ServiceResponseType extends ServiceResponse1<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >,
-            ServiceResponseLoadingType extends ServiceResponse.Loading<
+            ServiceResponseLoadingType extends ServiceResponse1.Loading<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >,
-            ServiceResponseCompleteType extends ServiceResponse.Complete<
+            ServiceResponseCompleteType extends ServiceResponse1.Complete<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >,
-            ServiceResponseFailedType extends ServiceResponse.Failed<
+            ServiceResponseFailedType extends ServiceResponse1.Failed<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >
             > {
@@ -261,36 +244,28 @@ public abstract class RxListFragment<
                     ViewHolderType
                     >,
             ViewHolderType extends RecyclerView.ViewHolder,
-            ServiceResponseType extends ServiceResponse<
+            ServiceResponseType extends ServiceResponse1<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >,
-            ServiceResponseLoadingType extends ServiceResponse.Loading<
+            ServiceResponseLoadingType extends ServiceResponse1.Loading<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >,
-            ServiceResponseCompleteType extends ServiceResponse.Complete<
+            ServiceResponseCompleteType extends ServiceResponse1.Complete<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >,
-            ServiceResponseFailedType extends ServiceResponse.Failed<
+            ServiceResponseFailedType extends ServiceResponse1.Failed<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType,
-                    UnparcelableListType,
-                    UnparcelableListType,
                     UnparcelableListType
                     >
             > {
@@ -493,16 +468,25 @@ public abstract class RxListFragment<
                 ).orElse(Observable.empty()));
     }
 
-    protected abstract ProgressBar requireProgressBar(View view);
+    @Nullable
+    protected abstract View findEmptyItemsLoadingView(View view);
 
-    protected abstract TextView requireProgressTextView(View view);
+    @Nullable
+    protected abstract View findNonEmptyItemsLoadingView(View view);
 
-    protected abstract TextView requireErrorTextView(View view);
+    @Nullable
+    protected abstract View findEmptyItemsCompleteView(View view);
+
+    @Nullable
+    protected abstract View findEmptyItemsErrorView(View view);
+
+    @Nullable
+    protected abstract View findNonEmptyItemsErrorView(View view);
 
     protected abstract RecyclerView requireRecyclerView(View view);
 
     protected abstract ListRecyclerViewAdapterType createListRecyclerViewAdapter(
-            List<UnparcelableType> initialItems,
+            UnparcelableListType initialItems,
             ListenerType listener
     );
 
@@ -525,9 +509,11 @@ public abstract class RxListFragment<
                     final ViewCreation viewCreation =
                             attachmentFragmentCreationViewCreationTriple.third;
 
-                    final ProgressBar progressBar = requireProgressBar(viewCreation.view);
-                    final TextView progressTextView = requireProgressTextView(viewCreation.view);
-                    final TextView errorTextView = requireErrorTextView(viewCreation.view);
+                    @Nullable final View emptyItemsLoadingView = findEmptyItemsLoadingView(viewCreation.view);
+                    @Nullable final View nonEmptyItemsLoadingView = findNonEmptyItemsLoadingView(viewCreation.view);
+                    @Nullable final View emptyItemsCompleteView = findEmptyItemsCompleteView(viewCreation.view);
+                    @Nullable final View emptyItemsErrorView = findEmptyItemsErrorView(viewCreation.view);
+                    @Nullable final View nonEmptyItemsErrorView = findNonEmptyItemsErrorView(viewCreation.view);
                     final RecyclerView recyclerView = requireRecyclerView(viewCreation.view);
                     final LinearLayoutManager linearLayoutManager =
                             new LinearLayoutManager(context);
@@ -564,53 +550,36 @@ public abstract class RxListFragment<
                                         )
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(
-                                                        itemListServiceResponse -> itemListServiceResponse.act(
-                                                                loading -> {
-                                                                    progressBar.setVisibility(View.VISIBLE);
-                                                                    progressTextView.setVisibility(View.VISIBLE);
-                                                                    errorTextView.setVisibility(View.GONE);
-                                                                    recyclerView.setVisibility(View.VISIBLE);
-
-                                                                    start.setArguments(
-                                                                            argumentsBundle(
-                                                                                    loading.value
-                                                                            )
-                                                                    );
-                                                                    listRecyclerViewAdapter.setItems(
-                                                                            loading.value
-                                                                    );
-                                                                },
-                                                                complete -> {
-                                                                    progressBar.setVisibility(View.GONE);
-                                                                    progressTextView.setVisibility(View.GONE);
-                                                                    errorTextView.setVisibility(View.GONE);
-                                                                    recyclerView.setVisibility(View.VISIBLE);
-
-                                                                    start.setArguments(
-                                                                            argumentsBundle(
-                                                                                    complete.value
-                                                                            )
-                                                                    );
-                                                                    listRecyclerViewAdapter.setItems(
-                                                                            complete.value
-                                                                    );
-                                                                },
-                                                                failed -> {
-                                                                    progressBar.setVisibility(View.GONE);
-                                                                    progressTextView.setVisibility(View.GONE);
-                                                                    errorTextView.setVisibility(View.VISIBLE);
-                                                                    recyclerView.setVisibility(View.VISIBLE);
-
-                                                                    start.setArguments(
-                                                                            argumentsBundle(
-                                                                                    failed.value
-                                                                            )
-                                                                    );
-                                                                    listRecyclerViewAdapter.setItems(
-                                                                            failed.value
-                                                                    );
-                                                                }
-                                                        ),
+                                                        itemListServiceResponse -> {
+                                                            setEmptyItemsLoadingViewVisibility(
+                                                                    emptyItemsLoadingView,
+                                                                    itemListServiceResponse
+                                                            );
+                                                            setNonEmptyItemsLoadingViewVisibility(
+                                                                    nonEmptyItemsLoadingView,
+                                                                    itemListServiceResponse
+                                                            );
+                                                            setEmptyItemsCompleteViewVisibility(
+                                                                    emptyItemsCompleteView,
+                                                                    itemListServiceResponse
+                                                            );
+                                                            setEmptyItemsErrorViewVisibility(
+                                                                    emptyItemsErrorView,
+                                                                    itemListServiceResponse
+                                                            );
+                                                            setNonEmptyItemsErrorViewVisibility(
+                                                                    nonEmptyItemsErrorView,
+                                                                    itemListServiceResponse
+                                                            );
+                                                            start.setArguments(
+                                                                    argumentsBundle(
+                                                                            itemListServiceResponse.getValue()
+                                                                    )
+                                                            );
+                                                            listRecyclerViewAdapter.setItems(
+                                                                    itemListServiceResponse.getValue()
+                                                            );
+                                                        },
                                                         throwable -> {
                                                             onItemListServiceResponseFailed();
                                                             onItemListServiceResponseFailed.onItemListServiceResponseFailed(
@@ -647,5 +616,80 @@ public abstract class RxListFragment<
                 holderArray(items)
         );
         return argumentsBundle;
+    }
+
+    private void setEmptyItemsLoadingViewVisibility(
+            @Nullable View emptyItemsLoadingView,
+            ServiceResponseType serviceResponse
+    ) {
+        if (emptyItemsLoadingView != null) {
+            emptyItemsLoadingView.setVisibility(
+                    serviceResponse.reduce(
+                            loading -> loading.value.isEmpty() ? View.VISIBLE : View.GONE,
+                            complete -> View.GONE,
+                            failed -> View.GONE
+                    )
+            );
+        }
+    }
+
+    private void setNonEmptyItemsLoadingViewVisibility(
+            @Nullable View nonEmptyItemsLoadingView,
+            ServiceResponseType serviceResponse
+    ) {
+        if (nonEmptyItemsLoadingView != null) {
+            nonEmptyItemsLoadingView.setVisibility(
+                    serviceResponse.reduce(
+                            loading -> loading.value.isEmpty() ? View.GONE : View.VISIBLE,
+                            complete -> View.GONE,
+                            failed -> View.GONE
+                    )
+            );
+        }
+    }
+
+    private void setEmptyItemsCompleteViewVisibility(
+            @Nullable View emptyItemsCompleteView,
+            ServiceResponseType serviceResponse
+    ) {
+        if (emptyItemsCompleteView != null) {
+            emptyItemsCompleteView.setVisibility(
+                    serviceResponse.reduce(
+                            loading -> View.GONE,
+                            complete -> complete.value.isEmpty() ? View.VISIBLE : View.GONE,
+                            failed -> View.GONE
+                    )
+            );
+        }
+    }
+
+    private void setEmptyItemsErrorViewVisibility(
+            @Nullable View emptyItemsErrorView,
+            ServiceResponseType serviceResponse
+    ) {
+        if (emptyItemsErrorView != null) {
+            emptyItemsErrorView.setVisibility(
+                    serviceResponse.reduce(
+                            loading -> View.GONE,
+                            complete -> View.GONE,
+                            failed -> failed.value.isEmpty() ? View.VISIBLE : View.GONE
+                    )
+            );
+        }
+    }
+
+    private void setNonEmptyItemsErrorViewVisibility(
+            @Nullable View nonEmptyItemsErrorView,
+            ServiceResponseType serviceResponse
+    ) {
+        if (nonEmptyItemsErrorView != null) {
+            nonEmptyItemsErrorView.setVisibility(
+                    serviceResponse.reduce(
+                            loading -> View.GONE,
+                            complete -> View.GONE,
+                            failed -> failed.value.isEmpty() ? View.GONE : View.VISIBLE
+                    )
+            );
+        }
     }
 }

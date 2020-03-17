@@ -113,19 +113,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/SubscriptionIdentifiedOpt.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/SubscriptionIdentifierOpt.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/ServiceResponse1.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/activities/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/activities/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/ArrayUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/ArrayUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Result.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Result.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/EmptyServiceResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/EmptyServiceResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/ServiceResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/ServiceResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastIdentifiedListServiceResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastIdentifiedListServiceResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_list.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_list.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_list_2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_list_2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,8 +192,8 @@
         <option value="layoutResourceFile" />
         <option value="layoutResourceFile_vertical" />
         <option value="Kotlin File" />
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -501,50 +496,50 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="834" y="269" key="#xdebugger.evaluate/0.23.1920.1100@0.23.1920.1100" timestamp="1583035872166" />
-    <state x="823" y="345" key="AndroidProcessChooserDialog" timestamp="1578175393084">
+    <state x="823" y="345" key="AndroidProcessChooserDialog" timestamp="1584393743076">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="823" y="345" key="AndroidProcessChooserDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1578175393084" />
+    <state x="823" y="345" key="AndroidProcessChooserDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584393743076" />
     <state x="100" y="123" width="1720" height="900" key="DiffContextDialog" timestamp="1583043743061">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="DiffContextDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1583043743061" />
-    <state width="1920" height="309" key="GridCell.Tab.0.bottom" timestamp="1584308564000">
+    <state width="1920" height="355" key="GridCell.Tab.0.bottom" timestamp="1584423772206">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="309" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1584308564000" />
+    <state width="1920" height="355" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1584423772206" />
     <state width="1878" height="304" key="GridCell.Tab.0.bottom/3840.2400" timestamp="1577555866836" />
-    <state width="1920" height="309" key="GridCell.Tab.0.center" timestamp="1584308564000">
+    <state width="1920" height="355" key="GridCell.Tab.0.center" timestamp="1584423772205">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="309" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1584308564000" />
+    <state width="1920" height="355" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1584423772205" />
     <state width="1878" height="304" key="GridCell.Tab.0.center/3840.2400" timestamp="1577555866836" />
-    <state width="1920" height="309" key="GridCell.Tab.0.left" timestamp="1584308563999">
+    <state width="1920" height="355" key="GridCell.Tab.0.left" timestamp="1584423772204">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="309" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1584308563999" />
+    <state width="1920" height="355" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1584423772204" />
     <state width="1878" height="304" key="GridCell.Tab.0.left/3840.2400" timestamp="1577555866836" />
-    <state width="1920" height="309" key="GridCell.Tab.0.right" timestamp="1584308564000">
+    <state width="1920" height="355" key="GridCell.Tab.0.right" timestamp="1584423772206">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="309" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1584308564000" />
+    <state width="1920" height="355" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1584423772206" />
     <state width="1878" height="304" key="GridCell.Tab.0.right/3840.2400" timestamp="1577555866836" />
-    <state width="1920" height="371" key="GridCell.Tab.1.bottom" timestamp="1583075241038">
+    <state width="1920" height="381" key="GridCell.Tab.1.bottom" timestamp="1584393774591">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="371" key="GridCell.Tab.1.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1583075241038" />
-    <state width="1920" height="371" key="GridCell.Tab.1.center" timestamp="1583075241038">
+    <state width="1920" height="381" key="GridCell.Tab.1.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1584393774591" />
+    <state width="1920" height="381" key="GridCell.Tab.1.center" timestamp="1584393774590">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="371" key="GridCell.Tab.1.center/0.23.1920.1100@0.23.1920.1100" timestamp="1583075241038" />
-    <state width="1920" height="371" key="GridCell.Tab.1.left" timestamp="1583075241038">
+    <state width="1920" height="381" key="GridCell.Tab.1.center/0.23.1920.1100@0.23.1920.1100" timestamp="1584393774590" />
+    <state width="1920" height="381" key="GridCell.Tab.1.left" timestamp="1584393774589">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="371" key="GridCell.Tab.1.left/0.23.1920.1100@0.23.1920.1100" timestamp="1583075241038" />
-    <state width="1920" height="371" key="GridCell.Tab.1.right" timestamp="1583075241038">
+    <state width="1920" height="381" key="GridCell.Tab.1.left/0.23.1920.1100@0.23.1920.1100" timestamp="1584393774589" />
+    <state width="1920" height="381" key="GridCell.Tab.1.right" timestamp="1584393774590">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1920" height="371" key="GridCell.Tab.1.right/0.23.1920.1100@0.23.1920.1100" timestamp="1583075241038" />
+    <state width="1920" height="381" key="GridCell.Tab.1.right/0.23.1920.1100@0.23.1920.1100" timestamp="1584393774590" />
     <state x="461" y="212" key="SettingsEditor" timestamp="1584305787519">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -570,23 +565,23 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="504" y="316" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.23.1920.1100@0.23.1920.1100" timestamp="1583041903866" />
-    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1584306574224">
+    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1584390479137">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1584306574224" />
-    <state width="742" height="261" key="javadoc.popup.new" timestamp="1584308137978">
+    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1584390479137" />
+    <state width="742" height="261" key="javadoc.popup.new" timestamp="1584423747734">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="742" height="261" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1584308137978" />
+    <state width="742" height="261" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1584423747734" />
     <state width="620" height="143" key="javadoc.popup.new/3840.2400" timestamp="1577555866836" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1578182088491">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1578182088491" />
-    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup" timestamp="1584110587449">
+    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup" timestamp="1584392908936">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1584110587449" />
+    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1584392908936" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
