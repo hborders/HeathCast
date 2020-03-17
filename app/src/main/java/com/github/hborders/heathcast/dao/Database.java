@@ -104,6 +104,9 @@ public final class Database<N> {
                     )
             );
 
+            if (podcasts.isEmpty()) {
+                podcastTable.triggerMarked(marker);
+            }
             transaction.markSuccessful(marker);
         }
     }

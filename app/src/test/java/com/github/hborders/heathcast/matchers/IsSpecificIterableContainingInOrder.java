@@ -93,8 +93,8 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      *     the items that must equal the items provided by an examined {@link Iterable}
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContains(E... items) {
-        return specificallyContains(asEqualMatchers(items));
+    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInOrder(E... items) {
+        return specificallyContainsInOrder(asEqualMatchers(items));
     }
 
     /**
@@ -110,7 +110,7 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      */
     @SuppressWarnings("unchecked")
     public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContains2(final Matcher<E> itemMatcher) {
-        return specificallyContains(new ArrayList<>(singletonList(itemMatcher)));
+        return specificallyContainsInOrder(new ArrayList<>(singletonList(itemMatcher)));
     }
 
     /**
@@ -125,11 +125,11 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      *     the matchers that must be satisfied by the items provided by an examined {@link Iterable}
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContains(Matcher<? super E>... itemMatchers) {
+    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInOrder(Matcher<? super E>... itemMatchers) {
         // required for JDK 1.6
         //noinspection RedundantTypeArguments
         final List<Matcher<? super E>> nullSafeWithExplicitTypeMatchers = NullSafety.<E>nullSafe(itemMatchers);
-        return specificallyContains(nullSafeWithExplicitTypeMatchers);
+        return specificallyContainsInOrder(nullSafeWithExplicitTypeMatchers);
     }
 
     /**
@@ -144,7 +144,7 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      *     a list of matchers, each of which must be satisfied by the corresponding item provided by
      *     an examined {@link Iterable}
      */
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContains(List<Matcher<? super E>> itemMatchers) {
+    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInOrder(List<Matcher<? super E>> itemMatchers) {
         return new IsSpecificIterableContainingInOrder<>(itemMatchers);
     }
 }

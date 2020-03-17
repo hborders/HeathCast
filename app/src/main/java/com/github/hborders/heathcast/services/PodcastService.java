@@ -196,15 +196,19 @@ public final class PodcastService {
                             )
                                     .subscribeOn(scheduler)
                                     .observeOn(scheduler)
-                                    .doOnSuccess(podcastSearchResponse ->
-                                            database.replacePodcastSearchPodcasts(
-                                                    marker,
-                                                    podcastSearchIdentified,
-                                                    podcastSearchResponse.podcasts
-                                            )
+                                    .doOnSuccess(
+                                            podcastSearchResponse ->
+                                                    database.replacePodcastSearchPodcasts(
+                                                            marker,
+                                                            podcastSearchIdentified,
+                                                            podcastSearchResponse.podcasts
+                                                    )
                                     )
                                     .map(ignored -> EmptyServiceResponse.COMPLETE)
-                                    .doOnError(ignored -> database.markPodcastSearchFailure(marker))
+                                    .doOnError(
+                                            ignored ->
+                                                    database.markPodcastSearchFailure(marker)
+                                    )
                                     .onErrorReturnItem(EmptyServiceResponse.FAILED)
                                     .toObservable().startWith(EmptyServiceResponse.LOADING);
 

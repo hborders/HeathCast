@@ -5,6 +5,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
@@ -22,14 +24,13 @@ import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
+import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -43,6 +44,9 @@ public final class MainActivity extends AppCompatActivity
         MainFragment.MainFragmentListener,
         PodcastSearchFragment.PodcastSearchFragmentListener,
         PodcastFragment.PodcastFragmentListener {
+
+    @VisibleForTesting
+    public volatile NetworkPauser searchForPodcasts2NetworkPauser;
 
     private final BehaviorSubject<Optional<PodcastSearchFragment>> podcastSearchFragmentOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
@@ -92,7 +96,6 @@ public final class MainActivity extends AppCompatActivity
 
     // MainFragment
 
-
     @Override
     public void onMainFragmentAttached(MainFragment mainFragment) {
     }
@@ -125,7 +128,10 @@ public final class MainActivity extends AppCompatActivity
             PodcastSearchFragment podcastSearchFragment,
             PodcastSearch podcastSearch
     ) {
-        return podcastService.searchForPodcasts2(podcastSearch);
+        return podcastService.searchForPodcasts2(
+                searchForPodcasts2NetworkPauser,
+                podcastSearch
+        );
     }
 
     @Override

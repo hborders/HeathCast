@@ -73,6 +73,11 @@ public class SearchEspressoTest {
     }
 
     @Test
+    public void initialSearchShowsNoResults() throws Exception {
+
+    }
+
+    @Test
     public void searchForPlanetMoneyAndSubscribe() throws Exception {
         onView(withId(R.id.fragment_main_add_podcast_fab)).perform(click());
         onView(withId(R.id.fragment_podcast_search_search_view)).perform(

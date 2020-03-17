@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.R;
@@ -20,8 +21,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Objects;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -215,6 +214,8 @@ public final class PodcastSearchFragment extends Fragment
 
         super.onDetach();
     }
+
+    // PodcastListFragmentListener
 
     @Override
     public void onPodcastListFragmentListenerAttached(PodcastListFragment2 podcastListFragment) {

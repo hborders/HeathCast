@@ -1,5 +1,6 @@
 package com.github.hborders.heathcast.services;
 
+import com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
@@ -12,7 +13,7 @@ import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifi
 import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
-import static com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder.specificallyContains;
+import static com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder.specificallyContainsInOrder;
 import static com.github.hborders.heathcast.matchers.ServiceResponseMatchers.serviceResponseComplete;
 import static com.github.hborders.heathcast.matchers.ServiceResponseMatchers.serviceResponseLoading;
 import static org.hamcrest.CoreMatchers.anything;
@@ -61,7 +62,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         );
 
         planetMoneyMatcherTestObserver.assertValueSequenceThat(
-                specificallyContains(
+                IsSpecificIterableContainingInOrder.specificallyContainsInOrder(
                         serviceResponseLoading(
                                 PodcastIdentifiedListServiceResponse.class,
                                 empty()

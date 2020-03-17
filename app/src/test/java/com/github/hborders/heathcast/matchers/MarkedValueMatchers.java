@@ -41,6 +41,15 @@ public final class MarkedValueMatchers {
     }
 
     public static <M, V> Matcher<MarkedValue<M, V>> markedValue(
+            M marker,
+            Matcher<V> valueMatcher) {
+        return markedValue(
+                equalTo(Collections.singleton(marker)),
+                valueMatcher
+        );
+    }
+
+    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(
             Set<M> markers,
             V value
     ) {

@@ -34,7 +34,7 @@ import io.reactivex.observers.TestObserver;
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
 import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
-import static com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder.specificallyContains;
+import static com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder.specificallyContainsInOrder;
 import static com.github.hborders.heathcast.matchers.MarkedValueMatchers.markedValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -43,7 +43,6 @@ import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
 public class DatabaseTest extends AbstractDatabaseTest<Object> {
-
     private final Podcast podcast1;
     private final Podcast podcast11;
     private final Podcast podcast12;
@@ -183,6 +182,109 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     }
 
     @Test
+    public void testEmptyReplacePodcastSearchResultsForNewPodcastSearch() {
+        @Nullable final PodcastSearchIdentified podcastSearchIdentified =
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search")).orNull();
+        if (podcastSearchIdentified == null) {
+            fail();
+        } else {
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsTestObserver =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.identifier)
+                    .subscribe(podcastIdentifiedsTestObserver);
+
+            podcastIdentifiedsTestObserver.assertValueThat(
+                    markedValue(
+                            specificallyEmpty()
+                    )
+            );
+
+            final Object marker1 = new Object();
+            getTestObject().replacePodcastSearchPodcasts(
+                    marker1,
+                    podcastSearchIdentified,
+                    new PodcastList()
+            );
+
+            podcastIdentifiedsTestObserver.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    specificallyEmpty()
+                            ),
+                            markedValue(
+                                    marker1,
+                                    specificallyEmpty()
+                            )
+                    )
+            );
+        }
+    }
+
+    @Test
+    public void testEmptyReplacePodcastSearchResultsForExistingPodcastSearch() {
+        @Nullable final PodcastSearchIdentified podcastSearchIdentified =
+                getTestObject().upsertPodcastSearch(new PodcastSearch("Search")).orNull();
+        if (podcastSearchIdentified == null) {
+            fail();
+        } else {
+            final Object marker1 = new Object();
+            getTestObject().replacePodcastSearchPodcasts(
+                    marker1,
+                    podcastSearchIdentified,
+                    new PodcastList(
+                            podcast1,
+                            podcast2,
+                            podcast3
+                    )
+            );
+
+            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsTestObserver =
+                    new MatcherTestObserver<>();
+            getTestObject()
+                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.identifier)
+                    .subscribe(podcastIdentifiedsTestObserver);
+
+            podcastIdentifiedsTestObserver.assertValueThat(
+                    markedValue(
+                            // won't contain marker1 since we weren't observing when
+                            // we did the marker1 replacement
+                            specificallyContainsInOrder(
+                                    identifiedModel(podcast1),
+                                    identifiedModel(podcast2),
+                                    identifiedModel(podcast3)
+                            )
+                    )
+            );
+
+            final Object marker2 = new Object();
+            getTestObject().replacePodcastSearchPodcasts(
+                    marker2,
+                    podcastSearchIdentified,
+                    new PodcastList()
+            );
+
+            podcastIdentifiedsTestObserver.assertValueSequenceThat(
+                    containsInOrder(
+                            markedValue(
+                                    // won't contain marker1 since we weren't observing when
+                                    // we did the marker1 replacement
+                                    specificallyContainsInOrder(
+                                            identifiedModel(podcast1),
+                                            identifiedModel(podcast2),
+                                            identifiedModel(podcast3)
+                                    )
+                            ),
+                            markedValue(
+                                    marker2,
+                                    specificallyEmpty()
+                            )
+                    )
+            );
+        }
+    }
+
+    @Test
     public void testOuterReplacePodcastSearchResultsForFirstPodcastSearch() {
         @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
                 getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
@@ -306,7 +408,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
                     containsInOrder(
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast12),
                                             identifiedModel(podcast2),
                                             identifiedModel(podcast4)
@@ -400,7 +502,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
                     containsInOrder(
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast1),
                                             identifiedModel(podcast2),
                                             identifiedModel(podcast3),
@@ -412,7 +514,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             podcastIdentifiedsMarkedValueTestObserver2.assertValueSequenceThat(
                     containsInOrder(
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast5),
                                             identifiedModel(podcast4),
                                             identifiedModel(podcast3),
@@ -507,7 +609,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
                     containsInOrder(
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast1),
                                             identifiedModel(podcast2),
                                             identifiedModel(podcast3),
@@ -519,7 +621,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             podcastIdentifiedsMarkedValueTestObserver2.assertValueSequenceThat(
                     containsInOrder(
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast5),
                                             identifiedModel(podcast4),
                                             identifiedModel(podcast3),
@@ -567,7 +669,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             podcastIdentifiedsMarkedValueTestObserver1.assertValueSequenceThat(
                     containsInOrder(
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast1),
                                             identifiedModel(podcast2),
                                             identifiedModel(podcast3),
@@ -575,7 +677,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                                     )
                             ),
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast1),
                                             identifiedModel(podcast2),
                                             identifiedModel(podcast3),
@@ -588,7 +690,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             podcastIdentifiedsMarkedValueTestObserver2.assertValueSequenceThat(
                     containsInOrder(
                             markedValue(
-                                    specificallyContains(
+                                    specificallyContainsInOrder(
                                             identifiedModel(podcast5),
                                             identifiedModel(podcast4),
                                             identifiedModel(podcast3),
