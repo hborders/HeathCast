@@ -20,7 +20,7 @@ public class Triple<A, B, C> {
     }
 
     @Override
-    public boolean equals(@Nullable Object o) {
+    public final boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Triple<?, ?, ?> triple = (Triple<?, ?, ?>) o;
@@ -30,13 +30,20 @@ public class Triple<A, B, C> {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(first, second, third);
     }
 
     @Override
-    public String toString() {
-        return "Triple{" +
+    public final String toString() {
+        @SuppressWarnings("rawtypes") final Class<? extends Triple> clazz = getClass();
+        final String simpleName;
+        if (clazz.isAnonymousClass()) {
+            simpleName = "Triple$";
+        } else {
+            simpleName = clazz.getSimpleName();
+        }
+        return simpleName + "{" +
                 "first=" + first +
                 ", second=" + second +
                 ", third=" + third +

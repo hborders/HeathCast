@@ -289,8 +289,7 @@ public final class PodcastService {
             // slow requests to show instance database feedback
             maybePausedResponseSingle = responseSingle.delay(2, TimeUnit.SECONDS);
         } else {
-            maybePausedResponseSingle =
-                    networkPauser.completable.andThen(responseSingle);
+            maybePausedResponseSingle = networkPauser.pauseSingle(responseSingle);
         }
 
         return maybePausedResponseSingle

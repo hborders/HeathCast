@@ -5,12 +5,13 @@ import java.util.Set;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
+import io.reactivex.Single;
 
 public final class NetworkPauser {
     private final Object monitor = new Object();
     private boolean paused = true;
     private final HashSet<CompletableEmitter> completableEmitters = new HashSet<>();
-    public final Completable completable;
+    private final Completable completable;
 
     public NetworkPauser() {
         completable = Completable.create(emitter -> {
@@ -27,6 +28,10 @@ public final class NetworkPauser {
 
             completingCompletableEmitters.forEach(CompletableEmitter::onComplete);
         });
+    }
+
+    public <T> Single<T> pauseSingle(Single<T> single) {
+        return completable.andThen(single);
     }
 
     public void resume() {

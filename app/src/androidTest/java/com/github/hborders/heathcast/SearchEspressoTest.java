@@ -133,12 +133,12 @@ public class SearchEspressoTest {
                 typeText("Planet Money"),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
-        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view))
-                .check(selectedDescendantsMatch(
+        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).check(
+                selectedDescendantsMatch(
                         atPosition(0),
                         withChild(withText("Planet Money"))
-                        )
-                );
+                )
+        );
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
                 actionOnItemAtPosition(
                         0,

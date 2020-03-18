@@ -472,14 +472,6 @@ public abstract class RxFragment<
         super.onAttach(context);
 
         final FragmentType self = getSelf();
-        if (self.getClass() != getClass()) {
-            throw new IllegalStateException(
-                    "getSelf().getClass(): "
-                            + self.getClass() + " != getClass(): "
-                            + getClass()
-            );
-        }
-
         final ListenerType listener = FragmentUtil.requireFragmentListener(
                 self,
                 context,
@@ -667,8 +659,6 @@ public abstract class RxFragment<
     protected final FragmentType getSelf() {
         return (FragmentType) this;
     }
-
-    ;
 
     protected abstract void subscribeToAttachmentObservable(
             Observable<AttachmentType> attachmentObservable

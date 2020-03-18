@@ -65,7 +65,9 @@ public final class ViewMatchers {
 
         @Override
         public void describeTo(Description description) {
-            description.appendText("is item at position ").appendValue(position).appendText(": ");
+            description
+                    .appendText("is item at position ")
+                    .appendValue(position);
         }
 
         @Override

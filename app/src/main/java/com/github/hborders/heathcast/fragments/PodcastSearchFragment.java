@@ -285,12 +285,11 @@ public final class PodcastSearchFragment extends Fragment
 
 
     public Observable<Boolean> getSearchingObservable() {
-        return podcastIdentifiedListServiceResponseBehaviorSubject.map(
-                podcastIdentifiedListServiceResponse -> podcastIdentifiedListServiceResponse.reduce(
-                        loading -> true,
-                        complete -> false,
-                        failed -> false
-                )
+        return searchResultPodcastListFragmentOptionalBehaviorSubject.switchMap(
+                searchResultPodcastListFragmentOptional ->
+                        searchResultPodcastListFragmentOptional.map(
+                                PodcastListFragment2::getLoadingObservable
+                        ).orElse(Observable.just(false))
         );
     }
 

@@ -30,7 +30,9 @@ import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -45,8 +47,16 @@ public final class MainActivity extends AppCompatActivity
         PodcastSearchFragment.PodcastSearchFragmentListener,
         PodcastFragment.PodcastFragmentListener {
 
+    private final ConcurrentLinkedQueue<NetworkPauser> searchForPodcasts2NetworkPausers = new ConcurrentLinkedQueue<>();
     @VisibleForTesting
-    public volatile NetworkPauser searchForPodcasts2NetworkPauser;
+    public void setSearchForPodcasts2NetworkPausers(NetworkPauser... networkPausers) {
+        searchForPodcasts2NetworkPausers.clear();
+        searchForPodcasts2NetworkPausers.addAll(Arrays.asList(networkPausers));
+    }
+    @VisibleForTesting
+    public void clearNetworkPausers() {
+        searchForPodcasts2NetworkPausers.clear();
+    }
 
     private final BehaviorSubject<Optional<PodcastSearchFragment>> podcastSearchFragmentOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
@@ -128,8 +138,9 @@ public final class MainActivity extends AppCompatActivity
             PodcastSearchFragment podcastSearchFragment,
             PodcastSearch podcastSearch
     ) {
+        @Nullable NetworkPauser networkPauser = searchForPodcasts2NetworkPausers.poll();
         return podcastService.searchForPodcasts2(
-                searchForPodcasts2NetworkPauser,
+                networkPauser,
                 podcastSearch
         );
     }

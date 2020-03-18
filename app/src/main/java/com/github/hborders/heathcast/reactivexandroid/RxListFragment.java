@@ -344,6 +344,7 @@ public abstract class RxListFragment<
     private final Class<UnparcelableHolderType> holderClass;
     private final BehaviorSubject<Optional<ItemRanger>> itemRangerOptionalBehaviorSubject =
             BehaviorSubject.createDefault(Optional.empty());
+    private final BehaviorSubject<Boolean> loadingBehaviorSubject = BehaviorSubject.createDefault(false);
 
     protected RxListFragment(
             Class<ListenerType> listenerClass,
@@ -468,6 +469,10 @@ public abstract class RxListFragment<
                 ).orElse(Observable.empty()));
     }
 
+    public Observable<Boolean> getLoadingObservable() {
+        return loadingBehaviorSubject;
+    }
+
     @Nullable
     protected abstract View findEmptyItemsLoadingView(View view);
 
@@ -551,6 +556,9 @@ public abstract class RxListFragment<
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(
                                                         itemListServiceResponse -> {
+                                                            eagerlyReportLoading(
+                                                                    itemListServiceResponse
+                                                            );
                                                             setEmptyItemsLoadingViewVisibility(
                                                                     emptyItemsLoadingView,
                                                                     itemListServiceResponse
@@ -579,6 +587,9 @@ public abstract class RxListFragment<
                                                             listRecyclerViewAdapter.setItems(
                                                                     itemListServiceResponse.getValue()
                                                             );
+                                                            lazilyReportNotLoading(
+                                                                    itemListServiceResponse
+                                                            );
                                                         },
                                                         throwable -> {
                                                             onItemListServiceResponseFailed();
@@ -595,7 +606,10 @@ public abstract class RxListFragment<
                     ).isDisposed();
 
                     viewCreation.onDestroyViewCompletable.subscribe(
-                            () -> itemRangerOptionalBehaviorSubject.onNext(Optional.empty())
+                            () -> {
+                                itemRangerOptionalBehaviorSubject.onNext(Optional.empty());
+                                loadingBehaviorSubject.onNext(false);
+                            }
                     ).isDisposed();
                 }
         ).isDisposed();
@@ -616,6 +630,20 @@ public abstract class RxListFragment<
                 holderArray(items)
         );
         return argumentsBundle;
+    }
+
+    private boolean isServiceResponseLoading(ServiceResponseType serviceResponse) {
+        return serviceResponse.reduce(
+                loading -> true,
+                complete -> false,
+                failed -> false
+        );
+    }
+
+    private void eagerlyReportLoading(ServiceResponseType serviceResponse) {
+        if (isServiceResponseLoading(serviceResponse)) {
+            loadingBehaviorSubject.onNext(true);
+        }
     }
 
     private void setEmptyItemsLoadingViewVisibility(
@@ -690,6 +718,12 @@ public abstract class RxListFragment<
                             failed -> failed.value.isEmpty() ? View.GONE : View.VISIBLE
                     )
             );
+        }
+    }
+
+    private void lazilyReportNotLoading(ServiceResponseType serviceResponse) {
+        if (!isServiceResponseLoading(serviceResponse)) {
+            loadingBehaviorSubject.onNext(false);
         }
     }
 }
