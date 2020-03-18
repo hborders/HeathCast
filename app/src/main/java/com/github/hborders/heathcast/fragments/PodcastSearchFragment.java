@@ -158,6 +158,11 @@ public final class PodcastSearchFragment extends Fragment
                                                 )
                                 )
                 );
+        podcastIdentifiedListServiceResponseBehaviorSubject.onNext(
+                new PodcastIdentifiedListServiceResponse.Complete(
+                        new PodcastIdentifiedList()
+                )
+        );
     }
 
     @Override
