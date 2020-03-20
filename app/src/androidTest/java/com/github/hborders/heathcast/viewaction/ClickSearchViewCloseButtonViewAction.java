@@ -12,7 +12,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class ClickSearchViewCloseButtonViewAction implements ViewAction {
+public final class ClickSearchViewCloseButtonViewAction implements ViewAction {
     public static ViewAction clickSearchViewCloseButton() {
         return new ClickSearchViewCloseButtonViewAction();
     }

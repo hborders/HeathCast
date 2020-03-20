@@ -123,7 +123,6 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                         ""
                 );
         onView(withId(R.id.fragment_podcast_search_search_view)).perform(
-                pressKey(KeyEvent.KEYCODE_DEL),
                 typeText(unmatchingText),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
@@ -145,6 +144,67 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
         onView(withId(R.id.fragment_podcast_list_empty_complete_text_view)).check(
                 matches(
                         isDisplayed()
+                )
+        );
+    }
+
+    @Test
+    public void searchForPlanetMoneyThenForModernLoveShowsModernLove() throws Exception {
+        final String planetMoney = "Planet Money";
+        final String modernLove = "Modern Love";
+        final NetworkPauser planetMoneySearchForPodcasts2NetworkPauser = new NetworkPauser();
+        final NetworkPauser modernLoveSearchForPodcasts2NetworkPauser = new NetworkPauser();
+        activityScenarioRule.getScenario().onActivity(
+                mainActivity -> {
+                    mainActivity.setSearchForPodcasts2NetworkPausers(
+                            planetMoneySearchForPodcasts2NetworkPauser,
+                            modernLoveSearchForPodcasts2NetworkPauser
+                    );
+                }
+        );
+
+        onView(withId(R.id.fragment_main_add_podcast_fab)).perform(click());
+        onView(withId(R.id.fragment_podcast_search_search_view)).perform(
+                typeText(planetMoney),
+                pressKey(KeyEvent.KEYCODE_ENTER)
+        );
+        planetMoneySearchForPodcasts2NetworkPauser.resume();
+        IdlingRegistry.getInstance().register(getPodcastSearchDisposableIdlingResource());
+
+        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).check(
+                selectedDescendantsMatch(
+                        atPosition(0),
+                        withChild(withText(planetMoney))
+                )
+        );
+
+        IdlingRegistry.getInstance().unregister(getPodcastSearchDisposableIdlingResource());
+
+        onView(withId(R.id.fragment_podcast_search_search_view)).perform(clickSearchViewCloseButton());
+
+        onView(withId(R.id.fragment_podcast_search_search_view)).perform(
+                typeText(modernLove),
+                pressKey(KeyEvent.KEYCODE_ENTER)
+        );
+
+        onView(withId(R.id.fragment_podcast_list_empty_loading_progress_bar)).check(
+                matches(
+                        isDisplayed()
+                )
+        );
+        onView(withId(R.id.fragment_podcast_list_empty_loading_text_view)).check(
+                matches(
+                        isDisplayed()
+                )
+        );
+
+        IdlingRegistry.getInstance().register(getPodcastSearchDisposableIdlingResource());
+        modernLoveSearchForPodcasts2NetworkPauser.resume();
+
+        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).check(
+                selectedDescendantsMatch(
+                        atPosition(0),
+                        withChild(withText(modernLove))
                 )
         );
     }
