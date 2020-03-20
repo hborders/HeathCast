@@ -1,7 +1,6 @@
 package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,8 +25,6 @@ public final class PodcastListFragment2 extends RxListFragment<
         PodcastListFragment2.Attachment.Factory,
         PodcastIdentified,
         PodcastIdentifiedHolder,
-        PodcastIdentifiedHolder.Factory,
-        PodcastIdentifiedHolder.ArrayFactory,
         PodcastIdentifiedList,
         PodcastIdentifiedList.CapacityFactory,
         PodcastRecyclerViewAdapter,
@@ -50,6 +47,7 @@ public final class PodcastListFragment2 extends RxListFragment<
         }
 
         private Attachment(
+                Class<Attachment> attachmentClass,
                 PodcastListFragment2 fragment,
                 Context context,
                 PodcastListFragmentListener listener,
@@ -57,6 +55,7 @@ public final class PodcastListFragment2 extends RxListFragment<
                 Completable onDetachCompletable
         ) {
             super(
+                    attachmentClass,
                     fragment,
                     context,
                     listener,
@@ -73,8 +72,6 @@ public final class PodcastListFragment2 extends RxListFragment<
                 PodcastListFragment2 podcastListFragment
         );
 
-        void onPodcastIdentifiedsFailed(PodcastListFragment2 podcastListFragment);
-
         void onClickPodcastIdentified(
                 PodcastListFragment2 podcastListFragment,
                 PodcastIdentified podcastIdentified
@@ -87,16 +84,15 @@ public final class PodcastListFragment2 extends RxListFragment<
 
     public PodcastListFragment2() {
         super(
+                PodcastListFragment2.class,
                 PodcastListFragmentListener.class,
+                Attachment.class,
                 PodcastListFragment2.Attachment::new,
                 PodcastListFragmentListener::onPodcastListFragmentListenerAttached,
                 PodcastListFragmentListener::onPodcastListFragmentListenerWillDetach,
                 R.layout.fragment_podcast_list_2,
-                PodcastIdentifiedHolder::new,
-                PodcastIdentifiedHolder[]::new,
                 PodcastIdentifiedList::new,
                 PodcastListFragmentListener::podcastIdentifiedsServiceResponseObservable,
-                PodcastListFragmentListener::onPodcastIdentifiedsFailed,
                 PodcastIdentifiedHolder.class
         );
     }
@@ -156,15 +152,5 @@ public final class PodcastListFragment2 extends RxListFragment<
                                 podcastIdentified
                         )
         );
-    }
-
-    @Override
-    protected void onItemListServiceResponseFailed() {
-        Log.e(TAG, "Error Loading Podcasts");
-    }
-
-    @Override
-    protected final void subscribeToAttachmentObservable2(Observable<Attachment> attachmentObservable) {
-        // nothing to do
     }
 }

@@ -1,7 +1,6 @@
 package com.github.hborders.heathcast.reactivexandroid;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -11,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
+import com.github.hborders.heathcast.reactivex.RxUtil;
 import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
@@ -18,10 +18,11 @@ import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter
 import java.util.List;
 import java.util.Optional;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.observables.ConnectableObservable;
 
 public abstract class RxListFragment<
         FragmentType extends RxListFragment<
@@ -31,8 +32,6 @@ public abstract class RxListFragment<
                 AttachmentFactoryType,
                 UnparcelableType,
                 UnparcelableHolderType,
-                UnparcelableHolderFactoryType,
-                UnparcelableHolderArrayFactoryType,
                 UnparcelableListType,
                 UnparcelableCapacityCollectionFactoryType,
                 ListRecyclerViewAdapterType,
@@ -57,14 +56,6 @@ public abstract class RxListFragment<
                 >,
         UnparcelableType,
         UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
-        UnparcelableHolderFactoryType extends UnparcelableHolder.Factory<
-                UnparcelableType,
-                UnparcelableHolderType
-                >,
-        UnparcelableHolderArrayFactoryType extends UnparcelableHolder.ArrayFactory<
-                UnparcelableType,
-                UnparcelableHolderType
-                >,
         UnparcelableListType extends List<UnparcelableType>,
         UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
                 UnparcelableListType,
@@ -115,8 +106,6 @@ public abstract class RxListFragment<
                     AttachmentFactoryType,
                     UnparcelableType,
                     UnparcelableHolderType,
-                    UnparcelableHolderFactoryType,
-                    UnparcelableHolderArrayFactoryType,
                     UnparcelableListType,
                     UnparcelableCapacityCollectionFactoryType,
                     ListRecyclerViewAdapterType,
@@ -141,14 +130,6 @@ public abstract class RxListFragment<
                     >,
             UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
-            UnparcelableHolderFactoryType extends UnparcelableHolder.Factory<
-                    UnparcelableType,
-                    UnparcelableHolderType
-                    >,
-            UnparcelableHolderArrayFactoryType extends UnparcelableHolder.ArrayFactory<
-                    UnparcelableType,
-                    UnparcelableHolderType
-                    >,
             UnparcelableListType extends List<UnparcelableType>,
             UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
                     UnparcelableListType,
@@ -191,90 +172,6 @@ public abstract class RxListFragment<
         );
     }
 
-    protected interface OnItemListServiceResponseFailed<
-            FragmentType extends RxListFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType,
-                    UnparcelableType,
-                    UnparcelableHolderType,
-                    UnparcelableHolderFactoryType,
-                    UnparcelableHolderArrayFactoryType,
-                    UnparcelableListType,
-                    UnparcelableCapacityCollectionFactoryType,
-                    ListRecyclerViewAdapterType,
-                    ViewHolderType,
-                    ServiceResponseType,
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
-            UnparcelableHolderFactoryType extends UnparcelableHolder.Factory<
-                    UnparcelableType,
-                    UnparcelableHolderType
-                    >,
-            UnparcelableHolderArrayFactoryType extends UnparcelableHolder.ArrayFactory<
-                    UnparcelableType,
-                    UnparcelableHolderType
-                    >,
-            UnparcelableListType extends List<UnparcelableType>,
-            UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
-                    UnparcelableListType,
-                    UnparcelableType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableType,
-                    UnparcelableListType,
-                    ViewHolderType
-                    >,
-            ViewHolderType extends RecyclerView.ViewHolder,
-            ServiceResponseType extends ServiceResponse1<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >,
-            ServiceResponseLoadingType extends ServiceResponse1.Loading<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >,
-            ServiceResponseCompleteType extends ServiceResponse1.Complete<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >,
-            ServiceResponseFailedType extends ServiceResponse1.Failed<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >
-            > {
-        void onItemListServiceResponseFailed(
-                ListenerType listener,
-                FragmentType fragment
-        );
-    }
-
     private static final class ItemRanger {
         private final RecyclerView recyclerView;
         private final RecyclerView.Adapter<?> recyclerViewAdapter;
@@ -301,53 +198,13 @@ public abstract class RxListFragment<
     }
 
     private static final String ITEM_HOLDERS_KEY = "itemHolders";
-
-    private final UnparcelableHolderFactoryType unparcelableHolderFactory;
-    private final UnparcelableHolderArrayFactoryType unparcelableHolderArrayFactory;
-    private final UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory;
-    private final ItemListServiceResponseObservableProvider<
-            FragmentType,
-            ListenerType,
-            AttachmentType,
-            AttachmentFactoryType,
-            UnparcelableType,
-            UnparcelableHolderType,
-            UnparcelableHolderFactoryType,
-            UnparcelableHolderArrayFactoryType,
-            UnparcelableListType,
-            UnparcelableCapacityCollectionFactoryType,
-            ListRecyclerViewAdapterType,
-            ViewHolderType,
-            ServiceResponseType,
-            ServiceResponseLoadingType,
-            ServiceResponseCompleteType,
-            ServiceResponseFailedType
-            > itemListServiceResponseObservableProvider;
-    private final OnItemListServiceResponseFailed<
-            FragmentType,
-            ListenerType,
-            AttachmentType,
-            AttachmentFactoryType,
-            UnparcelableType,
-            UnparcelableHolderType,
-            UnparcelableHolderFactoryType,
-            UnparcelableHolderArrayFactoryType,
-            UnparcelableListType,
-            UnparcelableCapacityCollectionFactoryType,
-            ListRecyclerViewAdapterType,
-            ViewHolderType,
-            ServiceResponseType,
-            ServiceResponseLoadingType,
-            ServiceResponseCompleteType,
-            ServiceResponseFailedType
-            > onItemListServiceResponseFailed;
-    private final Class<UnparcelableHolderType> holderClass;
-    private final BehaviorSubject<Optional<ItemRanger>> itemRangerOptionalBehaviorSubject =
-            BehaviorSubject.createDefault(Optional.empty());
-    private final BehaviorSubject<Boolean> loadingBehaviorSubject = BehaviorSubject.createDefault(false);
+    private final Observable<Optional<ItemRanger>> itemRangerOptionalObservable;
+    private final Observable<Boolean> loadingObservable;
 
     protected RxListFragment(
+            Class<FragmentType> fragmentClass,
             Class<ListenerType> listenerClass,
+            Class<AttachmentType> attachmentClass,
             AttachmentFactoryType attachmentFactory,
             OnAttached<
                     FragmentType,
@@ -362,8 +219,6 @@ public abstract class RxListFragment<
                     AttachmentFactoryType
                     > willDetach,
             int layoutResource,
-            UnparcelableHolderFactoryType unparcelableHolderFactory,
-            UnparcelableHolderArrayFactoryType unparcelableHolderArrayFactory,
             UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory,
             ItemListServiceResponseObservableProvider<
                     FragmentType,
@@ -372,8 +227,6 @@ public abstract class RxListFragment<
                     AttachmentFactoryType,
                     UnparcelableType,
                     UnparcelableHolderType,
-                    UnparcelableHolderFactoryType,
-                    UnparcelableHolderArrayFactoryType,
                     UnparcelableListType,
                     UnparcelableCapacityCollectionFactoryType,
                     ListRecyclerViewAdapterType,
@@ -383,44 +236,227 @@ public abstract class RxListFragment<
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType
                     > itemListServiceResponseObservableProvider,
-            OnItemListServiceResponseFailed<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType,
-                    UnparcelableType,
-                    UnparcelableHolderType,
-                    UnparcelableHolderFactoryType,
-                    UnparcelableHolderArrayFactoryType,
-                    UnparcelableListType,
-                    UnparcelableCapacityCollectionFactoryType,
-                    ListRecyclerViewAdapterType,
-                    ViewHolderType,
-                    ServiceResponseType,
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType
-                    > onItemListServiceResponseFailed,
             Class<UnparcelableHolderType> holderClass
     ) {
         super(
+                fragmentClass,
                 listenerClass,
+                attachmentClass,
                 attachmentFactory,
                 onAttached,
                 willDetach,
                 layoutResource
         );
 
-        this.unparcelableHolderFactory = unparcelableHolderFactory;
-        this.unparcelableHolderArrayFactory = unparcelableHolderArrayFactory;
-        this.unparcelableCapacityCollectionFactory = unparcelableCapacityCollectionFactory;
-        this.itemListServiceResponseObservableProvider = itemListServiceResponseObservableProvider;
-        this.onItemListServiceResponseFailed = onItemListServiceResponseFailed;
-        this.holderClass = holderClass;
+        final class Prez {
+            final Context context;
+            final ListenerType listener;
+            final ViewCreation viewCreation;
+            final RecyclerView recyclerView;
+            final ListRecyclerViewAdapterType listRecyclerViewAdapter;
+            final LinearLayoutManager linearLayoutManager;
+            @Nullable
+            final View emptyItemsLoadingView;
+            @Nullable
+            final View nonEmptyItemsLoadingView;
+            @Nullable
+            final View emptyItemsCompleteView;
+            @Nullable
+            final View emptyItemsErrorView;
+            @Nullable
+            final View nonEmptyItemsErrorView;
+
+            Prez(
+                    Context context,
+                    ListenerType listener,
+                    ViewCreation viewCreation,
+                    RecyclerView recyclerView,
+                    ListRecyclerViewAdapterType listRecyclerViewAdapter,
+                    LinearLayoutManager linearLayoutManager,
+                    @Nullable View emptyItemsLoadingView,
+                    @Nullable View nonEmptyItemsLoadingView,
+                    @Nullable View emptyItemsCompleteView,
+                    @Nullable View emptyItemsErrorView,
+                    @Nullable View nonEmptyItemsErrorView
+            ) {
+                this.context = context;
+                this.listener = listener;
+                this.viewCreation = viewCreation;
+                this.recyclerView = recyclerView;
+                this.listRecyclerViewAdapter = listRecyclerViewAdapter;
+                this.linearLayoutManager = linearLayoutManager;
+                this.emptyItemsLoadingView = emptyItemsLoadingView;
+                this.nonEmptyItemsLoadingView = nonEmptyItemsLoadingView;
+                this.emptyItemsCompleteView = emptyItemsCompleteView;
+                this.emptyItemsErrorView = emptyItemsErrorView;
+                this.nonEmptyItemsErrorView = nonEmptyItemsErrorView;
+            }
+        }
+
+        final Observable<Optional<Prez>> prezOptionalObservable = beginRxGraph().switchMap(
+                Attachment::switchMapToViewCreation
+        ).switchMap(
+                attachmentFragmentCreationViewCreationTriple -> {
+                    final Context context =
+                            attachmentFragmentCreationViewCreationTriple.first.context;
+                    final ListenerType listener =
+                            attachmentFragmentCreationViewCreationTriple.first.listener;
+                    final ViewCreation viewCreation =
+                            attachmentFragmentCreationViewCreationTriple.third;
+                    final View view = viewCreation.view;
+                    final RecyclerView recyclerView = requireRecyclerView(view);
+                    final LinearLayoutManager linearLayoutManager =
+                            new LinearLayoutManager(context);
+                    recyclerView.setLayoutManager(linearLayoutManager);
+                    final UnparcelableListType initialItems =
+                            FragmentUtil.getUnparcelableListArgumentOptional(
+                                    this,
+                                    holderClass,
+                                    unparcelableCapacityCollectionFactory,
+                                    ITEM_HOLDERS_KEY
+                            ).orElse(unparcelableCapacityCollectionFactory.newCollection(0));
+                    final ListRecyclerViewAdapterType listRecyclerViewAdapter =
+                            createListRecyclerViewAdapter(
+                                    initialItems,
+                                    listener
+                            );
+                    recyclerView.setAdapter(listRecyclerViewAdapter);
+                    return Observable.just(
+                            Optional.of(
+                                    new Prez(
+                                            context,
+                                            listener,
+                                            viewCreation,
+                                            recyclerView,
+                                            listRecyclerViewAdapter,
+                                            linearLayoutManager,
+                                            findEmptyItemsLoadingView(view),
+                                            findNonEmptyItemsLoadingView(view),
+                                            findEmptyItemsCompleteView(view),
+                                            findEmptyItemsErrorView(view),
+                                            findNonEmptyItemsErrorView(view)
+                                    )
+                            )
+                    ).concatWith(Single.just(Optional.empty()));
+                }
+        );
+        itemRangerOptionalObservable = prezOptionalObservable.map(
+                prezOptional ->
+                        prezOptional.map(
+                                prez ->
+                                        new ItemRanger(
+                                                prez.recyclerView,
+                                                prez.listRecyclerViewAdapter,
+                                                prez.linearLayoutManager
+                                        )
+                        )
+        ).startWith(Optional.empty());
+
+        final Observable<Prez> prezObervable = prezOptionalObservable.switchMapMaybe(RxUtil::maybeFromOptional);
+
+        final class Render {
+            final Prez prez;
+            final Start start;
+            final ServiceResponseType itemListServiceResponse;
+
+            Render(
+                    Prez prez,
+                    Start start,
+                    ServiceResponseType itemListServiceResponse
+            ) {
+                this.prez = prez;
+                this.start = start;
+                this.itemListServiceResponse = itemListServiceResponse;
+            }
+        }
+
+        final Observable<Render> renderObservable =
+                prezObervable.switchMap(
+                        prez ->
+                                prez.viewCreation.switchMapToStart().switchMap(
+                                        start ->
+                                                itemListServiceResponseObservableProvider
+                                                        .itemListServiceResponseObservable(
+                                                                prez.listener,
+                                                                getSelf()
+                                                        )
+                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                        .map(
+                                                                itemListServiceResponse ->
+                                                                        new Render(
+                                                                                prez,
+                                                                                start,
+                                                                                itemListServiceResponse
+                                                                        )
+                                                        )
+                                )
+                );
+
+
+        // Order matters here.
+        // We want to subscribe directly to itemListServiceResponseObservable
+        // from eagerLoadingObservable, then RendererObservable, then lazyNotLoadingObservable
+        // because we want eagerLoadingObservable to be reported first, then RendererObserable,
+        // then lazyNotLoadingObservable
+        // If we try to abstract eagerLoadingObservable and lazyNotLoadingObservable into a one
+        // common Observable, we'll only have a single subscription, and we won't report
+        // not loading after Render, which is what we want.
+        final ConnectableObservable<Boolean> eagerLoadingObservable = renderObservable
+                .switchMapMaybe(
+                        render -> {
+                            if (isServiceResponseLoading(render.itemListServiceResponse)) {
+                                return Maybe.just(true);
+                            } else {
+                                return Maybe.empty();
+                            }
+                        }
+                )
+                .publish();
+        eagerLoadingObservable.connect().isDisposed();
+
+        renderObservable.subscribe(
+                render -> {
+                    setEmptyItemsLoadingViewVisibility(
+                            render.prez.emptyItemsLoadingView,
+                            render.itemListServiceResponse
+                    );
+                    setNonEmptyItemsLoadingViewVisibility(
+                            render.prez.nonEmptyItemsLoadingView,
+                            render.itemListServiceResponse
+                    );
+                    setEmptyItemsCompleteViewVisibility(
+                            render.prez.emptyItemsCompleteView,
+                            render.itemListServiceResponse
+                    );
+                    setEmptyItemsErrorViewVisibility(
+                            render.prez.emptyItemsErrorView,
+                            render.itemListServiceResponse
+                    );
+                    setNonEmptyItemsErrorViewVisibility(
+                            render.prez.nonEmptyItemsErrorView,
+                            render.itemListServiceResponse
+                    );
+                    render.prez.listRecyclerViewAdapter.setItems(
+                            render.itemListServiceResponse.getValue()
+                    );
+                }
+        ).isDisposed();
+
+        final ConnectableObservable<Boolean> lazyNotLoadingObservable = renderObservable.switchMapMaybe(
+                render -> {
+                    if (isServiceResponseLoading(render.itemListServiceResponse)) {
+                        return Maybe.empty();
+                    } else {
+                        return Maybe.just(false);
+                    }
+                }
+        ).publish();
+        lazyNotLoadingObservable.connect().isDisposed();
+        loadingObservable = eagerLoadingObservable.mergeWith(lazyNotLoadingObservable);
     }
 
     public final Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
-        return itemRangerOptionalBehaviorSubject.switchMap(podcastIdentifiedsItemRangerOptional ->
+        return itemRangerOptionalObservable.switchMap(podcastIdentifiedsItemRangerOptional ->
                 podcastIdentifiedsItemRangerOptional.map(itemRanger ->
                         Observable.<Optional<ItemRange>>create(emitter -> {
                             final RecyclerView recyclerView = itemRanger.recyclerView;
@@ -470,7 +506,7 @@ public abstract class RxListFragment<
     }
 
     public Observable<Boolean> getLoadingObservable() {
-        return loadingBehaviorSubject;
+        return loadingObservable;
     }
 
     @Nullable
@@ -495,155 +531,12 @@ public abstract class RxListFragment<
             ListenerType listener
     );
 
-    protected abstract void onItemListServiceResponseFailed();
-
-    protected abstract void subscribeToAttachmentObservable2(
-            Observable<AttachmentType> attachmentObservable
-    );
-
-    @Override
-    protected final void subscribeToAttachmentObservable(
-            Observable<AttachmentType> attachmentObservable
-    ) {
-        switchMapToViewCreation(attachmentObservable).subscribe(
-                attachmentFragmentCreationViewCreationTriple -> {
-                    final Context context =
-                            attachmentFragmentCreationViewCreationTriple.first.context;
-                    final ListenerType listener =
-                            attachmentFragmentCreationViewCreationTriple.first.listener;
-                    final ViewCreation viewCreation =
-                            attachmentFragmentCreationViewCreationTriple.third;
-
-                    @Nullable final View emptyItemsLoadingView = findEmptyItemsLoadingView(viewCreation.view);
-                    @Nullable final View nonEmptyItemsLoadingView = findNonEmptyItemsLoadingView(viewCreation.view);
-                    @Nullable final View emptyItemsCompleteView = findEmptyItemsCompleteView(viewCreation.view);
-                    @Nullable final View emptyItemsErrorView = findEmptyItemsErrorView(viewCreation.view);
-                    @Nullable final View nonEmptyItemsErrorView = findNonEmptyItemsErrorView(viewCreation.view);
-                    final RecyclerView recyclerView = requireRecyclerView(viewCreation.view);
-                    final LinearLayoutManager linearLayoutManager =
-                            new LinearLayoutManager(context);
-                    recyclerView.setLayoutManager(linearLayoutManager);
-                    final UnparcelableListType initialItems =
-                            FragmentUtil.getUnparcelableListArgumentOptional(
-                                    this,
-                                    holderClass,
-                                    unparcelableCapacityCollectionFactory,
-                                    ITEM_HOLDERS_KEY
-                            ).orElse(unparcelableCapacityCollectionFactory.newCollection(0));
-                    final ListRecyclerViewAdapterType listRecyclerViewAdapter =
-                            createListRecyclerViewAdapter(
-                                    initialItems,
-                                    listener
-                            );
-                    recyclerView.setAdapter(listRecyclerViewAdapter);
-                    itemRangerOptionalBehaviorSubject.onNext(
-                            Optional.of(
-                                    new ItemRanger(
-                                            recyclerView,
-                                            listRecyclerViewAdapter,
-                                            linearLayoutManager
-                                    )
-                            )
-                    );
-
-                    viewCreation.switchMapToStart().subscribe(
-                            start -> {
-                                final Disposable adapterSetPodcastIdentifiedsDisposable =
-                                        itemListServiceResponseObservableProvider.itemListServiceResponseObservable(
-                                                listener,
-                                                getSelf()
-                                        )
-                                                .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(
-                                                        itemListServiceResponse -> {
-                                                            eagerlyReportLoading(
-                                                                    itemListServiceResponse
-                                                            );
-                                                            setEmptyItemsLoadingViewVisibility(
-                                                                    emptyItemsLoadingView,
-                                                                    itemListServiceResponse
-                                                            );
-                                                            setNonEmptyItemsLoadingViewVisibility(
-                                                                    nonEmptyItemsLoadingView,
-                                                                    itemListServiceResponse
-                                                            );
-                                                            setEmptyItemsCompleteViewVisibility(
-                                                                    emptyItemsCompleteView,
-                                                                    itemListServiceResponse
-                                                            );
-                                                            setEmptyItemsErrorViewVisibility(
-                                                                    emptyItemsErrorView,
-                                                                    itemListServiceResponse
-                                                            );
-                                                            setNonEmptyItemsErrorViewVisibility(
-                                                                    nonEmptyItemsErrorView,
-                                                                    itemListServiceResponse
-                                                            );
-                                                            start.setArguments(
-                                                                    argumentsBundle(
-                                                                            itemListServiceResponse.getValue()
-                                                                    )
-                                                            );
-                                                            listRecyclerViewAdapter.setItems(
-                                                                    itemListServiceResponse.getValue()
-                                                            );
-                                                            lazilyReportNotLoading(
-                                                                    itemListServiceResponse
-                                                            );
-                                                        },
-                                                        throwable -> {
-                                                            onItemListServiceResponseFailed();
-                                                            onItemListServiceResponseFailed.onItemListServiceResponseFailed(
-                                                                    listener,
-                                                                    getSelf()
-                                                            );
-                                                        }
-                                                );
-                                start.onStopCompletable.subscribe(
-                                        adapterSetPodcastIdentifiedsDisposable::dispose
-                                ).isDisposed();
-                            }
-                    ).isDisposed();
-
-                    viewCreation.onDestroyViewCompletable.subscribe(
-                            () -> {
-                                itemRangerOptionalBehaviorSubject.onNext(Optional.empty());
-                                loadingBehaviorSubject.onNext(false);
-                            }
-                    ).isDisposed();
-                }
-        ).isDisposed();
-        subscribeToAttachmentObservable2(attachmentObservable);
-    }
-
-    private UnparcelableHolderType[] holderArray(UnparcelableListType items) {
-        return items
-                .stream()
-                .map(unparcelableHolderFactory::newUnparcelableHolder)
-                .toArray(unparcelableHolderArrayFactory::newUnparcelableHolderArray);
-    }
-
-    private Bundle argumentsBundle(UnparcelableListType items) {
-        final Bundle argumentsBundle = new Bundle();
-        argumentsBundle.putParcelableArray(
-                ITEM_HOLDERS_KEY,
-                holderArray(items)
-        );
-        return argumentsBundle;
-    }
-
     private boolean isServiceResponseLoading(ServiceResponseType serviceResponse) {
         return serviceResponse.reduce(
                 loading -> true,
                 complete -> false,
                 failed -> false
         );
-    }
-
-    private void eagerlyReportLoading(ServiceResponseType serviceResponse) {
-        if (isServiceResponseLoading(serviceResponse)) {
-            loadingBehaviorSubject.onNext(true);
-        }
     }
 
     private void setEmptyItemsLoadingViewVisibility(
@@ -718,12 +611,6 @@ public abstract class RxListFragment<
                             failed -> failed.value.isEmpty() ? View.GONE : View.VISIBLE
                     )
             );
-        }
-    }
-
-    private void lazilyReportNotLoading(ServiceResponseType serviceResponse) {
-        if (!isServiceResponseLoading(serviceResponse)) {
-            loadingBehaviorSubject.onNext(false);
         }
     }
 }

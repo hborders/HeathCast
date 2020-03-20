@@ -89,6 +89,7 @@ public abstract class RxFragment<
                         >
                 > {
             AttachmentType newAttachment(
+                    Class<AttachmentType> attachmentClass,
                     FragmentType fragment,
                     Context context,
                     ListenerType listener,
@@ -97,6 +98,7 @@ public abstract class RxFragment<
             );
         }
 
+        private final Class<AttachmentType> attachmentClass;
         public final FragmentType fragment;
         public final Context context;
         public final ListenerType listener;
@@ -104,12 +106,14 @@ public abstract class RxFragment<
         public final Completable onDetachCompletable;
 
         protected Attachment(
+                Class<AttachmentType> attachmentClass,
                 FragmentType fragment,
                 Context context,
                 ListenerType listener,
                 Observable<FragmentCreation> fragmenCreationObservable,
                 Completable onDetachCompletable
         ) {
+            this.attachmentClass = attachmentClass;
             this.fragment = fragment;
             this.context = context;
             this.listener = listener;
@@ -134,6 +138,39 @@ public abstract class RxFragment<
                     ", fragmenCreationObservable=" + fragmenCreationObservable +
                     ", onDetachCompletable=" + onDetachCompletable +
                     '}';
+        }
+
+        protected final Observable<
+                Tuple<
+                        AttachmentType,
+                        FragmentCreation
+                        >
+                > mapToFragmentCreation() {
+            final AttachmentType self = Objects.requireNonNull(attachmentClass.cast(this));
+            return fragmenCreationObservable.map(
+                    fragmentCreation -> new Tuple<>(self, fragmentCreation)
+            );
+        }
+
+        public final Observable<
+                Triple<
+                        AttachmentType,
+                        FragmentCreation,
+                        ViewCreation
+                        >
+                > switchMapToViewCreation() {
+            final AttachmentType self = Objects.requireNonNull(attachmentClass.cast(this));
+            return fragmenCreationObservable.switchMap(
+                    fragmentCreation -> fragmentCreation.viewCreationObservableObservable.switchMap(
+                            viewCreationObservable -> viewCreationObservable.map(
+                                    viewCreation -> new Triple<>(
+                                            self,
+                                            fragmentCreation,
+                                            viewCreation
+                                    )
+                            )
+                    )
+            );
         }
     }
 
@@ -362,7 +399,9 @@ public abstract class RxFragment<
         );
     }
 
+    private final Class<FragmentType> fragmentClass;
     private final Class<ListenerType> listenerClass;
+    private final Class<AttachmentType> attachmentClass;
     private final AttachmentFactoryType attachmentFactory;
     private final OnAttached<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> onAttached;
     private final WillDetach<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> willDetach;
@@ -396,13 +435,17 @@ public abstract class RxFragment<
     private CompletableSubject onPauseCompletableSubject = CompletableSubject.create();
 
     protected RxFragment(
+            Class<FragmentType> fragmentClass,
             Class<ListenerType> listenerClass,
+            Class<AttachmentType> attachmentClass,
             AttachmentFactoryType attachmentFactory,
             OnAttached<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> onAttached,
             WillDetach<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> willDetach,
             int layoutResource
     ) {
+        this.fragmentClass = fragmentClass;
         this.listenerClass = listenerClass;
+        this.attachmentClass = attachmentClass;
         this.attachmentFactory = attachmentFactory;
         this.onAttached = onAttached;
         this.willDetach = willDetach;
@@ -415,45 +458,6 @@ public abstract class RxFragment<
         } else {
             throw new IllegalStateException();
         }
-    }
-
-    protected final Observable<
-            Tuple<
-                    AttachmentType,
-                    FragmentCreation
-                    >
-            > switchMapToFragmentCreation(
-            Observable<AttachmentType> attachmentObservable
-    ) {
-        return attachmentObservable.switchMap(
-                attachment -> attachment.fragmenCreationObservable.map(
-                        fragmentCreation -> new Tuple<>(attachment, fragmentCreation)
-                )
-        );
-    }
-
-    protected final Observable<
-            Triple<
-                    AttachmentType,
-                    FragmentCreation,
-                    ViewCreation
-                    >
-            > switchMapToViewCreation(
-            Observable<AttachmentType> attachmentObservable
-    ) {
-        return attachmentObservable.switchMap(
-                attachment -> attachment.fragmenCreationObservable.switchMap(
-                        fragmentCreation -> fragmentCreation.viewCreationObservableObservable.switchMap(
-                                viewCreationObservable -> viewCreationObservable.map(
-                                        viewCreation -> new Triple<>(
-                                                attachment,
-                                                fragmentCreation,
-                                                viewCreation
-                                        )
-                                )
-                        )
-                )
-        );
     }
 
     private void superSetArguments(@Nullable Bundle args) {
@@ -478,11 +482,9 @@ public abstract class RxFragment<
                 listenerClass
         );
 
-        subscribeToAttachmentObservable(
-                attachmentBehaviorSubject
-        );
         onAttached.onAttached(listener, self);
         final AttachmentType attachment = attachmentFactory.newAttachment(
+                attachmentClass,
                 self,
                 context,
                 listener,
@@ -656,11 +658,17 @@ public abstract class RxFragment<
         attachmentBehaviorSubject = BehaviorSubject.create();
     }
 
+    /**
+     * Use instead of <code>this</code> when you want to refer to the subclass type.
+     */
     protected final FragmentType getSelf() {
-        return (FragmentType) this;
+        return Objects.requireNonNull(fragmentClass.cast(this));
     }
 
-    protected abstract void subscribeToAttachmentObservable(
-            Observable<AttachmentType> attachmentObservable
-    );
+    /**
+     * The beginning of the Rx graph.
+     */
+    protected final Observable<AttachmentType> beginRxGraph() {
+        return attachmentBehaviorSubject;
+    }
 }

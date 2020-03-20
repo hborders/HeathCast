@@ -17,7 +17,6 @@ import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -234,17 +233,6 @@ public final class PodcastSearchFragment extends Fragment
             PodcastListFragment2 podcastListFragment
     ) {
         return podcastIdentifiedListServiceResponseBehaviorSubject;
-    }
-
-    @Override
-    public void onPodcastIdentifiedsFailed(
-            PodcastListFragment2 podcastListFragment
-    ) {
-        Snackbar.make(
-                requireView(),
-                requireContext().getText(R.string.fragment_podcast_search_error),
-                Snackbar.LENGTH_SHORT
-        ).show();
     }
 
     @Override

@@ -12,6 +12,7 @@ import androidx.test.filters.LargeTest;
 
 import com.github.hborders.heathcast.activities.MainActivity;
 import com.github.hborders.heathcast.idlingresource.BooleanObservableIdlingResourceSubscriber;
+import com.github.hborders.heathcast.idlingresource.DisposableIdlingResource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,12 +47,12 @@ public class SearchEspressoTest {
             new ActivityScenarioRule<>(MainActivity.class);
 
     @Nullable
-    private BooleanObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource;
+    private DisposableIdlingResource podcastSearchSubscribedIdlingResource;
 
     @Before
     public void registerIdlingResource() throws Exception {
         activityScenarioRule.getScenario().onActivity(mainActivity -> {
-            final BooleanObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
+            final DisposableIdlingResource podcastSearchSubscribedIdlingResource =
                     BooleanObservableIdlingResourceSubscriber.subscribe(
                             "podcastSearchResults",
                             mainActivity.getPodcastSearchingObservable().map(searching -> !searching)
@@ -64,7 +65,7 @@ public class SearchEspressoTest {
 
     @After
     public void unregisterIdlingResource() throws Exception {
-        @Nullable final BooleanObservableIdlingResourceSubscriber.SubscribedIdlingResource podcastSearchSubscribedIdlingResource =
+        @Nullable final DisposableIdlingResource podcastSearchSubscribedIdlingResource =
                 this.podcastSearchSubscribedIdlingResource;
         if (podcastSearchSubscribedIdlingResource != null) {
             podcastSearchSubscribedIdlingResource.dispose();

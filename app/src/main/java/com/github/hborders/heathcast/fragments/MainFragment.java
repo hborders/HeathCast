@@ -24,10 +24,10 @@ public class MainFragment extends RxFragment<
                 MainFragment.MainFragmentListener,
                 Attachment,
                 Attachment.Factory> {
-
         }
 
         public Attachment(
+                Class<Attachment> attachmentClass,
                 MainFragment fragment,
                 Context context,
                 MainFragmentListener listener,
@@ -35,6 +35,7 @@ public class MainFragment extends RxFragment<
                 Completable onDetachCompletable
         ) {
             super(
+                    attachmentClass,
                     fragment,
                     context,
                     listener,
@@ -46,17 +47,18 @@ public class MainFragment extends RxFragment<
 
     public MainFragment() {
         super(
+                MainFragment.class,
                 MainFragmentListener.class,
+                Attachment.class,
                 Attachment::new,
                 MainFragmentListener::onMainFragmentAttached,
                 MainFragmentListener::onMainFragmentWillDetach,
                 R.layout.fragment_main
         );
-    }
 
-    @Override
-    protected void subscribeToAttachmentObservable(Observable<Attachment> attachmentObservable) {
-        switchMapToViewCreation(attachmentObservable).subscribe(
+        beginRxGraph().switchMap(
+                RxFragment.Attachment::switchMapToViewCreation
+        ).subscribe(
                 attachmentFragmentCreationViewCreationTriple -> {
                     final MainFragmentListener listener =
                             attachmentFragmentCreationViewCreationTriple.first.listener;

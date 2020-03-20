@@ -13,7 +13,7 @@ import io.reactivex.disposables.Disposable;
 // can't just observe an optional. Need to actually observe whether a search is active
 // thus, we have to actually expose the loading state, not just the effects
 public final class BooleanObservableIdlingResourceSubscriber {
-    public static SubscribedIdlingResource subscribe(
+    public static DisposableIdlingResource subscribe(
             String name,
             Observable<Boolean> idleObservable
     ) {
@@ -38,7 +38,7 @@ public final class BooleanObservableIdlingResourceSubscriber {
         );
     }
 
-    public static class SubscribedIdlingResource implements IdlingResource, Disposable {
+    private static class SubscribedIdlingResource implements DisposableIdlingResource {
         private final String name;
         private final AtomicBoolean isIdleAtomicBoolean;
         private final AtomicReference<ResourceCallback> resourceCallbackAtomicReference;
