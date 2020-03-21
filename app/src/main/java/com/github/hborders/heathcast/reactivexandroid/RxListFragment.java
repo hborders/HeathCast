@@ -293,7 +293,7 @@ public abstract class RxListFragment<
             }
         }
 
-        final Observable<Optional<Prez>> prezOptionalObservable = beginRxGraph().switchMap(
+        final ConnectableObservable<Optional<Prez>> prezOptionalConnectableObservable = beginRxGraph().switchMap(
                 Attachment::switchMapToViewCreation
         ).switchMap(
                 attachmentFragmentCreationViewCreationTriple -> {
@@ -339,8 +339,9 @@ public abstract class RxListFragment<
                             )
                     ).concatWith(Single.just(Optional.empty()));
                 }
-        );
-        itemRangerOptionalObservable = prezOptionalObservable.map(
+        ).publish();
+        prezOptionalConnectableObservable.connect().isDisposed();
+        itemRangerOptionalObservable = prezOptionalConnectableObservable.map(
                 prezOptional ->
                         prezOptional.map(
                                 prez ->
@@ -352,7 +353,7 @@ public abstract class RxListFragment<
                         )
         ).startWith(Optional.empty());
 
-        final Observable<Prez> prezObervable = prezOptionalObservable.switchMapMaybe(RxUtil::maybeFromOptional);
+        final Observable<Prez> prezObervable = prezOptionalConnectableObservable.switchMapMaybe(RxUtil::maybeFromOptional);
 
         final class Render {
             final Prez prez;
@@ -395,13 +396,13 @@ public abstract class RxListFragment<
 
         // Order matters here.
         // We want to subscribe directly to itemListServiceResponseObservable
-        // from eagerLoadingObservable, then RendererObservable, then lazyNotLoadingObservable
-        // because we want eagerLoadingObservable to be reported first, then RendererObserable,
-        // then lazyNotLoadingObservable
-        // If we try to abstract eagerLoadingObservable and lazyNotLoadingObservable into a one
+        // from eagerLoadingConnectableObservable, then RendererObservable, then lazyNotLoadingConnectableObservable
+        // because we want eagerLoadingConnectableObservable to be reported first, then RendererObserable,
+        // then lazyNotLoadingConnectableObservable
+        // If we try to abstract eagerLoadingConnectableObservable and lazyNotLoadingConnectableObservable into a one
         // common Observable, we'll only have a single subscription, and we won't report
         // not loading after Render, which is what we want.
-        final ConnectableObservable<Boolean> eagerLoadingObservable = renderObservable
+        final ConnectableObservable<Boolean> eagerLoadingConnectableObservable = renderObservable
                 .switchMapMaybe(
                         render -> {
                             if (isServiceResponseLoading(render.itemListServiceResponse)) {
@@ -412,7 +413,7 @@ public abstract class RxListFragment<
                         }
                 )
                 .publish();
-        eagerLoadingObservable.connect().isDisposed();
+        eagerLoadingConnectableObservable.connect().isDisposed();
 
         renderObservable.subscribe(
                 render -> {
@@ -442,7 +443,7 @@ public abstract class RxListFragment<
                 }
         ).isDisposed();
 
-        final ConnectableObservable<Boolean> lazyNotLoadingObservable = renderObservable.switchMapMaybe(
+        final ConnectableObservable<Boolean> lazyNotLoadingConnectableObservable = renderObservable.switchMapMaybe(
                 render -> {
                     if (isServiceResponseLoading(render.itemListServiceResponse)) {
                         return Maybe.empty();
@@ -451,8 +452,8 @@ public abstract class RxListFragment<
                     }
                 }
         ).publish();
-        lazyNotLoadingObservable.connect().isDisposed();
-        loadingObservable = eagerLoadingObservable.mergeWith(lazyNotLoadingObservable);
+        lazyNotLoadingConnectableObservable.connect().isDisposed();
+        loadingObservable = eagerLoadingConnectableObservable.mergeWith(lazyNotLoadingConnectableObservable);
     }
 
     public final Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
