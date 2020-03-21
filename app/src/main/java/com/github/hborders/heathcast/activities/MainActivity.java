@@ -27,6 +27,7 @@ import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastService;
+import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
@@ -288,6 +289,15 @@ public final class MainActivity extends AppCompatActivity
                         podcastSearchFragmentOptional.map(
                                 PodcastSearchFragment::getSearchingObservable
                         ).orElse(Observable.just(false))
+        );
+    }
+
+    public Observable<Optional<ItemRange>> getPodcastSearchResultPodcastsItemRangeOptionalObservable() {
+        return podcastSearchFragmentOptionalBehaviorSubject.switchMap(
+                podcastSearchfragmentOptional ->
+                        podcastSearchfragmentOptional.map(
+                                PodcastSearchFragment::getSearchResultItemRangeOptionalObservable
+                        ).orElse(Observable.just(Optional.empty()))
         );
     }
 }

@@ -19,6 +19,7 @@ import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.assertion.ViewAssertions.selectedDescendantsMatch;
+import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItem;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withChild;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -207,5 +208,38 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                         withChild(withText(modernLove))
                 )
         );
+    }
+
+    @Test
+    public void searchForPlanetMoneyThenSelectPlanetMoneyThenSwitchBackDoesntReload() {
+        final String planetMoney = "Planet Money";
+        final NetworkPauser planetMoneySearchForPodcasts2NetworkPauser = new NetworkPauser();
+        final NetworkPauser extraSearchForPodcasts2NetworkPauser = new NetworkPauser();
+        activityScenarioRule.getScenario().onActivity(
+                mainActivity -> {
+                    mainActivity.setSearchForPodcasts2NetworkPausers(
+                            planetMoneySearchForPodcasts2NetworkPauser,
+                            extraSearchForPodcasts2NetworkPauser
+                    );
+                }
+        );
+
+        onView(withId(R.id.fragment_main_add_podcast_fab)).perform(click());
+        onView(withId(R.id.fragment_podcast_search_search_view)).perform(
+                typeText(planetMoney),
+                pressKey(KeyEvent.KEYCODE_ENTER)
+        );
+        planetMoneySearchForPodcasts2NetworkPauser.resume();
+        IdlingRegistry.getInstance().register(getPodcastSearchDisposableIdlingResource());
+        IdlingRegistry.getInstance().register(getPodcastSearchResultPodcastsItemRangeDisposableIdlingResource());
+
+        onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
+                actionOnItem(
+                        withChild(withText(planetMoney)),
+                        click()
+                )
+        );
+
+        IdlingRegistry.getInstance().unregister(getPodcastSearchResultPodcastsItemRangeDisposableIdlingResource());
     }
 }

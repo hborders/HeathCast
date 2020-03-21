@@ -9,8 +9,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftIdleAndRightIdleThenIdle() {
-        final BasicIdlingResource left = BasicIdlingResource.idle("left");
-        final BasicIdlingResource right = BasicIdlingResource.idle("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.idle("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.idle("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -21,8 +21,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftIdleAndRightIdleDoesntCallCallbackWhenRightBecomesBusy() {
-        final BasicIdlingResource left = BasicIdlingResource.idle("left");
-        final BasicIdlingResource right = BasicIdlingResource.idle("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.idle("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.idle("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -36,8 +36,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftIdleAndRightIdleDoesntCallCallbackWhenLeftBecomesBusy() {
-        final BasicIdlingResource left = BasicIdlingResource.idle("left");
-        final BasicIdlingResource right = BasicIdlingResource.idle("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.idle("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.idle("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -51,8 +51,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftIdleAndRightBusyThenBusy() {
-        final BasicIdlingResource left = BasicIdlingResource.idle("left");
-        final BasicIdlingResource right = BasicIdlingResource.busy("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.idle("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.busy("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -63,8 +63,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftIdleAndRightBusyCallsCallbackWhenRightBecomesIdle() {
-        final BasicIdlingResource left = BasicIdlingResource.idle("left");
-        final BasicIdlingResource right = BasicIdlingResource.busy("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.idle("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.busy("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -78,8 +78,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftIdleAndRightBusyDoesntCallCallbackWhenLeftBecomesBusy() {
-        final BasicIdlingResource left = BasicIdlingResource.idle("left");
-        final BasicIdlingResource right = BasicIdlingResource.busy("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.idle("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.busy("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -93,8 +93,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftBusyAndRightIdleThenBusy() {
-        final BasicIdlingResource left = BasicIdlingResource.busy("left");
-        final BasicIdlingResource right = BasicIdlingResource.idle("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.busy("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.idle("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -105,8 +105,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftBusyAndRightIdleDoesntCallCallbackWhenRightBecomesBusy() {
-        final BasicIdlingResource left = BasicIdlingResource.busy("left");
-        final BasicIdlingResource right = BasicIdlingResource.idle("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.busy("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.idle("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -120,8 +120,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftBusyAndRightIdleCallsCallbackWhenLeftBecomesIdle() {
-        final BasicIdlingResource left = BasicIdlingResource.busy("left");
-        final BasicIdlingResource right = BasicIdlingResource.idle("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.busy("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.idle("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -135,8 +135,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftBusyAndRightBusyThenBusy() {
-        final BasicIdlingResource left = BasicIdlingResource.busy("left");
-        final BasicIdlingResource right = BasicIdlingResource.busy("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.busy("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.busy("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -147,8 +147,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftBusyAndRightBusyDoesntCallCallbackWhenRightBecomesIdle() {
-        final BasicIdlingResource left = BasicIdlingResource.busy("left");
-        final BasicIdlingResource right = BasicIdlingResource.busy("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.busy("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.busy("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right
@@ -162,8 +162,8 @@ public final class AndIdlingResourceTest {
 
     @Test
     public void testWhenLeftBusyAndRightBusyDoesntCallCallbackWhenLeftBecomesIdle() {
-        final BasicIdlingResource left = BasicIdlingResource.busy("left");
-        final BasicIdlingResource right = BasicIdlingResource.busy("right");
+        final BasicMutableIdlingResource left = BasicMutableIdlingResource.busy("left");
+        final BasicMutableIdlingResource right = BasicMutableIdlingResource.busy("right");
         final AndIdlingResource testObject = AndIdlingResource.and(
                 left,
                 right

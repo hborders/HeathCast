@@ -1,20 +1,18 @@
 package com.github.hborders.heathcast.idlingresource;
 
-import androidx.test.espresso.IdlingResource;
-
 import javax.annotation.Nullable;
 
-public final class BasicIdlingResource implements IdlingResource {
+public final class BasicMutableIdlingResource implements MutableIdlingResource {
 
-    public static BasicIdlingResource idle(String name) {
-        return new BasicIdlingResource(
+    public static BasicMutableIdlingResource idle(String name) {
+        return new BasicMutableIdlingResource(
                 name,
                 true
         );
     }
 
-    public static BasicIdlingResource busy(String name) {
-        return new BasicIdlingResource(
+    public static BasicMutableIdlingResource busy(String name) {
+        return new BasicMutableIdlingResource(
                 name,
                 false
         );
@@ -27,7 +25,7 @@ public final class BasicIdlingResource implements IdlingResource {
     @Nullable
     private volatile ResourceCallback resourceCallback;
 
-    private BasicIdlingResource(String name, boolean idleNow) {
+    private BasicMutableIdlingResource(String name, boolean idleNow) {
         this.name = name;
         this.idleNow = idleNow;
     }
@@ -45,16 +43,18 @@ public final class BasicIdlingResource implements IdlingResource {
     }
 
     @Override
-    public void registerIdleTransitionCallback(ResourceCallback resourceCallback) {
+    public void registerIdleTransitionCallback(@Nullable ResourceCallback resourceCallback) {
         this.resourceCallback = resourceCallback;
     }
 
     // Public API
 
+    @Override
     public void setBusy() {
         idleNow = false;
     }
 
+    @Override
     public void setIdle() {
         if (!idleNow) {
             idleNow = true;

@@ -29,9 +29,9 @@ public final class DelegatingIdlingResourceTest {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.busy("inner");
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.busy("inner");
 
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         testResourceCallback.assertNotCalled();
     }
 
@@ -40,9 +40,9 @@ public final class DelegatingIdlingResourceTest {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.idle("inner");
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.idle("inner");
 
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         testResourceCallback.assertCalledOnce();
     }
 
@@ -59,9 +59,9 @@ public final class DelegatingIdlingResourceTest {
     @Test
     public void testWhenHasWithBusyIsBusy() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.busy("inner");
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.busy("inner");
         testObject.setState(
-                DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource)
+                DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource)
         );
 
         assertFalse(testObject.isIdleNow());
@@ -70,8 +70,8 @@ public final class DelegatingIdlingResourceTest {
     @Test
     public void testWhenHasWithBusySetExpectingDoesntCallResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.busy("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.busy("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
@@ -82,34 +82,34 @@ public final class DelegatingIdlingResourceTest {
     @Test
     public void testWhenHasWithBusySetHasWithBusyDoesntCallResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource1 = BasicIdlingResource.busy("inner1");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource1));
+        final BasicMutableIdlingResource basicMutableIdlingResource1 = BasicMutableIdlingResource.busy("inner1");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource1));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        final BasicIdlingResource basicIdlingResource2 = BasicIdlingResource.busy("inner2");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource2));
+        final BasicMutableIdlingResource basicMutableIdlingResource2 = BasicMutableIdlingResource.busy("inner2");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource2));
         testResourceCallback.assertNotCalled();
     }
 
     @Test
     public void testWhenHasWithBusySetHasWithIdleCallsResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource1 = BasicIdlingResource.busy("inner1");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource1));
+        final BasicMutableIdlingResource basicMutableIdlingResource1 = BasicMutableIdlingResource.busy("inner1");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource1));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        final BasicIdlingResource basicIdlingResource2 = BasicIdlingResource.idle("inner2");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource2));
+        final BasicMutableIdlingResource basicMutableIdlingResource2 = BasicMutableIdlingResource.idle("inner2");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource2));
         testResourceCallback.assertCalledOnce();
     }
 
     @Test
     public void testWhenHasWithBusySetNotExpectingCallsResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource1 = BasicIdlingResource.busy("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource1));
+        final BasicMutableIdlingResource basicMutableIdlingResource1 = BasicMutableIdlingResource.busy("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource1));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
@@ -120,21 +120,21 @@ public final class DelegatingIdlingResourceTest {
     @Test
     public void testWhenHasWithBusyCallsResourceCallbackWhenBecomesIdle() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.busy("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.busy("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        basicIdlingResource.setIdle();
+        basicMutableIdlingResource.setIdle();
         testResourceCallback.assertCalledOnce();
     }
 
     @Test
     public void testWhenHasWithIdleIsIdle() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.idle("inner");
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.idle("inner");
         testObject.setState(
-                DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource)
+                DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource)
         );
 
         assertTrue(testObject.isIdleNow());
@@ -143,8 +143,8 @@ public final class DelegatingIdlingResourceTest {
     @Test
     public void testWhenHasWithIdleSetExpectingDoesntCallResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.idle("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.idle("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
@@ -155,34 +155,34 @@ public final class DelegatingIdlingResourceTest {
     @Test
     public void testWhenHasWithIdleSetHasWithBusyDoesntCallResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource1 = BasicIdlingResource.idle("inner1");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource1));
+        final BasicMutableIdlingResource basicMutableIdlingResource1 = BasicMutableIdlingResource.idle("inner1");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource1));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        final BasicIdlingResource basicIdlingResource2 = BasicIdlingResource.busy("inner2");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource2));
+        final BasicMutableIdlingResource basicMutableIdlingResource2 = BasicMutableIdlingResource.busy("inner2");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource2));
         testResourceCallback.assertNotCalled();
     }
 
     @Test
     public void testWhenHasWithIdleSetHasWithIdleDoesntCallResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource1 = BasicIdlingResource.idle("inner1");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource1));
+        final BasicMutableIdlingResource basicMutableIdlingResource1 = BasicMutableIdlingResource.idle("inner1");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource1));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        final BasicIdlingResource basicIdlingResource2 = BasicIdlingResource.idle("inner2");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource2));
+        final BasicMutableIdlingResource basicMutableIdlingResource2 = BasicMutableIdlingResource.idle("inner2");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource2));
         testResourceCallback.assertNotCalled();
     }
 
     @Test
     public void testWhenHasWithIdleSetNotExpectingDoesntCallResourceCallback() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource1 = BasicIdlingResource.idle("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource1));
+        final BasicMutableIdlingResource basicMutableIdlingResource1 = BasicMutableIdlingResource.idle("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource1));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
@@ -193,12 +193,12 @@ public final class DelegatingIdlingResourceTest {
     @Test
     public void testWhenHasWithIdleDoesntCallResourceCallbackWhenBecomesBusy() {
         final DelegatingIdlingResource testObject = expectingInnerIdlingResource("test");
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.idle("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.idle("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        basicIdlingResource.setBusy();
+        basicMutableIdlingResource.setBusy();
         testResourceCallback.assertNotCalled();
     }
 
@@ -224,8 +224,8 @@ public final class DelegatingIdlingResourceTest {
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.busy("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.busy("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         testResourceCallback.assertNotCalled();
     }
 
@@ -235,8 +235,8 @@ public final class DelegatingIdlingResourceTest {
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.idle("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.idle("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         testResourceCallback.assertNotCalled();
     }
 
@@ -246,8 +246,8 @@ public final class DelegatingIdlingResourceTest {
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
-        final BasicIdlingResource basicIdlingResource = BasicIdlingResource.idle("inner");
-        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicIdlingResource));
+        final BasicMutableIdlingResource basicMutableIdlingResource = BasicMutableIdlingResource.idle("inner");
+        testObject.setState(DelegatingIdlingResource.State.hasInnerIdlingResource(basicMutableIdlingResource));
         testResourceCallback.assertNotCalled();
     }
 }

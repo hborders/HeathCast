@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 import com.github.hborders.heathcast.reactivex.RxUtil;
@@ -195,6 +194,49 @@ public abstract class RxListFragment<
                     ", linearLayoutManager=" + linearLayoutManager +
                     '}';
         }
+
+        public Observable<ItemRange> itemRangeObservable() {
+            return Observable.create(
+                    emitter -> {
+                        final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                            @Override
+                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                final int itemCount = recyclerViewAdapter.getItemCount();
+                                final int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                final ItemRange itemRange;
+                                if (
+                                        (firstVisibleItemPosition == RecyclerView.NO_POSITION) ||
+                                                (recyclerView.getVisibility() != View.VISIBLE)
+                                ) {
+                                    itemRange = ItemRange.invisible(itemCount);
+                                } else {
+                                    final int lastVisibleItemPosition =
+                                            linearLayoutManager.findLastVisibleItemPosition();
+                                    if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
+                                        throw new IllegalStateException(
+                                                "A firstVisibleItemPosition: "
+                                                        + firstVisibleItemPosition
+                                                        + " should imply a " +
+                                                        "lastVisibleItemPosition"
+                                        );
+                                    } else {
+                                        itemRange = ItemRange.visible(
+                                                itemCount,
+                                                firstVisibleItemPosition,
+                                                lastVisibleItemPosition
+                                        );
+                                    }
+                                }
+                                emitter.onNext(itemRange);
+                            }
+                        };
+                        recyclerView.addOnScrollListener(onScrollListener);
+                        emitter.setCancellable(() ->
+                                recyclerView.removeOnScrollListener(onScrollListener)
+                        );
+                    }
+            );
+        }
     }
 
     private static final String ITEM_HOLDERS_KEY = "itemHolders";
@@ -308,16 +350,9 @@ public abstract class RxListFragment<
                     final LinearLayoutManager linearLayoutManager =
                             new LinearLayoutManager(context);
                     recyclerView.setLayoutManager(linearLayoutManager);
-                    final UnparcelableListType initialItems =
-                            FragmentUtil.getUnparcelableListArgumentOptional(
-                                    this,
-                                    holderClass,
-                                    unparcelableCapacityCollectionFactory,
-                                    ITEM_HOLDERS_KEY
-                            ).orElse(unparcelableCapacityCollectionFactory.newCollection(0));
                     final ListRecyclerViewAdapterType listRecyclerViewAdapter =
                             createListRecyclerViewAdapter(
-                                    initialItems,
+                                    unparcelableCapacityCollectionFactory.newCollection(0),
                                     listener
                             );
                     recyclerView.setAdapter(listRecyclerViewAdapter);
@@ -437,8 +472,10 @@ public abstract class RxListFragment<
                             render.prez.nonEmptyItemsErrorView,
                             render.itemListServiceResponse
                     );
-                    render.prez.listRecyclerViewAdapter.setItems(
-                            render.itemListServiceResponse.getValue()
+                    setRecyclerViewItemsAndVisibility(
+                            render.prez.recyclerView,
+                            render.prez.listRecyclerViewAdapter,
+                            render.itemListServiceResponse
                     );
                 }
         ).isDisposed();
@@ -457,53 +494,16 @@ public abstract class RxListFragment<
     }
 
     public final Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
-        return itemRangerOptionalObservable.switchMap(podcastIdentifiedsItemRangerOptional ->
-                podcastIdentifiedsItemRangerOptional.map(itemRanger ->
-                        Observable.<Optional<ItemRange>>create(emitter -> {
-                            final RecyclerView recyclerView = itemRanger.recyclerView;
-                            final LinearLayoutManager linearLayoutManager = itemRanger.linearLayoutManager;
-                            final RecyclerView.Adapter<?> recyclerViewAdapter = itemRanger.recyclerViewAdapter;
-
-                            final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                                @Override
-                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                    final int itemCount = recyclerViewAdapter.getItemCount();
-                                    final int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                    final Optional<ItemRange> itemRangeOptional;
-                                    if (firstVisibleItemPosition == RecyclerView.NO_POSITION) {
-                                        itemRangeOptional = Optional.of(
-                                                ItemRange.invisible(itemCount)
-                                        );
-                                    } else {
-                                        final int lastVisibleItemPosition =
-                                                itemRanger.linearLayoutManager
-                                                        .findLastVisibleItemPosition();
-                                        if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
-                                            throw new IllegalStateException(
-                                                    "A firstVisibleItemPosition: "
-                                                            + firstVisibleItemPosition
-                                                            + " should imply a " +
-                                                            "lastVisibleItemPosition"
-                                            );
-                                        } else {
-                                            itemRangeOptional = Optional.of(
-                                                    ItemRange.visible(
-                                                            itemCount,
-                                                            firstVisibleItemPosition,
-                                                            lastVisibleItemPosition
-                                                    )
-                                            );
-                                        }
-                                    }
-                                    emitter.onNext(itemRangeOptional);
-                                }
-                            };
-                            recyclerView.addOnScrollListener(onScrollListener);
-                            emitter.setCancellable(() ->
-                                    recyclerView.removeOnScrollListener(onScrollListener)
-                            );
-                        })
-                ).orElse(Observable.empty()));
+        return itemRangerOptionalObservable.switchMap(
+                podcastIdentifiedsItemRangerOptional ->
+                        podcastIdentifiedsItemRangerOptional
+                                .map(
+                                        itemRanger ->
+                                                itemRanger.itemRangeObservable()
+                                                        .map(Optional::of)
+                                )
+                                .orElse(Observable.just(Optional.empty()))
+        );
     }
 
     public Observable<Boolean> getLoadingObservable() {
@@ -613,5 +613,19 @@ public abstract class RxListFragment<
                     )
             );
         }
+    }
+
+    private void setRecyclerViewItemsAndVisibility(
+            RecyclerView recyclerView,
+            ListRecyclerViewAdapterType listRecyclerViewAdapter,
+            ServiceResponseType serviceResponse
+    ) {
+        final UnparcelableListType items = serviceResponse.getValue();
+        if (items.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+        listRecyclerViewAdapter.setItems(items);
     }
 }

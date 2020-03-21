@@ -265,9 +265,11 @@ public final class PodcastSearchFragment extends Fragment
     public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
         return searchResultPodcastListFragmentOptionalBehaviorSubject.switchMap(
                 searchResultPodcastListFragmentOptional ->
-                        searchResultPodcastListFragmentOptional.map(
-                                PodcastListFragment2::getItemRangeOptionalObservable
-                        ).orElse(Observable.empty())
+                        searchResultPodcastListFragmentOptional
+                                .map(
+                                        PodcastListFragment2::getItemRangeOptionalObservable
+                                )
+                                .orElse(Observable.just(Optional.empty()))
         );
     }
 
