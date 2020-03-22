@@ -8,8 +8,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.core.EmptyEither6;
+import com.github.hborders.heathcast.core.Function;
+import com.github.hborders.heathcast.core.VoidFunction;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
-import com.github.hborders.heathcast.reactivex.RxUtil;
+import com.github.hborders.heathcast.reactivex.RxObservableUtil;
 import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
@@ -17,7 +20,6 @@ import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter
 import java.util.List;
 import java.util.Optional;
 
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -96,6 +98,111 @@ public abstract class RxListFragment<
         AttachmentType,
         AttachmentFactoryType
         > {
+
+    public interface Mode {
+        Mode LOADING_EMPTY = new LoadingEmpty();
+        Mode LOADING_NON_EMPTY = new LoadingNonEmpty();
+        Mode COMPLETE_EMPTY = new CompleteEmpty();
+        Mode COMPLETE_NON_EMPTY = new CompleteNonEmpty();
+        Mode ERROR_EMPTY = new ErrorEmpty();
+        Mode ERROR_NON_EMPTY = new ErrorNonEmpty();
+
+        final class LoadingEmpty extends EmptyEither6.LeftLeftLeft<
+                LoadingEmpty,
+                LoadingNonEmpty,
+                CompleteEmpty,
+                CompleteNonEmpty,
+                ErrorEmpty,
+                ErrorNonEmpty
+                > implements Mode {
+        }
+
+        final class LoadingNonEmpty extends EmptyEither6.LeftLeft<
+                LoadingEmpty,
+                LoadingNonEmpty,
+                CompleteEmpty,
+                CompleteNonEmpty,
+                ErrorEmpty,
+                ErrorNonEmpty
+                > implements Mode {
+        }
+
+        final class CompleteEmpty extends EmptyEither6.Left<
+                LoadingEmpty,
+                LoadingNonEmpty,
+                CompleteEmpty,
+                CompleteNonEmpty,
+                ErrorEmpty,
+                ErrorNonEmpty
+                > implements Mode {
+        }
+
+        final class CompleteNonEmpty extends EmptyEither6.Right<
+                LoadingEmpty,
+                LoadingNonEmpty,
+                CompleteEmpty,
+                CompleteNonEmpty,
+                ErrorEmpty,
+                ErrorNonEmpty
+                > implements Mode {
+        }
+
+        final class ErrorEmpty extends EmptyEither6.RightRight<
+                LoadingEmpty,
+                LoadingNonEmpty,
+                CompleteEmpty,
+                CompleteNonEmpty,
+                ErrorEmpty,
+                ErrorNonEmpty
+                > implements Mode {
+        }
+
+        final class ErrorNonEmpty extends EmptyEither6.RightRightRight<
+                LoadingEmpty,
+                LoadingNonEmpty,
+                CompleteEmpty,
+                CompleteNonEmpty,
+                ErrorEmpty,
+                ErrorNonEmpty
+                > implements Mode {
+        }
+
+        <T> T reduce(
+                Function<
+                        ? super LoadingEmpty,
+                        ? extends T
+                        > leftLeftReducer,
+                Function<
+                        ? super LoadingNonEmpty,
+                        ? extends T
+                        > leftReducer,
+                Function<
+                        ? super CompleteEmpty,
+                        ? extends T
+                        > middleReducer,
+                Function<
+                        ? super CompleteNonEmpty,
+                        ? extends T
+                        > rightReducer,
+                Function<
+                        ? super ErrorEmpty,
+                        ? extends T
+                        > rightRightReducer,
+                Function<
+                        ? super ErrorNonEmpty,
+                        ? extends T
+                        > rightRightRightReducer
+        );
+
+        void act(
+                VoidFunction<? super LoadingEmpty> leftLeftAction,
+                VoidFunction<? super LoadingNonEmpty> leftAction,
+                VoidFunction<? super CompleteEmpty> middleAction,
+                VoidFunction<? super CompleteNonEmpty> rightAction,
+                VoidFunction<? super ErrorEmpty> rightRightAction,
+                VoidFunction<? super ErrorNonEmpty> rightRightRightAction
+        );
+    }
 
     protected interface ItemListServiceResponseObservableProvider<
             FragmentType extends RxListFragment<
@@ -239,9 +346,8 @@ public abstract class RxListFragment<
         }
     }
 
-    private static final String ITEM_HOLDERS_KEY = "itemHolders";
     private final Observable<Optional<ItemRanger>> itemRangerOptionalObservable;
-    private final Observable<Boolean> loadingObservable;
+    private final Observable<Mode> modeObservable;
 
     protected RxListFragment(
             Class<FragmentType> fragmentClass,
@@ -388,20 +494,17 @@ public abstract class RxListFragment<
                         )
         ).startWith(Optional.empty());
 
-        final Observable<Prez> prezObervable = prezOptionalConnectableObservable.switchMapMaybe(RxUtil::maybeFromOptional);
+        final Observable<Prez> prezObervable = prezOptionalConnectableObservable.switchMapMaybe(RxObservableUtil::maybeFromOptional);
 
         final class Render {
             final Prez prez;
-            final Start start;
             final ServiceResponseType itemListServiceResponse;
 
             Render(
                     Prez prez,
-                    Start start,
                     ServiceResponseType itemListServiceResponse
             ) {
                 this.prez = prez;
-                this.start = start;
                 this.itemListServiceResponse = itemListServiceResponse;
             }
         }
@@ -421,76 +524,60 @@ public abstract class RxListFragment<
                                                                 itemListServiceResponse ->
                                                                         new Render(
                                                                                 prez,
-                                                                                start,
                                                                                 itemListServiceResponse
                                                                         )
                                                         )
                                 )
                 );
 
-
         // Order matters here.
         // We want to subscribe directly to itemListServiceResponseObservable
-        // from eagerLoadingConnectableObservable, then RendererObservable, then lazyNotLoadingConnectableObservable
-        // because we want eagerLoadingConnectableObservable to be reported first, then RendererObserable,
-        // then lazyNotLoadingConnectableObservable
-        // If we try to abstract eagerLoadingConnectableObservable and lazyNotLoadingConnectableObservable into a one
+        // from preRenderModeObservable, then RendererObservable, then postRenderModeConnectableObservable
+        // because we want preRenderModeObservable to be reported first, then RendererObserable,
+        // then postRenderModeConnectableObservable
+        // If we try to abstract preRenderModeObservable and postRenderModeConnectableObservable into a one
         // common Observable, we'll only have a single subscription, and we won't report
-        // not loading after Render, which is what we want.
-        final ConnectableObservable<Boolean> eagerLoadingConnectableObservable = renderObservable
-                .switchMapMaybe(
+        // our rendered TestingState after Render, which is what we want.
+
+//        final Observable<Mode> preRenderModeObservable = renderObservable
+//                .map(
+//                        render ->
+//                                Mode.RENDERING
+//                );
+        final ConnectableObservable<Mode> postRenderModeConnectableObservable =
+                renderObservable.map(
                         render -> {
-                            if (isServiceResponseLoading(render.itemListServiceResponse)) {
-                                return Maybe.just(true);
-                            } else {
-                                return Maybe.empty();
-                            }
+                            setEmptyItemsLoadingViewVisibility(
+                                    render.prez.emptyItemsLoadingView,
+                                    render.itemListServiceResponse
+                            );
+                            setNonEmptyItemsLoadingViewVisibility(
+                                    render.prez.nonEmptyItemsLoadingView,
+                                    render.itemListServiceResponse
+                            );
+                            setEmptyItemsCompleteViewVisibility(
+                                    render.prez.emptyItemsCompleteView,
+                                    render.itemListServiceResponse
+                            );
+                            setEmptyItemsErrorViewVisibility(
+                                    render.prez.emptyItemsErrorView,
+                                    render.itemListServiceResponse
+                            );
+                            setNonEmptyItemsErrorViewVisibility(
+                                    render.prez.nonEmptyItemsErrorView,
+                                    render.itemListServiceResponse
+                            );
+                            setRecyclerViewItemsAndVisibility(
+                                    render.prez.recyclerView,
+                                    render.prez.listRecyclerViewAdapter,
+                                    render.itemListServiceResponse
+                            );
+                            return modeFromServiceResponse(render.itemListServiceResponse);
                         }
-                )
-                .publish();
-        eagerLoadingConnectableObservable.connect().isDisposed();
+                ).publish();
+        postRenderModeConnectableObservable.connect().isDisposed();
 
-        renderObservable.subscribe(
-                render -> {
-                    setEmptyItemsLoadingViewVisibility(
-                            render.prez.emptyItemsLoadingView,
-                            render.itemListServiceResponse
-                    );
-                    setNonEmptyItemsLoadingViewVisibility(
-                            render.prez.nonEmptyItemsLoadingView,
-                            render.itemListServiceResponse
-                    );
-                    setEmptyItemsCompleteViewVisibility(
-                            render.prez.emptyItemsCompleteView,
-                            render.itemListServiceResponse
-                    );
-                    setEmptyItemsErrorViewVisibility(
-                            render.prez.emptyItemsErrorView,
-                            render.itemListServiceResponse
-                    );
-                    setNonEmptyItemsErrorViewVisibility(
-                            render.prez.nonEmptyItemsErrorView,
-                            render.itemListServiceResponse
-                    );
-                    setRecyclerViewItemsAndVisibility(
-                            render.prez.recyclerView,
-                            render.prez.listRecyclerViewAdapter,
-                            render.itemListServiceResponse
-                    );
-                }
-        ).isDisposed();
-
-        final ConnectableObservable<Boolean> lazyNotLoadingConnectableObservable = renderObservable.switchMapMaybe(
-                render -> {
-                    if (isServiceResponseLoading(render.itemListServiceResponse)) {
-                        return Maybe.empty();
-                    } else {
-                        return Maybe.just(false);
-                    }
-                }
-        ).publish();
-        lazyNotLoadingConnectableObservable.connect().isDisposed();
-        loadingObservable = eagerLoadingConnectableObservable.mergeWith(lazyNotLoadingConnectableObservable);
+        modeObservable = postRenderModeConnectableObservable;
     }
 
     public final Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
@@ -506,8 +593,8 @@ public abstract class RxListFragment<
         );
     }
 
-    public Observable<Boolean> getLoadingObservable() {
-        return loadingObservable;
+    public final Observable<Mode> getModeObservable() {
+        return modeObservable;
     }
 
     @Nullable
@@ -532,11 +619,11 @@ public abstract class RxListFragment<
             ListenerType listener
     );
 
-    private boolean isServiceResponseLoading(ServiceResponseType serviceResponse) {
+    private Mode modeFromServiceResponse(ServiceResponseType serviceResponse) {
         return serviceResponse.reduce(
-                loading -> true,
-                complete -> false,
-                failed -> false
+                loading -> loading.value.isEmpty() ? Mode.LOADING_EMPTY : Mode.LOADING_NON_EMPTY,
+                complete -> complete.value.isEmpty() ? Mode.COMPLETE_EMPTY : Mode.COMPLETE_NON_EMPTY,
+                failed -> failed.value.isEmpty() ? Mode.ERROR_EMPTY : Mode.ERROR_NON_EMPTY
         );
     }
 

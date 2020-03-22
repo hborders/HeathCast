@@ -15,6 +15,7 @@ import com.github.hborders.heathcast.android.FragmentUtil;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.reactivexandroid.RxListFragment;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 
@@ -25,6 +26,9 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
+
+import static com.github.hborders.heathcast.reactivex.RxObservableUtil.switchMapOptional;
+import static com.github.hborders.heathcast.reactivex.RxObservableUtil.switchMapOptionalFlatMap;
 
 public final class PodcastSearchFragment extends Fragment
         implements
@@ -263,23 +267,17 @@ public final class PodcastSearchFragment extends Fragment
 //    }
 
     public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
-        return searchResultPodcastListFragmentOptionalBehaviorSubject.switchMap(
-                searchResultPodcastListFragmentOptional ->
-                        searchResultPodcastListFragmentOptional
-                                .map(
-                                        PodcastListFragment2::getItemRangeOptionalObservable
-                                )
-                                .orElse(Observable.just(Optional.empty()))
+        return switchMapOptionalFlatMap(
+                searchResultPodcastListFragmentOptionalBehaviorSubject,
+                PodcastListFragment2::getItemRangeOptionalObservable
         );
     }
 
 
-    public Observable<Boolean> getSearchingObservable() {
-        return searchResultPodcastListFragmentOptionalBehaviorSubject.switchMap(
-                searchResultPodcastListFragmentOptional ->
-                        searchResultPodcastListFragmentOptional.map(
-                                PodcastListFragment2::getLoadingObservable
-                        ).orElse(Observable.just(false))
+    public Observable<Optional<RxListFragment.Mode>> getSearchResultPodcastListModeOptionalObservable() {
+        return switchMapOptional(
+                searchResultPodcastListFragmentOptionalBehaviorSubject,
+                RxListFragment::getModeObservable
         );
     }
 

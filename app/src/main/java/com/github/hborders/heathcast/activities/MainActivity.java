@@ -24,6 +24,7 @@ import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
+import com.github.hborders.heathcast.reactivexandroid.RxListFragment;
 import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastService;
@@ -42,6 +43,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
+import static com.github.hborders.heathcast.reactivex.RxObservableUtil.switchMapOptionalFlatMap;
+
 public final class MainActivity extends AppCompatActivity
         implements
         MainFragment.MainFragmentListener,
@@ -49,11 +52,13 @@ public final class MainActivity extends AppCompatActivity
         PodcastFragment.PodcastFragmentListener {
 
     private final ConcurrentLinkedQueue<NetworkPauser> searchForPodcasts2NetworkPausers = new ConcurrentLinkedQueue<>();
+
     @VisibleForTesting
     public void setSearchForPodcasts2NetworkPausers(NetworkPauser... networkPausers) {
         searchForPodcasts2NetworkPausers.clear();
         searchForPodcasts2NetworkPausers.addAll(Arrays.asList(networkPausers));
     }
+
     @VisibleForTesting
     public void clearNetworkPausers() {
         searchForPodcasts2NetworkPausers.clear();
@@ -283,21 +288,17 @@ public final class MainActivity extends AppCompatActivity
     public void onPodcastFragmentWillDetach(PodcastFragment podcastFragment) {
     }
 
-    public Observable<Boolean> getPodcastSearchingObservable() {
-        return podcastSearchFragmentOptionalBehaviorSubject.switchMap(
-                podcastSearchFragmentOptional ->
-                        podcastSearchFragmentOptional.map(
-                                PodcastSearchFragment::getSearchingObservable
-                        ).orElse(Observable.just(false))
+    public Observable<Optional<RxListFragment.Mode>> getPodcastSearchResultsPodcastListFragmentModeOptionalObservable() {
+        return switchMapOptionalFlatMap(
+                podcastSearchFragmentOptionalBehaviorSubject,
+                PodcastSearchFragment::getSearchResultPodcastListModeOptionalObservable
         );
     }
 
     public Observable<Optional<ItemRange>> getPodcastSearchResultPodcastsItemRangeOptionalObservable() {
-        return podcastSearchFragmentOptionalBehaviorSubject.switchMap(
-                podcastSearchfragmentOptional ->
-                        podcastSearchfragmentOptional.map(
-                                PodcastSearchFragment::getSearchResultItemRangeOptionalObservable
-                        ).orElse(Observable.just(Optional.empty()))
+        return switchMapOptionalFlatMap(
+                podcastSearchFragmentOptionalBehaviorSubject,
+                PodcastSearchFragment::getSearchResultItemRangeOptionalObservable
         );
     }
 }

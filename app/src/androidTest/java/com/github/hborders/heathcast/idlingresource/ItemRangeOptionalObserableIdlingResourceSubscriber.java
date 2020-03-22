@@ -7,6 +7,9 @@ import java.util.Optional;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
+import static com.github.hborders.heathcast.idlingresource.MutableIdlingResource.State.BUSY;
+import static com.github.hborders.heathcast.idlingresource.MutableIdlingResource.State.IDLE;
+
 public class ItemRangeOptionalObserableIdlingResourceSubscriber {
     public static DisposableIdlingResource subscribe(
             String name,
@@ -17,12 +20,14 @@ public class ItemRangeOptionalObserableIdlingResourceSubscriber {
         );
         final Disposable disposable = itemRangeObservable.subscribe(
                 itemRangeOptional -> {
-                    final boolean idle =
-                            itemRangeOptional.map(
-                                    itemRange ->
-                                            itemRange.visibleClosedRange != null
-                            ).orElse(false);
-                    idleMutableIdlingResource.setIdleOrBusy(idle);
+                    idleMutableIdlingResource.setState(
+                            itemRangeOptional
+                                    .map(
+                                            itemRange ->
+                                                    itemRange.visibleClosedRange != null ? IDLE : BUSY
+                                    )
+                                    .orElse(BUSY)
+                    );
                 }
         );
         return new BasicDisposableMutableIdlingResource(

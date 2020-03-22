@@ -11,11 +11,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.github.hborders.heathcast.activities.MainActivity;
-import com.github.hborders.heathcast.idlingresource.BooleanObservableIdlingResourceSubscriber;
 import com.github.hborders.heathcast.idlingresource.DisposableIdlingResource;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,19 +47,19 @@ public class SearchEspressoTest {
     @Nullable
     private DisposableIdlingResource podcastSearchSubscribedIdlingResource;
 
-    @Before
-    public void registerIdlingResource() throws Exception {
-        activityScenarioRule.getScenario().onActivity(mainActivity -> {
-            final DisposableIdlingResource podcastSearchSubscribedIdlingResource =
-                    BooleanObservableIdlingResourceSubscriber.subscribe(
-                            "podcastSearchResults",
-                            mainActivity.getPodcastSearchingObservable().map(searching -> !searching)
-                    );
-            this.podcastSearchSubscribedIdlingResource =
-                    podcastSearchSubscribedIdlingResource;
-            IdlingRegistry.getInstance().register(podcastSearchSubscribedIdlingResource);
-        });
-    }
+//    @Before
+//    public void registerIdlingResource() throws Exception {
+//        activityScenarioRule.getScenario().onActivity(mainActivity -> {
+//            final DisposableIdlingResource podcastSearchSubscribedIdlingResource =
+//                    BooleanObservableIdlingResourceSubscriber.subscribe(
+//                            "podcastSearchResults",
+//                            mainActivity.getPodcastSearchingObservable().map(searching -> !searching)
+//                    );
+//            this.podcastSearchSubscribedIdlingResource =
+//                    podcastSearchSubscribedIdlingResource;
+//            IdlingRegistry.getInstance().register(podcastSearchSubscribedIdlingResource);
+//        });
+//    }
 
     @After
     public void unregisterIdlingResource() throws Exception {
