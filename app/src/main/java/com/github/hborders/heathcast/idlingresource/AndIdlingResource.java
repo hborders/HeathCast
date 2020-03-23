@@ -4,7 +4,7 @@ import androidx.test.espresso.IdlingResource;
 
 import javax.annotation.Nullable;
 
-public final class AndIdlingResource implements IdlingResource {
+public final class AndIdlingResource implements NullabilitiedIdlingResource {
 
     public static AndIdlingResource and(
             IdlingResource leftIdlingResource,
@@ -26,8 +26,9 @@ public final class AndIdlingResource implements IdlingResource {
     @Nullable
     private volatile ResourceCallback resourceCallback;
 
-    private AndIdlingResource(
-            String name, IdlingResource leftIdlingResource,
+    public AndIdlingResource(
+            String name,
+            IdlingResource leftIdlingResource,
             IdlingResource rightIdlingResource
     ) {
         this.name = name;
@@ -38,7 +39,7 @@ public final class AndIdlingResource implements IdlingResource {
     private void registerLeftAndRightIdleTransitionCallbacks() {
         final ResourceCallback leftAndRightIdleTransitionCallback = () -> {
             if (isIdleNow()) {
-                final ResourceCallback resourceCallback = this.resourceCallback;
+                @Nullable final ResourceCallback resourceCallback = this.resourceCallback;
                 if (resourceCallback != null) {
                     resourceCallback.onTransitionToIdle();
                 }
@@ -47,6 +48,18 @@ public final class AndIdlingResource implements IdlingResource {
         leftIdlingResource.registerIdleTransitionCallback(leftAndRightIdleTransitionCallback);
         rightIdlingResource.registerIdleTransitionCallback(leftAndRightIdleTransitionCallback);
     }
+
+    @Override
+    public String toString() {
+        return "AndIdlingResource{" +
+                "name='" + name + '\'' +
+                ", leftIdlingResource=" + leftIdlingResource +
+                ", rightIdlingResource=" + rightIdlingResource +
+                ", resourceCallback=" + resourceCallback +
+                '}';
+    }
+
+    // IdlingResource
 
     @Override
     public String getName() {
@@ -59,7 +72,7 @@ public final class AndIdlingResource implements IdlingResource {
     }
 
     @Override
-    public void registerIdleTransitionCallback(ResourceCallback resourceCallback) {
+    public void registerIdleTransitionCallback(@Nullable ResourceCallback resourceCallback) {
         this.resourceCallback = resourceCallback;
     }
 }

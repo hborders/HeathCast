@@ -62,7 +62,7 @@ public final class PodcastListFragment extends Fragment {
                 PodcastListFragmentListener.class
         );
         this.listener = listener;
-        listener.onPodcastListFragmentListenerAttached(this);
+        listener.onPodcastListFragmentAttached(this);
     }
 
     @Override
@@ -246,7 +246,7 @@ public final class PodcastListFragment extends Fragment {
     public void onDetach() {
         final PodcastListFragmentListener listener = Objects.requireNonNull(this.listener);
         this.listener = null;
-        listener.onPodcastListFragmentListenerWillDetach(this);
+        listener.onPodcastListFragmentWillDetach(this);
 
         super.onDetach();
     }
@@ -260,7 +260,7 @@ public final class PodcastListFragment extends Fragment {
     }
 
     public interface PodcastListFragmentListener {
-        void onPodcastListFragmentListenerAttached(PodcastListFragment podcastListFragment);
+        void onPodcastListFragmentAttached(PodcastListFragment podcastListFragment);
 
         Observable<PodcastIdentifiedList> podcastIdentifiedsObservable(
                 PodcastListFragment podcastListFragment
@@ -276,6 +276,6 @@ public final class PodcastListFragment extends Fragment {
                 PodcastIdentified identifiedPodcast
         );
 
-        void onPodcastListFragmentListenerWillDetach(PodcastListFragment podcastListFragment);
+        void onPodcastListFragmentWillDetach(PodcastListFragment podcastListFragment);
     }
 }

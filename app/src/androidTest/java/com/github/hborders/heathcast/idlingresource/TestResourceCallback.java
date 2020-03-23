@@ -15,6 +15,10 @@ public final class TestResourceCallback implements IdlingResource.ResourceCallba
         callCount.incrementAndGet();
     }
 
+    public void reset() {
+        callCount.set(0);
+    }
+
     public void assertNotCalled() {
         assertEquals(0, callCount.get());
     }

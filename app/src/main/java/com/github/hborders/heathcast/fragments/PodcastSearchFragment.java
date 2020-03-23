@@ -9,15 +9,15 @@ import android.widget.SearchView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.reactivexandroid.RxListFragment;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
-import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -26,9 +26,6 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
-
-import static com.github.hborders.heathcast.reactivex.RxObservableUtil.switchMapOptional;
-import static com.github.hborders.heathcast.reactivex.RxObservableUtil.switchMapOptionalFlatMap;
 
 public final class PodcastSearchFragment extends Fragment
         implements
@@ -40,23 +37,14 @@ public final class PodcastSearchFragment extends Fragment
     @Nullable
     private PodcastSearchFragmentListener listener;
 
-    private final BehaviorSubject<Optional<PodcastListFragment2>> searchResultPodcastListFragmentOptionalBehaviorSubject =
-            BehaviorSubject.create();
-    // Bookmark - This fundamentally doesn't work.
-    // I thought I could use AndIdlingResource to combine
-    // the search state with the podcast list state
-    // but that doesn't work because I'm not guaranteed to get
-    // another signal from the podcast list when the next results
-    // come through
-    // Instead, I should expose an Observable for the podcast list's
-    // podcast identifieds.
-    // This fragment can combine that observable with its search state
-    // and publish a new state to say whether it's searching or whether
-    // it has search results.
-    // Later, I'll expose different state to say whether we're searching locally
-    // or remotely.
-    // We'll remove IdlingResource from the app directly, and just
-    // make custom adapters that adapt the Rx state.
+    private final DelegatingIdlingResource searchResultPodcastListLoadingDelegatingIdlingResource =
+            new DelegatingIdlingResource(
+                    "PodcastSearchResultPodcastListLoading"
+            );
+    private final DelegatingIdlingResource searchResultPodcastListCompleteOrErrorDelegatingIdlingResource =
+            new DelegatingIdlingResource(
+                    "PodcastSearchResultPodcastListCompleteOrError"
+            );
 
     // Need to refactor queryOptionalPublishSubject and  podcastIdentifiedListServiceResponseOptionalObservable
     // into a separate object so it can be easier to recreate on every onViewCreated onViewDestroyed pair
@@ -226,9 +214,12 @@ public final class PodcastSearchFragment extends Fragment
     // PodcastListFragmentListener
 
     @Override
-    public void onPodcastListFragmentListenerAttached(PodcastListFragment2 podcastListFragment) {
-        searchResultPodcastListFragmentOptionalBehaviorSubject.onNext(
-                Optional.of(podcastListFragment)
+    public void onPodcastListFragmentAttached(PodcastListFragment2 podcastListFragment) {
+        searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
+                podcastListFragment.getLoadingIdlingResource()
+        );
+        searchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(
+                podcastListFragment.getCompleteOrErrorIdlingResource()
         );
     }
 
@@ -251,10 +242,9 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public void onPodcastListFragmentListenerWillDetach(PodcastListFragment2 podcastListFragment) {
-        searchResultPodcastListFragmentOptionalBehaviorSubject.onNext(
-                Optional.empty()
-        );
+    public void onPodcastListFragmentWillDetach(PodcastListFragment2 podcastListFragment) {
+        searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(null);
+        searchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(null);
     }
 
 //    public void enableSearchResultItemRangeObservable() {
@@ -266,19 +256,12 @@ public final class PodcastSearchFragment extends Fragment
 //        }
 //    }
 
-    public Observable<Optional<ItemRange>> getSearchResultItemRangeOptionalObservable() {
-        return switchMapOptionalFlatMap(
-                searchResultPodcastListFragmentOptionalBehaviorSubject,
-                PodcastListFragment2::getItemRangeOptionalObservable
-        );
+    public IdlingResource getSearchResultPodcastListLoadingIdlingResource() {
+        return searchResultPodcastListLoadingDelegatingIdlingResource;
     }
 
-
-    public Observable<Optional<RxListFragment.Mode>> getSearchResultPodcastListModeOptionalObservable() {
-        return switchMapOptional(
-                searchResultPodcastListFragmentOptionalBehaviorSubject,
-                RxListFragment::getModeObservable
-        );
+    public IdlingResource getSearchResultPodcastListCompleteOrErrorIdlingResource() {
+        return searchResultPodcastListCompleteOrErrorDelegatingIdlingResource;
     }
 
     public interface PodcastSearchFragmentListener {

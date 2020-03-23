@@ -5,25 +5,25 @@ import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public final class BasicMutableIdlingResourceTest {
+public final class MutableIdlingResourceTest {
 
     @Test
     public void testInitiallyIdle() {
-        final BasicMutableIdlingResource testObject = BasicMutableIdlingResource.idle("test");
+        final MutableIdlingResource testObject = MutableIdlingResource.idle("test");
 
         assertTrue(testObject.isIdleNow());
     }
 
     @Test
     public void testInitiallyBusy() {
-        final BasicMutableIdlingResource testObject = BasicMutableIdlingResource.busy("test");
+        final MutableIdlingResource testObject = MutableIdlingResource.busy("test");
 
         assertFalse(testObject.isIdleNow());
     }
 
     @Test
     public void testWhenIdleDoesNotCallResourceCallbackOnSetBusy() {
-        final BasicMutableIdlingResource testObject = BasicMutableIdlingResource.idle("test");
+        final MutableIdlingResource testObject = MutableIdlingResource.idle("test");
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
@@ -33,7 +33,7 @@ public final class BasicMutableIdlingResourceTest {
 
     @Test
     public void testWhenBusyDoesNotCallResourceCallbackOnSetBusy() {
-        final BasicMutableIdlingResource testObject = BasicMutableIdlingResource.busy("test");
+        final MutableIdlingResource testObject = MutableIdlingResource.busy("test");
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
@@ -43,7 +43,7 @@ public final class BasicMutableIdlingResourceTest {
 
     @Test
     public void testWhenBusyCallsResourceCallbackOnSetIdle() {
-        final BasicMutableIdlingResource testObject = BasicMutableIdlingResource.busy("test");
+        final MutableIdlingResource testObject = MutableIdlingResource.busy("test");
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
@@ -53,12 +53,11 @@ public final class BasicMutableIdlingResourceTest {
 
     @Test
     public void testWhenIdleCallsResourceCallbackOnSetIdle() {
-        final BasicMutableIdlingResource testObject = BasicMutableIdlingResource.idle("test");
+        final MutableIdlingResource testObject = MutableIdlingResource.idle("test");
         final TestResourceCallback testResourceCallback = new TestResourceCallback();
         testObject.registerIdleTransitionCallback(testResourceCallback);
 
         testObject.setIdle();
         testResourceCallback.assertNotCalled();
     }
-
 }

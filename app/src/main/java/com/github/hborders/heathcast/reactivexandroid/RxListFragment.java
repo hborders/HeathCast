@@ -6,24 +6,18 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.EmptyEither6;
-import com.github.hborders.heathcast.core.Function;
-import com.github.hborders.heathcast.core.VoidFunction;
+import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
-import com.github.hborders.heathcast.reactivex.RxObservableUtil;
 import com.github.hborders.heathcast.services.ServiceResponse1;
-import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
 
 import java.util.List;
-import java.util.Optional;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.observables.ConnectableObservable;
 
 public abstract class RxListFragment<
         FragmentType extends RxListFragment<
@@ -99,111 +93,6 @@ public abstract class RxListFragment<
         AttachmentFactoryType
         > {
 
-    public interface Mode {
-        Mode LOADING_EMPTY = new LoadingEmpty();
-        Mode LOADING_NON_EMPTY = new LoadingNonEmpty();
-        Mode COMPLETE_EMPTY = new CompleteEmpty();
-        Mode COMPLETE_NON_EMPTY = new CompleteNonEmpty();
-        Mode ERROR_EMPTY = new ErrorEmpty();
-        Mode ERROR_NON_EMPTY = new ErrorNonEmpty();
-
-        final class LoadingEmpty extends EmptyEither6.LeftLeftLeft<
-                LoadingEmpty,
-                LoadingNonEmpty,
-                CompleteEmpty,
-                CompleteNonEmpty,
-                ErrorEmpty,
-                ErrorNonEmpty
-                > implements Mode {
-        }
-
-        final class LoadingNonEmpty extends EmptyEither6.LeftLeft<
-                LoadingEmpty,
-                LoadingNonEmpty,
-                CompleteEmpty,
-                CompleteNonEmpty,
-                ErrorEmpty,
-                ErrorNonEmpty
-                > implements Mode {
-        }
-
-        final class CompleteEmpty extends EmptyEither6.Left<
-                LoadingEmpty,
-                LoadingNonEmpty,
-                CompleteEmpty,
-                CompleteNonEmpty,
-                ErrorEmpty,
-                ErrorNonEmpty
-                > implements Mode {
-        }
-
-        final class CompleteNonEmpty extends EmptyEither6.Right<
-                LoadingEmpty,
-                LoadingNonEmpty,
-                CompleteEmpty,
-                CompleteNonEmpty,
-                ErrorEmpty,
-                ErrorNonEmpty
-                > implements Mode {
-        }
-
-        final class ErrorEmpty extends EmptyEither6.RightRight<
-                LoadingEmpty,
-                LoadingNonEmpty,
-                CompleteEmpty,
-                CompleteNonEmpty,
-                ErrorEmpty,
-                ErrorNonEmpty
-                > implements Mode {
-        }
-
-        final class ErrorNonEmpty extends EmptyEither6.RightRightRight<
-                LoadingEmpty,
-                LoadingNonEmpty,
-                CompleteEmpty,
-                CompleteNonEmpty,
-                ErrorEmpty,
-                ErrorNonEmpty
-                > implements Mode {
-        }
-
-        <T> T reduce(
-                Function<
-                        ? super LoadingEmpty,
-                        ? extends T
-                        > leftLeftReducer,
-                Function<
-                        ? super LoadingNonEmpty,
-                        ? extends T
-                        > leftReducer,
-                Function<
-                        ? super CompleteEmpty,
-                        ? extends T
-                        > middleReducer,
-                Function<
-                        ? super CompleteNonEmpty,
-                        ? extends T
-                        > rightReducer,
-                Function<
-                        ? super ErrorEmpty,
-                        ? extends T
-                        > rightRightReducer,
-                Function<
-                        ? super ErrorNonEmpty,
-                        ? extends T
-                        > rightRightRightReducer
-        );
-
-        void act(
-                VoidFunction<? super LoadingEmpty> leftLeftAction,
-                VoidFunction<? super LoadingNonEmpty> leftAction,
-                VoidFunction<? super CompleteEmpty> middleAction,
-                VoidFunction<? super CompleteNonEmpty> rightAction,
-                VoidFunction<? super ErrorEmpty> rightRightAction,
-                VoidFunction<? super ErrorNonEmpty> rightRightRightAction
-        );
-    }
-
     protected interface ItemListServiceResponseObservableProvider<
             FragmentType extends RxListFragment<
                     FragmentType,
@@ -278,76 +167,8 @@ public abstract class RxListFragment<
         );
     }
 
-    private static final class ItemRanger {
-        private final RecyclerView recyclerView;
-        private final RecyclerView.Adapter<?> recyclerViewAdapter;
-        private final LinearLayoutManager linearLayoutManager;
-
-        private ItemRanger(
-                RecyclerView recyclerView,
-                RecyclerView.Adapter<?> recyclerViewAdapter,
-                LinearLayoutManager linearLayoutManager
-        ) {
-            this.recyclerView = recyclerView;
-            this.recyclerViewAdapter = recyclerViewAdapter;
-            this.linearLayoutManager = linearLayoutManager;
-        }
-
-        @Override
-        public String toString() {
-            return "ItemRanger{" +
-                    "recyclerView=" + recyclerView +
-                    ", recyclerViewAdapter=" + recyclerViewAdapter +
-                    ", linearLayoutManager=" + linearLayoutManager +
-                    '}';
-        }
-
-        public Observable<ItemRange> itemRangeObservable() {
-            return Observable.create(
-                    emitter -> {
-                        final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                            @Override
-                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                final int itemCount = recyclerViewAdapter.getItemCount();
-                                final int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                final ItemRange itemRange;
-                                if (
-                                        (firstVisibleItemPosition == RecyclerView.NO_POSITION) ||
-                                                (recyclerView.getVisibility() != View.VISIBLE)
-                                ) {
-                                    itemRange = ItemRange.invisible(itemCount);
-                                } else {
-                                    final int lastVisibleItemPosition =
-                                            linearLayoutManager.findLastVisibleItemPosition();
-                                    if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
-                                        throw new IllegalStateException(
-                                                "A firstVisibleItemPosition: "
-                                                        + firstVisibleItemPosition
-                                                        + " should imply a " +
-                                                        "lastVisibleItemPosition"
-                                        );
-                                    } else {
-                                        itemRange = ItemRange.visible(
-                                                itemCount,
-                                                firstVisibleItemPosition,
-                                                lastVisibleItemPosition
-                                        );
-                                    }
-                                }
-                                emitter.onNext(itemRange);
-                            }
-                        };
-                        recyclerView.addOnScrollListener(onScrollListener);
-                        emitter.setCancellable(() ->
-                                recyclerView.removeOnScrollListener(onScrollListener)
-                        );
-                    }
-            );
-        }
-    }
-
-    private final Observable<Optional<ItemRanger>> itemRangerOptionalObservable;
-    private final Observable<Mode> modeObservable;
+    private final MutableIdlingResource loadingMutableIdlingResource;
+    private final MutableIdlingResource completeOrErrorMutableIdlingResource;
 
     protected RxListFragment(
             Class<FragmentType> fragmentClass,
@@ -367,6 +188,7 @@ public abstract class RxListFragment<
                     AttachmentFactoryType
                     > willDetach,
             int layoutResource,
+            String idlingResourceNamePrefix,
             UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory,
             ItemListServiceResponseObservableProvider<
                     FragmentType,
@@ -395,6 +217,10 @@ public abstract class RxListFragment<
                 willDetach,
                 layoutResource
         );
+
+        loadingMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading");
+
+        completeOrErrorMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrError");
 
         final class Prez {
             final Context context;
@@ -441,9 +267,9 @@ public abstract class RxListFragment<
             }
         }
 
-        final ConnectableObservable<Optional<Prez>> prezOptionalConnectableObservable = beginRxGraph().switchMap(
+        final Observable<Prez> prezObservable = beginRxGraph().switchMap(
                 Attachment::switchMapToViewCreation
-        ).switchMap(
+        ).map(
                 attachmentFragmentCreationViewCreationTriple -> {
                     final Context context =
                             attachmentFragmentCreationViewCreationTriple.first.context;
@@ -462,39 +288,21 @@ public abstract class RxListFragment<
                                     listener
                             );
                     recyclerView.setAdapter(listRecyclerViewAdapter);
-                    return Observable.just(
-                            Optional.of(
-                                    new Prez(
-                                            context,
-                                            listener,
-                                            viewCreation,
-                                            recyclerView,
-                                            listRecyclerViewAdapter,
-                                            linearLayoutManager,
-                                            findEmptyItemsLoadingView(view),
-                                            findNonEmptyItemsLoadingView(view),
-                                            findEmptyItemsCompleteView(view),
-                                            findEmptyItemsErrorView(view),
-                                            findNonEmptyItemsErrorView(view)
-                                    )
-                            )
-                    ).concatWith(Single.just(Optional.empty()));
+                    return new Prez(
+                            context,
+                            listener,
+                            viewCreation,
+                            recyclerView,
+                            listRecyclerViewAdapter,
+                            linearLayoutManager,
+                            findEmptyItemsLoadingView(view),
+                            findNonEmptyItemsLoadingView(view),
+                            findEmptyItemsCompleteView(view),
+                            findEmptyItemsErrorView(view),
+                            findNonEmptyItemsErrorView(view)
+                    );
                 }
-        ).publish();
-        prezOptionalConnectableObservable.connect().isDisposed();
-        itemRangerOptionalObservable = prezOptionalConnectableObservable.map(
-                prezOptional ->
-                        prezOptional.map(
-                                prez ->
-                                        new ItemRanger(
-                                                prez.recyclerView,
-                                                prez.listRecyclerViewAdapter,
-                                                prez.linearLayoutManager
-                                        )
-                        )
-        ).startWith(Optional.empty());
-
-        final Observable<Prez> prezObervable = prezOptionalConnectableObservable.switchMapMaybe(RxObservableUtil::maybeFromOptional);
+        );
 
         final class Render {
             final Prez prez;
@@ -510,7 +318,7 @@ public abstract class RxListFragment<
         }
 
         final Observable<Render> renderObservable =
-                prezObervable.switchMap(
+                prezObservable.switchMap(
                         prez ->
                                 prez.viewCreation.switchMapToStart().switchMap(
                                         start ->
@@ -529,72 +337,55 @@ public abstract class RxListFragment<
                                                         )
                                 )
                 );
+        renderObservable.subscribe(
+                render -> {
+                    markIdlingResourcesAsBusyBeforeRender();
 
-        // Order matters here.
-        // We want to subscribe directly to itemListServiceResponseObservable
-        // from preRenderModeObservable, then RendererObservable, then postRenderModeConnectableObservable
-        // because we want preRenderModeObservable to be reported first, then RendererObserable,
-        // then postRenderModeConnectableObservable
-        // If we try to abstract preRenderModeObservable and postRenderModeConnectableObservable into a one
-        // common Observable, we'll only have a single subscription, and we won't report
-        // our rendered TestingState after Render, which is what we want.
+                    setEmptyItemsLoadingViewVisibility(
+                            render.prez.emptyItemsLoadingView,
+                            render.itemListServiceResponse
+                    );
+                    setNonEmptyItemsLoadingViewVisibility(
+                            render.prez.nonEmptyItemsLoadingView,
+                            render.itemListServiceResponse
+                    );
+                    setEmptyItemsCompleteViewVisibility(
+                            render.prez.emptyItemsCompleteView,
+                            render.itemListServiceResponse
+                    );
+                    setEmptyItemsErrorViewVisibility(
+                            render.prez.emptyItemsErrorView,
+                            render.itemListServiceResponse
+                    );
+                    setNonEmptyItemsErrorViewVisibility(
+                            render.prez.nonEmptyItemsErrorView,
+                            render.itemListServiceResponse
+                    );
+                    setRecyclerViewItemsAndVisibility(
+                            render.prez.recyclerView,
+                            render.prez.listRecyclerViewAdapter,
+                            render.itemListServiceResponse
+                    );
 
-//        final Observable<Mode> preRenderModeObservable = renderObservable
-//                .map(
-//                        render ->
-//                                Mode.RENDERING
-//                );
-        final ConnectableObservable<Mode> postRenderModeConnectableObservable =
-                renderObservable.map(
-                        render -> {
-                            setEmptyItemsLoadingViewVisibility(
-                                    render.prez.emptyItemsLoadingView,
-                                    render.itemListServiceResponse
-                            );
-                            setNonEmptyItemsLoadingViewVisibility(
-                                    render.prez.nonEmptyItemsLoadingView,
-                                    render.itemListServiceResponse
-                            );
-                            setEmptyItemsCompleteViewVisibility(
-                                    render.prez.emptyItemsCompleteView,
-                                    render.itemListServiceResponse
-                            );
-                            setEmptyItemsErrorViewVisibility(
-                                    render.prez.emptyItemsErrorView,
-                                    render.itemListServiceResponse
-                            );
-                            setNonEmptyItemsErrorViewVisibility(
-                                    render.prez.nonEmptyItemsErrorView,
-                                    render.itemListServiceResponse
-                            );
-                            setRecyclerViewItemsAndVisibility(
-                                    render.prez.recyclerView,
-                                    render.prez.listRecyclerViewAdapter,
-                                    render.itemListServiceResponse
-                            );
-                            return modeFromServiceResponse(render.itemListServiceResponse);
-                        }
-                ).publish();
-        postRenderModeConnectableObservable.connect().isDisposed();
-
-        modeObservable = postRenderModeConnectableObservable;
+                    updateIdlingResourcesPostRender(
+                            render.itemListServiceResponse
+                    );
+                }
+        ).isDisposed();
     }
 
-    public final Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
-        return itemRangerOptionalObservable.switchMap(
-                podcastIdentifiedsItemRangerOptional ->
-                        podcastIdentifiedsItemRangerOptional
-                                .map(
-                                        itemRanger ->
-                                                itemRanger.itemRangeObservable()
-                                                        .map(Optional::of)
-                                )
-                                .orElse(Observable.just(Optional.empty()))
-        );
+    /**
+     * Useful for testing loading states
+     */
+    public final IdlingResource getLoadingIdlingResource() {
+        return loadingMutableIdlingResource;
     }
 
-    public final Observable<Mode> getModeObservable() {
-        return modeObservable;
+    /**
+     * Useful for testing not loading states
+     */
+    public final IdlingResource getCompleteOrErrorIdlingResource() {
+        return completeOrErrorMutableIdlingResource;
     }
 
     @Nullable
@@ -619,12 +410,9 @@ public abstract class RxListFragment<
             ListenerType listener
     );
 
-    private Mode modeFromServiceResponse(ServiceResponseType serviceResponse) {
-        return serviceResponse.reduce(
-                loading -> loading.value.isEmpty() ? Mode.LOADING_EMPTY : Mode.LOADING_NON_EMPTY,
-                complete -> complete.value.isEmpty() ? Mode.COMPLETE_EMPTY : Mode.COMPLETE_NON_EMPTY,
-                failed -> failed.value.isEmpty() ? Mode.ERROR_EMPTY : Mode.ERROR_NON_EMPTY
-        );
+    private void markIdlingResourcesAsBusyBeforeRender() {
+        loadingMutableIdlingResource.setBusy();
+        completeOrErrorMutableIdlingResource.setBusy();
     }
 
     private void setEmptyItemsLoadingViewVisibility(
@@ -714,5 +502,24 @@ public abstract class RxListFragment<
             recyclerView.setVisibility(View.VISIBLE);
         }
         listRecyclerViewAdapter.setItems(items);
+    }
+
+    private void updateIdlingResourcesPostRender(
+            ServiceResponseType serviceResponse
+    ) {
+        serviceResponse.act(
+                loading -> {
+                    loadingMutableIdlingResource.setIdle();
+                    completeOrErrorMutableIdlingResource.setBusy();
+                },
+                complete -> {
+                    loadingMutableIdlingResource.setBusy();
+                    completeOrErrorMutableIdlingResource.setIdle();
+                },
+                failed -> {
+                    loadingMutableIdlingResource.setBusy();
+                    completeOrErrorMutableIdlingResource.setIdle();
+                }
+        );
     }
 }

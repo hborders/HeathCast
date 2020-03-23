@@ -1,6 +1,5 @@
 package com.github.hborders.heathcast;
 
-import androidx.annotation.Nullable;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -8,60 +7,44 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.github.hborders.heathcast.activities.MainActivity;
-import com.github.hborders.heathcast.idlingresource.DisposableIdlingResource;
-import com.github.hborders.heathcast.idlingresource.DisposableIdlingResourceObserableSubscriber;
 import com.github.hborders.heathcast.services.NetworkPauser;
 
 import org.junit.After;
 import org.junit.Rule;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.reactivex.Observable;
+import javax.annotation.Nullable;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public abstract class AbstractMainActivityTest {
-    @Rule public final TestName testName = new TestName();
-
     @Rule
     public final ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
-    private final Set<DisposableIdlingResource> disposableIdlingResources =
-            Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-    interface ObservableProvider<T> {
-        Observable<T> provideObservable(MainActivity mainActivity);
+    public interface GetIdlingResource {
+        IdlingResource getIdlingResource(MainActivity mainActivity);
     }
 
-    public <T> IdlingResource subscribeIdlingResource(
-            String name,
-            ObservableProvider<T> observableProvider,
-            DisposableIdlingResourceObserableSubscriber<T> subscriber
-    ) {
-        final AtomicReference<DisposableIdlingResource> disposableIdlingResourceAtomicReference =
-                new AtomicReference<>();
+    private final ArrayList<IdlingResource> idlingResources = new ArrayList<>();
+
+    public final IdlingResource getIdlingResource(GetIdlingResource getIdlingResource) {
+        final AtomicReference<IdlingResource> idlingResourceAtomicReference = new AtomicReference<>();
         activityScenarioRule.getScenario().onActivity(
                 mainActivity ->
-                        disposableIdlingResourceAtomicReference.set(
-                                subscriber.subscribe(
-                                        testName.getMethodName() + "-" + name,
-                                        observableProvider.provideObservable(mainActivity)
-                                )
+                        idlingResourceAtomicReference.set(
+                                getIdlingResource.getIdlingResource(mainActivity)
                         )
         );
-        @Nullable final DisposableIdlingResource disposableIdlingResource = disposableIdlingResourceAtomicReference.get();
-        if (disposableIdlingResource == null) {
+        @Nullable final IdlingResource idlingResource = idlingResourceAtomicReference.get();
+        if (idlingResource == null) {
             throw new AssertionError();
         }
-        disposableIdlingResources.add(disposableIdlingResource);
-        return disposableIdlingResource;
+        idlingResources.add(idlingResource);
+        return idlingResource;
     }
 
     public interface SetNetworkPausers {
@@ -71,7 +54,7 @@ public abstract class AbstractMainActivityTest {
         );
     }
 
-    public void setNetworkPausers(
+    public final void setNetworkPausers(
             SetNetworkPausers setNetworkPausers,
             NetworkPauser... networkPausers
     ) {
@@ -85,11 +68,8 @@ public abstract class AbstractMainActivityTest {
     }
 
     @After
-    public void tearDisposableIdlingResource() {
-        for (final DisposableIdlingResource disposableIdlingResource : disposableIdlingResources) {
-            IdlingRegistry.getInstance().unregister(disposableIdlingResource);
-            disposableIdlingResource.dispose();
-        }
+    public final void unregisterIdlingResources() {
+        idlingResources.forEach(IdlingRegistry.getInstance()::unregister);
     }
 
     @After

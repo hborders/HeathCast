@@ -2,17 +2,16 @@ package com.github.hborders.heathcast.idlingresource;
 
 import javax.annotation.Nullable;
 
-public final class BasicMutableIdlingResource implements MutableIdlingResource {
-
-    public static BasicMutableIdlingResource idle(String name) {
-        return new BasicMutableIdlingResource(
+public final class MutableIdlingResource implements NullabilitiedIdlingResource {
+    public static MutableIdlingResource idle(String name) {
+        return new MutableIdlingResource(
                 name,
                 true
         );
     }
 
-    public static BasicMutableIdlingResource busy(String name) {
-        return new BasicMutableIdlingResource(
+    public static MutableIdlingResource busy(String name) {
+        return new MutableIdlingResource(
                 name,
                 false
         );
@@ -25,7 +24,7 @@ public final class BasicMutableIdlingResource implements MutableIdlingResource {
     @Nullable
     private volatile ResourceCallback resourceCallback;
 
-    private BasicMutableIdlingResource(String name, boolean idleNow) {
+    private MutableIdlingResource(String name, boolean idleNow) {
         this.name = name;
         this.idleNow = idleNow;
     }
@@ -80,7 +79,6 @@ public final class BasicMutableIdlingResource implements MutableIdlingResource {
 
     // Public API
 
-    @Override
     public void setBusy() {
         IdlingResourceLog.v(
                 this,
@@ -93,7 +91,6 @@ public final class BasicMutableIdlingResource implements MutableIdlingResource {
         );
     }
 
-    @Override
     public void setIdle() {
         IdlingResourceLog.v(
                 this,

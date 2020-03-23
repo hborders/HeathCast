@@ -66,7 +66,7 @@ public final class PodcastListFragment2 extends RxListFragment<
     }
 
     public interface PodcastListFragmentListener {
-        void onPodcastListFragmentListenerAttached(PodcastListFragment2 podcastListFragment);
+        void onPodcastListFragmentAttached(PodcastListFragment2 podcastListFragment);
 
         Observable<PodcastIdentifiedListServiceResponse> podcastIdentifiedsServiceResponseObservable(
                 PodcastListFragment2 podcastListFragment
@@ -77,7 +77,7 @@ public final class PodcastListFragment2 extends RxListFragment<
                 PodcastIdentified podcastIdentified
         );
 
-        void onPodcastListFragmentListenerWillDetach(PodcastListFragment2 podcastListFragment);
+        void onPodcastListFragmentWillDetach(PodcastListFragment2 podcastListFragment);
     }
 
     private static final String TAG = "PodcastList";
@@ -88,9 +88,10 @@ public final class PodcastListFragment2 extends RxListFragment<
                 PodcastListFragmentListener.class,
                 Attachment.class,
                 PodcastListFragment2.Attachment::new,
-                PodcastListFragmentListener::onPodcastListFragmentListenerAttached,
-                PodcastListFragmentListener::onPodcastListFragmentListenerWillDetach,
+                PodcastListFragmentListener::onPodcastListFragmentAttached,
+                PodcastListFragmentListener::onPodcastListFragmentWillDetach,
                 R.layout.fragment_podcast_list_2,
+                TAG,
                 PodcastIdentifiedList::new,
                 PodcastListFragmentListener::podcastIdentifiedsServiceResponseObservable,
                 PodcastIdentifiedHolder.class

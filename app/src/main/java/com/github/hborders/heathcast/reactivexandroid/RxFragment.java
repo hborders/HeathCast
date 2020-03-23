@@ -330,6 +330,8 @@ public abstract class RxFragment<
         }
     }
 
+    // RxFragment can also add a generic ObservableSource here
+    // so that clients can emit events through a single observable.
     public static final class Resume {
         public final Completable onPauseCompletable;
 

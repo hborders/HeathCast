@@ -11,12 +11,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.fragments.MainFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.fragments.PodcastSearchFragment;
+import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
@@ -24,11 +26,9 @@ import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
-import com.github.hborders.heathcast.reactivexandroid.RxListFragment;
 import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastService;
-import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.net.URL;
@@ -41,9 +41,6 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
-
-import static com.github.hborders.heathcast.reactivex.RxObservableUtil.switchMapOptionalFlatMap;
 
 public final class MainActivity extends AppCompatActivity
         implements
@@ -64,9 +61,16 @@ public final class MainActivity extends AppCompatActivity
         searchForPodcasts2NetworkPausers.clear();
     }
 
-    private final BehaviorSubject<Optional<PodcastSearchFragment>> podcastSearchFragmentOptionalBehaviorSubject =
-            BehaviorSubject.createDefault(Optional.empty());
     private final PodcastService podcastService = new PodcastService(this);
+
+    private final DelegatingIdlingResource podcastSearchResultPodcastListLoadingDelegatingIdlingResource =
+            new DelegatingIdlingResource(
+                    "PodcastSearchResultPodcastListLoading"
+            );
+    private final DelegatingIdlingResource podcastSearchResultPodcastListCompleteOrErrorDelegatingIdlingResource =
+            new DelegatingIdlingResource(
+                    "PodcastSearchResultPodcastListCompleteOrError"
+            );
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -131,12 +135,12 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment) {
-        podcastSearchFragmentOptionalBehaviorSubject.onNext(Optional.of(podcastSearchFragment));
-//        podcastSearchDelegatingIdlingResource.setState(
-//                DelegatingIdlingResource.State.hasInnerIdlingResource(
-//                        podcastSearchFragment.getSearchResultPodcastIdentifiedsIdlingResource()
-//                )
-//        );
+        podcastSearchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
+                podcastSearchFragment.getSearchResultPodcastListLoadingIdlingResource()
+        );
+        podcastSearchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(
+                podcastSearchFragment.getSearchResultPodcastListCompleteOrErrorIdlingResource()
+        );
     }
 
     @Override
@@ -164,7 +168,12 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment) {
-        podcastSearchFragmentOptionalBehaviorSubject.onNext(Optional.empty());
+        podcastSearchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
+                null
+        );
+        podcastSearchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(
+                null
+        );
     }
 
     // PodcastFragmentListener
@@ -288,17 +297,11 @@ public final class MainActivity extends AppCompatActivity
     public void onPodcastFragmentWillDetach(PodcastFragment podcastFragment) {
     }
 
-    public Observable<Optional<RxListFragment.Mode>> getPodcastSearchResultsPodcastListFragmentModeOptionalObservable() {
-        return switchMapOptionalFlatMap(
-                podcastSearchFragmentOptionalBehaviorSubject,
-                PodcastSearchFragment::getSearchResultPodcastListModeOptionalObservable
-        );
+    public IdlingResource getPodcastSearchResultPodcastListLoadingIdlingResource() {
+        return podcastSearchResultPodcastListLoadingDelegatingIdlingResource;
     }
 
-    public Observable<Optional<ItemRange>> getPodcastSearchResultPodcastsItemRangeOptionalObservable() {
-        return switchMapOptionalFlatMap(
-                podcastSearchFragmentOptionalBehaviorSubject,
-                PodcastSearchFragment::getSearchResultItemRangeOptionalObservable
-        );
+    public IdlingResource getPodcastSearchResultPodcastListCompleteOrErrorIdlingResource() {
+        return podcastSearchResultPodcastListCompleteOrErrorDelegatingIdlingResource;
     }
 }
