@@ -1,6 +1,6 @@
 package com.github.hborders.heathcast.core;
 
-public abstract class Either31<
+public interface Either31<
         LeftType extends Either31.Left<
                 LeftType,
                 MiddleType,
@@ -21,10 +21,7 @@ public abstract class Either31<
                 >,
         ValueType
         > {
-    private Either31() {
-    }
-
-    public abstract <T> T reduce(
+    <T> T reduce(
             Function<
                     ? super LeftType,
                     ? extends T
@@ -39,14 +36,16 @@ public abstract class Either31<
                     > rightReducer
     );
 
-    public abstract void act(
+    void act(
             VoidFunction<? super LeftType> leftAction,
             VoidFunction<? super MiddleType> middleAction,
             VoidFunction<? super RightType> rightAction
     );
 
+    ValueType getValue();
+
     // Not final to allow reification
-    public static class Left<
+    class Left<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -67,20 +66,20 @@ public abstract class Either31<
                     >,
             ValueType
             > extends Either3.Left<
-                        LeftType,
-                        MiddleType,
-                        RightType,
+            LeftType,
+            MiddleType,
+            RightType,
             ValueType,
             ValueType,
             ValueType
-                        > {
+            > {
         public Left(ValueType value) {
             super(value);
         }
     }
 
     // Not final to allow reification
-    public static class Middle<
+    class Middle<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -101,20 +100,20 @@ public abstract class Either31<
                     >,
             ValueType
             > extends Either3.Middle<
-                        LeftType,
-                        MiddleType,
-                        RightType,
+            LeftType,
+            MiddleType,
+            RightType,
             ValueType,
             ValueType,
             ValueType
-                        > {
+            > {
         public Middle(ValueType value) {
             super(value);
         }
     }
 
     // Not final to allow reification
-    public static class Right<
+    class Right<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -135,13 +134,13 @@ public abstract class Either31<
                     >,
             ValueType
             > extends Either3.Right<
-                        LeftType,
-                        MiddleType,
-                        RightType,
+            LeftType,
+            MiddleType,
+            RightType,
             ValueType,
             ValueType,
             ValueType
-                        > {
+            > {
         public Right(ValueType value) {
             super(value);
         }

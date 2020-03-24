@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public abstract class EmptyEither7<
+public interface EmptyEither7<
         LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                 LeftLeftLeftType,
                 LeftLeftType,
@@ -69,10 +69,7 @@ public abstract class EmptyEither7<
                 RightRightRightType
                 >
         > {
-    private EmptyEither7() {
-    }
-
-    public abstract <T> T reduce(
+    <T> T reduce(
             Function<
                     ? super LeftLeftLeftType,
                     ? extends T
@@ -103,7 +100,7 @@ public abstract class EmptyEither7<
                     > rightRightRightReducer
     );
 
-    public abstract void act(
+    void act(
             VoidFunction<? super LeftLeftLeftType> leftLeftLeftAction,
             VoidFunction<? super LeftLeftType> leftLeftAction,
             VoidFunction<? super LeftType> leftAction,
@@ -114,7 +111,7 @@ public abstract class EmptyEither7<
     );
 
     // Not final to allow reification
-    public static class LeftLeftLeft<
+    class LeftLeftLeft<
             LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -178,7 +175,7 @@ public abstract class EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither7<
+            > implements EmptyEither7<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -265,7 +262,7 @@ public abstract class EmptyEither7<
     }
 
     // Not final to allow reification
-    public static class LeftLeft<
+    class LeftLeft<
             LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -329,7 +326,7 @@ public abstract class EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither7<
+            > implements EmptyEither7<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -416,7 +413,7 @@ public abstract class EmptyEither7<
     }
 
     // Not final to allow reification
-    public static class Left<
+    class Left<
             LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -480,7 +477,7 @@ public abstract class EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither7<
+            > implements EmptyEither7<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -568,7 +565,7 @@ public abstract class EmptyEither7<
     }
 
     // Not final to allow reification
-    public static class Middle<
+    class Middle<
             LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -632,7 +629,7 @@ public abstract class EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither7<
+            > implements EmptyEither7<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -719,7 +716,7 @@ public abstract class EmptyEither7<
     }
 
     // Not final to allow reification
-    public static class Right<
+    class Right<
             LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -783,7 +780,7 @@ public abstract class EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither7<
+            > implements EmptyEither7<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -870,7 +867,7 @@ public abstract class EmptyEither7<
     }
 
     // Not final to allow reification
-    public static class RightRight<
+    class RightRight<
             LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -934,7 +931,7 @@ public abstract class EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither7<
+            > implements EmptyEither7<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -1021,7 +1018,7 @@ public abstract class EmptyEither7<
     }
 
     // Not final to allow reification
-    public static class RightRightRight<
+    class RightRightRight<
             LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -1085,7 +1082,7 @@ public abstract class EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither7<
+            > implements EmptyEither7<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,

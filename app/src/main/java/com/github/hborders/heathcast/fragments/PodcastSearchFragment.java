@@ -219,7 +219,7 @@ public final class PodcastSearchFragment extends Fragment
                 podcastListFragment.getLoadingIdlingResource()
         );
         searchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(
-                podcastListFragment.getCompleteOrErrorIdlingResource()
+                podcastListFragment.getCompleteOrFailedIdlingResource()
         );
     }
 

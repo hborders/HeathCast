@@ -1,8 +1,6 @@
 package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.core.Either3;
-import com.github.hborders.heathcast.core.Function;
-import com.github.hborders.heathcast.core.VoidFunction;
 
 public interface ServiceResponse<
         LoadingType extends ServiceResponse.Loading<
@@ -29,6 +27,13 @@ public interface ServiceResponse<
                 CompleteValueType,
                 FailedValueType
                 >,
+        LoadingValueType,
+        CompleteValueType,
+        FailedValueType
+        > extends Either3<
+        LoadingType,
+        CompleteType,
+        FailedType,
         LoadingValueType,
         CompleteValueType,
         FailedValueType
@@ -176,16 +181,4 @@ public interface ServiceResponse<
             super(value);
         }
     }
-
-    <T> T reduce(
-            Function<? super LoadingType, ? extends T> leftReducer,
-            Function<? super CompleteType, ? extends T> middleReducer,
-            Function<? super FailedType, ? extends T> rightReducer
-    );
-
-    void act(
-            VoidFunction<? super LoadingType> leftAction,
-            VoidFunction<? super CompleteType> middleAction,
-            VoidFunction<? super FailedType> rightAction
-    );
 }

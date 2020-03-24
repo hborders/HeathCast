@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public abstract class Either<
+public interface Either<
         LeftType extends Either.Left<
                 LeftType,
                 RightType,
@@ -20,10 +20,7 @@ public abstract class Either<
         LeftValueType,
         RightValueType
         > {
-    private Either() {
-    }
-
-    public abstract <T> T reduce(
+    <T> T reduce(
             Function<
                     ? super LeftType,
                     ? extends T
@@ -34,13 +31,13 @@ public abstract class Either<
                     > rightReducer
     );
 
-    public abstract void act(
+    void act(
             VoidFunction<? super LeftType> leftAction,
             VoidFunction<? super RightType> rightAction
     );
 
     // Not final to allow reification
-    public static class Left<
+    class Left<
             LeftType extends Either.Left<
                     LeftType,
                     RightType,
@@ -55,7 +52,7 @@ public abstract class Either<
                     >,
             LeftValueType,
             RightValueType
-            > extends Either<
+            > implements Either<
             LeftType,
             RightType,
             LeftValueType,
@@ -127,7 +124,7 @@ public abstract class Either<
     }
 
     // Not final to allow reification
-    public static class Right<
+    class Right<
             LeftType extends Either.Left<
                     LeftType,
                     RightType,
@@ -142,7 +139,7 @@ public abstract class Either<
                     >,
             LeftValueType,
             RightValueType
-            > extends Either<
+            > implements Either<
             LeftType,
             RightType,
             LeftValueType,

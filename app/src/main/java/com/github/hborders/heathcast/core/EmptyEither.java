@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public abstract class EmptyEither<
+public interface EmptyEither<
         LeftType extends EmptyEither.Left<
                 LeftType,
                 RightType
@@ -14,10 +14,7 @@ public abstract class EmptyEither<
                 RightType
                 >
         > {
-    private EmptyEither() {
-    }
-
-    public abstract <T> T reduce(
+    <T> T reduce(
             Function<
                     ? super LeftType,
                     ? extends T
@@ -28,13 +25,13 @@ public abstract class EmptyEither<
                     > rightReducer
     );
 
-    public abstract void act(
+    void act(
             VoidFunction<? super LeftType> leftAction,
             VoidFunction<? super RightType> rightAction
     );
 
     // Not final to allow reification
-    public static class Left<
+    class Left<
             LeftType extends EmptyEither.Left<
                     LeftType,
                     RightType
@@ -43,7 +40,7 @@ public abstract class EmptyEither<
                     LeftType,
                     RightType
                     >
-            > extends EmptyEither<
+            > implements EmptyEither<
             LeftType,
             RightType
             > {
@@ -101,7 +98,7 @@ public abstract class EmptyEither<
     }
 
     // Not final to allow reification
-    public static class Right<
+    class Right<
             LeftType extends EmptyEither.Left<
                     LeftType,
                     RightType
@@ -110,7 +107,7 @@ public abstract class EmptyEither<
                     LeftType,
                     RightType
                     >
-            > extends EmptyEither<
+            > implements EmptyEither<
             LeftType,
             RightType
             > {

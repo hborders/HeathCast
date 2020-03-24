@@ -10,7 +10,6 @@ import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
-import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 import com.github.hborders.heathcast.services.ServiceResponse1;
 import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter;
 
@@ -26,7 +25,6 @@ public abstract class RxListFragment<
                 AttachmentType,
                 AttachmentFactoryType,
                 UnparcelableType,
-                UnparcelableHolderType,
                 UnparcelableListType,
                 UnparcelableCapacityCollectionFactoryType,
                 ListRecyclerViewAdapterType,
@@ -50,7 +48,6 @@ public abstract class RxListFragment<
                 AttachmentFactoryType
                 >,
         UnparcelableType,
-        UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
         UnparcelableListType extends List<UnparcelableType>,
         UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
                 UnparcelableListType,
@@ -100,7 +97,6 @@ public abstract class RxListFragment<
                     AttachmentType,
                     AttachmentFactoryType,
                     UnparcelableType,
-                    UnparcelableHolderType,
                     UnparcelableListType,
                     UnparcelableCapacityCollectionFactoryType,
                     ListRecyclerViewAdapterType,
@@ -124,7 +120,6 @@ public abstract class RxListFragment<
                     AttachmentFactoryType
                     >,
             UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
             UnparcelableListType extends List<UnparcelableType>,
             UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
                     UnparcelableListType,
@@ -168,7 +163,7 @@ public abstract class RxListFragment<
     }
 
     private final MutableIdlingResource loadingMutableIdlingResource;
-    private final MutableIdlingResource completeOrErrorMutableIdlingResource;
+    private final MutableIdlingResource completeOrFailedMutableIdlingResource;
 
     protected RxListFragment(
             Class<FragmentType> fragmentClass,
@@ -196,7 +191,6 @@ public abstract class RxListFragment<
                     AttachmentType,
                     AttachmentFactoryType,
                     UnparcelableType,
-                    UnparcelableHolderType,
                     UnparcelableListType,
                     UnparcelableCapacityCollectionFactoryType,
                     ListRecyclerViewAdapterType,
@@ -205,8 +199,7 @@ public abstract class RxListFragment<
                     ServiceResponseLoadingType,
                     ServiceResponseCompleteType,
                     ServiceResponseFailedType
-                    > itemListServiceResponseObservableProvider,
-            Class<UnparcelableHolderType> holderClass
+                    > itemListServiceResponseObservableProvider
     ) {
         super(
                 fragmentClass,
@@ -220,7 +213,7 @@ public abstract class RxListFragment<
 
         loadingMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading");
 
-        completeOrErrorMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrError");
+        completeOrFailedMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed");
 
         final class Prez {
             final Context context;
@@ -236,9 +229,9 @@ public abstract class RxListFragment<
             @Nullable
             final View emptyItemsCompleteView;
             @Nullable
-            final View emptyItemsErrorView;
+            final View emptyItemsFailedView;
             @Nullable
-            final View nonEmptyItemsErrorView;
+            final View nonEmptyItemsFailedView;
 
             Prez(
                     Context context,
@@ -250,8 +243,8 @@ public abstract class RxListFragment<
                     @Nullable View emptyItemsLoadingView,
                     @Nullable View nonEmptyItemsLoadingView,
                     @Nullable View emptyItemsCompleteView,
-                    @Nullable View emptyItemsErrorView,
-                    @Nullable View nonEmptyItemsErrorView
+                    @Nullable View emptyItemsFailedView,
+                    @Nullable View nonEmptyItemsFailedView
             ) {
                 this.context = context;
                 this.listener = listener;
@@ -262,8 +255,8 @@ public abstract class RxListFragment<
                 this.emptyItemsLoadingView = emptyItemsLoadingView;
                 this.nonEmptyItemsLoadingView = nonEmptyItemsLoadingView;
                 this.emptyItemsCompleteView = emptyItemsCompleteView;
-                this.emptyItemsErrorView = emptyItemsErrorView;
-                this.nonEmptyItemsErrorView = nonEmptyItemsErrorView;
+                this.emptyItemsFailedView = emptyItemsFailedView;
+                this.nonEmptyItemsFailedView = nonEmptyItemsFailedView;
             }
         }
 
@@ -298,8 +291,8 @@ public abstract class RxListFragment<
                             findEmptyItemsLoadingView(view),
                             findNonEmptyItemsLoadingView(view),
                             findEmptyItemsCompleteView(view),
-                            findEmptyItemsErrorView(view),
-                            findNonEmptyItemsErrorView(view)
+                            findEmptyItemsFailedView(view),
+                            findNonEmptyItemsFailedView(view)
                     );
                 }
         );
@@ -353,12 +346,12 @@ public abstract class RxListFragment<
                             render.prez.emptyItemsCompleteView,
                             render.itemListServiceResponse
                     );
-                    setEmptyItemsErrorViewVisibility(
-                            render.prez.emptyItemsErrorView,
+                    setEmptyItemsFailedViewVisibility(
+                            render.prez.emptyItemsFailedView,
                             render.itemListServiceResponse
                     );
-                    setNonEmptyItemsErrorViewVisibility(
-                            render.prez.nonEmptyItemsErrorView,
+                    setNonEmptyItemsFailedViewVisibility(
+                            render.prez.nonEmptyItemsFailedView,
                             render.itemListServiceResponse
                     );
                     setRecyclerViewItemsAndVisibility(
@@ -384,8 +377,8 @@ public abstract class RxListFragment<
     /**
      * Useful for testing not loading states
      */
-    public final IdlingResource getCompleteOrErrorIdlingResource() {
-        return completeOrErrorMutableIdlingResource;
+    public final IdlingResource getCompleteOrFailedIdlingResource() {
+        return completeOrFailedMutableIdlingResource;
     }
 
     @Nullable
@@ -398,10 +391,10 @@ public abstract class RxListFragment<
     protected abstract View findEmptyItemsCompleteView(View view);
 
     @Nullable
-    protected abstract View findEmptyItemsErrorView(View view);
+    protected abstract View findEmptyItemsFailedView(View view);
 
     @Nullable
-    protected abstract View findNonEmptyItemsErrorView(View view);
+    protected abstract View findNonEmptyItemsFailedView(View view);
 
     protected abstract RecyclerView requireRecyclerView(View view);
 
@@ -412,7 +405,7 @@ public abstract class RxListFragment<
 
     private void markIdlingResourcesAsBusyBeforeRender() {
         loadingMutableIdlingResource.setBusy();
-        completeOrErrorMutableIdlingResource.setBusy();
+        completeOrFailedMutableIdlingResource.setBusy();
     }
 
     private void setEmptyItemsLoadingViewVisibility(
@@ -460,12 +453,12 @@ public abstract class RxListFragment<
         }
     }
 
-    private void setEmptyItemsErrorViewVisibility(
-            @Nullable View emptyItemsErrorView,
+    private void setEmptyItemsFailedViewVisibility(
+            @Nullable View emptyItemsFailedView,
             ServiceResponseType serviceResponse
     ) {
-        if (emptyItemsErrorView != null) {
-            emptyItemsErrorView.setVisibility(
+        if (emptyItemsFailedView != null) {
+            emptyItemsFailedView.setVisibility(
                     serviceResponse.reduce(
                             loading -> View.GONE,
                             complete -> View.GONE,
@@ -475,12 +468,12 @@ public abstract class RxListFragment<
         }
     }
 
-    private void setNonEmptyItemsErrorViewVisibility(
-            @Nullable View nonEmptyItemsErrorView,
+    private void setNonEmptyItemsFailedViewVisibility(
+            @Nullable View nonEmptyItemsFailedView,
             ServiceResponseType serviceResponse
     ) {
-        if (nonEmptyItemsErrorView != null) {
-            nonEmptyItemsErrorView.setVisibility(
+        if (nonEmptyItemsFailedView != null) {
+            nonEmptyItemsFailedView.setVisibility(
                     serviceResponse.reduce(
                             loading -> View.GONE,
                             complete -> View.GONE,
@@ -510,15 +503,15 @@ public abstract class RxListFragment<
         serviceResponse.act(
                 loading -> {
                     loadingMutableIdlingResource.setIdle();
-                    completeOrErrorMutableIdlingResource.setBusy();
+                    completeOrFailedMutableIdlingResource.setBusy();
                 },
                 complete -> {
                     loadingMutableIdlingResource.setBusy();
-                    completeOrErrorMutableIdlingResource.setIdle();
+                    completeOrFailedMutableIdlingResource.setIdle();
                 },
                 failed -> {
                     loadingMutableIdlingResource.setBusy();
-                    completeOrErrorMutableIdlingResource.setIdle();
+                    completeOrFailedMutableIdlingResource.setIdle();
                 }
         );
     }

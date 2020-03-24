@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public abstract class EmptyEither3<
+public interface EmptyEither3<
         LeftType extends EmptyEither3.Left<
                 LeftType,
                 MiddleType,
@@ -21,10 +21,7 @@ public abstract class EmptyEither3<
                 RightType
                 >
         > {
-    private EmptyEither3() {
-    }
-
-    public abstract <T> T reduce(
+    <T> T reduce(
             Function<
                     ? super LeftType,
                     ? extends T
@@ -39,14 +36,14 @@ public abstract class EmptyEither3<
                     > rightReducer
     );
 
-    public abstract void act(
+    void act(
             VoidFunction<? super LeftType> leftAction,
             VoidFunction<? super MiddleType> middleAction,
             VoidFunction<? super RightType> rightAction
     );
 
     // Not final to allow reification
-    public static class Left<
+    class Left<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -62,7 +59,7 @@ public abstract class EmptyEither3<
                     MiddleType,
                     RightType
                     >
-            > extends EmptyEither3<
+            > implements EmptyEither3<
             LeftType,
             MiddleType,
             RightType
@@ -125,7 +122,7 @@ public abstract class EmptyEither3<
     }
 
     // Not final to allow reification
-    public static class Middle<
+    class Middle<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -141,7 +138,7 @@ public abstract class EmptyEither3<
                     MiddleType,
                     RightType
                     >
-            > extends EmptyEither3<
+            > implements EmptyEither3<
             LeftType,
             MiddleType,
             RightType
@@ -204,7 +201,7 @@ public abstract class EmptyEither3<
     }
 
     // Not final to allow reification
-    public static class Right<
+    class Right<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -220,7 +217,7 @@ public abstract class EmptyEither3<
                     MiddleType,
                     RightType
                     >
-            > extends EmptyEither3<
+            > implements EmptyEither3<
             LeftType,
             MiddleType,
             RightType

@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public abstract class EmptyEither6<
+public interface EmptyEither6<
         LeftLeftLeftType extends EmptyEither6.LeftLeftLeft<
                 LeftLeftLeftType,
                 LeftLeftType,
@@ -54,10 +54,7 @@ public abstract class EmptyEither6<
                 RightRightRightType
                 >
         > {
-    private EmptyEither6() {
-    }
-
-    public abstract <T> T reduce(
+    <T> T reduce(
             Function<
                     ? super LeftLeftLeftType,
                     ? extends T
@@ -84,7 +81,7 @@ public abstract class EmptyEither6<
                     > rightRightRightReducer
     );
 
-    public abstract void act(
+    void act(
             VoidFunction<? super LeftLeftLeftType> leftLeftLeftAction,
             VoidFunction<? super LeftLeftType> leftLeftAction,
             VoidFunction<? super LeftType> leftAction,
@@ -94,7 +91,7 @@ public abstract class EmptyEither6<
     );
 
     // Not final to allow reification
-    public static class LeftLeftLeft<
+    class LeftLeftLeft<
             LeftLeftLeftType extends EmptyEither6.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -143,14 +140,14 @@ public abstract class EmptyEither6<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither6<
-                        LeftLeftLeftType,
-                        LeftLeftType,
-                        LeftType,
-                        RightType,
-                        RightRightType,
-                        RightRightRightType
-                        > {
+            > implements EmptyEither6<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -224,7 +221,7 @@ public abstract class EmptyEither6<
     }
 
     // Not final to allow reification
-    public static class LeftLeft<
+    class LeftLeft<
             LeftLeftLeftType extends EmptyEither6.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -273,14 +270,14 @@ public abstract class EmptyEither6<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither6<
-                        LeftLeftLeftType,
-                        LeftLeftType,
-                        LeftType,
-                        RightType,
-                        RightRightType,
-                        RightRightRightType
-                        > {
+            > implements EmptyEither6<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -354,7 +351,7 @@ public abstract class EmptyEither6<
     }
 
     // Not final to allow reification
-    public static class Left<
+    class Left<
             LeftLeftLeftType extends EmptyEither6.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -403,14 +400,14 @@ public abstract class EmptyEither6<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither6<
-                        LeftLeftLeftType,
-                        LeftLeftType,
-                        LeftType,
-                        RightType,
-                        RightRightType,
-                        RightRightRightType
-                        > {
+            > implements EmptyEither6<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -485,7 +482,7 @@ public abstract class EmptyEither6<
     }
 
     // Not final to allow reification
-    public static class Right<
+    class Right<
             LeftLeftLeftType extends EmptyEither6.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -534,14 +531,14 @@ public abstract class EmptyEither6<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither6<
-                        LeftLeftLeftType,
-                        LeftLeftType,
-                        LeftType,
-                        RightType,
-                        RightRightType,
-                        RightRightRightType
-                        > {
+            > implements EmptyEither6<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -615,7 +612,7 @@ public abstract class EmptyEither6<
     }
 
     // Not final to allow reification
-    public static class RightRight<
+    class RightRight<
             LeftLeftLeftType extends EmptyEither6.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -664,14 +661,14 @@ public abstract class EmptyEither6<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither6<
-                        LeftLeftLeftType,
-                        LeftLeftType,
-                        LeftType,
-                        RightType,
-                        RightRightType,
-                        RightRightRightType
-                        > {
+            > implements EmptyEither6<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -745,7 +742,7 @@ public abstract class EmptyEither6<
     }
 
     // Not final to allow reification
-    public static class RightRightRight<
+    class RightRightRight<
             LeftLeftLeftType extends EmptyEither6.LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -794,14 +791,14 @@ public abstract class EmptyEither6<
                     RightRightType,
                     RightRightRightType
                     >
-            > extends EmptyEither6<
-                        LeftLeftLeftType,
-                        LeftLeftType,
-                        LeftType,
-                        RightType,
-                        RightRightType,
-                        RightRightRightType
-                        > {
+            > implements EmptyEither6<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;

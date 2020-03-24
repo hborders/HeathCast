@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public abstract class Either3<
+public interface Either3<
         LeftType extends Either3.Left<
                 LeftType,
                 MiddleType,
@@ -33,10 +33,7 @@ public abstract class Either3<
         MiddleValueType,
         RightValueType
         > {
-    private Either3() {
-    }
-
-    public abstract <T> T reduce(
+    <T> T reduce(
             Function<
                     ? super LeftType,
                     ? extends T
@@ -51,14 +48,14 @@ public abstract class Either3<
                     > rightReducer
     );
 
-    public abstract void act(
+    void act(
             VoidFunction<? super LeftType> leftAction,
             VoidFunction<? super MiddleType> middleAction,
             VoidFunction<? super RightType> rightAction
     );
 
     // Not final to allow reification
-    public static class Left<
+    class Left<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -86,7 +83,7 @@ public abstract class Either3<
             LeftValueType,
             MiddleValueType,
             RightValueType
-            > extends Either3<
+            > implements Either3<
             LeftType,
             MiddleType,
             RightType,
@@ -164,7 +161,7 @@ public abstract class Either3<
     }
 
     // Not final to allow reification
-    public static class Middle<
+    class Middle<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -192,7 +189,7 @@ public abstract class Either3<
             LeftValueType,
             MiddleValueType,
             RightValueType
-            > extends Either3<
+            > implements Either3<
             LeftType,
             MiddleType,
             RightType,
@@ -270,7 +267,7 @@ public abstract class Either3<
     }
 
     // Not final to allow reification
-    public static class Right<
+    class Right<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -298,7 +295,7 @@ public abstract class Either3<
             LeftValueType,
             MiddleValueType,
             RightValueType
-            > extends Either3<
+            > implements Either3<
             LeftType,
             MiddleType,
             RightType,

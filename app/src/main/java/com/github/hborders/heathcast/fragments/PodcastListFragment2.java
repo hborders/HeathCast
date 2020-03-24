@@ -120,14 +120,14 @@ public final class PodcastListFragment2 extends RxListFragment<
     }
 
     @Override
-    protected View findEmptyItemsErrorView(View view) {
+    protected View findEmptyItemsFailedView(View view) {
         return view.requireViewById(
                 R.id.fragment_podcast_list_empty_error_text_view
         );
     }
 
     @Override
-    protected View findNonEmptyItemsErrorView(View view) {
+    protected View findNonEmptyItemsFailedView(View view) {
         return view.requireViewById(
                 R.id.fragment_podcast_list_non_empty_error_text_view
         );
