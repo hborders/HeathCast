@@ -13,6 +13,8 @@ import java.util.Objects;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
+import static com.github.hborders.heathcast.android.ViewUtil.setUserInteractionEnabled;
+
 public abstract class RxValueFragment<
         FragmentType extends RxFragment<
                 FragmentType,
@@ -34,8 +36,7 @@ public abstract class RxValueFragment<
                 AttachmentFactoryType
                 >,
         ModelType extends RxValueFragment.Model<UnparcelableValueType>,
-        UnparcelableValueType,
-        ViewType extends View
+        UnparcelableValueType
         > extends RxFragment<
         FragmentType,
         ListenerType,
@@ -277,7 +278,7 @@ public abstract class RxValueFragment<
         );
     }
 
-    protected interface ViewProvider<
+    protected interface ViewHolderProvider<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
@@ -297,9 +298,9 @@ public abstract class RxValueFragment<
                     AttachmentType,
                     AttachmentFactoryType
                     >,
-            ViewType extends View
+            ViewHolderType
             > {
-        ViewType requireView(View fragmentView);
+        ViewHolderType viewHolder(View view);
     }
 
     protected interface Renderer<
@@ -352,13 +353,13 @@ public abstract class RxValueFragment<
                     >,
             ModelType extends RxValueFragment.Model<UnparcelableValueType>,
             UnparcelableValueType,
-            ViewType extends View
+            ViewHolderType
             > {
         void render(
                 FragmentType fragmentType,
                 ListenerType listener,
                 Context context,
-                ViewType view,
+                ViewHolderType viewHolder,
                 StateType state
         );
     }
@@ -414,13 +415,13 @@ public abstract class RxValueFragment<
                     > willDetach,
             int layoutResource,
             String idlingResourceNamePrefix,
-            ViewProvider<
+            ViewHolderProvider<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
                     AttachmentFactoryType,
-                    ViewType
-                    > viewProvider,
+                    ViewHolderType
+                    > viewHolderProvider,
             StateObservableProvider<
                     FragmentType,
                     ListenerType,
@@ -444,7 +445,7 @@ public abstract class RxValueFragment<
                     FailedType,
                     ModelType,
                     UnparcelableValueType,
-                    ViewType
+                    ViewHolderType
                     > renderer
     ) {
         super(
@@ -466,18 +467,21 @@ public abstract class RxValueFragment<
             final Context context;
             final ListenerType listener;
             final ViewCreation viewCreation;
-            final ViewType view;
+            final View view;
+            final ViewHolderType viewHolder;
 
             Prez(
                     Context context,
                     ListenerType listener,
                     ViewCreation viewCreation,
-                    ViewType view
+                    View view,
+                    ViewHolderType viewHolder
             ) {
                 this.context = context;
                 this.listener = listener;
                 this.viewCreation = viewCreation;
                 this.view = view;
+                this.viewHolder = viewHolder;
             }
         }
 
@@ -491,13 +495,14 @@ public abstract class RxValueFragment<
                             attachmentFragmentCreationViewCreationTriple.first.listener;
                     final ViewCreation viewCreation =
                             attachmentFragmentCreationViewCreationTriple.third;
-                    final View fragmentView = viewCreation.view;
-                    final ViewType view = viewProvider.requireView(fragmentView);
+                    final View view = viewCreation.view;
+                    final ViewHolderType viewHolder = viewHolderProvider.viewHolder(view);
                     return new Prez(
                             context,
                             listener,
                             viewCreation,
-                            view
+                            view,
+                            viewHolder
                     );
                 }
         );
@@ -539,11 +544,16 @@ public abstract class RxValueFragment<
                 prerender -> {
                     markIdlingResourcesAsBusyBeforeRender();
 
+                    setUserInteractionEnabled(
+                            prerender.prez.view,
+                            prerender.state.getValue().enabled
+                    );
+
                     renderer.render(
                             getSelf(),
                             prerender.prez.listener,
                             prerender.prez.context,
-                            prerender.prez.view,
+                            prerender.prez.viewHolder,
                             prerender.state
                     );
 
