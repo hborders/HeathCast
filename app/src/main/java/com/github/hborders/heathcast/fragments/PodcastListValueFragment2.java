@@ -11,6 +11,7 @@ import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.github.hborders.heathcast.reactivexandroid.RxListValueFragment;
+import com.github.hborders.heathcast.reactivexandroid.RxValueFragment;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
@@ -22,32 +23,22 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
         PodcastListValueFragment2,
         PodcastListValueFragment2.PodcastListFragmentListener,
         PodcastListValueFragment2.Attachment,
-        PodcastListValueFragment2.Attachment.Factory,
-        PodcastIdentified,
-        PodcastIdentifiedHolder,
+        PodcastListValueFragment2.PodcastIdentifiedListModel,
         PodcastIdentifiedList,
-        PodcastIdentifiedList.CapacityFactory,
-        PodcastRecyclerViewAdapter,
-        PodcastRecyclerViewAdapter.PodcastViewHolder,
-        PodcastIdentifiedListServiceResponse,
-        PodcastIdentifiedListServiceResponse.Loading,
-        PodcastIdentifiedListServiceResponse.Complete,
-        PodcastIdentifiedListServiceResponse.Failed
+        PodcastIdentified
         > {
     public static final class Attachment extends RxFragment.Attachment<
             PodcastListValueFragment2,
             PodcastListValueFragment2.PodcastListFragmentListener,
-            Attachment,
-            Attachment.Factory> {
+            Attachment> {
         public interface Factory extends RxListValueFragment.Attachment.Factory<
                 PodcastListValueFragment2,
                 PodcastListValueFragment2.PodcastListFragmentListener,
-                Attachment,
-                Attachment.Factory> {
+                Attachment
+                > {
         }
 
         private Attachment(
-                Class<Attachment> attachmentClass,
                 PodcastListValueFragment2 fragment,
                 Context context,
                 PodcastListFragmentListener listener,
@@ -55,7 +46,6 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
                 Completable onDetachCompletable
         ) {
             super(
-                    attachmentClass,
                     fragment,
                     context,
                     listener,
@@ -80,19 +70,33 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
         void onPodcastListFragmentWillDetach(PodcastListValueFragment2 podcastListFragment);
     }
 
+    public static final class PodcastIdentifiedListModel extends RxValueFragment.Model<PodcastIdentifiedList> {
+        public PodcastIdentifiedListModel(
+                PodcastIdentifiedList value,
+                boolean enabled
+        ) {
+            super(
+                    value,
+                    enabled
+            );
+        }
+    }
+
     private static final String TAG = "PodcastList";
 
     public PodcastListValueFragment2() {
         super(
-                PodcastListValueFragment2.class,
                 PodcastListFragmentListener.class,
-                Attachment.class,
-                PodcastListValueFragment2.Attachment::new,
+                new Attachment.Factory() {
+                    @Override
+                    public Attachment newAttachment(PodcastListValueFragment2 fragment, Context context, PodcastListFragmentListener listener, Observable<FragmentCreation> fragmenCreationObservable, Completable onDetachCompletable) {
+                        return new PodcastListValueFragment2.Attachment(fragment, context, listener, fragmenCreationObservable, onDetachCompletable);
+                    }
+                },
                 PodcastListFragmentListener::onPodcastListFragmentAttached,
                 PodcastListFragmentListener::onPodcastListFragmentWillDetach,
                 R.layout.fragment_podcast_list_2,
                 TAG,
-                PodcastIdentifiedList::new,
                 PodcastListFragmentListener::podcastIdentifiedsServiceResponseObservable,
                 PodcastIdentifiedHolder.class
         );
