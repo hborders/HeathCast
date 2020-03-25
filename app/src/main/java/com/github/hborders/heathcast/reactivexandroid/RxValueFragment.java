@@ -19,29 +19,20 @@ public abstract class RxValueFragment<
         FragmentType extends RxFragment<
                 FragmentType,
                 ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
+                AttachmentType
                 >,
         ListenerType,
         AttachmentType extends RxFragment.Attachment<
                 FragmentType,
                 ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
-                >,
-        AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                FragmentType,
-                ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
+                AttachmentType
                 >,
         ModelType extends RxValueFragment.Model<UnparcelableValueType>,
         UnparcelableValueType
         > extends RxFragment<
         FragmentType,
         ListenerType,
-        AttachmentType,
-        AttachmentFactoryType
+        AttachmentType
         > {
     public static abstract class Model<UnparcelableValueType> {
         final UnparcelableValueType value;
@@ -225,21 +216,13 @@ public abstract class RxValueFragment<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             StateType extends State<
                     LoadingType,
@@ -282,21 +265,13 @@ public abstract class RxValueFragment<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             ViewHolderType
             > {
@@ -307,21 +282,13 @@ public abstract class RxValueFragment<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             StateType extends State<
                     LoadingType,
@@ -368,6 +335,50 @@ public abstract class RxValueFragment<
     private final MutableIdlingResource completeOrFailedMutableIdlingResource;
 
     protected <
+            AttachmentFactoryType extends Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            OnAttachedType extends OnAttached<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            WillDetachType extends WillDetach<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ViewHolderProviderType extends ViewHolderProvider<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    ViewHolderType
+                    >,
+            StateObservableProviderType extends StateObservableProvider<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    StateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            RendererType extends Renderer<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    StateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType,
+                    ViewHolderType
+                    >,
             StateType extends State<
                     LoadingType,
                     CompleteType,
@@ -395,63 +406,23 @@ public abstract class RxValueFragment<
                     FailedType,
                     ModelType,
                     UnparcelableValueType
-                    >
-            > RxValueFragment(
-            Class<FragmentType> fragmentClass,
+                    >,
+            ViewHolderType
+            >
+
+    RxValueFragment(
             Class<ListenerType> listenerClass,
-            Class<AttachmentType> attachmentClass,
             AttachmentFactoryType attachmentFactory,
-            OnAttached<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    > onAttached,
-            WillDetach<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    > willDetach,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
             int layoutResource,
             String idlingResourceNamePrefix,
-            ViewHolderProvider<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType,
-                    ViewHolderType
-                    > viewHolderProvider,
-            StateObservableProvider<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType,
-                    StateType,
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    > stateObservableProvider,
-            Renderer<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType,
-                    StateType,
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType,
-                    ViewHolderType
-                    > renderer
+            ViewHolderProviderType viewHolderProvider,
+            StateObservableProviderType stateObservableProvider,
+            RendererType renderer
     ) {
         super(
-                fragmentClass,
                 listenerClass,
-                attachmentClass,
                 attachmentFactory,
                 onAttached,
                 willDetach,
@@ -459,9 +430,10 @@ public abstract class RxValueFragment<
         );
 
 
-        loadingMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading");
-
-        completeOrFailedMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed");
+        loadingMutableIdlingResource =
+                MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading");
+        completeOrFailedMutableIdlingResource =
+                MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed");
 
         final class Prez {
             final Context context;
@@ -486,6 +458,8 @@ public abstract class RxValueFragment<
         }
 
         final Observable<Prez> prezObservable = beginRxGraph().switchMap(
+                attachmentTypeObservable -> attachmentTypeObservable
+        ).switchMap(
                 Attachment::switchMapToViewCreation
         ).map(
                 attachmentFragmentCreationViewCreationTriple -> {

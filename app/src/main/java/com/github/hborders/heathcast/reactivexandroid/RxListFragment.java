@@ -23,7 +23,6 @@ public abstract class RxListFragment<
                 FragmentType,
                 ListenerType,
                 AttachmentType,
-                AttachmentFactoryType,
                 UnparcelableType,
                 UnparcelableListType,
                 UnparcelableCapacityCollectionFactoryType,
@@ -38,14 +37,7 @@ public abstract class RxListFragment<
         AttachmentType extends RxFragment.Attachment<
                 FragmentType,
                 ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
-                >,
-        AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                FragmentType,
-                ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
+                AttachmentType
                 >,
         UnparcelableType,
         UnparcelableListType extends List<UnparcelableType>,
@@ -86,8 +78,7 @@ public abstract class RxListFragment<
         > extends RxFragment<
         FragmentType,
         ListenerType,
-        AttachmentType,
-        AttachmentFactoryType
+        AttachmentType
         > {
 
     protected interface ItemListServiceResponseObservableProvider<
@@ -95,7 +86,6 @@ public abstract class RxListFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    AttachmentFactoryType,
                     UnparcelableType,
                     UnparcelableListType,
                     UnparcelableCapacityCollectionFactoryType,
@@ -110,14 +100,7 @@ public abstract class RxListFragment<
             AttachmentType extends RxFragment.Attachment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             UnparcelableType,
             UnparcelableListType extends List<UnparcelableType>,
@@ -165,23 +148,27 @@ public abstract class RxListFragment<
     private final MutableIdlingResource loadingMutableIdlingResource;
     private final MutableIdlingResource completeOrFailedMutableIdlingResource;
 
-    protected RxListFragment(
-            Class<FragmentType> fragmentClass,
+    protected <
+            AttachmentFactoryType extends Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            OnAttachedType extends OnAttached<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            WillDetachType extends WillDetach<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >
+            > RxListFragment(
             Class<ListenerType> listenerClass,
-            Class<AttachmentType> attachmentClass,
             AttachmentFactoryType attachmentFactory,
-            OnAttached<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    > onAttached,
-            WillDetach<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    > willDetach,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
             int layoutResource,
             String idlingResourceNamePrefix,
             UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory,
@@ -189,7 +176,6 @@ public abstract class RxListFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    AttachmentFactoryType,
                     UnparcelableType,
                     UnparcelableListType,
                     UnparcelableCapacityCollectionFactoryType,
@@ -202,9 +188,7 @@ public abstract class RxListFragment<
                     > itemListServiceResponseObservableProvider
     ) {
         super(
-                fragmentClass,
                 listenerClass,
-                attachmentClass,
                 attachmentFactory,
                 onAttached,
                 willDetach,
@@ -261,6 +245,8 @@ public abstract class RxListFragment<
         }
 
         final Observable<Prez> prezObservable = beginRxGraph().switchMap(
+                attachmentTypeObservable -> attachmentTypeObservable
+        ).switchMap(
                 Attachment::switchMapToViewCreation
         ).map(
                 attachmentFragmentCreationViewCreationTriple -> {

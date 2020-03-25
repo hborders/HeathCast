@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.Function5;
 import com.github.hborders.heathcast.core.Triple;
 import com.github.hborders.heathcast.core.Tuple;
 
@@ -28,42 +29,26 @@ public abstract class RxFragment<
         FragmentType extends RxFragment<
                 FragmentType,
                 ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
+                AttachmentType
                 >,
         ListenerType,
         AttachmentType extends RxFragment.Attachment<
                 FragmentType,
                 ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
-                >,
-        AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                FragmentType,
-                ListenerType,
-                AttachmentType,
-                AttachmentFactoryType
+                AttachmentType
                 >
         > extends Fragment {
     public static abstract class Attachment<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             ListenerType,
-            AttachmentType extends RxFragment.Attachment<
+            AttachmentType extends Attachment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >
             > {
 
@@ -71,25 +56,16 @@ public abstract class RxFragment<
                 FragmentType extends RxFragment<
                         FragmentType,
                         ListenerType,
-                        AttachmentType,
-                        AttachmentFactoryType
+                        AttachmentType
                         >,
                 ListenerType,
                 AttachmentType extends RxFragment.Attachment<
                         FragmentType,
                         ListenerType,
-                        AttachmentType,
-                        AttachmentFactoryType
-                        >,
-                AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                        FragmentType,
-                        ListenerType,
-                        AttachmentType,
-                        AttachmentFactoryType
+                        AttachmentType
                         >
                 > {
             AttachmentType newAttachment(
-                    Class<AttachmentType> attachmentClass,
                     FragmentType fragment,
                     Context context,
                     ListenerType listener,
@@ -98,7 +74,6 @@ public abstract class RxFragment<
             );
         }
 
-        private final Class<AttachmentType> attachmentClass;
         public final FragmentType fragment;
         public final Context context;
         public final ListenerType listener;
@@ -106,14 +81,12 @@ public abstract class RxFragment<
         public final Completable onDetachCompletable;
 
         protected Attachment(
-                Class<AttachmentType> attachmentClass,
                 FragmentType fragment,
                 Context context,
                 ListenerType listener,
                 Observable<FragmentCreation> fragmenCreationObservable,
                 Completable onDetachCompletable
         ) {
-            this.attachmentClass = attachmentClass;
             this.fragment = fragment;
             this.context = context;
             this.listener = listener;
@@ -146,9 +119,11 @@ public abstract class RxFragment<
                         FragmentCreation
                         >
                 > mapToFragmentCreation() {
-            final AttachmentType self = Objects.requireNonNull(attachmentClass.cast(this));
             return fragmenCreationObservable.map(
-                    fragmentCreation -> new Tuple<>(self, fragmentCreation)
+                    fragmentCreation -> new Tuple<>(
+                            getSelf(),
+                            fragmentCreation
+                    )
             );
         }
 
@@ -159,18 +134,21 @@ public abstract class RxFragment<
                         ViewCreation
                         >
                 > switchMapToViewCreation() {
-            final AttachmentType self = Objects.requireNonNull(attachmentClass.cast(this));
             return fragmenCreationObservable.switchMap(
                     fragmentCreation -> fragmentCreation.viewCreationObservableObservable.switchMap(
                             viewCreationObservable -> viewCreationObservable.map(
                                     viewCreation -> new Triple<>(
-                                            self,
+                                            getSelf(),
                                             fragmentCreation,
                                             viewCreation
                                     )
                             )
                     )
             );
+        }
+
+        private AttachmentType getSelf() {
+            return (AttachmentType) this;
         }
     }
 
@@ -290,12 +268,12 @@ public abstract class RxFragment<
     }
 
     public static final class Start {
-        private final RxFragment<?, ?, ?, ?> fragment;
+        private final RxFragment<?, ?, ?> fragment;
         public final Observable<Resume> resumeObservable;
         public final Completable onStopCompletable;
 
         private Start(
-                RxFragment<?, ?, ?, ?> fragment,
+                RxFragment<?, ?, ?> fragment,
                 Observable<Resume> resumeObservable,
                 Completable onStopCompletable
         ) {
@@ -351,21 +329,13 @@ public abstract class RxFragment<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             ListenerType,
-            AttachmentType extends RxFragment.Attachment<
+            AttachmentType extends Attachment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >
             > {
         void onAttached(
@@ -378,21 +348,13 @@ public abstract class RxFragment<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >,
             ListenerType,
-            AttachmentType extends RxFragment.Attachment<
+            AttachmentType extends Attachment<
                     FragmentType,
                     ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
-                    >,
-            AttachmentFactoryType extends RxFragment.Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    AttachmentFactoryType
+                    AttachmentType
                     >
             > {
         void willDetach(
@@ -401,15 +363,30 @@ public abstract class RxFragment<
         );
     }
 
-    private final Class<FragmentType> fragmentClass;
     private final Class<ListenerType> listenerClass;
-    private final Class<AttachmentType> attachmentClass;
-    private final AttachmentFactoryType attachmentFactory;
-    private final OnAttached<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> onAttached;
-    private final WillDetach<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> willDetach;
+    private final OnAttached<
+            FragmentType,
+            ListenerType,
+            AttachmentType
+            > onAttached;
+    private final WillDetach<
+            FragmentType,
+            ListenerType,
+            AttachmentType
+            > willDetach;
+    private final Function5<
+            FragmentType,
+            Context,
+            ListenerType,
+            Observable<FragmentCreation>,
+            Completable,
+            AttachmentType
+            > attachmentFactory;
     @LayoutRes
     private final int layoutResource;
 
+    private final PublishSubject<Observable<AttachmentType>> attachmentObservablePublishSubject =
+            PublishSubject.create();
     private BehaviorSubject<AttachmentType> attachmentBehaviorSubject =
             BehaviorSubject.create();
     private CompletableSubject onDetachCompletableSubject = CompletableSubject.create();
@@ -436,21 +413,33 @@ public abstract class RxFragment<
     private PublishSubject<Resume> resumePublishSubject = PublishSubject.create();
     private CompletableSubject onPauseCompletableSubject = CompletableSubject.create();
 
-    protected RxFragment(
-            Class<FragmentType> fragmentClass,
+    protected <
+            AttachmentFactoryType extends Attachment.Factory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            OnAttachedType extends OnAttached<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            WillDetachType extends WillDetach<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >
+            > RxFragment(
             Class<ListenerType> listenerClass,
-            Class<AttachmentType> attachmentClass,
             AttachmentFactoryType attachmentFactory,
-            OnAttached<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> onAttached,
-            WillDetach<FragmentType, ListenerType, AttachmentType, AttachmentFactoryType> willDetach,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
             int layoutResource
     ) {
-        this.fragmentClass = fragmentClass;
         this.listenerClass = listenerClass;
-        this.attachmentClass = attachmentClass;
-        this.attachmentFactory = attachmentFactory;
         this.onAttached = onAttached;
         this.willDetach = willDetach;
+        this.attachmentFactory = attachmentFactory::newAttachment;
         this.layoutResource = layoutResource;
     }
 
@@ -485,8 +474,7 @@ public abstract class RxFragment<
         );
 
         onAttached.onAttached(listener, self);
-        final AttachmentType attachment = attachmentFactory.newAttachment(
-                attachmentClass,
+        final AttachmentType attachment = attachmentFactory.apply(
                 self,
                 context,
                 listener,
@@ -664,13 +652,13 @@ public abstract class RxFragment<
      * Use instead of <code>this</code> when you want to refer to the subclass type.
      */
     protected final FragmentType getSelf() {
-        return Objects.requireNonNull(fragmentClass.cast(this));
+        return (FragmentType) this;
     }
 
     /**
      * The beginning of the Rx graph.
      */
-    protected final Observable<AttachmentType> beginRxGraph() {
-        return attachmentBehaviorSubject;
+    protected final Observable<Observable<AttachmentType>> beginRxGraph() {
+        return attachmentObservablePublishSubject;
     }
 }
