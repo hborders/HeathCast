@@ -29,7 +29,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public final class PodcastSearchFragment extends Fragment
         implements
-        PodcastListFragment2.PodcastListFragmentListener {
+        PodcastListValueFragment2.PodcastListFragmentListener {
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
 
@@ -214,7 +214,7 @@ public final class PodcastSearchFragment extends Fragment
     // PodcastListFragmentListener
 
     @Override
-    public void onPodcastListFragmentAttached(PodcastListFragment2 podcastListFragment) {
+    public void onPodcastListFragmentAttached(PodcastListValueFragment2 podcastListFragment) {
         searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
                 podcastListFragment.getLoadingIdlingResource()
         );
@@ -225,14 +225,14 @@ public final class PodcastSearchFragment extends Fragment
 
     @Override
     public Observable<PodcastIdentifiedListServiceResponse> podcastIdentifiedsServiceResponseObservable(
-            PodcastListFragment2 podcastListFragment
+            PodcastListValueFragment2 podcastListFragment
     ) {
         return podcastIdentifiedListServiceResponseBehaviorSubject;
     }
 
     @Override
     public void onClickPodcastIdentified(
-            PodcastListFragment2 podcastListFragment,
+            PodcastListValueFragment2 podcastListFragment,
             PodcastIdentified podcastIdentified
     ) {
         Objects.requireNonNull(listener).onClickPodcastIdentified(
@@ -242,7 +242,7 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public void onPodcastListFragmentWillDetach(PodcastListFragment2 podcastListFragment) {
+    public void onPodcastListFragmentWillDetach(PodcastListValueFragment2 podcastListFragment) {
         searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(null);
         searchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(null);
     }

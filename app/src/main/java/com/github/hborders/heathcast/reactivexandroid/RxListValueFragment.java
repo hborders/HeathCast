@@ -18,20 +18,14 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public abstract class RxListFragment<
-        FragmentType extends RxListFragment<
+public abstract class RxListValueFragment<
+        FragmentType extends RxListValueFragment<
                 FragmentType,
                 ListenerType,
                 AttachmentType,
-                UnparcelableType,
-                UnparcelableListType,
-                UnparcelableCapacityCollectionFactoryType,
-                ListRecyclerViewAdapterType,
-                ViewHolderType,
-                ServiceResponseType,
-                ServiceResponseLoadingType,
-                ServiceResponseCompleteType,
-                ServiceResponseFailedType
+                ModelType,
+                UnparcelableValueType,
+                UnparcelableItemType
                 >,
         ListenerType,
         AttachmentType extends RxFragment.Attachment<
@@ -39,114 +33,16 @@ public abstract class RxListFragment<
                 ListenerType,
                 AttachmentType
                 >,
-        UnparcelableType,
-        UnparcelableListType extends List<UnparcelableType>,
-        UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
-                UnparcelableListType,
-                UnparcelableType
-                >,
-        ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                UnparcelableType,
-                UnparcelableListType,
-                ViewHolderType
-                >,
-        ViewHolderType extends RecyclerView.ViewHolder,
-        ServiceResponseType extends ServiceResponse1<
-                ServiceResponseLoadingType,
-                ServiceResponseCompleteType,
-                ServiceResponseFailedType,
-                UnparcelableListType
-                >,
-        ServiceResponseLoadingType extends ServiceResponse1.Loading<
-                ServiceResponseLoadingType,
-                ServiceResponseCompleteType,
-                ServiceResponseFailedType,
-                UnparcelableListType
-                >,
-        ServiceResponseCompleteType extends ServiceResponse1.Complete<
-                ServiceResponseLoadingType,
-                ServiceResponseCompleteType,
-                ServiceResponseFailedType,
-                UnparcelableListType
-                >,
-        ServiceResponseFailedType extends ServiceResponse1.Failed<
-                ServiceResponseLoadingType,
-                ServiceResponseCompleteType,
-                ServiceResponseFailedType,
-                UnparcelableListType
-                >
-        > extends RxFragment<
+        ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+        UnparcelableValueType extends List<UnparcelableItemType>,
+        UnparcelableItemType
+        > extends RxValueFragment<
         FragmentType,
         ListenerType,
-        AttachmentType
+        AttachmentType,
+        ModelType,
+        UnparcelableValueType
         > {
-
-    protected interface ItemListServiceResponseObservableProvider<
-            FragmentType extends RxListFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    UnparcelableType,
-                    UnparcelableListType,
-                    UnparcelableCapacityCollectionFactoryType,
-                    ListRecyclerViewAdapterType,
-                    ViewHolderType,
-                    ServiceResponseType,
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            UnparcelableType,
-            UnparcelableListType extends List<UnparcelableType>,
-            UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
-                    UnparcelableListType,
-                    UnparcelableType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableType,
-                    UnparcelableListType,
-                    ViewHolderType
-                    >,
-            ViewHolderType extends RecyclerView.ViewHolder,
-            ServiceResponseType extends ServiceResponse1<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >,
-            ServiceResponseLoadingType extends ServiceResponse1.Loading<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >,
-            ServiceResponseCompleteType extends ServiceResponse1.Complete<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >,
-            ServiceResponseFailedType extends ServiceResponse1.Failed<
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType,
-                    UnparcelableListType
-                    >
-            > {
-        Observable<ServiceResponseType> itemListServiceResponseObservable(
-                ListenerType listener,
-                FragmentType fragment
-        );
-    }
-
-    private final MutableIdlingResource loadingMutableIdlingResource;
-    private final MutableIdlingResource completeOrFailedMutableIdlingResource;
 
     protected <
             AttachmentFactoryType extends Attachment.Factory<
@@ -163,42 +59,98 @@ public abstract class RxListFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType
-                    >
-            > RxListFragment(
+                    >,
+            ViewHolderProviderType extends ViewHolderProvider<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    ViewHolderType
+                    >,
+            StateObservableProviderType extends StateObservableProvider<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    StateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            RendererType extends Renderer<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    StateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType,
+                    ViewHolderType
+                    >,
+            StateType extends State<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            LoadingType extends State.Loading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            CompleteType extends State.Complete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            FailedType extends State.Failed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            ViewHolderType,
+            UnparcelableCapacityCollectionFactoryType extends CollectionFactory.Capacity<
+                    UnparcelableValueType,
+                    UnparcelableItemType
+                    >,
+            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
+                    UnparcelableItemType,
+                    UnparcelableValueType,
+                    RecyclerViewViewHolderType
+                    >,
+            RecyclerViewViewHolderType extends RecyclerView.ViewHolder
+            > RxListValueFragment(
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
             WillDetachType willDetach,
             int layoutResource,
             String idlingResourceNamePrefix,
-            UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory,
-            ItemListServiceResponseObservableProvider<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    UnparcelableType,
-                    UnparcelableListType,
-                    UnparcelableCapacityCollectionFactoryType,
-                    ListRecyclerViewAdapterType,
-                    ViewHolderType,
-                    ServiceResponseType,
-                    ServiceResponseLoadingType,
-                    ServiceResponseCompleteType,
-                    ServiceResponseFailedType
-                    > itemListServiceResponseObservableProvider
+            ViewHolderProviderType viewHolderProvider,
+            StateObservableProviderType stateObservableProvider,
+            RendererType renderer,
+            UnparcelableCapacityCollectionFactoryType unparcelableCapacityCollectionFactory
     ) {
         super(
                 listenerClass,
                 attachmentFactory,
                 onAttached,
                 willDetach,
-                layoutResource
+                layoutResource,
+                idlingResourceNamePrefix,
+                viewHolderProvider,
+                stateObservableProvider,
+                renderer
         );
-
-        loadingMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading");
-
-        completeOrFailedMutableIdlingResource = MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed");
-
         final class Prez {
             final Context context;
             final ListenerType listener;

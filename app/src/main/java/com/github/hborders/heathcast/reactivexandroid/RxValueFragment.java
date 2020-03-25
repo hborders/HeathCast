@@ -408,9 +408,7 @@ public abstract class RxValueFragment<
                     UnparcelableValueType
                     >,
             ViewHolderType
-            >
-
-    RxValueFragment(
+            > RxValueFragment(
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,

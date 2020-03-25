@@ -5,8 +5,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public abstract class ListRecyclerViewAdapter<
-        UnparcelableType,
-        UnparcelableListType extends List<UnparcelableType>,
+        UnparcelableItemType,
+        UnparcelableListType extends List<UnparcelableItemType>,
         ViewHolderType extends RecyclerView.ViewHolder
         > extends RecyclerView.Adapter<ViewHolderType> {
     private UnparcelableListType items;
@@ -17,7 +17,7 @@ public abstract class ListRecyclerViewAdapter<
 
     protected abstract void onBindViewHolder(
             ViewHolderType holder,
-            UnparcelableType item
+            UnparcelableItemType item
     );
 
     public final void setItems(UnparcelableListType items) {
@@ -27,7 +27,7 @@ public abstract class ListRecyclerViewAdapter<
 
     @Override
     public final void onBindViewHolder(ViewHolderType holder, int position) {
-        final UnparcelableType item = items.get(position);
+        final UnparcelableItemType item = items.get(position);
         onBindViewHolder(
                 holder,
                 item
