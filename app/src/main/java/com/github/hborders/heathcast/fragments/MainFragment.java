@@ -12,22 +12,18 @@ import io.reactivex.Observable;
 public class MainFragment extends RxFragment<
         MainFragment,
         MainFragment.MainFragmentListener,
-        MainFragment.Attachment,
-        MainFragment.Attachment.Factory> {
+        MainFragment.Attachment> {
     public static final class Attachment extends RxFragment.Attachment<
             MainFragment,
             MainFragment.MainFragmentListener,
-            Attachment,
-            Attachment.Factory> {
+            Attachment> {
         public interface Factory extends RxFragment.Attachment.Factory<
                 MainFragment,
                 MainFragment.MainFragmentListener,
-                Attachment,
-                Attachment.Factory> {
+                Attachment> {
         }
 
         public Attachment(
-                Class<Attachment> attachmentClass,
                 MainFragment fragment,
                 Context context,
                 MainFragmentListener listener,
@@ -35,7 +31,6 @@ public class MainFragment extends RxFragment<
                 Completable onDetachCompletable
         ) {
             super(
-                    attachmentClass,
                     fragment,
                     context,
                     listener,
@@ -47,9 +42,7 @@ public class MainFragment extends RxFragment<
 
     public MainFragment() {
         super(
-                MainFragment.class,
                 MainFragmentListener.class,
-                Attachment.class,
                 Attachment::new,
                 MainFragmentListener::onMainFragmentAttached,
                 MainFragmentListener::onMainFragmentWillDetach,
@@ -57,6 +50,8 @@ public class MainFragment extends RxFragment<
         );
 
         beginRxGraph().switchMap(
+                attachmentTypeObservable -> attachmentTypeObservable
+        ).switchMap(
                 RxFragment.Attachment::switchMapToViewCreation
         ).subscribe(
                 attachmentFragmentCreationViewCreationTriple -> {

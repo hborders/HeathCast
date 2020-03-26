@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/podcastSearchFragment"
-        android:name="com.github.hborders.heathcast.fragments.PodcastSearchFragment"
+        android:name="com.github.hborders.heathcast.fragments.PodcastSearchValueFragment"
         android:label="fragment_podcast_search"
         tools:layout="@layout/fragment_podcast_search" >
         <action

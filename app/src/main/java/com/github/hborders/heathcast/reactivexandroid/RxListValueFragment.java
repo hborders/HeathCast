@@ -14,26 +14,18 @@ public abstract class RxListValueFragment<
         FragmentType extends RxListValueFragment<
                 FragmentType,
                 ListenerType,
-                AttachmentType,
-                ModelType,
-                UnparcelableValueType,
-                UnparcelableItemType
+                AttachmentType
                 >,
         ListenerType,
         AttachmentType extends RxFragment.Attachment<
                 FragmentType,
                 ListenerType,
                 AttachmentType
-                >,
-        ModelType extends RxValueFragment.Model<UnparcelableValueType>,
-        UnparcelableValueType extends List<UnparcelableItemType>,
-        UnparcelableItemType
+                >
         > extends RxValueFragment<
         FragmentType,
         ListenerType,
-        AttachmentType,
-        ModelType,
-        UnparcelableValueType
+        AttachmentType
         > {
 
     protected interface RxListViewHolder<
@@ -66,6 +58,315 @@ public abstract class RxListValueFragment<
         View findNonEmptyItemsFailedView();
     }
 
+    private static final class RxListValueRenderer<
+            FragmentType extends RxListValueFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
+                    UnparcelableItemType,
+                    UnparcelableValueType,
+                    RecyclerViewViewHolderType
+                    >,
+            StateType extends State<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            LoadingType extends State.Loading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            CompleteType extends State.Complete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            FailedType extends State.Failed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    ModelType,
+                    UnparcelableValueType
+                    >,
+            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            UnparcelableValueType extends List<UnparcelableItemType>,
+            ViewHolderType extends RxListViewHolder<
+                    ListRecyclerViewAdapterType,
+                    UnparcelableItemType,
+                    UnparcelableValueType,
+                    RecyclerViewViewHolderType
+                    >,
+            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
+            UnparcelableItemType
+            > implements RxListValueFragment.Renderer<
+            FragmentType,
+            ListenerType,
+            AttachmentType,
+            StateType,
+            LoadingType,
+            CompleteType,
+            FailedType,
+            ModelType,
+            UnparcelableValueType,
+            ViewHolderType
+            > {
+        @Override
+        public void render(
+                FragmentType fragmentType,
+                ListenerType listener,
+                Context context,
+                ViewHolderType viewHolder,
+                StateType state
+        ) {
+            final UnparcelableValueType items = state.getValue().value;
+            viewHolder.requireListRecyclerViewAdapter().setItems(items);
+            if (items.isEmpty()) {
+                state.act(
+                        loading -> {
+                            setEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                            setNonEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsCompleteViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setRecyclerViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                        },
+                        complete -> {
+                            setEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsCompleteViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                            setRecyclerViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                        },
+                        failed -> {
+                            setEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsCompleteViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setRecyclerViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                            setNonEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                        }
+                );
+            } else {
+                state.act(
+                        loading -> {
+                            setEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                            setEmptyItemsCompleteViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setRecyclerViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                            setEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                        },
+                        complete -> {
+                            setEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsCompleteViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setRecyclerViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                            setEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                        },
+                        failed -> {
+                            setEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsLoadingViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setEmptyItemsCompleteViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setRecyclerViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                            setEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.GONE
+                            );
+                            setNonEmptyItemsFailedViewVisibility(
+                                    viewHolder,
+                                    View.VISIBLE
+                            );
+                        }
+                );
+            }
+        }
+
+        private static void setNullableViewVisibility(
+                @Nullable View view,
+                int visibility
+        ) {
+            if (view != null) {
+                view.setVisibility(visibility);
+            }
+        }
+
+        private void setEmptyItemsLoadingViewVisibility(
+                ViewHolderType viewHolder,
+                int visibility
+        ) {
+            setNullableViewVisibility(
+                    viewHolder.findEmptyItemsLoadingView(),
+                    visibility
+            );
+        }
+
+        private void setNonEmptyItemsLoadingViewVisibility(
+                ViewHolderType viewHolder,
+                int visibility
+        ) {
+            setNullableViewVisibility(
+                    viewHolder.findNonEmptyItemsLoadingView(),
+                    visibility
+            );
+        }
+
+        private void setEmptyItemsCompleteViewVisibility(
+                ViewHolderType viewHolder,
+                int visibility
+        ) {
+            setNullableViewVisibility(
+                    viewHolder.findEmptyItemsCompleteView(),
+                    visibility
+            );
+        }
+
+        private void setRecyclerViewVisibility(
+                ViewHolderType viewHolder,
+                int visibility
+        ) {
+            viewHolder.requireRecyclerView().setVisibility(visibility);
+        }
+
+        private void setEmptyItemsFailedViewVisibility(
+                ViewHolderType viewHolder,
+                int visibility
+        ) {
+            setNullableViewVisibility(
+                    viewHolder.findEmptyItemsFailedView(),
+                    visibility
+            );
+        }
+
+        private void setNonEmptyItemsFailedViewVisibility(
+                ViewHolderType viewHolder,
+                int visibility
+        ) {
+            setNullableViewVisibility(
+                    viewHolder.findNonEmptyItemsFailedView(),
+                    visibility
+            );
+        }
+    }
+
     protected <
             AttachmentFactoryType extends Attachment.Factory<
                     FragmentType,
@@ -82,12 +383,12 @@ public abstract class RxListValueFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            ViewHolderProviderType extends ViewHolderProvider<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    ViewHolderType
-                    >,
+            ViewHolderFactoryType extends ViewHolderFactory<
+                                FragmentType,
+                                ListenerType,
+                                AttachmentType,
+                                ViewHolderType
+                                >,
             StateObservableProviderType extends StateObservableProvider<
                     FragmentType,
                     ListenerType,
@@ -127,6 +428,9 @@ public abstract class RxListValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
+            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            UnparcelableValueType extends List<UnparcelableItemType>,
+            UnparcelableItemType,
             ViewHolderType extends RxListViewHolder<
                     ListRecyclerViewAdapterType,
                     UnparcelableItemType,
@@ -146,7 +450,7 @@ public abstract class RxListValueFragment<
             WillDetachType willDetach,
             int layoutResource,
             String idlingResourceNamePrefix,
-            ViewHolderProviderType viewHolderProvider,
+            ViewHolderFactoryType viewHolderFactory,
             StateObservableProviderType stateObservableProvider
     ) {
         super(
@@ -156,397 +460,9 @@ public abstract class RxListValueFragment<
                 willDetach,
                 layoutResource,
                 idlingResourceNamePrefix,
-                viewHolderProvider,
+                viewHolderFactory,
                 stateObservableProvider,
-                RxListValueFragment::render
-        );
-    }
-
-    private static <
-            FragmentType extends RxListValueFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    ModelType,
-                    UnparcelableValueType,
-                    UnparcelableItemType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
-            UnparcelableValueType extends List<UnparcelableItemType>,
-            ViewHolderType extends RxListViewHolder<
-                    ListRecyclerViewAdapterType,
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
-            UnparcelableItemType,
-            StateType extends State<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            LoadingType extends State.Loading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            CompleteType extends State.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            FailedType extends State.Failed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >
-            > void render(
-            FragmentType fragmentType,
-            ListenerType listener,
-            Context context,
-            ViewHolderType viewHolder,
-            StateType state
-    ) {
-        final UnparcelableValueType items = state.getValue().value;
-        viewHolder.requireListRecyclerViewAdapter().setItems(items);
-        if (items.isEmpty()) {
-            state.act(
-                    loading -> {
-                        setEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                        setNonEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsCompleteViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setRecyclerViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                    },
-                    complete -> {
-                        setEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsCompleteViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                        setRecyclerViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                    },
-                    failed -> {
-                        setEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsCompleteViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setRecyclerViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                        setNonEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                    }
-            );
-        } else {
-            state.act(
-                    loading -> {
-                        setEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                        setEmptyItemsCompleteViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setRecyclerViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                        setEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                    },
-                    complete -> {
-                        setEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsCompleteViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setRecyclerViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                        setEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                    },
-                    failed -> {
-                        setEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsLoadingViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setEmptyItemsCompleteViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setRecyclerViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                        setEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.GONE
-                        );
-                        setNonEmptyItemsFailedViewVisibility(
-                                viewHolder,
-                                View.VISIBLE
-                        );
-                    }
-            );
-        }
-    }
-
-    private static void setNullableViewVisibility(
-            @Nullable View view,
-            int visibility
-    ) {
-        if (view != null) {
-            view.setVisibility(visibility);
-        }
-    }
-
-    private static <
-            UnparcelableValueType extends List<UnparcelableItemType>,
-            ViewHolderType extends RxListViewHolder<
-                    ListRecyclerViewAdapterType,
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
-            UnparcelableItemType
-            > void setEmptyItemsLoadingViewVisibility(
-            ViewHolderType viewHolder,
-            int visibility
-    ) {
-        setNullableViewVisibility(
-                viewHolder.findEmptyItemsLoadingView(),
-                visibility
-        );
-    }
-
-    private static <
-            UnparcelableValueType extends List<UnparcelableItemType>,
-            ViewHolderType extends RxListViewHolder<
-                    ListRecyclerViewAdapterType,
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
-            UnparcelableItemType
-            > void setNonEmptyItemsLoadingViewVisibility(
-            ViewHolderType viewHolder,
-            int visibility
-    ) {
-        setNullableViewVisibility(
-                viewHolder.findNonEmptyItemsLoadingView(),
-                visibility
-        );
-    }
-
-    private static <
-            UnparcelableValueType extends List<UnparcelableItemType>,
-            ViewHolderType extends RxListViewHolder<
-                    ListRecyclerViewAdapterType,
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
-            UnparcelableItemType
-            > void setEmptyItemsCompleteViewVisibility(
-            ViewHolderType viewHolder,
-            int visibility
-    ) {
-        setNullableViewVisibility(
-                viewHolder.findEmptyItemsCompleteView(),
-                visibility
-        );
-    }
-
-    private static <
-            UnparcelableValueType extends List<UnparcelableItemType>,
-            ViewHolderType extends RxListViewHolder<
-                    ListRecyclerViewAdapterType,
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
-            UnparcelableItemType
-            > void setRecyclerViewVisibility(
-            ViewHolderType viewHolder,
-            int visibility
-    ) {
-        viewHolder.requireRecyclerView().setVisibility(visibility);
-    }
-
-    private static <
-            UnparcelableValueType extends List<UnparcelableItemType>,
-            ViewHolderType extends RxListViewHolder<
-                    ListRecyclerViewAdapterType,
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
-            UnparcelableItemType
-            > void setEmptyItemsFailedViewVisibility(
-            ViewHolderType viewHolder,
-            int visibility
-    ) {
-        setNullableViewVisibility(
-                viewHolder.findEmptyItemsFailedView(),
-                visibility
-        );
-    }
-
-    private static <
-            UnparcelableValueType extends List<UnparcelableItemType>,
-            ViewHolderType extends RxListViewHolder<
-                    ListRecyclerViewAdapterType,
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    UnparcelableItemType,
-                    UnparcelableValueType,
-                    RecyclerViewViewHolderType
-                    >,
-            RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
-            UnparcelableItemType
-            > void setNonEmptyItemsFailedViewVisibility(
-            ViewHolderType viewHolder,
-            int visibility
-    ) {
-        setNullableViewVisibility(
-                viewHolder.findNonEmptyItemsFailedView(),
-                visibility
+                new RxListValueRenderer<>()
         );
     }
 }

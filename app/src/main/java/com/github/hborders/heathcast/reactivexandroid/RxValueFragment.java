@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.core.Either31;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
@@ -26,15 +27,13 @@ public abstract class RxValueFragment<
                 FragmentType,
                 ListenerType,
                 AttachmentType
-                >,
-        ModelType extends RxValueFragment.Model<UnparcelableValueType>,
-        UnparcelableValueType
+                >
         > extends RxFragment<
         FragmentType,
         ListenerType,
         AttachmentType
         > {
-    public static abstract class Model<UnparcelableValueType> {
+    protected static abstract class Model<UnparcelableValueType> {
         final UnparcelableValueType value;
         final boolean enabled;
 
@@ -135,6 +134,12 @@ public abstract class RxValueFragment<
                 CompleteType,
                 FailedType,
                 ModelType
+                > implements State<
+                LoadingType,
+                CompleteType,
+                FailedType,
+                ModelType,
+                UnparcelableValueType
                 > {
             public Loading(ModelType value) {
                 super(value);
@@ -170,6 +175,12 @@ public abstract class RxValueFragment<
                 CompleteType,
                 FailedType,
                 ModelType
+                > implements State<
+                LoadingType,
+                CompleteType,
+                FailedType,
+                ModelType,
+                UnparcelableValueType
                 > {
             public Complete(ModelType value) {
                 super(value);
@@ -205,6 +216,12 @@ public abstract class RxValueFragment<
                 CompleteType,
                 FailedType,
                 ModelType
+                > implements State<
+                LoadingType,
+                CompleteType,
+                FailedType,
+                ModelType,
+                UnparcelableValueType
                 > {
             public Failed(ModelType value) {
                 super(value);
@@ -261,7 +278,7 @@ public abstract class RxValueFragment<
         );
     }
 
-    protected interface ViewHolderProvider<
+    protected interface ViewHolderFactory<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
@@ -275,7 +292,11 @@ public abstract class RxValueFragment<
                     >,
             ViewHolderType
             > {
-        ViewHolderType viewHolder(View view);
+        ViewHolderType newViewHolder(
+                FragmentType fragment,
+                ListenerType listener,
+                View view
+        );
     }
 
     protected interface Renderer<
@@ -350,7 +371,7 @@ public abstract class RxValueFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            ViewHolderProviderType extends ViewHolderProvider<
+            ViewHolderFactoryType extends ViewHolderFactory<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
@@ -407,6 +428,8 @@ public abstract class RxValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
+            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            UnparcelableValueType,
             ViewHolderType
             > RxValueFragment(
             Class<ListenerType> listenerClass,
@@ -415,7 +438,7 @@ public abstract class RxValueFragment<
             WillDetachType willDetach,
             int layoutResource,
             String idlingResourceNamePrefix,
-            ViewHolderProviderType viewHolderProvider,
+            ViewHolderFactoryType viewHolderFactory,
             StateObservableProviderType stateObservableProvider,
             RendererType renderer
     ) {
@@ -426,7 +449,6 @@ public abstract class RxValueFragment<
                 willDetach,
                 layoutResource
         );
-
 
         loadingMutableIdlingResource =
                 MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading");
@@ -468,7 +490,11 @@ public abstract class RxValueFragment<
                     final ViewCreation viewCreation =
                             attachmentFragmentCreationViewCreationTriple.third;
                     final View view = viewCreation.view;
-                    final ViewHolderType viewHolder = viewHolderProvider.viewHolder(view);
+                    final ViewHolderType viewHolder = viewHolderFactory.newViewHolder(
+                            getSelf(),
+                            listener,
+                            view
+                    );
                     return new Prez(
                             context,
                             listener,
@@ -514,7 +540,8 @@ public abstract class RxValueFragment<
                 );
         renderingAttemptObservable.subscribe(
                 prerender -> {
-                    markIdlingResourcesAsBusyBeforeRender();
+                    loadingMutableIdlingResource.setBusy();
+                    completeOrFailedMutableIdlingResource.setBusy();
 
                     setUserInteractionEnabled(
                             prerender.prez.view,
@@ -529,68 +556,39 @@ public abstract class RxValueFragment<
                             prerender.state
                     );
 
-                    updateIdlingResourcesPostRender(prerender.state);
+
+                    if (
+                            prerender.state
+                                    .getValue()
+                                    .enabled
+                    ) {
+                        prerender.state.act(
+                                loading -> {
+                                    loadingMutableIdlingResource.setIdle();
+                                    completeOrFailedMutableIdlingResource.setBusy();
+                                },
+                                complete -> {
+                                    loadingMutableIdlingResource.setBusy();
+                                    completeOrFailedMutableIdlingResource.setIdle();
+                                },
+                                failed -> {
+                                    loadingMutableIdlingResource.setBusy();
+                                    completeOrFailedMutableIdlingResource.setIdle();
+                                }
+                        );
+                    } else {
+                        loadingMutableIdlingResource.setBusy();
+                        completeOrFailedMutableIdlingResource.setBusy();
+                    }
                 }
         ).isDisposed();
     }
 
-    private void markIdlingResourcesAsBusyBeforeRender() {
-        loadingMutableIdlingResource.setBusy();
-        completeOrFailedMutableIdlingResource.setBusy();
+    public final IdlingResource getLoadingIdlingResource() {
+        return loadingMutableIdlingResource;
     }
 
-    private <
-            StateType extends State<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            LoadingType extends State.Loading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            CompleteType extends State.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            FailedType extends State.Failed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >
-            > void updateIdlingResourcesPostRender(StateType state) {
-        if (
-                state
-                        .getValue()
-                        .enabled
-        ) {
-            state.act(
-                    loading -> {
-                        loadingMutableIdlingResource.setIdle();
-                        completeOrFailedMutableIdlingResource.setBusy();
-                    },
-                    complete -> {
-                        loadingMutableIdlingResource.setBusy();
-                        completeOrFailedMutableIdlingResource.setIdle();
-                    },
-                    failed -> {
-                        loadingMutableIdlingResource.setBusy();
-                        completeOrFailedMutableIdlingResource.setIdle();
-                    }
-            );
-        } else {
-            loadingMutableIdlingResource.setBusy();
-            completeOrFailedMutableIdlingResource.setBusy();
-        }
+    public final IdlingResource getCompleteOrFailedIdlingResource() {
+        return completeOrFailedMutableIdlingResource;
     }
 }

@@ -17,7 +17,8 @@ import com.squareup.picasso.Picasso;
 public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
         PodcastIdentified,
         PodcastIdentifiedList,
-        PodcastRecyclerViewAdapter.PodcastViewHolder> {
+        PodcastRecyclerViewAdapter.PodcastViewHolder
+        > {
 
     private final PodcastRecyclerViewAdapterListener listener;
 

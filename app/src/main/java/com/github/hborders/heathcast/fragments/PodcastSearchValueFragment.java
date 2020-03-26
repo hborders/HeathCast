@@ -27,9 +27,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
-public final class PodcastSearchFragment extends Fragment
+public final class PodcastSearchValueFragment extends Fragment
         implements
-        PodcastListValueFragment2.PodcastListFragmentListener {
+        PodcastListValueFragment2.PodcastListValueFragmentListener {
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
 
@@ -63,17 +63,17 @@ public final class PodcastSearchFragment extends Fragment
                     queryOptional -> queryOptional.map(
                             query -> Objects.requireNonNull(listener)
                                     .searchForPodcasts2(
-                                            PodcastSearchFragment.this,
+                                            PodcastSearchValueFragment.this,
                                             new PodcastSearch(query)
                                     ).map(Optional::of)
                     ).orElse(Observable.just(Optional.empty()))
             );
-    private final BehaviorSubject<PodcastIdentifiedListServiceResponse> podcastIdentifiedListServiceResponseBehaviorSubject =
+    private final BehaviorSubject<PodcastListValueFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
     private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
 
-    public PodcastSearchFragment() {
+    public PodcastSearchValueFragment() {
         // Required empty public constructor
     }
 
@@ -138,18 +138,48 @@ public final class PodcastSearchFragment extends Fragment
         }
 
         podcastIdentifiedListServiceResponseOptionalDisposable =
-                podcastIdentifiedListServiceResponseOptionalObservable.subscribe(
-                        podcastIdentifiedListServiceResponseOptional ->
-                                podcastIdentifiedListServiceResponseBehaviorSubject.onNext(
+                podcastIdentifiedListServiceResponseOptionalObservable
+                        .map(
+                                podcastIdentifiedListServiceResponseOptional ->
                                         podcastIdentifiedListServiceResponseOptional
+                                                .map(
+                                                        podcastIdentifiedListServiceResponse ->
+                                                                podcastIdentifiedListServiceResponse.reduce(
+                                                                        loading ->
+                                                                                new PodcastListValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListLoading(
+                                                                                        new PodcastListValueFragment2.PodcastIdentifiedListModel(
+                                                                                                loading.value,
+                                                                                                true
+                                                                                        )
+                                                                                ),
+                                                                        complete ->
+                                                                                new PodcastListValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                                        new PodcastListValueFragment2.PodcastIdentifiedListModel(
+                                                                                                complete.value,
+                                                                                                true
+                                                                                        )
+                                                                                ),
+                                                                        failed -> new PodcastListValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                                new PodcastListValueFragment2.PodcastIdentifiedListModel(
+                                                                                        failed.value,
+                                                                                        true
+                                                                                )
+                                                                        )
+                                                                )
+                                                )
                                                 .orElse(
-                                                        new PodcastIdentifiedListServiceResponse.Complete(
-                                                                new PodcastIdentifiedList()
+                                                        new PodcastListValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                new PodcastListValueFragment2.PodcastIdentifiedListModel(
+                                                                        new PodcastIdentifiedList(),
+                                                                        true
+                                                                )
                                                         )
                                                 )
-                                )
-                );
-        podcastIdentifiedListServiceResponseBehaviorSubject.onNext(
+                        )
+                        .subscribe(
+                                podcastIdentifiedListStateBehaviorSubject::onNext
+                        );
+        podcastIdentifiedListStateBehaviorSubject.onNext(
                 new PodcastIdentifiedListServiceResponse.Complete(
                         new PodcastIdentifiedList()
                 )
@@ -224,10 +254,10 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     @Override
-    public Observable<PodcastIdentifiedListServiceResponse> podcastIdentifiedsServiceResponseObservable(
-            PodcastListValueFragment2 podcastListFragment
+    public Observable<PodcastListValueFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
+            PodcastListValueFragment2 podcastListValueFragment
     ) {
-        return podcastIdentifiedListServiceResponseBehaviorSubject;
+        return podcastIdentifiedListStateBehaviorSubject;
     }
 
     @Override
@@ -265,18 +295,18 @@ public final class PodcastSearchFragment extends Fragment
     }
 
     public interface PodcastSearchFragmentListener {
-        void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment);
+        void onPodcastSearchFragmentAttached(PodcastSearchValueFragment podcastSearchFragment);
 
         Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
-                PodcastSearchFragment podcastSearchFragment,
+                PodcastSearchValueFragment podcastSearchFragment,
                 PodcastSearch podcastSearch
         );
 
         void onClickPodcastIdentified(
-                PodcastSearchFragment podcastSearchFragment,
+                PodcastSearchValueFragment podcastSearchFragment,
                 PodcastIdentified podcastIdentified
         );
 
-        void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment);
+        void onPodcastSearchFragmentWillDetach(PodcastSearchValueFragment podcastSearchFragment);
     }
 }
