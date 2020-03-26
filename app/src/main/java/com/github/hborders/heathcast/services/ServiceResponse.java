@@ -66,14 +66,14 @@ public interface ServiceResponse<
             LoadingValueType,
             CompleteValueType,
             FailedValueType
-            > extends Either3.Left<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            LoadingValueType,
-            CompleteValueType,
-            FailedValueType
-            > implements ServiceResponse<
+            > extends LeftImpl<
+                        LoadingType,
+                        CompleteType,
+                        FailedType,
+                        LoadingValueType,
+                        CompleteValueType,
+                        FailedValueType
+                        > implements ServiceResponse<
             LoadingType,
             CompleteType,
             FailedType,
@@ -114,14 +114,14 @@ public interface ServiceResponse<
             LoadingValueType,
             CompleteValueType,
             FailedValueType
-            > extends Either3.Middle<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            LoadingValueType,
-            CompleteValueType,
-            FailedValueType
-            > implements ServiceResponse<
+            > extends MiddleImpl<
+                        LoadingType,
+                        CompleteType,
+                        FailedType,
+                        LoadingValueType,
+                        CompleteValueType,
+                        FailedValueType
+                        > implements ServiceResponse<
             LoadingType,
             CompleteType,
             FailedType,
@@ -162,14 +162,14 @@ public interface ServiceResponse<
             LoadingValueType,
             CompleteValueType,
             FailedValueType
-            > extends Either3.Right<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            LoadingValueType,
-            CompleteValueType,
-            FailedValueType
-            > implements ServiceResponse<
+            > extends RightImpl<
+                        LoadingType,
+                        CompleteType,
+                        FailedType,
+                        LoadingValueType,
+                        CompleteValueType,
+                        FailedValueType
+                        > implements ServiceResponse<
             LoadingType,
             CompleteType,
             FailedType,

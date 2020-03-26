@@ -105,7 +105,7 @@ public abstract class RxValueFragment<
             FailedType,
             ModelType
             > {
-        abstract class Loading<
+        interface Loading<
                 LoadingType extends Loading<
                         LoadingType,
                         CompleteType,
@@ -134,19 +134,16 @@ public abstract class RxValueFragment<
                 CompleteType,
                 FailedType,
                 ModelType
-                > implements State<
+                >, State<
                 LoadingType,
                 CompleteType,
                 FailedType,
                 ModelType,
                 UnparcelableValueType
                 > {
-            public Loading(ModelType value) {
-                super(value);
-            }
         }
 
-        abstract class Complete<
+        interface Complete<
                 LoadingType extends Loading<
                         LoadingType,
                         CompleteType,
@@ -175,19 +172,16 @@ public abstract class RxValueFragment<
                 CompleteType,
                 FailedType,
                 ModelType
-                > implements State<
+                >, State<
                 LoadingType,
                 CompleteType,
                 FailedType,
                 ModelType,
                 UnparcelableValueType
                 > {
-            public Complete(ModelType value) {
-                super(value);
-            }
         }
 
-        abstract class Failed<
+        interface Failed<
                 LoadingType extends Loading<
                         LoadingType,
                         CompleteType,
@@ -216,16 +210,13 @@ public abstract class RxValueFragment<
                 CompleteType,
                 FailedType,
                 ModelType
-                > implements State<
+                >, State<
                 LoadingType,
                 CompleteType,
                 FailedType,
                 ModelType,
                 UnparcelableValueType
                 > {
-            public Failed(ModelType value) {
-                super(value);
-            }
         }
     }
 

@@ -44,21 +44,20 @@ public interface Either31<
 
     ValueType getValue();
 
-    // Not final to allow reification
-    class Left<
-            LeftType extends Left<
+    interface Left<
+            LeftType extends Either31.Left<
                     LeftType,
                     MiddleType,
                     RightType,
                     ValueType
                     >,
-            MiddleType extends Middle<
+            MiddleType extends Either31.Middle<
                     LeftType,
                     MiddleType,
                     RightType,
                     ValueType
                     >,
-            RightType extends Right<
+            RightType extends Either31.Right<
                     LeftType,
                     MiddleType,
                     RightType,
@@ -73,26 +72,61 @@ public interface Either31<
             ValueType,
             ValueType
             > {
-        public Left(ValueType value) {
+    }
+
+    // Not final to allow reification
+    class LeftImpl<
+            LeftType extends Either31.Left<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            MiddleType extends Either31.Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            RightType extends Either31.Right<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            ValueType
+            > extends Either3.LeftImpl<
+            LeftType,
+            MiddleType,
+            RightType,
+            ValueType,
+            ValueType,
+            ValueType
+            > implements Left<
+            LeftType,
+            MiddleType,
+            RightType,
+            ValueType
+            > {
+        public LeftImpl(ValueType value) {
             super(value);
         }
     }
 
-    // Not final to allow reification
-    class Middle<
-            LeftType extends Left<
+    interface Middle<
+            LeftType extends Either31.Left<
                     LeftType,
                     MiddleType,
                     RightType,
                     ValueType
                     >,
-            MiddleType extends Middle<
+            MiddleType extends Either31.Middle<
                     LeftType,
                     MiddleType,
                     RightType,
                     ValueType
                     >,
-            RightType extends Right<
+            RightType extends Either31.Right<
                     LeftType,
                     MiddleType,
                     RightType,
@@ -107,26 +141,61 @@ public interface Either31<
             ValueType,
             ValueType
             > {
-        public Middle(ValueType value) {
+    }
+
+    // Not final to allow reification
+    class MiddleImpl<
+            LeftType extends Either31.Left<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            MiddleType extends Either31.Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            RightType extends Either31.Right<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            ValueType
+            > extends Either3.MiddleImpl<
+            LeftType,
+            MiddleType,
+            RightType,
+            ValueType,
+            ValueType,
+            ValueType
+            > implements Middle<
+            LeftType,
+            MiddleType,
+            RightType,
+            ValueType
+            > {
+        public MiddleImpl(ValueType value) {
             super(value);
         }
     }
 
-    // Not final to allow reification
-    class Right<
-            LeftType extends Left<
+    interface Right<
+            LeftType extends Either31.Left<
                     LeftType,
                     MiddleType,
                     RightType,
                     ValueType
                     >,
-            MiddleType extends Middle<
+            MiddleType extends Either31.Middle<
                     LeftType,
                     MiddleType,
                     RightType,
                     ValueType
                     >,
-            RightType extends Right<
+            RightType extends Either31.Right<
                     LeftType,
                     MiddleType,
                     RightType,
@@ -141,7 +210,43 @@ public interface Either31<
             ValueType,
             ValueType
             > {
-        public Right(ValueType value) {
+    }
+
+    // Not final to allow reification
+    class RightImpl<
+            LeftType extends Either31.Left<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            MiddleType extends Either31.Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            RightType extends Either31.Right<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    ValueType
+                    >,
+            ValueType
+            > extends Either3.RightImpl<
+            LeftType,
+            MiddleType,
+            RightType,
+            ValueType,
+            ValueType,
+            ValueType
+            > implements Right<
+            LeftType,
+            MiddleType,
+            RightType,
+            ValueType
+            > {
+        public RightImpl(ValueType value) {
             super(value);
         }
     }

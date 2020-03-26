@@ -36,15 +36,14 @@ public interface Either<
             VoidFunction<? super RightType> rightAction
     );
 
-    // Not final to allow reification
-    class Left<
-            LeftType extends Either.Left<
+    interface Left<
+            LeftType extends Left<
                     LeftType,
                     RightType,
                     LeftValueType,
                     RightValueType
                     >,
-            RightType extends Either.Right<
+            RightType extends Right<
                     LeftType,
                     RightType,
                     LeftValueType,
@@ -52,7 +51,31 @@ public interface Either<
                     >,
             LeftValueType,
             RightValueType
-            > implements Either<
+            > extends Either<
+            LeftType,
+            RightType,
+            LeftValueType,
+            RightValueType
+            > {
+    }
+
+    // Not final to allow reification
+    class LeftImpl<
+            LeftType extends LeftImpl<
+                    LeftType,
+                    RightType,
+                    LeftValueType,
+                    RightValueType
+                    >,
+            RightType extends RightImpl<
+                    LeftType,
+                    RightType,
+                    LeftValueType,
+                    RightValueType
+                    >,
+            LeftValueType,
+            RightValueType
+            > implements Left<
             LeftType,
             RightType,
             LeftValueType,
@@ -60,7 +83,7 @@ public interface Either<
             > {
         public final LeftValueType value;
 
-        public Left(LeftValueType value) {
+        public LeftImpl(LeftValueType value) {
             this.value = value;
         }
 
@@ -68,7 +91,7 @@ public interface Either<
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Left<?, ?, ?, ?> left = (Left<?, ?, ?, ?>) o;
+            LeftImpl<?, ?, ?, ?> left = (LeftImpl<?, ?, ?, ?>) o;
             return value.equals(left.value);
         }
 
@@ -79,7 +102,7 @@ public interface Either<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Left> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Left$";
@@ -123,15 +146,14 @@ public interface Either<
         }
     }
 
-    // Not final to allow reification
-    class Right<
-            LeftType extends Either.Left<
+    interface Right<
+            LeftType extends Left<
                     LeftType,
                     RightType,
                     LeftValueType,
                     RightValueType
                     >,
-            RightType extends Either.Right<
+            RightType extends Right<
                     LeftType,
                     RightType,
                     LeftValueType,
@@ -139,7 +161,31 @@ public interface Either<
                     >,
             LeftValueType,
             RightValueType
-            > implements Either<
+            > extends Either<
+            LeftType,
+            RightType,
+            LeftValueType,
+            RightValueType
+            > {
+    }
+
+    // Not final to allow reification
+    class RightImpl<
+            LeftType extends LeftImpl<
+                    LeftType,
+                    RightType,
+                    LeftValueType,
+                    RightValueType
+                    >,
+            RightType extends RightImpl<
+                    LeftType,
+                    RightType,
+                    LeftValueType,
+                    RightValueType
+                    >,
+            LeftValueType,
+            RightValueType
+            > implements Right<
             LeftType,
             RightType,
             LeftValueType,
@@ -147,7 +193,7 @@ public interface Either<
             > {
         public final RightValueType value;
 
-        public Right(RightValueType value) {
+        public RightImpl(RightValueType value) {
             this.value = value;
         }
 
@@ -155,7 +201,7 @@ public interface Either<
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Right<?, ?, ?, ?> right = (Right<?, ?, ?, ?>) o;
+            RightImpl<?, ?, ?, ?> right = (RightImpl<?, ?, ?, ?>) o;
             return value.equals(right.value);
         }
 
@@ -166,7 +212,7 @@ public interface Either<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Right> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Right$";

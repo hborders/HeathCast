@@ -54,8 +54,7 @@ public interface Either3<
             VoidFunction<? super RightType> rightAction
     );
 
-    // Not final to allow reification
-    class Left<
+    interface Left<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -83,7 +82,46 @@ public interface Either3<
             LeftValueType,
             MiddleValueType,
             RightValueType
-            > implements Either3<
+            > extends Either3<
+            LeftType,
+            MiddleType,
+            RightType,
+            LeftValueType,
+            MiddleValueType,
+            RightValueType
+            > {
+    }
+
+    // Not final to allow reification
+    class LeftImpl<
+            LeftType extends Left<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            MiddleType extends Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            RightType extends Right<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            LeftValueType,
+            MiddleValueType,
+            RightValueType
+            > implements Left<
             LeftType,
             MiddleType,
             RightType,
@@ -93,7 +131,7 @@ public interface Either3<
             > {
         public final LeftValueType value;
 
-        public Left(LeftValueType value) {
+        public LeftImpl(LeftValueType value) {
             this.value = value;
         }
 
@@ -101,7 +139,7 @@ public interface Either3<
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Left<?, ?, ?, ?, ?, ?> left = (Left<?, ?, ?, ?, ?, ?>) o;
+            LeftImpl<?, ?, ?, ?, ?, ?> left = (LeftImpl<?, ?, ?, ?, ?, ?>) o;
             return value.equals(left.value);
         }
 
@@ -112,7 +150,7 @@ public interface Either3<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Left> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Left$";
@@ -160,8 +198,7 @@ public interface Either3<
         }
     }
 
-    // Not final to allow reification
-    class Middle<
+    interface Middle<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -189,7 +226,46 @@ public interface Either3<
             LeftValueType,
             MiddleValueType,
             RightValueType
-            > implements Either3<
+            > extends Either3<
+            LeftType,
+            MiddleType,
+            RightType,
+            LeftValueType,
+            MiddleValueType,
+            RightValueType
+            > {
+    }
+
+    // Not final to allow reification
+    class MiddleImpl<
+            LeftType extends Left<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            MiddleType extends Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            RightType extends Right<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            LeftValueType,
+            MiddleValueType,
+            RightValueType
+            > implements Middle<
             LeftType,
             MiddleType,
             RightType,
@@ -199,7 +275,7 @@ public interface Either3<
             > {
         public final MiddleValueType value;
 
-        public Middle(MiddleValueType value) {
+        public MiddleImpl(MiddleValueType value) {
             this.value = value;
         }
 
@@ -207,7 +283,7 @@ public interface Either3<
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Middle<?, ?, ?, ?, ?, ?> middle = (Middle<?, ?, ?, ?, ?, ?>) o;
+            MiddleImpl<?, ?, ?, ?, ?, ?> middle = (MiddleImpl<?, ?, ?, ?, ?, ?>) o;
             return value.equals(middle.value);
         }
 
@@ -218,7 +294,7 @@ public interface Either3<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Middle> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends MiddleImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Middle$";
@@ -266,8 +342,7 @@ public interface Either3<
         }
     }
 
-    // Not final to allow reification
-    class Right<
+    interface Right<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -295,7 +370,46 @@ public interface Either3<
             LeftValueType,
             MiddleValueType,
             RightValueType
-            > implements Either3<
+            > extends Either3<
+            LeftType,
+            MiddleType,
+            RightType,
+            LeftValueType,
+            MiddleValueType,
+            RightValueType
+            > {
+    }
+
+    // Not final to allow reification
+    class RightImpl<
+            LeftType extends Left<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            MiddleType extends Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            RightType extends Right<
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    LeftValueType,
+                    MiddleValueType,
+                    RightValueType
+                    >,
+            LeftValueType,
+            MiddleValueType,
+            RightValueType
+            > implements Right<
             LeftType,
             MiddleType,
             RightType,
@@ -305,7 +419,7 @@ public interface Either3<
             > {
         public final RightValueType value;
 
-        public Right(RightValueType value) {
+        public RightImpl(RightValueType value) {
             this.value = value;
         }
 
@@ -313,7 +427,7 @@ public interface Either3<
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Right<?, ?, ?, ?, ?, ?> right = (Right<?, ?, ?, ?, ?, ?>) o;
+            RightImpl<?, ?, ?, ?, ?, ?> right = (RightImpl<?, ?, ?, ?, ?, ?>) o;
             return value.equals(right.value);
         }
 
@@ -324,7 +438,7 @@ public interface Either3<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Right> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Right$";

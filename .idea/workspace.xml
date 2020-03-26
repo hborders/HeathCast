@@ -113,16 +113,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/activities/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/activities/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/MainFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/MainFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListValueFragment2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListValueFragment2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastSearchFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastSearchValueFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListValueFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either3.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either3.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either31.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either31.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/PodcastRecyclerViewAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/PodcastRecyclerViewAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_search.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_search.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/navigation/nav_graph.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/navigation/nav_graph.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -697,10 +691,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584684892387" />
-    <state x="220" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1585196390399">
+    <state x="220" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1585199437904">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="220" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585196390399" />
+    <state x="220" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585199437904" />
     <state x="698" y="326" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1584936091576">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -790,10 +784,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585111637310" />
-    <state width="735" height="167" key="javadoc.popup.new" timestamp="1585198828865">
+    <state width="735" height="167" key="javadoc.popup.new" timestamp="1585200040915">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="735" height="167" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1585198828865" />
+    <state width="735" height="167" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1585200040915" />
     <state width="620" height="143" key="javadoc.popup.new/3840.2400" timestamp="1577555866836" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1584682021626">
       <screen x="0" y="23" width="1920" height="1100" />
