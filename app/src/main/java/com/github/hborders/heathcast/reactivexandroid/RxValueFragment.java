@@ -16,6 +16,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import static com.github.hborders.heathcast.android.ViewUtil.setUserInteractionEnabled;
 
+// Make this RxAsyncValue
+// Make RxValue just have the Model+ViewHolder+Renderer
 public abstract class RxValueFragment<
         FragmentType extends RxFragment<
                 FragmentType,
