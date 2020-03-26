@@ -4,18 +4,18 @@ public interface Result {
     Result SUCCESS = new Result.Success();
     Result FAILURE = new Result.Failure();
 
-    final class Success extends EmptyEither.Left<
-            Success,
-            Failure
-            > implements Result {
+    final class Success extends EmptyEither.LeftImpl<
+                Success,
+                Failure
+                > implements Result {
         private Success() {
         }
     }
 
-    final class Failure extends EmptyEither.Right<
-            Success,
-            Failure
-            > implements Result {
+    final class Failure extends EmptyEither.RightImpl<
+                Success,
+                Failure
+                > implements Result {
         private Failure() {
         }
     }

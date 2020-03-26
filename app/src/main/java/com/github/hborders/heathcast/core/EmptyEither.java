@@ -30,8 +30,7 @@ public interface EmptyEither<
             VoidFunction<? super RightType> rightAction
     );
 
-    // Not final to allow reification
-    class Left<
+    interface Left<
             LeftType extends EmptyEither.Left<
                     LeftType,
                     RightType
@@ -40,7 +39,23 @@ public interface EmptyEither<
                     LeftType,
                     RightType
                     >
-            > implements EmptyEither<
+            > extends EmptyEither<
+            LeftType,
+            RightType
+            > {
+    }
+
+    // Not final to allow reification
+    class LeftImpl<
+            LeftType extends EmptyEither.Left<
+                    LeftType,
+                    RightType
+                    >,
+            RightType extends EmptyEither.Right<
+                    LeftType,
+                    RightType
+                    >
+            > implements Left<
             LeftType,
             RightType
             > {
@@ -58,7 +73,7 @@ public interface EmptyEither<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Left> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Left$";
@@ -97,8 +112,7 @@ public interface EmptyEither<
         }
     }
 
-    // Not final to allow reification
-    class Right<
+    interface Right<
             LeftType extends EmptyEither.Left<
                     LeftType,
                     RightType
@@ -107,7 +121,23 @@ public interface EmptyEither<
                     LeftType,
                     RightType
                     >
-            > implements EmptyEither<
+            > extends EmptyEither<
+            LeftType,
+            RightType
+            > {
+    }
+
+    // Not final to allow reification
+    class RightImpl<
+            LeftType extends EmptyEither.Left<
+                    LeftType,
+                    RightType
+                    >,
+            RightType extends EmptyEither.Right<
+                    LeftType,
+                    RightType
+                    >
+            > implements Right<
             LeftType,
             RightType
             > {
@@ -125,7 +155,7 @@ public interface EmptyEither<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Right> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Right$";

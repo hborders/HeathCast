@@ -42,8 +42,7 @@ public interface EmptyEither3<
             VoidFunction<? super RightType> rightAction
     );
 
-    // Not final to allow reification
-    class Left<
+    interface Left<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -59,7 +58,31 @@ public interface EmptyEither3<
                     MiddleType,
                     RightType
                     >
-            > implements EmptyEither3<
+            > extends EmptyEither3<
+            LeftType,
+            MiddleType,
+            RightType
+            > {
+    }
+
+    // Not final to allow reification
+    class LeftImpl<
+            LeftType extends LeftImpl<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >,
+            MiddleType extends MiddleImpl<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >,
+            RightType extends RightImpl<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >
+            > implements Left<
             LeftType,
             MiddleType,
             RightType
@@ -78,7 +101,7 @@ public interface EmptyEither3<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Left> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Left$";
@@ -121,8 +144,7 @@ public interface EmptyEither3<
         }
     }
 
-    // Not final to allow reification
-    class Middle<
+    interface Middle<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -138,7 +160,31 @@ public interface EmptyEither3<
                     MiddleType,
                     RightType
                     >
-            > implements EmptyEither3<
+            > extends EmptyEither3<
+            LeftType,
+            MiddleType,
+            RightType
+            > {
+    }
+
+    // Not final to allow reification
+    class MiddleImpl<
+            LeftType extends Left<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >,
+            MiddleType extends Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >,
+            RightType extends Right<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >
+            > implements Middle<
             LeftType,
             MiddleType,
             RightType
@@ -157,7 +203,7 @@ public interface EmptyEither3<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Middle> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends MiddleImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Middle$";
@@ -200,8 +246,7 @@ public interface EmptyEither3<
         }
     }
 
-    // Not final to allow reification
-    class Right<
+    interface Right<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -217,7 +262,31 @@ public interface EmptyEither3<
                     MiddleType,
                     RightType
                     >
-            > implements EmptyEither3<
+            > extends EmptyEither3<
+            LeftType,
+            MiddleType,
+            RightType
+            > {
+    }
+
+    // Not final to allow reification
+    class RightImpl<
+            LeftType extends Left<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >,
+            MiddleType extends Middle<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >,
+            RightType extends Right<
+                    LeftType,
+                    MiddleType,
+                    RightType
+                    >
+            > implements Right<
             LeftType,
             MiddleType,
             RightType
@@ -236,7 +305,7 @@ public interface EmptyEither3<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Right> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Right$";

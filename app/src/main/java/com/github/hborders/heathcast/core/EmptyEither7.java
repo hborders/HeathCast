@@ -110,9 +110,8 @@ public interface EmptyEither7<
             VoidFunction<? super RightRightRightType> rightRightRightAction
     );
 
-    // Not final to allow reification
-    class LeftLeftLeft<
-            LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
+    interface LeftLeftLeft<
+            LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -121,7 +120,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftLeftType extends EmptyEither7.LeftLeft<
+            LeftLeftType extends LeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -130,7 +129,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftType extends EmptyEither7.Left<
+            LeftType extends Left<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -139,7 +138,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            MiddleType extends EmptyEither7.Middle<
+            MiddleType extends Middle<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -148,7 +147,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightType extends EmptyEither7.Right<
+            RightType extends Right<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -157,7 +156,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightType extends EmptyEither7.RightRight<
+            RightRightType extends RightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -166,7 +165,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightRightType extends EmptyEither7.RightRightRight<
+            RightRightRightType extends RightRightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -175,7 +174,83 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > implements EmptyEither7<
+            > extends EmptyEither7<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            MiddleType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
+    }
+
+    // Not final to allow reification
+    class LeftLeftLeftImpl<
+            LeftLeftLeftType extends LeftLeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftLeftType extends LeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftType extends Left<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            MiddleType extends Middle<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightType extends Right<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightType extends RightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightRightType extends RightRightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >
+            > implements LeftLeftLeft<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -198,7 +273,7 @@ public interface EmptyEither7<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends LeftLeftLeft> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends LeftLeftLeftImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "LeftLeftLeft$";
@@ -261,9 +336,8 @@ public interface EmptyEither7<
         }
     }
 
-    // Not final to allow reification
-    class LeftLeft<
-            LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
+    interface LeftLeft<
+            LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -272,7 +346,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftLeftType extends EmptyEither7.LeftLeft<
+            LeftLeftType extends LeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -281,7 +355,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftType extends EmptyEither7.Left<
+            LeftType extends Left<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -290,7 +364,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            MiddleType extends EmptyEither7.Middle<
+            MiddleType extends Middle<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -299,7 +373,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightType extends EmptyEither7.Right<
+            RightType extends Right<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -308,7 +382,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightType extends EmptyEither7.RightRight<
+            RightRightType extends RightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -317,7 +391,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightRightType extends EmptyEither7.RightRightRight<
+            RightRightRightType extends RightRightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -326,7 +400,83 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > implements EmptyEither7<
+            > extends EmptyEither7<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            MiddleType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
+    }
+
+    // Not final to allow reification
+    class LeftLeftImpl<
+            LeftLeftLeftType extends LeftLeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftLeftType extends LeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftType extends Left<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            MiddleType extends Middle<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightType extends Right<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightType extends RightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightRightType extends RightRightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >
+            > implements LeftLeft<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -349,7 +499,7 @@ public interface EmptyEither7<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends LeftLeft> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends LeftLeftImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "LeftLeft$";
@@ -412,9 +562,8 @@ public interface EmptyEither7<
         }
     }
 
-    // Not final to allow reification
-    class Left<
-            LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
+    interface Left<
+            LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -423,7 +572,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftLeftType extends EmptyEither7.LeftLeft<
+            LeftLeftType extends LeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -432,7 +581,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftType extends EmptyEither7.Left<
+            LeftType extends Left<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -441,7 +590,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            MiddleType extends EmptyEither7.Middle<
+            MiddleType extends Middle<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -450,7 +599,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightType extends EmptyEither7.Right<
+            RightType extends Right<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -459,7 +608,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightType extends EmptyEither7.RightRight<
+            RightRightType extends RightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -468,7 +617,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightRightType extends EmptyEither7.RightRightRight<
+            RightRightRightType extends RightRightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -477,7 +626,83 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > implements EmptyEither7<
+            > extends EmptyEither7<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            MiddleType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
+    }
+
+    // Not final to allow reification
+    class LeftImpl<
+            LeftLeftLeftType extends LeftLeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftLeftType extends LeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftType extends Left<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            MiddleType extends Middle<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightType extends Right<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightType extends RightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightRightType extends RightRightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >
+            > implements Left<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -500,7 +725,7 @@ public interface EmptyEither7<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Left> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Left$";
@@ -564,9 +789,8 @@ public interface EmptyEither7<
         }
     }
 
-    // Not final to allow reification
-    class Middle<
-            LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
+    interface Middle<
+            LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -575,7 +799,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftLeftType extends EmptyEither7.LeftLeft<
+            LeftLeftType extends LeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -584,7 +808,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftType extends EmptyEither7.Left<
+            LeftType extends Left<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -593,7 +817,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            MiddleType extends EmptyEither7.Middle<
+            MiddleType extends Middle<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -602,7 +826,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightType extends EmptyEither7.Right<
+            RightType extends Right<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -611,7 +835,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightType extends EmptyEither7.RightRight<
+            RightRightType extends RightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -620,7 +844,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightRightType extends EmptyEither7.RightRightRight<
+            RightRightRightType extends RightRightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -629,7 +853,83 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > implements EmptyEither7<
+            > extends EmptyEither7<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            MiddleType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
+    }
+
+    // Not final to allow reification
+    class MiddleImpl<
+            LeftLeftLeftType extends LeftLeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftLeftType extends LeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftType extends Left<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            MiddleType extends Middle<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightType extends Right<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightType extends RightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightRightType extends RightRightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >
+            > implements Middle<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -652,7 +952,7 @@ public interface EmptyEither7<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Middle> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends MiddleImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Middle$";
@@ -715,9 +1015,8 @@ public interface EmptyEither7<
         }
     }
 
-    // Not final to allow reification
-    class Right<
-            LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
+    interface Right<
+            LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -726,7 +1025,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftLeftType extends EmptyEither7.LeftLeft<
+            LeftLeftType extends LeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -735,7 +1034,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftType extends EmptyEither7.Left<
+            LeftType extends Left<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -744,7 +1043,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            MiddleType extends EmptyEither7.Middle<
+            MiddleType extends Middle<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -753,7 +1052,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightType extends EmptyEither7.Right<
+            RightType extends Right<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -762,7 +1061,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightType extends EmptyEither7.RightRight<
+            RightRightType extends RightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -771,7 +1070,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightRightType extends EmptyEither7.RightRightRight<
+            RightRightRightType extends RightRightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -780,7 +1079,83 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > implements EmptyEither7<
+            > extends EmptyEither7<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            MiddleType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
+    }
+
+    // Not final to allow reification
+    class RightImpl<
+            LeftLeftLeftType extends LeftLeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftLeftType extends LeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftType extends Left<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            MiddleType extends Middle<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightType extends Right<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightType extends RightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightRightType extends RightRightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >
+            > implements Right<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -803,7 +1178,7 @@ public interface EmptyEither7<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Right> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "Right$";
@@ -866,9 +1241,8 @@ public interface EmptyEither7<
         }
     }
 
-    // Not final to allow reification
-    class RightRight<
-            LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
+    interface RightRight<
+            LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -877,7 +1251,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftLeftType extends EmptyEither7.LeftLeft<
+            LeftLeftType extends LeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -886,7 +1260,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftType extends EmptyEither7.Left<
+            LeftType extends Left<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -895,7 +1269,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            MiddleType extends EmptyEither7.Middle<
+            MiddleType extends Middle<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -904,7 +1278,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightType extends EmptyEither7.Right<
+            RightType extends Right<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -913,7 +1287,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightType extends EmptyEither7.RightRight<
+            RightRightType extends RightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -922,7 +1296,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightRightType extends EmptyEither7.RightRightRight<
+            RightRightRightType extends RightRightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -931,7 +1305,83 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > implements EmptyEither7<
+            > extends EmptyEither7<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            MiddleType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
+    }
+
+    // Not final to allow reification
+    class RightRightImpl<
+            LeftLeftLeftType extends LeftLeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftLeftType extends LeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftType extends Left<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            MiddleType extends Middle<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightType extends Right<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightType extends RightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightRightType extends RightRightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >
+            > implements RightRight<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -954,7 +1404,7 @@ public interface EmptyEither7<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends RightRight> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends RightRightImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "RightRight$";
@@ -1017,9 +1467,8 @@ public interface EmptyEither7<
         }
     }
 
-    // Not final to allow reification
-    class RightRightRight<
-            LeftLeftLeftType extends EmptyEither7.LeftLeftLeft<
+    interface RightRightRight<
+            LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -1028,7 +1477,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftLeftType extends EmptyEither7.LeftLeft<
+            LeftLeftType extends LeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -1037,7 +1486,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            LeftType extends EmptyEither7.Left<
+            LeftType extends Left<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -1046,7 +1495,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            MiddleType extends EmptyEither7.Middle<
+            MiddleType extends Middle<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -1055,7 +1504,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightType extends EmptyEither7.Right<
+            RightType extends Right<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -1064,7 +1513,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightType extends EmptyEither7.RightRight<
+            RightRightType extends RightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -1073,7 +1522,7 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >,
-            RightRightRightType extends EmptyEither7.RightRightRight<
+            RightRightRightType extends RightRightRight<
                     LeftLeftLeftType,
                     LeftLeftType,
                     LeftType,
@@ -1082,7 +1531,83 @@ public interface EmptyEither7<
                     RightRightType,
                     RightRightRightType
                     >
-            > implements EmptyEither7<
+            > extends EmptyEither7<
+            LeftLeftLeftType,
+            LeftLeftType,
+            LeftType,
+            MiddleType,
+            RightType,
+            RightRightType,
+            RightRightRightType
+            > {
+    }
+
+    // Not final to allow reification
+    class RightRightRightImpl<
+            LeftLeftLeftType extends LeftLeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftLeftType extends LeftLeft<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            LeftType extends Left<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            MiddleType extends Middle<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightType extends Right<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightType extends RightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >,
+            RightRightRightType extends RightRightRight<
+                    LeftLeftLeftType,
+                    LeftLeftType,
+                    LeftType,
+                    MiddleType,
+                    RightType,
+                    RightRightType,
+                    RightRightRightType
+                    >
+            > implements RightRightRight<
             LeftLeftLeftType,
             LeftLeftType,
             LeftType,
@@ -1105,7 +1630,7 @@ public interface EmptyEither7<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends RightRightRight> clazz = getClass();
+            @SuppressWarnings("rawtypes") final Class<? extends RightRightRightImpl> clazz = getClass();
             final String simpleName;
             if (clazz.isAnonymousClass()) {
                 simpleName = "RightRightRight$";
