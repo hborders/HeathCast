@@ -368,11 +368,11 @@ public abstract class RxListAsyncValueFragment<
     }
 
     protected <
-            AttachmentFactoryType extends Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                                FragmentType,
+                                ListenerType,
+                                AttachmentType
+                                >,
             OnAttachedType extends OnAttached<
                     FragmentType,
                     ListenerType,

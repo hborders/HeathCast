@@ -12,18 +12,18 @@ import io.reactivex.Observable;
 public class MainFragment extends RxFragment<
         MainFragment,
         MainFragment.MainFragmentListener,
-        MainFragment.Attachment> {
-    public static final class Attachment extends RxFragment.Attachment<
+        MainFragment.MainAttachment> {
+    public static final class MainAttachment extends RxFragment.Attachment<
             MainFragment,
             MainFragment.MainFragmentListener,
-            Attachment> {
-        public interface Factory extends RxFragment.Attachment.Factory<
-                MainFragment,
-                MainFragment.MainFragmentListener,
-                Attachment> {
+            MainAttachment> {
+        public interface Factory extends AttachmentFactory<
+                        MainFragment,
+                        MainFragmentListener,
+                MainAttachment> {
         }
 
-        public Attachment(
+        public MainAttachment(
                 MainFragment fragment,
                 Context context,
                 MainFragmentListener listener,
@@ -43,7 +43,7 @@ public class MainFragment extends RxFragment<
     public MainFragment() {
         super(
                 MainFragmentListener.class,
-                Attachment::new,
+                MainAttachment::new,
                 MainFragmentListener::onMainFragmentAttached,
                 MainFragmentListener::onMainFragmentWillDetach,
                 R.layout.fragment_main

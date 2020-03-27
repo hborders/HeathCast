@@ -7,12 +7,14 @@ import androidx.annotation.Nullable;
 import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.core.Either31;
+import com.github.hborders.heathcast.core.Function;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
 
 import java.util.Objects;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 import static com.github.hborders.heathcast.android.ViewUtil.setUserInteractionEnabled;
 
@@ -348,12 +350,14 @@ public abstract class RxAsyncValueFragment<
     private final MutableIdlingResource loadingMutableIdlingResource;
     private final MutableIdlingResource completeOrFailedMutableIdlingResource;
 
+    private final Function<Observable<AttachmentType>, Disposable> subscribeFunction;
+
     protected <
-            AttachmentFactoryType extends Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                                FragmentType,
+                                ListenerType,
+                                AttachmentType
+                                >,
             OnAttachedType extends OnAttached<
                     FragmentType,
                     ListenerType,
@@ -448,133 +452,140 @@ public abstract class RxAsyncValueFragment<
         completeOrFailedMutableIdlingResource =
                 MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed");
 
-        final class Prez {
-            final Context context;
-            final ListenerType listener;
-            final ViewCreation viewCreation;
-            final View view;
-            final ViewHolderType viewHolder;
+        subscribeFunction = attachmentObservable -> {
+            final class Prez {
+                final Context context;
+                final ListenerType listener;
+                final ViewCreation viewCreation;
+                final View view;
+                final ViewHolderType viewHolder;
 
-            Prez(
-                    Context context,
-                    ListenerType listener,
-                    ViewCreation viewCreation,
-                    View view,
-                    ViewHolderType viewHolder
-            ) {
-                this.context = context;
-                this.listener = listener;
-                this.viewCreation = viewCreation;
-                this.view = view;
-                this.viewHolder = viewHolder;
-            }
-        }
-
-        final Observable<Prez> prezObservable = beginRxGraph().switchMap(
-                attachmentTypeObservable -> attachmentTypeObservable
-        ).switchMap(
-                Attachment::switchMapToViewCreation
-        ).map(
-                attachmentFragmentCreationViewCreationTriple -> {
-                    final Context context =
-                            attachmentFragmentCreationViewCreationTriple.first.context;
-                    final ListenerType listener =
-                            attachmentFragmentCreationViewCreationTriple.first.listener;
-                    final ViewCreation viewCreation =
-                            attachmentFragmentCreationViewCreationTriple.third;
-                    final View view = viewCreation.view;
-                    final ViewHolderType viewHolder = viewHolderFactory.newViewHolder(
-                            getSelf(),
-                            listener,
-                            view
-                    );
-                    return new Prez(
-                            context,
-                            listener,
-                            viewCreation,
-                            view,
-                            viewHolder
-                    );
+                Prez(
+                        Context context,
+                        ListenerType listener,
+                        ViewCreation viewCreation,
+                        View view,
+                        ViewHolderType viewHolder
+                ) {
+                    this.context = context;
+                    this.listener = listener;
+                    this.viewCreation = viewCreation;
+                    this.view = view;
+                    this.viewHolder = viewHolder;
                 }
-        );
-
-        final class Prerender {
-            final Prez prez;
-            final StateType state;
-
-            Prerender(
-                    Prez prez,
-                    StateType state
-            ) {
-                this.prez = prez;
-                this.state = state;
             }
-        }
 
-        final Observable<Prerender> renderingAttemptObservable =
-                prezObservable.switchMap(
-                        prez ->
-                                prez.viewCreation.switchMapToStart().switchMap(
-                                        start ->
-                                                stateObservableProvider
-                                                        .stateObservable(
-                                                                prez.listener,
-                                                                getSelf()
-                                                        )
-                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                        .map(
-                                                                state ->
-                                                                        new Prerender(
-                                                                                prez,
-                                                                                state
-                                                                        )
-                                                        )
-                                )
-                );
-        renderingAttemptObservable.subscribe(
-                prerender -> {
-                    loadingMutableIdlingResource.setBusy();
-                    completeOrFailedMutableIdlingResource.setBusy();
-
-                    setUserInteractionEnabled(
-                            prerender.prez.view,
-                            prerender.state.getValue().enabled
+            final Observable<Prez> prezObservable = attachmentObservable
+                    .switchMap(
+                            Attachment::switchMapToViewCreation
+                    )
+                    .map(
+                            attachmentFragmentCreationViewCreationTriple -> {
+                                final Context context =
+                                        attachmentFragmentCreationViewCreationTriple.first.context;
+                                final ListenerType listener =
+                                        attachmentFragmentCreationViewCreationTriple.first.listener;
+                                final ViewCreation viewCreation =
+                                        attachmentFragmentCreationViewCreationTriple.third;
+                                final View view = viewCreation.view;
+                                final ViewHolderType viewHolder = viewHolderFactory.newViewHolder(
+                                        getSelf(),
+                                        listener,
+                                        view
+                                );
+                                return new Prez(
+                                        context,
+                                        listener,
+                                        viewCreation,
+                                        view,
+                                        viewHolder
+                                );
+                            }
                     );
 
-                    renderer.render(
-                            getSelf(),
-                            prerender.prez.listener,
-                            prerender.prez.context,
-                            prerender.prez.viewHolder,
-                            prerender.state
+            final class Prerender {
+                final Prez prez;
+                final StateType state;
+
+                Prerender(
+                        Prez prez,
+                        StateType state
+                ) {
+                    this.prez = prez;
+                    this.state = state;
+                }
+            }
+
+            final Observable<Prerender> renderingAttemptObservable =
+                    prezObservable.switchMap(
+                            prez ->
+                                    prez.viewCreation.switchMapToStart().switchMap(
+                                            start ->
+                                                    stateObservableProvider
+                                                            .stateObservable(
+                                                                    prez.listener,
+                                                                    getSelf()
+                                                            )
+                                                            .observeOn(AndroidSchedulers.mainThread())
+                                                            .map(
+                                                                    state ->
+                                                                            new Prerender(
+                                                                                    prez,
+                                                                                    state
+                                                                            )
+                                                            )
+                                    )
                     );
-
-
-                    if (
-                            prerender.state
-                                    .getValue()
-                                    .enabled
-                    ) {
-                        prerender.state.act(
-                                loading -> {
-                                    loadingMutableIdlingResource.setIdle();
-                                    completeOrFailedMutableIdlingResource.setBusy();
-                                },
-                                complete -> {
-                                    loadingMutableIdlingResource.setBusy();
-                                    completeOrFailedMutableIdlingResource.setIdle();
-                                },
-                                failed -> {
-                                    loadingMutableIdlingResource.setBusy();
-                                    completeOrFailedMutableIdlingResource.setIdle();
-                                }
-                        );
-                    } else {
+            return renderingAttemptObservable.subscribe(
+                    prerender -> {
                         loadingMutableIdlingResource.setBusy();
                         completeOrFailedMutableIdlingResource.setBusy();
+
+                        setUserInteractionEnabled(
+                                prerender.prez.view,
+                                prerender.state.getValue().enabled
+                        );
+
+                        renderer.render(
+                                getSelf(),
+                                prerender.prez.listener,
+                                prerender.prez.context,
+                                prerender.prez.viewHolder,
+                                prerender.state
+                        );
+
+
+                        if (
+                                prerender.state
+                                        .getValue()
+                                        .enabled
+                        ) {
+                            prerender.state.act(
+                                    loading -> {
+                                        loadingMutableIdlingResource.setIdle();
+                                        completeOrFailedMutableIdlingResource.setBusy();
+                                    },
+                                    complete -> {
+                                        loadingMutableIdlingResource.setBusy();
+                                        completeOrFailedMutableIdlingResource.setIdle();
+                                    },
+                                    failed -> {
+                                        loadingMutableIdlingResource.setBusy();
+                                        completeOrFailedMutableIdlingResource.setIdle();
+                                    }
+                            );
+                        } else {
+                            loadingMutableIdlingResource.setBusy();
+                            completeOrFailedMutableIdlingResource.setBusy();
+                        }
                     }
-                }
-        ).isDisposed();
+            );
+        };
+    }
+
+    @Override
+    protected Disposable subscribe(Observable<AttachmentType> attachmentObservable) {
+        return subscribeFunction.apply(attachmentObservable);
     }
 
     public final IdlingResource getLoadingIdlingResource() {

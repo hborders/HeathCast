@@ -29,7 +29,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public final class PodcastSearchValueFragment extends Fragment
         implements
-        PodcastListAsyncValueFragment2.PodcastListValueFragmentListener {
+        PodcastListFragment2.PodcastListValueFragmentListener {
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
 
@@ -68,7 +68,7 @@ public final class PodcastSearchValueFragment extends Fragment
                                     ).map(Optional::of)
                     ).orElse(Observable.just(Optional.empty()))
             );
-    private final BehaviorSubject<PodcastListAsyncValueFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateBehaviorSubject =
+    private final BehaviorSubject<PodcastListFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
     private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
@@ -146,21 +146,21 @@ public final class PodcastSearchValueFragment extends Fragment
                                                         podcastIdentifiedListServiceResponse ->
                                                                 podcastIdentifiedListServiceResponse.reduce(
                                                                         loading ->
-                                                                                new PodcastListAsyncValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListLoading(
-                                                                                        new PodcastListAsyncValueFragment2.PodcastIdentifiedListModel(
+                                                                                new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListLoading(
+                                                                                        new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                                                 loading.value,
                                                                                                 true
                                                                                         )
                                                                                 ),
                                                                         complete ->
-                                                                                new PodcastListAsyncValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
-                                                                                        new PodcastListAsyncValueFragment2.PodcastIdentifiedListModel(
+                                                                                new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                                        new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                                                 complete.value,
                                                                                                 true
                                                                                         )
                                                                                 ),
-                                                                        failed -> new PodcastListAsyncValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
-                                                                                new PodcastListAsyncValueFragment2.PodcastIdentifiedListModel(
+                                                                        failed -> new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                                new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                                         failed.value,
                                                                                         true
                                                                                 )
@@ -168,8 +168,8 @@ public final class PodcastSearchValueFragment extends Fragment
                                                                 )
                                                 )
                                                 .orElse(
-                                                        new PodcastListAsyncValueFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
-                                                                new PodcastListAsyncValueFragment2.PodcastIdentifiedListModel(
+                                                        new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                         new PodcastIdentifiedList(),
                                                                         true
                                                                 )
@@ -244,7 +244,7 @@ public final class PodcastSearchValueFragment extends Fragment
     // PodcastListFragmentListener
 
     @Override
-    public void onPodcastListFragmentAttached(PodcastListAsyncValueFragment2 podcastListFragment) {
+    public void onPodcastListFragmentAttached(PodcastListFragment2 podcastListFragment) {
         searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
                 podcastListFragment.getLoadingIdlingResource()
         );
@@ -254,15 +254,15 @@ public final class PodcastSearchValueFragment extends Fragment
     }
 
     @Override
-    public Observable<PodcastListAsyncValueFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
-            PodcastListAsyncValueFragment2 podcastListValueFragment
+    public Observable<PodcastListFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
+            PodcastListFragment2 podcastListValueFragment
     ) {
         return podcastIdentifiedListStateBehaviorSubject;
     }
 
     @Override
     public void onClickPodcastIdentified(
-            PodcastListAsyncValueFragment2 podcastListFragment,
+            PodcastListFragment2 podcastListFragment,
             PodcastIdentified podcastIdentified
     ) {
         Objects.requireNonNull(listener).onClickPodcastIdentified(
@@ -272,7 +272,7 @@ public final class PodcastSearchValueFragment extends Fragment
     }
 
     @Override
-    public void onPodcastListFragmentWillDetach(PodcastListAsyncValueFragment2 podcastListFragment) {
+    public void onPodcastListFragmentWillDetach(PodcastListFragment2 podcastListFragment) {
         searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(null);
         searchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(null);
     }

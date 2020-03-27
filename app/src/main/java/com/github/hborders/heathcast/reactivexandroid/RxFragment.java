@@ -16,12 +16,14 @@ import com.github.hborders.heathcast.core.Triple;
 import com.github.hborders.heathcast.core.Tuple;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.CompletableSubject;
 import io.reactivex.subjects.PublishSubject;
 
@@ -51,8 +53,7 @@ public abstract class RxFragment<
                     AttachmentType
                     >
             > {
-
-        public interface Factory<
+        public interface AttachmentFactory<
                 FragmentType extends RxFragment<
                         FragmentType,
                         ListenerType,
@@ -385,11 +386,14 @@ public abstract class RxFragment<
     @LayoutRes
     private final int layoutResource;
 
-    private final PublishSubject<Observable<AttachmentType>> attachmentObservablePublishSubject =
-            PublishSubject.create();
-    private BehaviorSubject<AttachmentType> attachmentBehaviorSubject =
-            BehaviorSubject.create();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    // Don't use a BehaviorSubject here. Even though we need to store the attachment,
+    // it's better to store it outside to force Publish semantics on the Observable.
+    private PublishSubject<AttachmentType> attachmentPublishSubject = PublishSubject.create();
     private CompletableSubject onDetachCompletableSubject = CompletableSubject.create();
+    private @Nullable
+    AttachmentType attachment;
 
     private PublishSubject<FragmentCreation> fragmentCreationPublishSubject =
             PublishSubject.create();
@@ -414,11 +418,11 @@ public abstract class RxFragment<
     private CompletableSubject onPauseCompletableSubject = CompletableSubject.create();
 
     protected <
-            AttachmentFactoryType extends Attachment.Factory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                                FragmentType,
+                                ListenerType,
+                                AttachmentType
+                                >,
             OnAttachedType extends OnAttached<
                     FragmentType,
                     ListenerType,
@@ -472,7 +476,13 @@ public abstract class RxFragment<
                 context,
                 listenerClass
         );
-
+        final Disposable disposable = checkSubscribe(
+                this::subscribe,
+                attachmentPublishSubject
+        );
+        compositeDisposable.add(
+                disposable
+        );
         onAttached.onAttached(listener, self);
         final AttachmentType attachment = attachmentFactory.apply(
                 self,
@@ -481,7 +491,8 @@ public abstract class RxFragment<
                 fragmentCreationPublishSubject,
                 onDetachCompletableSubject
         );
-        attachmentBehaviorSubject.onNext(attachment);
+        this.attachment = attachment;
+        attachmentPublishSubject.onNext(attachment);
     }
 
     @Override
@@ -639,13 +650,21 @@ public abstract class RxFragment<
     public final void onDetach() {
         super.onDetach();
 
-        AttachmentType attachment = Objects.requireNonNull(attachmentBehaviorSubject.getValue());
-        willDetach.willDetach(attachment.listener, attachment.fragment);
+        final AttachmentType oldAttachment = Objects.requireNonNull(this.attachment);
+        this.attachment = null;
+        willDetach.willDetach(
+                oldAttachment.listener,
+                oldAttachment.fragment
+        );
         onDetachCompletableSubject.onComplete();
-        attachmentBehaviorSubject.onComplete();
+        attachmentPublishSubject.onComplete();
+        // this isn't really necessary because we complete the attachmentBehaviorSubject,
+        // but I think people will feel better knowing
+        // their disposables are disposed somewhere
+        compositeDisposable.clear();
 
         onDetachCompletableSubject = CompletableSubject.create();
-        attachmentBehaviorSubject = BehaviorSubject.create();
+        attachmentPublishSubject = PublishSubject.create();
     }
 
     /**
@@ -655,10 +674,33 @@ public abstract class RxFragment<
         return (FragmentType) this;
     }
 
+    interface Subscriber<T> {
+        Disposable doSubscribe(Observable<T> attachmentObservable);
+    }
+
+    protected static <
+            SubscribeType extends Subscriber<T>,
+            T
+            > Disposable checkSubscribe(
+            SubscribeType subscribe,
+            Observable<T> observable
+    ) {
+        final AtomicBoolean subscribed = new AtomicBoolean();
+        final Disposable disposable = subscribe.doSubscribe(
+                observable.doOnSubscribe(
+                        ignored -> {
+                            subscribed.set(true);
+                        }
+                )
+        );
+        if (false == subscribed.get()) {
+            throw new IllegalStateException("You must subscribe within subscribe");
+        }
+        return disposable;
+    }
+
     /**
      * The beginning of the Rx graph.
      */
-    protected final Observable<Observable<AttachmentType>> beginRxGraph() {
-        return attachmentObservablePublishSubject;
-    }
+    protected abstract Disposable subscribe(Observable<AttachmentType> attachmentObservable);
 }
