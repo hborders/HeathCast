@@ -3,6 +3,7 @@ package com.github.hborders.heathcast.reactivexandroid;
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.Function;
@@ -100,6 +101,7 @@ public abstract class RxValueFragment<
     protected interface ViewHolder<ViewType extends View> {
         ViewType requireView();
     }
+
     protected interface ViewHolderFactory<
             FragmentType extends RxFragment<
                     FragmentType,
@@ -119,6 +121,28 @@ public abstract class RxValueFragment<
                 FragmentType fragment,
                 ListenerType listener,
                 View view
+        );
+    }
+
+    protected interface Unrenderer<
+            FragmentType extends RxFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListenerType,
+            AttachmentType extends Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ViewHolderType
+            > {
+        void unrender(
+                FragmentType fragmentType,
+                ListenerType listener,
+                Context context,
+                ViewHolderType viewHolder
         );
     }
 
@@ -151,10 +175,10 @@ public abstract class RxValueFragment<
 
     protected <
             AttachmentFactoryType extends Attachment.AttachmentFactory<
-                                FragmentType,
-                                ListenerType,
-                                AttachmentType
-                                >,
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
             OnAttachedType extends OnAttached<
                     FragmentType,
                     ListenerType,
@@ -179,6 +203,12 @@ public abstract class RxValueFragment<
                     StateType,
                     UnparcelableValueType
                     >,
+            UnrendererType extends Unrenderer<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    ViewHolderType
+                    >,
             RendererType extends Renderer<
                     FragmentType,
                     ListenerType,
@@ -196,9 +226,10 @@ public abstract class RxValueFragment<
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
             WillDetachType willDetach,
-            int layoutResource,
+            @LayoutRes int layoutResource,
             ViewHolderFactoryType viewHolderFactory,
             StateObservableProviderType stateObservableProvider,
+            UnrendererType unrenderer,
             RendererType renderer
     ) {
         super(
@@ -208,7 +239,6 @@ public abstract class RxValueFragment<
                 willDetach,
                 layoutResource
         );
-
         subscribeFunction = attachmentObservable -> {
             final class Prez {
                 final Context context;
@@ -273,7 +303,64 @@ public abstract class RxValueFragment<
                 }
             }
 
-            final Observable<Prerender> renderingAttemptObservable =
+            abstract class RenderingChange {
+                abstract void changeRendering(Prez prez);
+            }
+            final class RenderOnly extends RenderingChange {
+                private final StateType state;
+
+                RenderOnly(StateType state) {
+                    this.state = state;
+                }
+
+                @Override
+                void changeRendering(Prez prez) {
+                    renderer.render(
+                            getSelf(),
+                            prez.listener,
+                            prez.context,
+                            prez.viewHolder,
+                            state
+                    );
+                }
+            }
+            final class UnrenderThenRender extends RenderingChange {
+                private final StateType state;
+
+                UnrenderThenRender(StateType state) {
+                    this.state = state;
+                }
+
+                @Override
+                void changeRendering(Prez prez) {
+                    unrenderer.unrender(
+                            getSelf(),
+                            prez.listener,
+                            prez.context,
+                            prez.viewHolder
+                    );
+                    renderer.render(
+                            getSelf(),
+                            prez.listener,
+                            prez.context,
+                            prez.viewHolder,
+                            state
+                    );
+                }
+            }
+            final class UnrenderOnly extends RenderingChange {
+                @Override
+                void changeRendering(Prez prez) {
+                    unrenderer.unrender(
+                            getSelf(),
+                            prez.listener,
+                            prez.context,
+                            prez.viewHolder
+                    );
+                }
+            }
+
+            final Observable<Prerender> prerenderObservable =
                     prezObservable.switchMap(
                             prez ->
                                     prez.viewCreation.switchMapToStart().switchMap(
@@ -293,13 +380,20 @@ public abstract class RxValueFragment<
                                                             )
                                     )
                     );
-            return renderingAttemptObservable.subscribe(
+
+
+            return prerenderObservable.subscribe(
                     prerender -> {
+                        unrenderer.unrender(
+                                getSelf(),
+                                prerender.prez.listener,
+                                prerender.prez.context,
+                                prerender.prez.viewHolder
+                        );
                         setUserInteractionEnabled(
                                 prerender.prez.view,
                                 prerender.state.enabled
                         );
-
                         renderer.render(
                                 getSelf(),
                                 prerender.prez.listener,
@@ -313,7 +407,7 @@ public abstract class RxValueFragment<
     }
 
     @Override
-    protected Disposable subscribe(Observable<AttachmentType> attachmentObservable) {
+    protected final Disposable subscribe(Observable<AttachmentType> attachmentObservable) {
         return subscribeFunction.apply(attachmentObservable);
     }
 }

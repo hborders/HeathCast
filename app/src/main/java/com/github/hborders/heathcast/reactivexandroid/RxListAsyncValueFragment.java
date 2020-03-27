@@ -75,28 +75,28 @@ public abstract class RxListAsyncValueFragment<
                     UnparcelableValueType,
                     RecyclerViewViewHolderType
                     >,
-            StateType extends State<
+            StateType extends AsyncState<
+                                LoadingType,
+                                CompleteType,
+                                FailedType,
+                                ModelType,
+                                UnparcelableValueType
+                                >,
+            LoadingType extends AsyncState.Loading<
                     LoadingType,
                     CompleteType,
                     FailedType,
                     ModelType,
                     UnparcelableValueType
                     >,
-            LoadingType extends State.Loading<
+            CompleteType extends AsyncState.Complete<
                     LoadingType,
                     CompleteType,
                     FailedType,
                     ModelType,
                     UnparcelableValueType
                     >,
-            CompleteType extends State.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            FailedType extends State.Failed<
+            FailedType extends AsyncState.Failed<
                     LoadingType,
                     CompleteType,
                     FailedType,
@@ -400,28 +400,28 @@ public abstract class RxListAsyncValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
-            StateType extends State<
+            StateType extends AsyncState<
+                                LoadingType,
+                                CompleteType,
+                                FailedType,
+                                ModelType,
+                                UnparcelableValueType
+                                >,
+            LoadingType extends AsyncState.Loading<
                     LoadingType,
                     CompleteType,
                     FailedType,
                     ModelType,
                     UnparcelableValueType
                     >,
-            LoadingType extends State.Loading<
+            CompleteType extends AsyncState.Complete<
                     LoadingType,
                     CompleteType,
                     FailedType,
                     ModelType,
                     UnparcelableValueType
                     >,
-            CompleteType extends State.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            FailedType extends State.Failed<
+            FailedType extends AsyncState.Failed<
                     LoadingType,
                     CompleteType,
                     FailedType,

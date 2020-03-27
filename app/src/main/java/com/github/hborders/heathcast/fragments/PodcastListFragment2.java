@@ -46,7 +46,7 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
     public interface PodcastListValueFragmentListener {
         void onPodcastListFragmentAttached(PodcastListFragment2 podcastListValueFragment);
 
-        Observable<PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
+        Observable<PodcastIdentifiedListAsyncState> podcastIdentifiedListStateObservable(
                 PodcastListFragment2 podcastListValueFragment
         );
 
@@ -71,38 +71,38 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
         }
     }
 
-    public interface PodcastIdentifiedListState extends State<
-            PodcastIdentifiedListState.PodcastIdentifiedListLoading,
-            PodcastIdentifiedListState.PodcastIdentifiedListComplete,
-            PodcastIdentifiedListState.PodcastIdentifiedListFailed,
-            PodcastIdentifiedListModel,
-            PodcastIdentifiedList
-            > {
-        interface PodcastIdentifiedListLoading extends State.Loading<
+    public interface PodcastIdentifiedListAsyncState extends AsyncState<
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
+                PodcastIdentifiedListModel,
+                PodcastIdentifiedList
+                > {
+        interface PodcastIdentifiedListLoading extends AsyncState.Loading<
                 PodcastIdentifiedListLoading,
                 PodcastIdentifiedListComplete,
                 PodcastIdentifiedListFailed,
                 PodcastIdentifiedListModel,
                 PodcastIdentifiedList
-                >, PodcastIdentifiedListState {
+                >, PodcastIdentifiedListAsyncState {
         }
 
-        interface PodcastIdentifiedListComplete extends State.Complete<
+        interface PodcastIdentifiedListComplete extends AsyncState.Complete<
                 PodcastIdentifiedListLoading,
                 PodcastIdentifiedListComplete,
                 PodcastIdentifiedListFailed,
                 PodcastIdentifiedListModel,
                 PodcastIdentifiedList
-                >, PodcastIdentifiedListState {
+                >, PodcastIdentifiedListAsyncState {
         }
 
-        interface PodcastIdentifiedListFailed extends State.Failed<
+        interface PodcastIdentifiedListFailed extends AsyncState.Failed<
                 PodcastIdentifiedListLoading,
                 PodcastIdentifiedListComplete,
                 PodcastIdentifiedListFailed,
                 PodcastIdentifiedListModel,
                 PodcastIdentifiedList
-                >, PodcastIdentifiedListState {
+                >, PodcastIdentifiedListAsyncState {
         }
     }
 
@@ -237,10 +237,10 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
             PodcastListFragment2,
             PodcastListFragment2.PodcastListValueFragmentListener,
             PodcastListAttachment,
-            PodcastIdentifiedListState,
-            PodcastIdentifiedListState.PodcastIdentifiedListLoading,
-            PodcastIdentifiedListState.PodcastIdentifiedListComplete,
-            PodcastIdentifiedListState.PodcastIdentifiedListFailed,
+            PodcastIdentifiedListAsyncState,
+            PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
+            PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
+            PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
             PodcastIdentifiedListModel,
             PodcastIdentifiedList
             > {

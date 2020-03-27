@@ -1,22 +1,14 @@
 package com.github.hborders.heathcast.reactivexandroid;
 
-import android.content.Context;
 import android.view.View;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.LayoutRes;
 import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.core.Either31;
 import com.github.hborders.heathcast.core.Function;
+import com.github.hborders.heathcast.core.VoidFunction;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
-
-import java.util.Objects;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-
-import static com.github.hborders.heathcast.android.ViewUtil.setUserInteractionEnabled;
 
 // Make this RxAsyncValue
 // Make RxValue just have the Model+ViewHolder+Renderer
@@ -32,117 +24,67 @@ public abstract class RxAsyncValueFragment<
                 ListenerType,
                 AttachmentType
                 >
-        > extends RxFragment<
+        > extends RxValueFragment<
         FragmentType,
         ListenerType,
         AttachmentType
         > {
-    protected static abstract class Model<UnparcelableValueType> {
-        final UnparcelableValueType value;
-        final boolean enabled;
 
-        public Model(
-                UnparcelableValueType value,
-                boolean enabled
-        ) {
-            this.value = value;
-            this.enabled = enabled;
-        }
-
-        @Override
-        public final boolean equals(@Nullable Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Model<?> model = (Model<?>) o;
-            return value.equals(model.value) &&
-                    enabled == model.enabled;
-        }
-
-        @Override
-        public final int hashCode() {
-            return Objects.hash(value, enabled);
-        }
-
-        @Override
-        public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Model> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Model$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
-            return simpleName + "{" +
-                    "value=" + value +
-                    ", enabled=" + enabled +
-                    '}';
-        }
-    }
-
-    protected interface State<
-            LoadingType extends State.Loading<
+    protected interface AsyncState<
+            LoadingType extends AsyncState.Loading<
                     LoadingType,
                     CompleteType,
                     FailedType,
-                    ModelType,
                     UnparcelableValueType
                     >,
-            CompleteType extends State.Complete<
+            CompleteType extends AsyncState.Complete<
                     LoadingType,
                     CompleteType,
                     FailedType,
-                    ModelType,
                     UnparcelableValueType
                     >,
-            FailedType extends State.Failed<
+            FailedType extends AsyncState.Failed<
                     LoadingType,
                     CompleteType,
                     FailedType,
-                    ModelType,
                     UnparcelableValueType
                     >,
-            ModelType extends Model<UnparcelableValueType>,
             UnparcelableValueType
             > extends Either31<
             LoadingType,
             CompleteType,
             FailedType,
-            ModelType
+            UnparcelableValueType
             > {
         interface Loading<
                 LoadingType extends Loading<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
                 CompleteType extends Complete<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
                 FailedType extends Failed<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
-                ModelType extends Model<UnparcelableValueType>,
                 UnparcelableValueType
                 > extends Either31.Left<
                 LoadingType,
                 CompleteType,
                 FailedType,
-                ModelType
-                >, State<
+                UnparcelableValueType
+                >, AsyncState<
                 LoadingType,
                 CompleteType,
                 FailedType,
-                ModelType,
                 UnparcelableValueType
                 > {
         }
@@ -152,35 +94,30 @@ public abstract class RxAsyncValueFragment<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
                 CompleteType extends Complete<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
                 FailedType extends Failed<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
-                ModelType extends Model<UnparcelableValueType>,
                 UnparcelableValueType
                 > extends Either31.Middle<
                 LoadingType,
                 CompleteType,
                 FailedType,
-                ModelType
-                >, State<
+                UnparcelableValueType
+                >, AsyncState<
                 LoadingType,
                 CompleteType,
                 FailedType,
-                ModelType,
                 UnparcelableValueType
                 > {
         }
@@ -190,174 +127,67 @@ public abstract class RxAsyncValueFragment<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
                 CompleteType extends Complete<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
                 FailedType extends Failed<
                         LoadingType,
                         CompleteType,
                         FailedType,
-                        ModelType,
                         UnparcelableValueType
                         >,
-                ModelType extends Model<UnparcelableValueType>,
                 UnparcelableValueType
                 > extends Either31.Right<
                 LoadingType,
                 CompleteType,
                 FailedType,
-                ModelType
-                >, State<
+                UnparcelableValueType
+                >, AsyncState<
                 LoadingType,
                 CompleteType,
                 FailedType,
-                ModelType,
                 UnparcelableValueType
                 > {
         }
-    }
 
-    protected interface StateObservableProvider<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            StateType extends State<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            LoadingType extends State.Loading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            CompleteType extends State.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            FailedType extends State.Failed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
-            UnparcelableValueType
-            > {
-        Observable<StateType> stateObservable(
-                ListenerType listener,
-                FragmentType fragment
+        // redefine reduce/act to get better parameter names
+
+        <T> T reduce(
+                Function<
+                        ? super LoadingType,
+                        ? extends T
+                        > loadingReducer,
+                Function<
+                        ? super CompleteType,
+                        ? extends T
+                        > completeReducer,
+                Function<
+                        ? super FailedType,
+                        ? extends T
+                        > failedReducer
+        );
+
+        void act(
+                VoidFunction<? super LoadingType> loadingAction,
+                VoidFunction<? super CompleteType> completeAction,
+                VoidFunction<? super FailedType> failedAction
         );
     }
 
-    protected interface ViewHolderFactory<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ViewHolderType
-            > {
-        ViewHolderType newViewHolder(
-                FragmentType fragment,
-                ListenerType listener,
-                View view
-        );
-    }
-
-    protected interface Renderer<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            StateType extends State<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            LoadingType extends State.Loading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            CompleteType extends State.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            FailedType extends State.Failed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
-                    >,
-            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
-            UnparcelableValueType,
-            ViewHolderType
-            > {
-        void render(
-                FragmentType fragmentType,
-                ListenerType listener,
-                Context context,
-                ViewHolderType viewHolder,
-                StateType state
-        );
-    }
-
-    private final MutableIdlingResource loadingMutableIdlingResource;
-    private final MutableIdlingResource completeOrFailedMutableIdlingResource;
-
-    private final Function<Observable<AttachmentType>, Disposable> subscribeFunction;
+    private final IdlingResource loadingIdlingResource;
+    private final IdlingResource completeOrFailedIdlingResource;
 
     protected <
             AttachmentFactoryType extends Attachment.AttachmentFactory<
-                                FragmentType,
-                                ListenerType,
-                                AttachmentType
-                                >,
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
             OnAttachedType extends OnAttached<
                     FragmentType,
                     ListenerType,
@@ -372,227 +202,217 @@ public abstract class RxAsyncValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewHolderType
+                    ViewHolderType,
+                    ViewType
                     >,
             StateObservableProviderType extends StateObservableProvider<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
                     StateType,
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType
+                    AsyncStateType
+                    >,
+            UnrendererType extends Unrenderer<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    ViewHolderType
                     >,
             RendererType extends Renderer<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
                     StateType,
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
-                    ModelType,
-                    UnparcelableValueType,
+                    AsyncStateType,
                     ViewHolderType
                     >,
-            StateType extends State<
+            StateType extends State<AsyncStateType>,
+            AsyncStateType extends AsyncState<
                     LoadingType,
                     CompleteType,
                     FailedType,
-                    ModelType,
                     UnparcelableValueType
                     >,
-            LoadingType extends State.Loading<
+            LoadingType extends AsyncState.Loading<
                     LoadingType,
                     CompleteType,
                     FailedType,
-                    ModelType,
                     UnparcelableValueType
                     >,
-            CompleteType extends State.Complete<
+            CompleteType extends AsyncState.Complete<
                     LoadingType,
                     CompleteType,
                     FailedType,
-                    ModelType,
                     UnparcelableValueType
                     >,
-            FailedType extends State.Failed<
+            FailedType extends AsyncState.Failed<
                     LoadingType,
                     CompleteType,
                     FailedType,
-                    ModelType,
                     UnparcelableValueType
                     >,
-            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
-            UnparcelableValueType,
-            ViewHolderType
+            ViewHolderType extends ViewHolder<ViewType>,
+            ViewType extends View,
+            UnparcelableValueType
             > RxAsyncValueFragment(
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
             WillDetachType willDetach,
-            int layoutResource,
+            @LayoutRes int layoutResource,
             String idlingResourceNamePrefix,
             ViewHolderFactoryType viewHolderFactory,
             StateObservableProviderType stateObservableProvider,
+            UnrendererType unrenderer,
             RendererType renderer
+    ) {
+        this(
+                listenerClass,
+                attachmentFactory,
+                onAttached,
+                willDetach,
+                layoutResource,
+                viewHolderFactory,
+                stateObservableProvider,
+                unrenderer,
+                renderer,
+                MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading"),
+                MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed")
+        );
+    }
+
+    private <
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            OnAttachedType extends OnAttached<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            WillDetachType extends WillDetach<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ViewHolderFactoryType extends ViewHolderFactory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    ViewHolderType,
+                    ViewType
+                    >,
+            StateObservableProviderType extends StateObservableProvider<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    StateType,
+                    AsyncStateType
+                    >,
+            UnrendererType extends Unrenderer<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    ViewHolderType
+                    >,
+            RendererType extends Renderer<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    StateType,
+                    AsyncStateType,
+                    ViewHolderType
+                    >,
+            StateType extends State<AsyncStateType>,
+            AsyncStateType extends AsyncState<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    UnparcelableValueType
+                    >,
+            LoadingType extends AsyncState.Loading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    UnparcelableValueType
+                    >,
+            CompleteType extends AsyncState.Complete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    UnparcelableValueType
+                    >,
+            FailedType extends AsyncState.Failed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType,
+                    UnparcelableValueType
+                    >,
+            ViewHolderType extends ViewHolder<ViewType>,
+            ViewType extends View,
+            UnparcelableValueType
+            > RxAsyncValueFragment(
+            Class<ListenerType> listenerClass,
+            AttachmentFactoryType attachmentFactory,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
+            @LayoutRes int layoutResource,
+            ViewHolderFactoryType viewHolderFactory,
+            StateObservableProviderType stateObservableProvider,
+            UnrendererType unrenderer,
+            RendererType renderer,
+            MutableIdlingResource loadingMutableIdlingResource,
+            MutableIdlingResource completeOrFailedMutableIdlingResource
     ) {
         super(
                 listenerClass,
                 attachmentFactory,
                 onAttached,
                 willDetach,
-                layoutResource
+                layoutResource,
+                viewHolderFactory,
+                stateObservableProvider,
+                (fragmentType, listener, context, viewHolder) -> {
+                    loadingMutableIdlingResource.setBusy();
+                    completeOrFailedMutableIdlingResource.setBusy();
+
+                    unrenderer.unrender(fragmentType, listener, context, viewHolder);
+                },
+                (fragmentType, listener, context, viewHolder, state) -> {
+                    renderer.render(fragmentType, listener, context, viewHolder, state);
+
+                    if (state.enabled) {
+                        state.value.act(
+                                loading -> {
+                                    loadingMutableIdlingResource.setIdle();
+                                    completeOrFailedMutableIdlingResource.setBusy();
+                                },
+                                complete -> {
+                                    loadingMutableIdlingResource.setBusy();
+                                    completeOrFailedMutableIdlingResource.setIdle();
+                                },
+                                failed -> {
+                                    loadingMutableIdlingResource.setBusy();
+                                    completeOrFailedMutableIdlingResource.setIdle();
+                                }
+                        );
+                    } else {
+                        // leave idling resources busy
+                    }
+                }
         );
 
-        loadingMutableIdlingResource =
-                MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading");
-        completeOrFailedMutableIdlingResource =
-                MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed");
-
-        subscribeFunction = attachmentObservable -> {
-            final class Prez {
-                final Context context;
-                final ListenerType listener;
-                final ViewCreation viewCreation;
-                final View view;
-                final ViewHolderType viewHolder;
-
-                Prez(
-                        Context context,
-                        ListenerType listener,
-                        ViewCreation viewCreation,
-                        View view,
-                        ViewHolderType viewHolder
-                ) {
-                    this.context = context;
-                    this.listener = listener;
-                    this.viewCreation = viewCreation;
-                    this.view = view;
-                    this.viewHolder = viewHolder;
-                }
-            }
-
-            final Observable<Prez> prezObservable = attachmentObservable
-                    .switchMap(
-                            Attachment::switchMapToViewCreation
-                    )
-                    .map(
-                            attachmentFragmentCreationViewCreationTriple -> {
-                                final Context context =
-                                        attachmentFragmentCreationViewCreationTriple.first.context;
-                                final ListenerType listener =
-                                        attachmentFragmentCreationViewCreationTriple.first.listener;
-                                final ViewCreation viewCreation =
-                                        attachmentFragmentCreationViewCreationTriple.third;
-                                final View view = viewCreation.view;
-                                final ViewHolderType viewHolder = viewHolderFactory.newViewHolder(
-                                        getSelf(),
-                                        listener,
-                                        view
-                                );
-                                return new Prez(
-                                        context,
-                                        listener,
-                                        viewCreation,
-                                        view,
-                                        viewHolder
-                                );
-                            }
-                    );
-
-            final class Prerender {
-                final Prez prez;
-                final StateType state;
-
-                Prerender(
-                        Prez prez,
-                        StateType state
-                ) {
-                    this.prez = prez;
-                    this.state = state;
-                }
-            }
-
-            final Observable<Prerender> renderingAttemptObservable =
-                    prezObservable.switchMap(
-                            prez ->
-                                    prez.viewCreation.switchMapToStart().switchMap(
-                                            start ->
-                                                    stateObservableProvider
-                                                            .stateObservable(
-                                                                    prez.listener,
-                                                                    getSelf()
-                                                            )
-                                                            .observeOn(AndroidSchedulers.mainThread())
-                                                            .map(
-                                                                    state ->
-                                                                            new Prerender(
-                                                                                    prez,
-                                                                                    state
-                                                                            )
-                                                            )
-                                    )
-                    );
-            return renderingAttemptObservable.subscribe(
-                    prerender -> {
-                        loadingMutableIdlingResource.setBusy();
-                        completeOrFailedMutableIdlingResource.setBusy();
-
-                        setUserInteractionEnabled(
-                                prerender.prez.view,
-                                prerender.state.getValue().enabled
-                        );
-
-                        renderer.render(
-                                getSelf(),
-                                prerender.prez.listener,
-                                prerender.prez.context,
-                                prerender.prez.viewHolder,
-                                prerender.state
-                        );
-
-
-                        if (
-                                prerender.state
-                                        .getValue()
-                                        .enabled
-                        ) {
-                            prerender.state.act(
-                                    loading -> {
-                                        loadingMutableIdlingResource.setIdle();
-                                        completeOrFailedMutableIdlingResource.setBusy();
-                                    },
-                                    complete -> {
-                                        loadingMutableIdlingResource.setBusy();
-                                        completeOrFailedMutableIdlingResource.setIdle();
-                                    },
-                                    failed -> {
-                                        loadingMutableIdlingResource.setBusy();
-                                        completeOrFailedMutableIdlingResource.setIdle();
-                                    }
-                            );
-                        } else {
-                            loadingMutableIdlingResource.setBusy();
-                            completeOrFailedMutableIdlingResource.setBusy();
-                        }
-                    }
-            );
-        };
-    }
-
-    @Override
-    protected Disposable subscribe(Observable<AttachmentType> attachmentObservable) {
-        return subscribeFunction.apply(attachmentObservable);
+        this.loadingIdlingResource = loadingMutableIdlingResource;
+        this.completeOrFailedIdlingResource = completeOrFailedMutableIdlingResource;
     }
 
     public final IdlingResource getLoadingIdlingResource() {
-        return loadingMutableIdlingResource;
+        return loadingIdlingResource;
     }
 
     public final IdlingResource getCompleteOrFailedIdlingResource() {
-        return completeOrFailedMutableIdlingResource;
+        return completeOrFailedIdlingResource;
     }
 }

@@ -438,7 +438,7 @@ public abstract class RxFragment<
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
             WillDetachType willDetach,
-            int layoutResource
+            @LayoutRes int layoutResource
     ) {
         this.listenerClass = listenerClass;
         this.onAttached = onAttached;

@@ -68,7 +68,7 @@ public final class PodcastSearchValueFragment extends Fragment
                                     ).map(Optional::of)
                     ).orElse(Observable.just(Optional.empty()))
             );
-    private final BehaviorSubject<PodcastListFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateBehaviorSubject =
+    private final BehaviorSubject<PodcastListFragment2.PodcastIdentifiedListAsyncState> podcastIdentifiedListStateBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
     private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
@@ -146,20 +146,20 @@ public final class PodcastSearchValueFragment extends Fragment
                                                         podcastIdentifiedListServiceResponse ->
                                                                 podcastIdentifiedListServiceResponse.reduce(
                                                                         loading ->
-                                                                                new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListLoading(
+                                                                                new PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading(
                                                                                         new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                                                 loading.value,
                                                                                                 true
                                                                                         )
                                                                                 ),
                                                                         complete ->
-                                                                                new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                                new PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete(
                                                                                         new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                                                 complete.value,
                                                                                                 true
                                                                                         )
                                                                                 ),
-                                                                        failed -> new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                                        failed -> new PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete(
                                                                                 new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                                         failed.value,
                                                                                         true
@@ -168,7 +168,7 @@ public final class PodcastSearchValueFragment extends Fragment
                                                                 )
                                                 )
                                                 .orElse(
-                                                        new PodcastListFragment2.PodcastIdentifiedListState.PodcastIdentifiedListComplete(
+                                                        new PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete(
                                                                 new PodcastListFragment2.PodcastIdentifiedListModel(
                                                                         new PodcastIdentifiedList(),
                                                                         true
@@ -254,7 +254,7 @@ public final class PodcastSearchValueFragment extends Fragment
     }
 
     @Override
-    public Observable<PodcastListFragment2.PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
+    public Observable<PodcastListFragment2.PodcastIdentifiedListAsyncState> podcastIdentifiedListStateObservable(
             PodcastListFragment2 podcastListValueFragment
     ) {
         return podcastIdentifiedListStateBehaviorSubject;
