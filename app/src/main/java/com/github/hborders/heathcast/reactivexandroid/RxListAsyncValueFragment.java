@@ -10,23 +10,23 @@ import com.github.hborders.heathcast.views.recyclerviews.ListRecyclerViewAdapter
 
 import java.util.List;
 
-public abstract class RxListValueFragment<
-        FragmentType extends RxListValueFragment<
-                FragmentType,
-                ListenerType,
-                AttachmentType
-                >,
+public abstract class RxListAsyncValueFragment<
+        FragmentType extends RxListAsyncValueFragment<
+                        FragmentType,
+                        ListenerType,
+                        AttachmentType
+                        >,
         ListenerType,
         AttachmentType extends RxFragment.Attachment<
                 FragmentType,
                 ListenerType,
                 AttachmentType
                 >
-        > extends RxValueFragment<
-        FragmentType,
-        ListenerType,
-        AttachmentType
-        > {
+        > extends RxAsyncValueFragment<
+                FragmentType,
+                ListenerType,
+                AttachmentType
+                > {
 
     protected interface RxListViewHolder<
             ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
@@ -59,11 +59,11 @@ public abstract class RxListValueFragment<
     }
 
     private static final class RxListValueRenderer<
-            FragmentType extends RxListValueFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
+            FragmentType extends RxListAsyncValueFragment<
+                                FragmentType,
+                                ListenerType,
+                                AttachmentType
+                                >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
                     FragmentType,
@@ -103,7 +103,7 @@ public abstract class RxListValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
-            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
             UnparcelableValueType extends List<UnparcelableItemType>,
             ViewHolderType extends RxListViewHolder<
                     ListRecyclerViewAdapterType,
@@ -113,7 +113,7 @@ public abstract class RxListValueFragment<
                     >,
             RecyclerViewViewHolderType extends RecyclerView.ViewHolder,
             UnparcelableItemType
-            > implements RxListValueFragment.Renderer<
+            > implements RxListAsyncValueFragment.Renderer<
             FragmentType,
             ListenerType,
             AttachmentType,
@@ -428,7 +428,7 @@ public abstract class RxListValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
-            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
             UnparcelableValueType extends List<UnparcelableItemType>,
             UnparcelableItemType,
             ViewHolderType extends RxListViewHolder<
@@ -443,7 +443,7 @@ public abstract class RxListValueFragment<
                     RecyclerViewViewHolderType
                     >,
             RecyclerViewViewHolderType extends RecyclerView.ViewHolder
-            > RxListValueFragment(
+            > RxListAsyncValueFragment(
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,

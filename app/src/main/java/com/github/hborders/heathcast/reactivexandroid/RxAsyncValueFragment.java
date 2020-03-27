@@ -18,7 +18,7 @@ import static com.github.hborders.heathcast.android.ViewUtil.setUserInteractionE
 
 // Make this RxAsyncValue
 // Make RxValue just have the Model+ViewHolder+Renderer
-public abstract class RxValueFragment<
+public abstract class RxAsyncValueFragment<
         FragmentType extends RxFragment<
                 FragmentType,
                 ListenerType,
@@ -262,7 +262,7 @@ public abstract class RxValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
-            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
             UnparcelableValueType
             > {
         Observable<StateType> stateObservable(
@@ -332,7 +332,7 @@ public abstract class RxValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
-            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
             UnparcelableValueType,
             ViewHolderType
             > {
@@ -421,10 +421,10 @@ public abstract class RxValueFragment<
                     ModelType,
                     UnparcelableValueType
                     >,
-            ModelType extends RxValueFragment.Model<UnparcelableValueType>,
+            ModelType extends RxAsyncValueFragment.Model<UnparcelableValueType>,
             UnparcelableValueType,
             ViewHolderType
-            > RxValueFragment(
+            > RxAsyncValueFragment(
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,

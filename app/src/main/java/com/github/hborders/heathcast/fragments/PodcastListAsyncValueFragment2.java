@@ -9,32 +9,32 @@ import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
-import com.github.hborders.heathcast.reactivexandroid.RxListValueFragment;
-import com.github.hborders.heathcast.reactivexandroid.RxValueFragment;
+import com.github.hborders.heathcast.reactivexandroid.RxListAsyncValueFragment;
+import com.github.hborders.heathcast.reactivexandroid.RxAsyncValueFragment;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
 // Next, I should consume it in the MainFragment as well
-public final class PodcastListValueFragment2 extends RxListValueFragment<
-        PodcastListValueFragment2,
-        PodcastListValueFragment2.PodcastListValueFragmentListener,
-        PodcastListValueFragment2.Attachment
+public final class PodcastListAsyncValueFragment2 extends RxListAsyncValueFragment<
+        PodcastListAsyncValueFragment2,
+        PodcastListAsyncValueFragment2.PodcastListValueFragmentListener,
+        PodcastListAsyncValueFragment2.Attachment
         > {
     public static final class Attachment extends RxFragment.Attachment<
-            PodcastListValueFragment2,
+            PodcastListAsyncValueFragment2,
             PodcastListValueFragmentListener,
             Attachment> {
-        public interface Factory extends RxListValueFragment.Attachment.Factory<
-                PodcastListValueFragment2,
+        public interface Factory extends RxListAsyncValueFragment.Attachment.Factory<
+                PodcastListAsyncValueFragment2,
                 PodcastListValueFragmentListener,
                 Attachment
                 > {
         }
 
         private Attachment(
-                PodcastListValueFragment2 fragment,
+                PodcastListAsyncValueFragment2 fragment,
                 Context context,
                 PodcastListValueFragmentListener listener,
                 Observable<FragmentCreation> fragmenCreationObservable,
@@ -51,22 +51,22 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
     }
 
     public interface PodcastListValueFragmentListener {
-        void onPodcastListFragmentAttached(PodcastListValueFragment2 podcastListValueFragment);
+        void onPodcastListFragmentAttached(PodcastListAsyncValueFragment2 podcastListValueFragment);
 
         Observable<PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
-                PodcastListValueFragment2 podcastListValueFragment
+                PodcastListAsyncValueFragment2 podcastListValueFragment
         );
 
         void onClickPodcastIdentified(
-                PodcastListValueFragment2 podcastListValueFragment,
+                PodcastListAsyncValueFragment2 podcastListValueFragment,
                 PodcastIdentified podcastIdentified
         );
 
-        void onPodcastListFragmentWillDetach(PodcastListValueFragment2 podcastListValueFragment);
+        void onPodcastListFragmentWillDetach(PodcastListAsyncValueFragment2 podcastListValueFragment);
     }
 
     public static final class PodcastIdentifiedListModel
-            extends RxValueFragment.Model<PodcastIdentifiedList> {
+            extends RxAsyncValueFragment.Model<PodcastIdentifiedList> {
         public PodcastIdentifiedListModel(
                 PodcastIdentifiedList value,
                 boolean enabled
@@ -85,40 +85,31 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
             PodcastIdentifiedListModel,
             PodcastIdentifiedList
             > {
-        final class PodcastIdentifiedListLoading extends State.Loading<
+        interface PodcastIdentifiedListLoading extends State.Loading<
                 PodcastIdentifiedListLoading,
                 PodcastIdentifiedListComplete,
                 PodcastIdentifiedListFailed,
                 PodcastIdentifiedListModel,
                 PodcastIdentifiedList
-                > implements PodcastIdentifiedListState {
-            public PodcastIdentifiedListLoading(PodcastIdentifiedListModel value) {
-                super(value);
-            }
+                >, PodcastIdentifiedListState {
         }
 
-        final class PodcastIdentifiedListComplete extends State.Complete<
+        interface PodcastIdentifiedListComplete extends State.Complete<
                 PodcastIdentifiedListLoading,
                 PodcastIdentifiedListComplete,
                 PodcastIdentifiedListFailed,
                 PodcastIdentifiedListModel,
                 PodcastIdentifiedList
-                > implements PodcastIdentifiedListState {
-            public PodcastIdentifiedListComplete(PodcastIdentifiedListModel value) {
-                super(value);
-            }
+                >, PodcastIdentifiedListState {
         }
 
-        final class PodcastIdentifiedListFailed extends State.Failed<
+        interface PodcastIdentifiedListFailed extends State.Failed<
                 PodcastIdentifiedListLoading,
                 PodcastIdentifiedListComplete,
                 PodcastIdentifiedListFailed,
                 PodcastIdentifiedListModel,
                 PodcastIdentifiedList
-                > implements PodcastIdentifiedListState {
-            public PodcastIdentifiedListFailed(PodcastIdentifiedListModel value) {
-                super(value);
-            }
+                >, PodcastIdentifiedListState {
         }
     }
 
@@ -190,15 +181,15 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
         }
     }
 
-    private static final class ViewHolderFactory implements RxValueFragment.ViewHolderFactory<
-            PodcastListValueFragment2,
+    private static final class ViewHolderFactory implements RxAsyncValueFragment.ViewHolderFactory<
+            PodcastListAsyncValueFragment2,
             PodcastListValueFragmentListener,
             Attachment,
             ViewHolder
             > {
         @Override
         public ViewHolder newViewHolder(
-                PodcastListValueFragment2 fragment,
+                PodcastListAsyncValueFragment2 fragment,
                 PodcastListValueFragmentListener listener,
                 View view
         ) {
@@ -250,9 +241,9 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
 
     private interface PodcastIdentifiedListStateObservableProvider
             extends StateObservableProvider<
-            PodcastListValueFragment2,
-            PodcastListValueFragment2.PodcastListValueFragmentListener,
-            PodcastListValueFragment2.Attachment,
+            PodcastListAsyncValueFragment2,
+            PodcastListAsyncValueFragment2.PodcastListValueFragmentListener,
+            PodcastListAsyncValueFragment2.Attachment,
             PodcastIdentifiedListState,
             PodcastIdentifiedListState.PodcastIdentifiedListLoading,
             PodcastIdentifiedListState.PodcastIdentifiedListComplete,
@@ -264,11 +255,11 @@ public final class PodcastListValueFragment2 extends RxListValueFragment<
 
     private static final String TAG = "PodcastList";
 
-    public PodcastListValueFragment2() {
+    public PodcastListAsyncValueFragment2() {
         this(PodcastListValueFragmentListener::podcastIdentifiedListStateObservable);
     }
 
-    private PodcastListValueFragment2(
+    private PodcastListAsyncValueFragment2(
             // Without this explicit type, we have to cast the method reference,
             // and I find that distasteful.
             PodcastIdentifiedListStateObservableProvider stateObservableProvider
