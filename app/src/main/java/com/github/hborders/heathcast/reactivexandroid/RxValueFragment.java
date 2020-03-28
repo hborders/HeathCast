@@ -98,11 +98,11 @@ public abstract class RxValueFragment<
         );
     }
 
-    protected interface ViewHolder<ViewType extends View> {
-        ViewType requireView();
+    protected interface ViewFacade extends Disposable {
+        void setEnabled(boolean enabled);
     }
 
-    protected interface ViewHolderFactory<
+    protected interface ViewFacadeFactory<
             FragmentType extends RxFragment<
                     FragmentType,
                     ListenerType,
@@ -114,10 +114,9 @@ public abstract class RxValueFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            ViewHolderType extends ViewHolder<ViewType>,
-            ViewType extends View
+            ViewFacadeType
             > {
-        ViewHolderType newViewHolder(
+        ViewFacadeType newViewFacade(
                 FragmentType fragment,
                 ListenerType listener,
                 View view
@@ -136,13 +135,13 @@ public abstract class RxValueFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            ViewHolderType
+            ViewFacadeType
             > {
         void unrender(
                 FragmentType fragmentType,
                 ListenerType listener,
                 Context context,
-                ViewHolderType viewHolder
+                ViewFacadeType viewFacade
         );
     }
 
@@ -160,13 +159,13 @@ public abstract class RxValueFragment<
                     >,
             StateType extends State<UnparcelableValueType>,
             UnparcelableValueType,
-            ViewHolderType
+            ViewFacadeType
             > {
         void render(
                 FragmentType fragmentType,
                 ListenerType listener,
                 Context context,
-                ViewHolderType viewHolder,
+                ViewFacadeType viewFacade,
                 StateType state
         );
     }
@@ -189,12 +188,11 @@ public abstract class RxValueFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            ViewHolderFactoryType extends ViewHolderFactory<
+            ViewFacadeFactoryType extends ViewFacadeFactory<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewHolderType,
-                    ViewType
+                    ViewFacadeType
                     >,
             StateObservableProviderType extends StateObservableProvider<
                     FragmentType,
@@ -207,7 +205,7 @@ public abstract class RxValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewHolderType
+                    ViewFacadeType
                     >,
             RendererType extends Renderer<
                     FragmentType,
@@ -215,19 +213,18 @@ public abstract class RxValueFragment<
                     AttachmentType,
                     StateType,
                     UnparcelableValueType,
-                    ViewHolderType
+                    ViewFacadeType
                     >,
             StateType extends State<UnparcelableValueType>,
             UnparcelableValueType,
-            ViewHolderType extends ViewHolder<ViewType>,
-            ViewType extends View
+            ViewFacadeType extends ViewFacade
             > RxValueFragment(
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
             WillDetachType willDetach,
             @LayoutRes int layoutResource,
-            ViewHolderFactoryType viewHolderFactory,
+            ViewFacadeFactoryType viewFacadeFactory,
             StateObservableProviderType stateObservableProvider,
             UnrendererType unrenderer,
             RendererType renderer
@@ -245,20 +242,20 @@ public abstract class RxValueFragment<
                 final ListenerType listener;
                 final ViewCreation viewCreation;
                 final View view;
-                final ViewHolderType viewHolder;
+                final ViewFacadeType viewFacade;
 
                 Prez(
                         Context context,
                         ListenerType listener,
                         ViewCreation viewCreation,
                         View view,
-                        ViewHolderType viewHolder
+                        ViewFacadeType viewFacade
                 ) {
                     this.context = context;
                     this.listener = listener;
                     this.viewCreation = viewCreation;
                     this.view = view;
-                    this.viewHolder = viewHolder;
+                    this.viewFacade = viewFacade;
                 }
             }
 
@@ -275,17 +272,18 @@ public abstract class RxValueFragment<
                                 final ViewCreation viewCreation =
                                         attachmentFragmentCreationViewCreationTriple.third;
                                 final View view = viewCreation.view;
-                                final ViewHolderType viewHolder = viewHolderFactory.newViewHolder(
+                                final ViewFacadeType viewFacade = viewFacadeFactory.newViewFacade(
                                         getSelf(),
                                         listener,
                                         view
                                 );
+                                viewCreation.addDisposable(viewFacade);
                                 return new Prez(
                                         context,
                                         listener,
                                         viewCreation,
                                         view,
-                                        viewHolder
+                                        viewFacade
                                 );
                             }
                     );
@@ -300,63 +298,6 @@ public abstract class RxValueFragment<
                 ) {
                     this.prez = prez;
                     this.state = state;
-                }
-            }
-
-            abstract class RenderingChange {
-                abstract void changeRendering(Prez prez);
-            }
-            final class RenderOnly extends RenderingChange {
-                private final StateType state;
-
-                RenderOnly(StateType state) {
-                    this.state = state;
-                }
-
-                @Override
-                void changeRendering(Prez prez) {
-                    renderer.render(
-                            getSelf(),
-                            prez.listener,
-                            prez.context,
-                            prez.viewHolder,
-                            state
-                    );
-                }
-            }
-            final class UnrenderThenRender extends RenderingChange {
-                private final StateType state;
-
-                UnrenderThenRender(StateType state) {
-                    this.state = state;
-                }
-
-                @Override
-                void changeRendering(Prez prez) {
-                    unrenderer.unrender(
-                            getSelf(),
-                            prez.listener,
-                            prez.context,
-                            prez.viewHolder
-                    );
-                    renderer.render(
-                            getSelf(),
-                            prez.listener,
-                            prez.context,
-                            prez.viewHolder,
-                            state
-                    );
-                }
-            }
-            final class UnrenderOnly extends RenderingChange {
-                @Override
-                void changeRendering(Prez prez) {
-                    unrenderer.unrender(
-                            getSelf(),
-                            prez.listener,
-                            prez.context,
-                            prez.viewHolder
-                    );
                 }
             }
 
@@ -388,7 +329,7 @@ public abstract class RxValueFragment<
                                 getSelf(),
                                 prerender.prez.listener,
                                 prerender.prez.context,
-                                prerender.prez.viewHolder
+                                prerender.prez.viewFacade
                         );
                         setUserInteractionEnabled(
                                 prerender.prez.view,
@@ -398,7 +339,7 @@ public abstract class RxValueFragment<
                                 getSelf(),
                                 prerender.prez.listener,
                                 prerender.prez.context,
-                                prerender.prez.viewHolder,
+                                prerender.prez.viewFacade,
                                 prerender.state
                         );
                     }

@@ -24,6 +24,13 @@ public final class ViewUtil {
         }
     }
 
+    public static void setVisibility(
+            View view,
+            boolean visible
+    ) {
+        view.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
     private ViewUtil() {
     }
 }

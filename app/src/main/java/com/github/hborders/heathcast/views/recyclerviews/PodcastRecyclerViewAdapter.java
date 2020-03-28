@@ -15,8 +15,8 @@ import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.squareup.picasso.Picasso;
 
 public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
-        PodcastIdentified,
         PodcastIdentifiedList,
+        PodcastIdentified,
         PodcastRecyclerViewAdapter.PodcastViewHolder
         > {
 

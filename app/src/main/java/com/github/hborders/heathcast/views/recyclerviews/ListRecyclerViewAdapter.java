@@ -5,8 +5,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public abstract class ListRecyclerViewAdapter<
-        UnparcelableItemType,
         UnparcelableListType extends List<UnparcelableItemType>,
+        UnparcelableItemType,
         ViewHolderType extends RecyclerView.ViewHolder
         > extends RecyclerView.Adapter<ViewHolderType> {
     private UnparcelableListType items;

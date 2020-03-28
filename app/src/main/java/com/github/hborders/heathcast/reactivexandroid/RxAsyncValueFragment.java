@@ -1,8 +1,7 @@
 package com.github.hborders.heathcast.reactivexandroid;
 
-import android.view.View;
-
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.core.Either31;
@@ -198,12 +197,11 @@ public abstract class RxAsyncValueFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            ViewHolderFactoryType extends ViewHolderFactory<
+            ViewFacadeFactoryType extends ViewFacadeFactory<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewHolderType,
-                    ViewType
+                    ViewFacadeType
                     >,
             StateObservableProviderType extends StateObservableProvider<
                     FragmentType,
@@ -216,7 +214,7 @@ public abstract class RxAsyncValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewHolderType
+                    ViewFacadeType
                     >,
             RendererType extends Renderer<
                     FragmentType,
@@ -224,7 +222,7 @@ public abstract class RxAsyncValueFragment<
                     AttachmentType,
                     StateType,
                     AsyncStateType,
-                    ViewHolderType
+                    ViewFacadeType
                     >,
             StateType extends State<AsyncStateType>,
             AsyncStateType extends AsyncState<
@@ -251,8 +249,7 @@ public abstract class RxAsyncValueFragment<
                     FailedType,
                     UnparcelableValueType
                     >,
-            ViewHolderType extends ViewHolder<ViewType>,
-            ViewType extends View,
+            ViewFacadeType extends ViewFacade,
             UnparcelableValueType
             > RxAsyncValueFragment(
             Class<ListenerType> listenerClass,
@@ -261,9 +258,9 @@ public abstract class RxAsyncValueFragment<
             WillDetachType willDetach,
             @LayoutRes int layoutResource,
             String idlingResourceNamePrefix,
-            ViewHolderFactoryType viewHolderFactory,
+            ViewFacadeFactoryType viewFacadeFactory,
             StateObservableProviderType stateObservableProvider,
-            UnrendererType unrenderer,
+            @Nullable UnrendererType unrenderer,
             RendererType renderer
     ) {
         this(
@@ -272,7 +269,7 @@ public abstract class RxAsyncValueFragment<
                 onAttached,
                 willDetach,
                 layoutResource,
-                viewHolderFactory,
+                viewFacadeFactory,
                 stateObservableProvider,
                 unrenderer,
                 renderer,
@@ -297,12 +294,11 @@ public abstract class RxAsyncValueFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            ViewHolderFactoryType extends ViewHolderFactory<
+            ViewFacadeFactoryType extends ViewFacadeFactory<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewHolderType,
-                    ViewType
+                    ViewFacadeType
                     >,
             StateObservableProviderType extends StateObservableProvider<
                     FragmentType,
@@ -315,7 +311,7 @@ public abstract class RxAsyncValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewHolderType
+                    ViewFacadeType
                     >,
             RendererType extends Renderer<
                     FragmentType,
@@ -323,7 +319,7 @@ public abstract class RxAsyncValueFragment<
                     AttachmentType,
                     StateType,
                     AsyncStateType,
-                    ViewHolderType
+                    ViewFacadeType
                     >,
             StateType extends State<AsyncStateType>,
             AsyncStateType extends AsyncState<
@@ -350,8 +346,7 @@ public abstract class RxAsyncValueFragment<
                     FailedType,
                     UnparcelableValueType
                     >,
-            ViewHolderType extends ViewHolder<ViewType>,
-            ViewType extends View,
+            ViewFacadeType extends ViewFacade,
             UnparcelableValueType
             > RxAsyncValueFragment(
             Class<ListenerType> listenerClass,
@@ -359,9 +354,9 @@ public abstract class RxAsyncValueFragment<
             OnAttachedType onAttached,
             WillDetachType willDetach,
             @LayoutRes int layoutResource,
-            ViewHolderFactoryType viewHolderFactory,
+            ViewFacadeFactoryType viewFacadeFactory,
             StateObservableProviderType stateObservableProvider,
-            UnrendererType unrenderer,
+            @Nullable UnrendererType unrenderer,
             RendererType renderer,
             MutableIdlingResource loadingMutableIdlingResource,
             MutableIdlingResource completeOrFailedMutableIdlingResource
@@ -372,13 +367,15 @@ public abstract class RxAsyncValueFragment<
                 onAttached,
                 willDetach,
                 layoutResource,
-                viewHolderFactory,
+                viewFacadeFactory,
                 stateObservableProvider,
                 (fragmentType, listener, context, viewHolder) -> {
                     loadingMutableIdlingResource.setBusy();
                     completeOrFailedMutableIdlingResource.setBusy();
 
-                    unrenderer.unrender(fragmentType, listener, context, viewHolder);
+                    if (unrenderer != null) {
+                        unrenderer.unrender(fragmentType, listener, context, viewHolder);
+                    }
                 },
                 (fragmentType, listener, context, viewHolder, state) -> {
                     renderer.render(fragmentType, listener, context, viewHolder, state);

@@ -6,12 +6,15 @@ import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.android.ViewUtil;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.github.hborders.heathcast.reactivexandroid.RxListAsyncValueFragment;
-import com.github.hborders.heathcast.reactivexandroid.RxAsyncValueFragment;
+import com.github.hborders.heathcast.reactivexandroid.RxValueFragment;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -46,7 +49,7 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
     public interface PodcastListValueFragmentListener {
         void onPodcastListFragmentAttached(PodcastListFragment2 podcastListValueFragment);
 
-        Observable<PodcastIdentifiedListAsyncState> podcastIdentifiedListStateObservable(
+        Observable<PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
                 PodcastListFragment2 podcastListValueFragment
         );
 
@@ -58,10 +61,11 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
         void onPodcastListFragmentWillDetach(PodcastListFragment2 podcastListValueFragment);
     }
 
-    public static final class PodcastIdentifiedListModel
-            extends RxAsyncValueFragment.Model<PodcastIdentifiedList> {
-        public PodcastIdentifiedListModel(
-                PodcastIdentifiedList value,
+    public static final class PodcastIdentifiedListState extends State<
+            PodcastIdentifiedListAsyncState
+            > {
+        public PodcastIdentifiedListState(
+                PodcastIdentifiedListAsyncState value,
                 boolean enabled
         ) {
             super(
@@ -72,46 +76,42 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
     }
 
     public interface PodcastIdentifiedListAsyncState extends AsyncState<
+            PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
+            PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
+            PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
+            PodcastIdentifiedList
+            > {
+        interface PodcastIdentifiedListLoading extends AsyncState.Loading<
                 PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
                 PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
                 PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
-                PodcastIdentifiedListModel,
                 PodcastIdentifiedList
                 > {
-        interface PodcastIdentifiedListLoading extends AsyncState.Loading<
-                PodcastIdentifiedListLoading,
-                PodcastIdentifiedListComplete,
-                PodcastIdentifiedListFailed,
-                PodcastIdentifiedListModel,
-                PodcastIdentifiedList
-                >, PodcastIdentifiedListAsyncState {
         }
 
         interface PodcastIdentifiedListComplete extends AsyncState.Complete<
-                PodcastIdentifiedListLoading,
-                PodcastIdentifiedListComplete,
-                PodcastIdentifiedListFailed,
-                PodcastIdentifiedListModel,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
                 PodcastIdentifiedList
-                >, PodcastIdentifiedListAsyncState {
+                > {
         }
 
         interface PodcastIdentifiedListFailed extends AsyncState.Failed<
-                PodcastIdentifiedListLoading,
-                PodcastIdentifiedListComplete,
-                PodcastIdentifiedListFailed,
-                PodcastIdentifiedListModel,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
+                PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
                 PodcastIdentifiedList
-                >, PodcastIdentifiedListAsyncState {
+                > {
         }
     }
 
-    private static final class ViewHolder implements RxListViewHolder<
-            PodcastRecyclerViewAdapter,
-            PodcastIdentified,
+    private static final class ViewFacade implements ListViewFacade<
             PodcastIdentifiedList,
-            PodcastRecyclerViewAdapter.PodcastViewHolder
+            PodcastIdentified
             > {
+        private final AtomicBoolean disposed = new AtomicBoolean();
+        private final View view;
         private final RecyclerView recyclerView;
         private final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter;
         private final View emptyItemsLoadingView;
@@ -120,7 +120,8 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
         private final View emptyItemsFailedView;
         private final View nonEmptyItemsFailedView;
 
-        private ViewHolder(
+        private ViewFacade(
+                View view,
                 RecyclerView recyclerView,
                 PodcastRecyclerViewAdapter podcastRecyclerViewAdapter,
                 View emptyItemsLoadingView,
@@ -129,6 +130,7 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
                 View emptyItemsFailedView,
                 View nonEmptyItemsFailedView
         ) {
+            this.view = view;
             this.recyclerView = recyclerView;
             this.podcastRecyclerViewAdapter = podcastRecyclerViewAdapter;
             this.emptyItemsLoadingView = emptyItemsLoadingView;
@@ -139,49 +141,87 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
         }
 
         @Override
-        public RecyclerView requireRecyclerView() {
-            return recyclerView;
+        public void dispose() {
+            // theoretically, we could clean up after the recyclerView here
+            // if it was shared or something
+            disposed.set(true);
         }
 
         @Override
-        public PodcastRecyclerViewAdapter requireListRecyclerViewAdapter() {
-            return podcastRecyclerViewAdapter;
+        public boolean isDisposed() {
+            return disposed.get();
         }
 
         @Override
-        public View findEmptyItemsLoadingView() {
-            return emptyItemsLoadingView;
+        public void setEnabled(boolean enabled) {
+            ViewUtil.setUserInteractionEnabled(
+                    view,
+                    enabled
+            );
         }
 
         @Override
-        public View findNonEmptyItemsLoadingView() {
-            return nonEmptyItemsLoadingView;
+        public void setListValue(PodcastIdentifiedList listValue) {
+            podcastRecyclerViewAdapter.setItems(listValue);
         }
 
         @Override
-        public View findEmptyItemsCompleteView() {
-            return emptyItemsCompleteView;
+        public void setEmptyItemsLoadingViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    emptyItemsLoadingView,
+                    visible
+            );
         }
 
         @Override
-        public View findEmptyItemsFailedView() {
-            return emptyItemsFailedView;
+        public void setNonEmptyItemsLoadingViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    nonEmptyItemsLoadingView,
+                    visible
+            );
         }
 
         @Override
-        public View findNonEmptyItemsFailedView() {
-            return nonEmptyItemsFailedView;
+        public void setEmptyItemsCompleteViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    emptyItemsCompleteView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setListViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    recyclerView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setEmptyItemsFailedViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    emptyItemsFailedView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setNonEmptyItemsFailedViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    nonEmptyItemsFailedView,
+                    visible
+            );
         }
     }
 
-    private static final class ViewHolderFactory implements RxAsyncValueFragment.ViewHolderFactory<
+    private static final class ViewFacadeFactory implements RxValueFragment.ViewFacadeFactory<
             PodcastListFragment2,
             PodcastListValueFragmentListener,
             PodcastListAttachment,
-            ViewHolder
+            ViewFacade
             > {
         @Override
-        public ViewHolder newViewHolder(
+        public ViewFacade newViewFacade(
                 PodcastListFragment2 fragment,
                 PodcastListValueFragmentListener listener,
                 View view
@@ -220,7 +260,8 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
                             R.id.fragment_podcast_list_non_empty_error_text_view
                     );
 
-            return new ViewHolder(
+            return new ViewFacade(
+                    view,
                     recyclerView,
                     podcastRecyclerViewAdapter,
                     emptyItemsLoadingView,
@@ -237,12 +278,8 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
             PodcastListFragment2,
             PodcastListFragment2.PodcastListValueFragmentListener,
             PodcastListAttachment,
-            PodcastIdentifiedListAsyncState,
-            PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
-            PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
-            PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
-            PodcastIdentifiedListModel,
-            PodcastIdentifiedList
+            PodcastIdentifiedListState,
+            PodcastIdentifiedListAsyncState
             > {
     }
 
@@ -264,7 +301,7 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
                 PodcastListValueFragmentListener::onPodcastListFragmentWillDetach,
                 R.layout.fragment_podcast_list_2,
                 TAG,
-                new ViewHolderFactory(),
+                new ViewFacadeFactory(),
                 stateObservableProvider
         );
     }
