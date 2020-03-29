@@ -100,10 +100,11 @@ public abstract class RxListAsyncValueFragment<
                 ListViewFacadeType listViewFacade,
                 StateType state
         ) {
-            final UnparcelableListValueType items = state.value.getValue();
+            final AsyncStateType asyncState = state.getValue();
+            final UnparcelableListValueType items = asyncState.getValue();
             listViewFacade.setListValue(items);
             if (items.isEmpty()) {
-                state.value.act(
+                state.getValue().act(
                         loading -> {
                             listViewFacade.setEmptyItemsLoadingViewVisible(true);
                             listViewFacade.setNonEmptyItemsLoadingViewVisible(false);
@@ -130,7 +131,7 @@ public abstract class RxListAsyncValueFragment<
                         }
                 );
             } else {
-                state.value.act(
+                asyncState.act(
                         loading -> {
                             listViewFacade.setEmptyItemsLoadingViewVisible(false);
                             listViewFacade.setNonEmptyItemsLoadingViewVisible(true);

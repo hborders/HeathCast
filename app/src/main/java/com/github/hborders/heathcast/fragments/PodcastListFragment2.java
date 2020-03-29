@@ -1,6 +1,5 @@
 package com.github.hborders.heathcast.fragments;
 
-import android.content.Context;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,91 +15,249 @@ import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdap
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 
 // Next, I should consume it in the MainFragment as well
-public final class PodcastListFragment2 extends RxListAsyncValueFragment<
-        PodcastListFragment2,
-        PodcastListFragment2.PodcastListValueFragmentListener,
-        PodcastListFragment2.PodcastListAttachment
+public abstract class PodcastListFragment2<
+        PodcastListFragmentType extends PodcastListFragment2<
+                PodcastListFragmentType,
+                PodcastListFragmentListenerType,
+                AttachmentType,
+                PodcastIdentifiedListStateType,
+                PodcastIdentifiedListAsyncStateType,
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        PodcastListFragmentListenerType extends PodcastListFragment2.PodcastListFragmentListener<
+                PodcastListFragmentType,
+                PodcastListFragmentListenerType,
+                AttachmentType,
+                PodcastIdentifiedListStateType,
+                PodcastIdentifiedListAsyncStateType,
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        AttachmentType extends RxFragment.Attachment<
+                PodcastListFragmentType,
+                PodcastListFragmentListenerType,
+                AttachmentType
+                >,
+        PodcastIdentifiedListStateType extends PodcastListFragment2.PodcastIdentifiedListState<
+                PodcastIdentifiedListAsyncStateType,
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        PodcastIdentifiedListAsyncStateType extends PodcastListFragment2.PodcastIdentifiedListAsyncState<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        LoadingType extends PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        CompleteType extends PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        FailedType extends PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >
+        > extends RxListAsyncValueFragment<
+        PodcastListFragmentType,
+        PodcastListFragmentListenerType,
+        AttachmentType
         > {
-    public static final class PodcastListAttachment extends RxFragment.Attachment<
-            PodcastListFragment2,
-            PodcastListValueFragmentListener,
-            PodcastListAttachment> {
-        private PodcastListAttachment(
-                PodcastListFragment2 fragment,
-                Context context,
-                PodcastListValueFragmentListener listener,
-                Observable<FragmentCreation> fragmenCreationObservable,
-                Completable onDetachCompletable
-        ) {
-            super(
-                    fragment,
-                    context,
-                    listener,
-                    fragmenCreationObservable,
-                    onDetachCompletable
-            );
-        }
-    }
+    public interface PodcastListFragmentListener<
+            PodcastListFragmentType extends PodcastListFragment2<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastListFragmentListenerType extends PodcastListFragmentListener<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            AttachmentType extends RxFragment.Attachment<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType
+                    >,
+            PodcastIdentifiedListStateType extends PodcastIdentifiedListState<
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastIdentifiedListAsyncStateType extends PodcastIdentifiedListAsyncState<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > {
+        void onPodcastListFragmentAttached(PodcastListFragmentType podcastListFragment);
 
-    public interface PodcastListValueFragmentListener {
-        void onPodcastListFragmentAttached(PodcastListFragment2 podcastListValueFragment);
-
-        Observable<PodcastIdentifiedListState> podcastIdentifiedListStateObservable(
-                PodcastListFragment2 podcastListValueFragment
+        Observable<PodcastIdentifiedListStateType> podcastIdentifiedListStateObservable(
+                PodcastListFragmentType podcastListFragment
         );
 
         void onClickPodcastIdentified(
-                PodcastListFragment2 podcastListValueFragment,
+                PodcastListFragmentType podcastListFragment,
                 PodcastIdentified podcastIdentified
         );
 
-        void onPodcastListFragmentWillDetach(PodcastListFragment2 podcastListValueFragment);
+        void onPodcastListFragmentWillDetach(PodcastListFragmentType podcastListFragment);
     }
 
-    public static final class PodcastIdentifiedListState extends State<
-            PodcastIdentifiedListAsyncState
+    public interface PodcastIdentifiedListState<
+            PodcastIdentifiedListAsyncStateType extends PodcastIdentifiedListAsyncState<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > extends State<
+            PodcastIdentifiedListAsyncStateType
             > {
-        public PodcastIdentifiedListState(
-                PodcastIdentifiedListAsyncState value,
-                boolean enabled
-        ) {
-            super(
-                    value,
-                    enabled
-            );
-        }
     }
 
-    public interface PodcastIdentifiedListAsyncState extends AsyncState<
-            PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
-            PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
-            PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
+    public interface PodcastIdentifiedListAsyncState<
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > extends AsyncState<
+            LoadingType,
+            CompleteType,
+            FailedType,
             PodcastIdentifiedList
             > {
-        interface PodcastIdentifiedListLoading extends AsyncState.Loading<
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
+        interface PodcastIdentifiedListAsyncStateLoading<
+                LoadingType extends PodcastIdentifiedListAsyncStateLoading<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                CompleteType extends PodcastIdentifiedListAsyncStateComplete<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                FailedType extends PodcastIdentifiedListAsyncStateFailed<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >
+                > extends AsyncState.Loading<
+                LoadingType,
+                CompleteType,
+                FailedType,
                 PodcastIdentifiedList
                 > {
         }
 
-        interface PodcastIdentifiedListComplete extends AsyncState.Complete<
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
+        interface PodcastIdentifiedListAsyncStateComplete<
+                LoadingType extends PodcastIdentifiedListAsyncStateLoading<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                CompleteType extends PodcastIdentifiedListAsyncStateComplete<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                FailedType extends PodcastIdentifiedListAsyncStateFailed<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >
+                > extends AsyncState.Complete<
+                LoadingType,
+                CompleteType,
+                FailedType,
                 PodcastIdentifiedList
                 > {
         }
 
-        interface PodcastIdentifiedListFailed extends AsyncState.Failed<
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListLoading,
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListComplete,
-                PodcastIdentifiedListAsyncState.PodcastIdentifiedListFailed,
+        interface PodcastIdentifiedListAsyncStateFailed<
+                LoadingType extends PodcastIdentifiedListAsyncStateLoading<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                CompleteType extends PodcastIdentifiedListAsyncStateComplete<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                FailedType extends PodcastIdentifiedListAsyncStateFailed<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >
+                > extends AsyncState.Failed<
+                LoadingType,
+                CompleteType,
+                FailedType,
                 PodcastIdentifiedList
                 > {
         }
@@ -214,16 +371,68 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
         }
     }
 
-    private static final class ViewFacadeFactory implements RxValueFragment.ViewFacadeFactory<
-            PodcastListFragment2,
-            PodcastListValueFragmentListener,
-            PodcastListAttachment,
+    private static final class ViewFacadeFactory<
+            PodcastListFragmentType extends PodcastListFragment2<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastListFragmentListenerType extends PodcastListFragmentListener<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            AttachmentType extends RxFragment.Attachment<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType
+                    >,
+            PodcastIdentifiedListStateType extends PodcastIdentifiedListState<
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastIdentifiedListAsyncStateType extends PodcastIdentifiedListAsyncState<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > implements RxValueFragment.ViewFacadeFactory<
+            PodcastListFragmentType,
+            PodcastListFragmentListenerType,
+            AttachmentType,
             ViewFacade
             > {
         @Override
         public ViewFacade newViewFacade(
-                PodcastListFragment2 fragment,
-                PodcastListValueFragmentListener listener,
+                PodcastListFragmentType fragment,
+                PodcastListFragmentListenerType listener,
                 View view
         ) {
             final RecyclerView recyclerView =
@@ -273,35 +482,46 @@ public final class PodcastListFragment2 extends RxListAsyncValueFragment<
         }
     }
 
-    private interface PodcastIdentifiedListStateObservableProvider
-            extends StateObservableProvider<
-            PodcastListFragment2,
-            PodcastListFragment2.PodcastListValueFragmentListener,
-            PodcastListAttachment,
-            PodcastIdentifiedListState,
-            PodcastIdentifiedListAsyncState
-            > {
-    }
-
     private static final String TAG = "PodcastList";
 
-    public PodcastListFragment2() {
-        this(PodcastListValueFragmentListener::podcastIdentifiedListStateObservable);
-    }
-
-    private PodcastListFragment2(
-            // Without this explicit type, we have to cast the method reference,
-            // and I find that distasteful.
-            PodcastIdentifiedListStateObservableProvider stateObservableProvider
+    protected <
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType
+                    >,
+            OnAttachedType extends OnAttached<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType
+                    >,
+            WillDetachType extends WillDetach<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType
+                    >,
+            StateObservableProviderType extends StateObservableProvider<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    AttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType
+                    >
+            > PodcastListFragment2(
+            Class<PodcastListFragmentListenerType> listenerClass,
+            AttachmentFactoryType attachmentFactory,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
+            StateObservableProviderType stateObservableProvider
     ) {
         super(
-                PodcastListValueFragmentListener.class,
-                PodcastListAttachment::new,
-                PodcastListValueFragmentListener::onPodcastListFragmentAttached,
-                PodcastListValueFragmentListener::onPodcastListFragmentWillDetach,
+                listenerClass,
+                attachmentFactory,
+                onAttached,
+                willDetach,
                 R.layout.fragment_podcast_list_2,
                 TAG,
-                new ViewFacadeFactory(),
+                new ViewFacadeFactory<>(),
                 stateObservableProvider
         );
     }

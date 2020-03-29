@@ -1,145 +1,156 @@
 package com.github.hborders.heathcast.services;
 
+import com.github.hborders.heathcast.core.Either31;
+
 public interface ServiceResponse1<
-        LoadingType extends ServiceResponse1.Loading<
-                LoadingType,
-                CompleteType,
-                FailedType,
+        Loading1Type extends ServiceResponse1.Loading1<
+                Loading1Type,
+                Complete1Type,
+                Failed1Type,
                 ValueType
                 >,
-        CompleteType extends ServiceResponse1.Complete<
-                LoadingType,
-                CompleteType,
-                FailedType,
+        Complete1Type extends ServiceResponse1.Complete1<
+                Loading1Type,
+                Complete1Type,
+                Failed1Type,
                 ValueType
                 >,
-        FailedType extends ServiceResponse1.Failed<
-                LoadingType,
-                CompleteType,
-                FailedType,
+        Failed1Type extends ServiceResponse1.Failed1<
+                Loading1Type,
+                Complete1Type,
+                Failed1Type,
                 ValueType
                 >,
         ValueType
         > extends ServiceResponse<
-        LoadingType,
-        CompleteType,
-        FailedType,
+        Loading1Type,
+        Complete1Type,
+        Failed1Type,
         ValueType,
         ValueType,
         ValueType
         > {
-    abstract class Loading<
-            LoadingType extends ServiceResponse1.Loading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+    interface Loading1<
+            Loading1Type extends Loading1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
-            CompleteType extends ServiceResponse1.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+            Complete1Type extends Complete1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
-            FailedType extends ServiceResponse1.Failed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+            Failed1Type extends Failed1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
             ValueType
-            > extends ServiceResponse.Loading<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            ValueType,
-            ValueType,
+            > extends Either31.Left<
+            Loading1Type,
+            Complete1Type,
+            Failed1Type,
             ValueType
-            > implements ServiceResponse1<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            ValueType
-            > {
-        public Loading(ValueType value) {
-            super(value);
-        }
+            >,
+            ServiceResponse.Loading<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
+                    ValueType,
+                    ValueType,
+                    ValueType
+                    >, ServiceResponse1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
+                    ValueType
+                    > {
     }
 
-    abstract class Complete<
-            LoadingType extends ServiceResponse1.Loading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+    interface Complete1<
+            Loading1Type extends Loading1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
-            CompleteType extends ServiceResponse1.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+            Complete1Type extends Complete1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
-            FailedType extends ServiceResponse1.Failed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+            Failed1Type extends Failed1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
             ValueType
-            > extends ServiceResponse.Complete<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            ValueType,
-            ValueType,
+            > extends Either31.Middle<
+            Loading1Type,
+            Complete1Type,
+            Failed1Type,
             ValueType
-            > implements ServiceResponse1<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            ValueType
-            > {
-        public Complete(ValueType value) {
-            super(value);
-        }
+            >,
+            ServiceResponse.Complete<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
+                    ValueType,
+                    ValueType,
+                    ValueType
+                    >, ServiceResponse1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
+                    ValueType
+                    > {
     }
 
-    abstract class Failed<
-            LoadingType extends ServiceResponse1.Loading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+    interface Failed1<
+            Loading1Type extends Loading1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
-            CompleteType extends ServiceResponse1.Complete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+            Complete1Type extends Complete1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
-            FailedType extends ServiceResponse1.Failed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType,
+            Failed1Type extends Failed1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
                     ValueType
                     >,
             ValueType
-            > extends ServiceResponse.Failed<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            ValueType,
-            ValueType,
+            > extends Either31.Right<
+            Loading1Type,
+            Complete1Type,
+            Failed1Type,
             ValueType
-            > implements ServiceResponse1<
-            LoadingType,
-            CompleteType,
-            FailedType,
-            ValueType
-            > {
-        public Failed(ValueType value) {
-            super(value);
-        }
+            >,
+            ServiceResponse.Failed<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
+                    ValueType,
+                    ValueType,
+                    ValueType
+                    >, ServiceResponse1<
+                    Loading1Type,
+                    Complete1Type,
+                    Failed1Type,
+                    ValueType
+                    > {
     }
 
     ValueType getValue();

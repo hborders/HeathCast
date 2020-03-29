@@ -1,4 +1,4 @@
-package com.github.hborders.heathcast.fragments;
+package com.github.hborders.heathcast.features.main;
 
 import android.content.Context;
 
@@ -8,18 +8,28 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
-public class MainFragment extends RxFragment<
+public final class MainFragment extends RxFragment<
         MainFragment,
         MainFragment.MainFragmentListener,
-        MainFragment.MainAttachment> {
+        MainFragment.MainAttachment
+        > {
+    public interface MainFragmentListener {
+        void onMainFragmentAttached(MainFragment mainFragment);
+
+        void onClickSearch(MainFragment mainFragment);
+
+        void onMainFragmentWillDetach(MainFragment mainFragment);
+    }
+
     public static final class MainAttachment extends RxFragment.Attachment<
             MainFragment,
             MainFragment.MainFragmentListener,
             MainAttachment> {
         public interface Factory extends AttachmentFactory<
-                        MainFragment,
-                        MainFragmentListener,
+                MainFragment,
+                MainFragmentListener,
                 MainAttachment> {
         }
 
@@ -48,10 +58,11 @@ public class MainFragment extends RxFragment<
                 MainFragmentListener::onMainFragmentWillDetach,
                 R.layout.fragment_main
         );
+    }
 
-        beginRxGraph().switchMap(
-                attachmentTypeObservable -> attachmentTypeObservable
-        ).switchMap(
+    @Override
+    protected final Disposable subscribe(Observable<MainAttachment> attachmentObservable) {
+        return attachmentObservable.switchMap(
                 RxFragment.Attachment::switchMapToViewCreation
         ).subscribe(
                 attachmentFragmentCreationViewCreationTriple -> {
@@ -66,14 +77,6 @@ public class MainFragment extends RxFragment<
                             listener.onClickSearch(MainFragment.this)
                     );
                 }
-        ).isDisposed();
-    }
-
-    public interface MainFragmentListener {
-        void onMainFragmentAttached(MainFragment mainFragment);
-
-        void onClickSearch(MainFragment mainFragment);
-
-        void onMainFragmentWillDetach(MainFragment mainFragment);
+        );
     }
 }

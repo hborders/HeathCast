@@ -4,11 +4,8 @@ import android.content.Context;
 import android.view.View;
 
 import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.Function;
-
-import java.util.Objects;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -35,46 +32,9 @@ public abstract class RxValueFragment<
         ListenerType,
         AttachmentType
         > {
-    protected static abstract class State<UnparcelableValueType> {
-        final UnparcelableValueType value;
-        final boolean enabled;
-
-        public State(
-                UnparcelableValueType value,
-                boolean enabled
-        ) {
-            this.value = value;
-            this.enabled = enabled;
-        }
-
-        @Override
-        public final boolean equals(@Nullable Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            State<?> state = (State<?>) o;
-            return value.equals(state.value) &&
-                    enabled == state.enabled;
-        }
-
-        @Override
-        public final int hashCode() {
-            return Objects.hash(value, enabled);
-        }
-
-        @Override
-        public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends State> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "State$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
-            return simpleName + "{" +
-                    "value=" + value +
-                    ", enabled=" + enabled +
-                    '}';
-        }
+    protected interface State<UnparcelableValueType> {
+        boolean isEnabled();
+        UnparcelableValueType getValue();
     }
 
     protected interface StateObservableProvider<
@@ -333,7 +293,7 @@ public abstract class RxValueFragment<
                         );
                         setUserInteractionEnabled(
                                 prerender.prez.view,
-                                prerender.state.enabled
+                                prerender.state.isEnabled()
                         );
                         renderer.render(
                                 getSelf(),

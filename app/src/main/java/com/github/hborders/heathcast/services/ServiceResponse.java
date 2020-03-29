@@ -38,7 +38,7 @@ public interface ServiceResponse<
         CompleteValueType,
         FailedValueType
         > {
-    abstract class Loading<
+    interface Loading<
             LoadingType extends Loading<
                     LoadingType,
                     CompleteType,
@@ -66,14 +66,14 @@ public interface ServiceResponse<
             LoadingValueType,
             CompleteValueType,
             FailedValueType
-            > extends LeftImpl<
-                        LoadingType,
-                        CompleteType,
-                        FailedType,
-                        LoadingValueType,
-                        CompleteValueType,
-                        FailedValueType
-                        > implements ServiceResponse<
+            > extends Left<
+            LoadingType,
+            CompleteType,
+            FailedType,
+            LoadingValueType,
+            CompleteValueType,
+            FailedValueType
+            >, ServiceResponse<
             LoadingType,
             CompleteType,
             FailedType,
@@ -81,12 +81,9 @@ public interface ServiceResponse<
             CompleteValueType,
             FailedValueType
             > {
-        public Loading(LoadingValueType value) {
-            super(value);
-        }
     }
 
-    abstract class Complete<
+    interface Complete<
             LoadingType extends Loading<
                     LoadingType,
                     CompleteType,
@@ -114,14 +111,14 @@ public interface ServiceResponse<
             LoadingValueType,
             CompleteValueType,
             FailedValueType
-            > extends MiddleImpl<
-                        LoadingType,
-                        CompleteType,
-                        FailedType,
-                        LoadingValueType,
-                        CompleteValueType,
-                        FailedValueType
-                        > implements ServiceResponse<
+            > extends Middle<
+            LoadingType,
+            CompleteType,
+            FailedType,
+            LoadingValueType,
+            CompleteValueType,
+            FailedValueType
+            >, ServiceResponse<
             LoadingType,
             CompleteType,
             FailedType,
@@ -129,12 +126,9 @@ public interface ServiceResponse<
             CompleteValueType,
             FailedValueType
             > {
-        public Complete(CompleteValueType value) {
-            super(value);
-        }
     }
 
-    abstract class Failed<
+    interface Failed<
             LoadingType extends Loading<
                     LoadingType,
                     CompleteType,
@@ -162,14 +156,14 @@ public interface ServiceResponse<
             LoadingValueType,
             CompleteValueType,
             FailedValueType
-            > extends RightImpl<
-                        LoadingType,
-                        CompleteType,
-                        FailedType,
-                        LoadingValueType,
-                        CompleteValueType,
-                        FailedValueType
-                        > implements ServiceResponse<
+            > extends Right<
+            LoadingType,
+            CompleteType,
+            FailedType,
+            LoadingValueType,
+            CompleteValueType,
+            FailedValueType
+            >, ServiceResponse<
             LoadingType,
             CompleteType,
             FailedType,
@@ -177,8 +171,5 @@ public interface ServiceResponse<
             CompleteValueType,
             FailedValueType
             > {
-        public Failed(FailedValueType value) {
-            super(value);
-        }
     }
 }

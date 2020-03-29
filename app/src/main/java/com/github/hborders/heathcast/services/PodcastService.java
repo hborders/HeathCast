@@ -17,13 +17,18 @@ import com.github.hborders.heathcast.models.PodcastSearchIdentifiedOpt;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseComplete;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseComplete.PodcastIdentifiedListServiceResponseCompleteFactory;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseFailed;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseFailed.PodcastIdentifiedListServiceResponseFailedFactory;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseLoading;
+import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseLoading.PodcastIdentifiedListServiceResponseLoadingFactory;
 import com.google.gson.Gson;
 
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,7 +39,6 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.BehaviorSubject;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -43,14 +47,39 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public final class PodcastService {
+    private static class PodcastSearchResponse {
+        private final PodcastList podcasts;
+
+        private PodcastSearchResponse(PodcastList podcasts) {
+            this.podcasts = podcasts;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PodcastSearchResponse that = (PodcastSearchResponse) o;
+            return podcasts.equals(that.podcasts);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(podcasts);
+        }
+
+        @Override
+        public String toString() {
+            return "PodcastSearchResponse{" +
+                    "podcasts=" + podcasts +
+                    '}';
+        }
+    }
+
     private final Database<Object> database;
     private final Scheduler scheduler;
     private final OkHttpClient okHttpClient;
     private final Gson gson;
     private final ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter;
-
-    private final ConcurrentHashMap<PodcastSearch, BehaviorSubject<ServiceRequestState>> serviceRequestStateBehaviorSubjectsByPodcastSearch =
-            new ConcurrentHashMap<>();
 
     public PodcastService(Context context) {
         this(
@@ -144,16 +173,49 @@ public final class PodcastService {
         ).subscribeOn(scheduler);
     }
 
-    public Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
-            PodcastSearch podcastSearch
-    ) {
-        return searchForPodcasts2(
-                null,
-                podcastSearch
-        );
-    }
-
-    public Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
+    public <
+            PodcastIdentifiedListServiceResponseType extends PodcastIdentifiedListServiceResponse<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            LoadingType extends PodcastIdentifiedListServiceResponseLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListServiceResponseComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListServiceResponseFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastIdentifiedListServiceResponseLoadingFactoryType extends PodcastIdentifiedListServiceResponseLoadingFactory<
+                    PodcastIdentifiedListServiceResponseType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastIdentifiedListServiceResponseCompleteFactoryType extends PodcastIdentifiedListServiceResponseCompleteFactory<
+                    PodcastIdentifiedListServiceResponseType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastIdentifiedListServiceResponseFailedFactoryType extends PodcastIdentifiedListServiceResponseFailedFactory<
+                    PodcastIdentifiedListServiceResponseType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > Observable<PodcastIdentifiedListServiceResponseType> searchForPodcasts2(
+            PodcastIdentifiedListServiceResponseLoadingFactoryType loadingFactory,
+            PodcastIdentifiedListServiceResponseCompleteFactoryType completeFactory,
+            PodcastIdentifiedListServiceResponseFailedFactoryType failedFactory,
             @Nullable NetworkPauser networkPauser,
             PodcastSearch podcastSearch
     ) {
@@ -212,7 +274,7 @@ public final class PodcastService {
                                     .onErrorReturnItem(EmptyServiceResponse.FAILED)
                                     .toObservable().startWith(EmptyServiceResponse.LOADING);
 
-                    return Observable.<EmptyServiceResponse, SawMarkerAndPodcastIdentifiedList, PodcastIdentifiedListServiceResponse>combineLatest(
+                    return Observable.combineLatest(
                             podcastSearchServiceResponseObservable,
                             sawMarkerAndPodcastIdentifiedListObservable,
                             (podcastSearchServiceResponse, sawMarkerAndPodcastIdentifiedList) -> {
@@ -222,34 +284,34 @@ public final class PodcastService {
                                         loading -> {
                                             // we don't care if we saw the marker because we don't know if
                                             // we completed or failed
-                                            return new PodcastIdentifiedListServiceResponse.Loading(
+                                            return loadingFactory.newPodcastIdentifiedListServiceResponseLoading(
                                                     podcastIdentifiedList
                                             );
                                         },
                                         complete -> {
                                             if (sawMarker) {
-                                                return new PodcastIdentifiedListServiceResponse.Complete(
+                                                return completeFactory.newPodcastIdentifiedListServiceResponseComplete(
                                                         podcastIdentifiedList
                                                 );
                                             } else {
                                                 // we haven't seen the marker yet, so
                                                 // even though the service finished, the database
                                                 // transaction hasn't completed, so stay loading
-                                                return new PodcastIdentifiedListServiceResponse.Loading(
+                                                return failedFactory.newPodcastIdentifiedListServiceResponseFailed(
                                                         podcastIdentifiedList
                                                 );
                                             }
                                         },
                                         failed -> {
                                             if (sawMarker) {
-                                                return new PodcastIdentifiedListServiceResponse.Failed(
+                                                return failedFactory.newPodcastIdentifiedListServiceResponseFailed(
                                                         podcastIdentifiedList
                                                 );
                                             } else {
                                                 // we haven't seen the marker yet, so
                                                 // even though the service finished, the database
                                                 // transaction hasn't completed, so stay loading
-                                                return new PodcastIdentifiedListServiceResponse.Loading(
+                                                return loadingFactory.newPodcastIdentifiedListServiceResponseLoading(
                                                         podcastIdentifiedList
                                                 );
                                             }
@@ -372,33 +434,5 @@ public final class PodcastService {
                             }
                         }
                 ).map(EpisodeIdentifiedList::new);
-    }
-
-    private static class PodcastSearchResponse {
-        private final PodcastList podcasts;
-
-        private PodcastSearchResponse(PodcastList podcasts) {
-            this.podcasts = podcasts;
-        }
-
-        @Override
-        public boolean equals(@Nullable Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PodcastSearchResponse that = (PodcastSearchResponse) o;
-            return podcasts.equals(that.podcasts);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(podcasts);
-        }
-
-        @Override
-        public String toString() {
-            return "PodcastSearchResponse{" +
-                    "podcasts=" + podcasts +
-                    '}';
-        }
     }
 }

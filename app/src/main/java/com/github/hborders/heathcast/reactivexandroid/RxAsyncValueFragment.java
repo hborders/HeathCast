@@ -380,8 +380,8 @@ public abstract class RxAsyncValueFragment<
                 (fragmentType, listener, context, viewHolder, state) -> {
                     renderer.render(fragmentType, listener, context, viewHolder, state);
 
-                    if (state.enabled) {
-                        state.value.act(
+                    if (state.isEnabled()) {
+                        state.getValue().act(
                                 loading -> {
                                     loadingMutableIdlingResource.setIdle();
                                     completeOrFailedMutableIdlingResource.setBusy();

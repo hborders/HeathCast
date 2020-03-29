@@ -6,7 +6,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
-import com.github.hborders.heathcast.activities.MainActivity;
+import com.github.hborders.heathcast.features.main.MainActivity;
 import com.github.hborders.heathcast.services.NetworkPauser;
 
 import org.junit.After;

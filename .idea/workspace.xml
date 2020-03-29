@@ -113,11 +113,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainPodcastSearchFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchPodcastListFragment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/package-info.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/android/ViewUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/android/ViewUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/AbstractMainActivityTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/AbstractMainActivityTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/SearchEspressoTest2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/SearchEspressoTest2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/activities/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/activities/package-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/package-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/MainFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastSearchValueFragment.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxAsyncValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxAsyncValueFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListAsyncValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListAsyncValueFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastIdentifiedListServiceResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastIdentifiedListServiceResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/ServiceResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/ServiceResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/ServiceResponse1.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/ServiceResponse1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_search.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_search.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/menu_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/navigation/nav_graph.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/navigation/nav_graph.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -229,7 +249,7 @@
     <property name="device.picker.selection" value="Pixel_API_28" />
     <property name="extract.method.default.visibility" value="private" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/idlingresource" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/idlingresource" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search" />
     <property name="multi-representation-preview/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.appcompat/appcompat/1.1.0/9865019bbd2d95e41dede3d8ebf964aa93f97766/appcompat-1.1.0-sources.jar!/androidx/appcompat/widget/SearchView.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.recyclerview/recyclerview/1.1.0/f2bdf79e1977939817f54a9d3e2f6bc52b63bdd0/recyclerview-1.1.0-sources.jar!/androidx/recyclerview/widget/RecyclerView.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/hborders/Library/Android/sdk/sources/android-29/android/view/View.java_selected" value="Custom views" />
@@ -251,11 +271,13 @@
       <recent name="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26" />
     </key>
     <key name="MoveInnerDialog.RECENTS_KEY">
+      <recent name="com.github.hborders.heathcast.fragments" />
       <recent name="com.github.hborders.heathcast.idlingresource" />
       <recent name="com.github.hborders.heathcast.dao" />
       <recent name="" />
     </key>
     <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="com.github.hborders.heathcast.fragments.PodcastSearchPodcastListFragment" />
       <recent name="com.github.hborders.heathcast.reactivex.RxUtil" />
       <recent name="com.github.hborders.heathcast.dao.Table" />
       <recent name="com.github.hborders.heathcast.services.RssXml" />
@@ -266,18 +288,18 @@
       <recent name="com.github.hborders.heathcast.services" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search" />
+      <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main" />
       <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/idlingresource" />
       <recent name="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/viewaction" />
       <recent name="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/espresso" />
-      <recent name="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/action" />
-      <recent name="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.github.hborders.heathcast.features.main" />
       <recent name="com.github.hborders.heathcast.reactivexandroid" />
       <recent name="com.github.hborders.heathcast.fragments" />
       <recent name="com.github.hborders.heathcast.core" />
       <recent name="com.github.hborders.heathcast" />
-      <recent name="com.github.hborders.heathcast.services" />
     </key>
   </component>
   <component name="RunManager" selected="Android App.app">
@@ -668,34 +690,34 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="755" y="409" key="#com.intellij.ide.actions.DebugLogConfigureAction/0.23.1920.1100@0.23.1920.1100" timestamp="1583602217176" />
-    <state x="773" y="288" key="#com.intellij.ide.util.MemberChooser" timestamp="1585372508000">
+    <state x="773" y="288" key="#com.intellij.ide.util.MemberChooser" timestamp="1585517995641">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="773" y="288" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1585372508000" />
+    <state x="773" y="288" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1585517995641" />
     <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585108867255">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585108867255" />
-    <state x="668" y="505" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1584824991459">
+    <state x="668" y="505" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1585458244297">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="668" y="505" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584824991459" />
-    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1584934907287">
+    <state x="668" y="505" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585458244297" />
+    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1585517750201">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.1920.1100@0.23.1920.1100" timestamp="1584934907287" />
-    <state x="721" y="414" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog" timestamp="1584825002909">
+    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.1920.1100@0.23.1920.1100" timestamp="1585517750201" />
+    <state x="721" y="414" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog" timestamp="1585458194745">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="721" y="414" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584825002909" />
-    <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog" timestamp="1584684892387">
+    <state x="721" y="414" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585458194745" />
+    <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog" timestamp="1585458275115">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584684892387" />
-    <state x="220" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1585370770409">
+    <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585458275115" />
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1585516622577">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="220" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585370770409" />
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585516622577" />
     <state x="698" y="326" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1584936091576">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -768,10 +790,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="com.android.tools.idea.avdmanager.AvdListDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584938260642" />
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1585367515573">
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1585512270370">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585367515573" />
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585512270370" />
     <state x="839" y="592" key="com.intellij.ide.util.TipDialog/3840.2400" timestamp="1577555866836" />
     <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579558329648">
       <screen x="0" y="23" width="1920" height="1100" />
@@ -781,22 +803,22 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="504" y="316" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.23.1920.1100@0.23.1920.1100" timestamp="1584684515010" />
-    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1585111637310">
+    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1585513526860">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585111637310" />
-    <state width="735" height="123" key="javadoc.popup.new" timestamp="1585372956422">
+    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585513526860" />
+    <state width="735" height="123" key="javadoc.popup.new" timestamp="1585517986116">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="735" height="123" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1585372956422" />
+    <state width="735" height="123" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1585517986116" />
     <state width="620" height="143" key="javadoc.popup.new/3840.2400" timestamp="1577555866836" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1584682021626">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584682021626" />
-    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup" timestamp="1585370930441">
+    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup" timestamp="1585419150151">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585370930441" />
+    <state x="625" y="269" width="670" height="676" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585419150151" />
   </component>
 </project>
