@@ -15,8 +15,11 @@ import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.core.Result;
+import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory;
+import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory;
+import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
-import com.github.hborders.heathcast.features.search.PodcastSearchFragment;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastIdentified;
@@ -26,7 +29,6 @@ import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.github.hborders.heathcast.services.NetworkPauser;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -44,18 +46,8 @@ import io.reactivex.disposables.Disposable;
 public final class MainActivity extends AppCompatActivity
         implements
         MainFragment.MainFragmentListener,
-        PodcastSearchFragment.PodcastSearchFragmentListener<
-
-                >,
+        MainPodcastSearchFragment.MainPodcastSearchFragmentListener,
         PodcastFragment.PodcastFragmentListener {
-    public static final class MainPodcastSearchFragment extends PodcastSearchFragment<
-            MainPodcastSearchFragment,
-            MainPodcastSearchFragmentListener
-            > {
-
-    }
-    public interface MainPodcastSearchFragment
-
     private final ConcurrentLinkedQueue<NetworkPauser> searchForPodcasts2NetworkPausers = new ConcurrentLinkedQueue<>();
 
     @VisibleForTesting
@@ -139,10 +131,10 @@ public final class MainActivity extends AppCompatActivity
     public void onMainFragmentWillDetach(MainFragment mainFragment) {
     }
 
-    // PodcastSearchFragmentListener
+    // MainPodcastSearchFragmentListener
 
     @Override
-    public void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment) {
+    public void onPodcastSearchFragmentAttached(MainPodcastSearchFragment podcastSearchFragment) {
         podcastSearchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
                 podcastSearchFragment.getSearchResultPodcastListLoadingIdlingResource()
         );
@@ -152,12 +144,18 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Observable<PodcastIdentifiedListServiceResponse> searchForPodcasts2(
-            PodcastSearchFragment podcastSearchFragment,
-            PodcastSearch podcastSearch
+    public Observable<PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse> searchForPodcasts2(
+            MainPodcastSearchFragment podcastSearchFragment,
+            PodcastSearch podcastSearch,
+            PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory,
+            PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory,
+            PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory failedFactory
     ) {
         @Nullable NetworkPauser networkPauser = searchForPodcasts2NetworkPausers.poll();
         return podcastService.searchForPodcasts2(
+                loadingFactory,
+                completeFactory,
+                failedFactory,
                 networkPauser,
                 podcastSearch
         );
@@ -165,7 +163,7 @@ public final class MainActivity extends AppCompatActivity
 
     @Override
     public void onClickPodcastIdentified(
-            PodcastSearchFragment podcastSearchFragment,
+            MainPodcastSearchFragment podcastSearchFragment,
             PodcastIdentified podcastIdentified
     ) {
         requireNavController().navigate(
@@ -175,7 +173,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment) {
+    public void onPodcastSearchFragmentWillDetach(MainPodcastSearchFragment podcastSearchFragment) {
         podcastSearchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
                 null
         );

@@ -21,7 +21,6 @@ public abstract class RxListAsyncValueFragment<
         ListenerType,
         AttachmentType
         > {
-
     protected interface ListViewFacade<
             UnparcelableListValueType extends List<UnparcelableItemType>,
             UnparcelableItemType

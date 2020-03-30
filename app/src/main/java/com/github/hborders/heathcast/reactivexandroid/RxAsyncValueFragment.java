@@ -28,7 +28,6 @@ public abstract class RxAsyncValueFragment<
         ListenerType,
         AttachmentType
         > {
-
     protected interface AsyncState<
             LoadingType extends AsyncState.Loading<
                     LoadingType,

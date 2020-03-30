@@ -22,7 +22,7 @@ public abstract class PodcastListFragment2<
         PodcastListFragmentType extends PodcastListFragment2<
                 PodcastListFragmentType,
                 PodcastListFragmentListenerType,
-                AttachmentType,
+                PodcastListAttachmentType,
                 PodcastIdentifiedListStateType,
                 PodcastIdentifiedListAsyncStateType,
                 LoadingType,
@@ -32,17 +32,17 @@ public abstract class PodcastListFragment2<
         PodcastListFragmentListenerType extends PodcastListFragment2.PodcastListFragmentListener<
                 PodcastListFragmentType,
                 PodcastListFragmentListenerType,
-                AttachmentType,
+                PodcastListAttachmentType,
                 PodcastIdentifiedListStateType,
                 PodcastIdentifiedListAsyncStateType,
                 LoadingType,
                 CompleteType,
                 FailedType
                 >,
-        AttachmentType extends RxFragment.Attachment<
+        PodcastListAttachmentType extends RxFragment.Attachment<
                 PodcastListFragmentType,
                 PodcastListFragmentListenerType,
-                AttachmentType
+                PodcastListAttachmentType
                 >,
         PodcastIdentifiedListStateType extends PodcastListFragment2.PodcastIdentifiedListState<
                 PodcastIdentifiedListAsyncStateType,
@@ -73,13 +73,13 @@ public abstract class PodcastListFragment2<
         > extends RxListAsyncValueFragment<
         PodcastListFragmentType,
         PodcastListFragmentListenerType,
-        AttachmentType
+        PodcastListAttachmentType
         > {
     public interface PodcastListFragmentListener<
             PodcastListFragmentType extends PodcastListFragment2<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType,
+                    PodcastListAttachmentType,
                     PodcastIdentifiedListStateType,
                     PodcastIdentifiedListAsyncStateType,
                     LoadingType,
@@ -89,17 +89,17 @@ public abstract class PodcastListFragment2<
             PodcastListFragmentListenerType extends PodcastListFragmentListener<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType,
+                    PodcastListAttachmentType,
                     PodcastIdentifiedListStateType,
                     PodcastIdentifiedListAsyncStateType,
                     LoadingType,
                     CompleteType,
                     FailedType
                     >,
-            AttachmentType extends RxFragment.Attachment<
+            PodcastListAttachmentType extends RxFragment.Attachment<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType
+                    PodcastListAttachmentType
                     >,
             PodcastIdentifiedListStateType extends PodcastIdentifiedListState<
                     PodcastIdentifiedListAsyncStateType,
@@ -375,7 +375,7 @@ public abstract class PodcastListFragment2<
             PodcastListFragmentType extends PodcastListFragment2<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType,
+                    PodcastListAttachmentType,
                     PodcastIdentifiedListStateType,
                     PodcastIdentifiedListAsyncStateType,
                     LoadingType,
@@ -385,17 +385,17 @@ public abstract class PodcastListFragment2<
             PodcastListFragmentListenerType extends PodcastListFragmentListener<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType,
+                    PodcastListAttachmentType,
                     PodcastIdentifiedListStateType,
                     PodcastIdentifiedListAsyncStateType,
                     LoadingType,
                     CompleteType,
                     FailedType
                     >,
-            AttachmentType extends RxFragment.Attachment<
+            PodcastListAttachmentType extends RxFragment.Attachment<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType
+                    PodcastListAttachmentType
                     >,
             PodcastIdentifiedListStateType extends PodcastIdentifiedListState<
                     PodcastIdentifiedListAsyncStateType,
@@ -426,7 +426,7 @@ public abstract class PodcastListFragment2<
             > implements RxValueFragment.ViewFacadeFactory<
             PodcastListFragmentType,
             PodcastListFragmentListenerType,
-            AttachmentType,
+            PodcastListAttachmentType,
             ViewFacade
             > {
         @Override
@@ -488,22 +488,22 @@ public abstract class PodcastListFragment2<
             AttachmentFactoryType extends Attachment.AttachmentFactory<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType
+                    PodcastListAttachmentType
                     >,
             OnAttachedType extends OnAttached<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType
+                    PodcastListAttachmentType
                     >,
             WillDetachType extends WillDetach<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType
+                    PodcastListAttachmentType
                     >,
             StateObservableProviderType extends StateObservableProvider<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
-                    AttachmentType,
+                    PodcastListAttachmentType,
                     PodcastIdentifiedListStateType,
                     PodcastIdentifiedListAsyncStateType
                     >
