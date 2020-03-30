@@ -5,18 +5,20 @@ public interface Result {
     Result FAILURE = new Result.Failure();
 
     final class Success extends EmptyEither.LeftImpl<
-                Success,
-                Failure
-                > implements Result {
-        private Success() {
+            Success,
+            Failure
+            > implements Result {
+        public Success() {
+            super(Success.class);
         }
     }
 
     final class Failure extends EmptyEither.RightImpl<
-                Success,
-                Failure
-                > implements Result {
-        private Failure() {
+            Success,
+            Failure
+            > implements Result {
+        public Failure() {
+            super(Failure.class);
         }
     }
 

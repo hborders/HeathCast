@@ -56,6 +56,7 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment2
                 Completable onDetachCompletable
         ) {
             super(
+                    PodcastSearchPodcastListAttachment.class,
                     fragment,
                     context,
                     listener,
@@ -128,6 +129,7 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment2
 
     public PodcastSearchPodcastListFragment() {
         super(
+                PodcastSearchPodcastListFragment.class,
                 PodcastSearchPodcastListFragmentListener.class,
                 PodcastSearchPodcastListAttachment::new,
                 PodcastSearchPodcastListFragmentListener::onPodcastListFragmentAttached,

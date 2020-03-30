@@ -28,7 +28,11 @@ public abstract class RxAsyncValueFragment<
         ListenerType,
         AttachmentType
         > {
-    protected interface AsyncState<
+    // even though AsyncState could be protected for us, we should make it public
+    // so that subclasses can use it in public generic boundaries
+    // Java bugs: 9064231, 9064232
+    // https://github.com/hborders/HeathCast/tree/jdk_8_bug
+    public interface AsyncState<
             LoadingType extends AsyncState.Loading<
                     LoadingType,
                     CompleteType,
@@ -251,6 +255,7 @@ public abstract class RxAsyncValueFragment<
             ViewFacadeType extends ViewFacade,
             UnparcelableValueType
             > RxAsyncValueFragment(
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
@@ -263,6 +268,7 @@ public abstract class RxAsyncValueFragment<
             RendererType renderer
     ) {
         this(
+                selfClass,
                 listenerClass,
                 attachmentFactory,
                 onAttached,
@@ -348,6 +354,7 @@ public abstract class RxAsyncValueFragment<
             ViewFacadeType extends ViewFacade,
             UnparcelableValueType
             > RxAsyncValueFragment(
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
@@ -361,6 +368,7 @@ public abstract class RxAsyncValueFragment<
             MutableIdlingResource completeOrFailedMutableIdlingResource
     ) {
         super(
+                selfClass,
                 listenerClass,
                 attachmentFactory,
                 onAttached,

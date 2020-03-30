@@ -46,7 +46,7 @@ public interface EmptyEither<
     }
 
     // Not final to allow reification
-    class LeftImpl<
+    abstract class LeftImpl<
             LeftType extends EmptyEither.Left<
                     LeftType,
                     RightType
@@ -59,6 +59,12 @@ public interface EmptyEither<
             LeftType,
             RightType
             > {
+        private final Class<LeftType> selfClass;
+
+        protected LeftImpl(Class<LeftType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -108,7 +114,7 @@ public interface EmptyEither<
         }
 
         private LeftType getSelf() {
-            return (LeftType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -128,7 +134,7 @@ public interface EmptyEither<
     }
 
     // Not final to allow reification
-    class RightImpl<
+    abstract class RightImpl<
             LeftType extends EmptyEither.Left<
                     LeftType,
                     RightType
@@ -141,6 +147,12 @@ public interface EmptyEither<
             LeftType,
             RightType
             > {
+        private final Class<RightType> selfClass;
+
+        protected RightImpl(Class<RightType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -190,7 +202,7 @@ public interface EmptyEither<
         }
 
         private RightType getSelf() {
-            return (RightType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 }

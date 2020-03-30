@@ -221,6 +221,7 @@ public abstract class RxListAsyncValueFragment<
             UnparcelableListValueType extends List<UnparcelableItemType>,
             UnparcelableItemType
             > RxListAsyncValueFragment(
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
@@ -231,6 +232,7 @@ public abstract class RxListAsyncValueFragment<
             StateObservableProviderType stateObservableProvider
     ) {
         super(
+                selfClass,
                 listenerClass,
                 attachmentFactory,
                 onAttached,

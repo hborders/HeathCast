@@ -11,8 +11,6 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
-import static com.github.hborders.heathcast.android.ViewUtil.setUserInteractionEnabled;
-
 // Make this RxAsyncValue
 // Make RxValue just have the Model+ViewHolder+Renderer
 public abstract class RxValueFragment<
@@ -32,8 +30,13 @@ public abstract class RxValueFragment<
         ListenerType,
         AttachmentType
         > {
-    protected interface State<UnparcelableValueType> {
+    // even though State could be protected for us, we should make it public
+    // so that subclasses can use it in public generic boundaries
+    // Java bugs: 9064231, 9064232
+    // https://github.com/hborders/HeathCast/tree/jdk_8_bug
+    public interface State<UnparcelableValueType> {
         boolean isEnabled();
+
         UnparcelableValueType getValue();
     }
 
@@ -79,6 +82,7 @@ public abstract class RxValueFragment<
         ViewFacadeType newViewFacade(
                 FragmentType fragment,
                 ListenerType listener,
+                Context context,
                 View view
         );
     }
@@ -179,6 +183,7 @@ public abstract class RxValueFragment<
             UnparcelableValueType,
             ViewFacadeType extends ViewFacade
             > RxValueFragment(
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
@@ -190,6 +195,7 @@ public abstract class RxValueFragment<
             RendererType renderer
     ) {
         super(
+                selfClass,
                 listenerClass,
                 attachmentFactory,
                 onAttached,
@@ -235,6 +241,7 @@ public abstract class RxValueFragment<
                                 final ViewFacadeType viewFacade = viewFacadeFactory.newViewFacade(
                                         getSelf(),
                                         listener,
+                                        context,
                                         view
                                 );
                                 viewCreation.addDisposable(viewFacade);
@@ -291,8 +298,7 @@ public abstract class RxValueFragment<
                                 prerender.prez.context,
                                 prerender.prez.viewFacade
                         );
-                        setUserInteractionEnabled(
-                                prerender.prez.view,
+                        prerender.prez.viewFacade.setEnabled(
                                 prerender.state.isEnabled()
                         );
                         renderer.render(

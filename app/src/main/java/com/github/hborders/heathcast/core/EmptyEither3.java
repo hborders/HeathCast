@@ -66,7 +66,7 @@ public interface EmptyEither3<
     }
 
     // Not final to allow reification
-    class LeftImpl<
+    abstract class LeftImpl<
             LeftType extends LeftImpl<
                     LeftType,
                     MiddleType,
@@ -87,6 +87,12 @@ public interface EmptyEither3<
             MiddleType,
             RightType
             > {
+        private final Class<LeftType> selfClass;
+
+        protected LeftImpl(Class<LeftType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -140,7 +146,7 @@ public interface EmptyEither3<
         }
 
         private LeftType getSelf() {
-            return (LeftType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -168,7 +174,7 @@ public interface EmptyEither3<
     }
 
     // Not final to allow reification
-    class MiddleImpl<
+    abstract class MiddleImpl<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -189,6 +195,12 @@ public interface EmptyEither3<
             MiddleType,
             RightType
             > {
+        private final Class<MiddleType> selfClass;
+
+        protected MiddleImpl(Class<MiddleType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -242,7 +254,7 @@ public interface EmptyEither3<
         }
 
         private MiddleType getSelf() {
-            return (MiddleType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -270,7 +282,7 @@ public interface EmptyEither3<
     }
 
     // Not final to allow reification
-    class RightImpl<
+    abstract class RightImpl<
             LeftType extends Left<
                     LeftType,
                     MiddleType,
@@ -291,6 +303,12 @@ public interface EmptyEither3<
             MiddleType,
             RightType
             > {
+        private final Class<RightType> selfClass;
+
+        protected RightImpl(Class<RightType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -344,7 +362,7 @@ public interface EmptyEither3<
         }
 
         private RightType getSelf() {
-            return (RightType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 }

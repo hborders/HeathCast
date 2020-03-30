@@ -10,29 +10,32 @@ public interface EmptyServiceResponse {
     EmptyServiceResponse FAILED = new EmptyServiceResponse.Failed();
 
     final class Loading extends EmptyEither3.LeftImpl<
-                Loading,
-                Complete,
-                Failed
-                > implements EmptyServiceResponse {
+            Loading,
+            Complete,
+            Failed
+            > implements EmptyServiceResponse {
         private Loading() {
+            super(Loading.class);
         }
     }
 
     final class Complete extends EmptyEither3.MiddleImpl<
-                Loading,
-                Complete,
-                Failed
-                > implements EmptyServiceResponse {
+            Loading,
+            Complete,
+            Failed
+            > implements EmptyServiceResponse {
         private Complete() {
+            super(Complete.class);
         }
     }
 
     final class Failed extends EmptyEither3.RightImpl<
-                Loading,
-                Complete,
-                Failed
-                > implements EmptyServiceResponse {
+            Loading,
+            Complete,
+            Failed
+            > implements EmptyServiceResponse {
         private Failed() {
+            super(Failed.class);
         }
     }
 

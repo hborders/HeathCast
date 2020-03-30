@@ -26,14 +26,9 @@ public final class MainFragment extends RxFragment<
     public static final class MainAttachment extends RxFragment.Attachment<
             MainFragment,
             MainFragment.MainFragmentListener,
-            MainAttachment> {
-        public interface Factory extends AttachmentFactory<
-                MainFragment,
-                MainFragmentListener,
-                MainAttachment> {
-        }
-
-        public MainAttachment(
+            MainAttachment
+            > {
+        MainAttachment(
                 MainFragment fragment,
                 Context context,
                 MainFragmentListener listener,
@@ -41,6 +36,7 @@ public final class MainFragment extends RxFragment<
                 Completable onDetachCompletable
         ) {
             super(
+                    MainAttachment.class,
                     fragment,
                     context,
                     listener,
@@ -52,6 +48,7 @@ public final class MainFragment extends RxFragment<
 
     public MainFragment() {
         super(
+                MainFragment.class,
                 MainFragmentListener.class,
                 MainAttachment::new,
                 MainFragmentListener::onMainFragmentAttached,

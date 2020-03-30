@@ -33,7 +33,10 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
             >
             implements PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading {
         MainPodcastSearchPodcastIdentifiedListServiceResponseLoading(PodcastIdentifiedList value) {
-            super(value);
+            super(
+                    PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading.class,
+                    value
+            );
         }
     }
 
@@ -46,12 +49,15 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
             >
             implements PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete {
         MainPodcastSearchPodcastIdentifiedListServiceResponseComplete(PodcastIdentifiedList value) {
-            super(value);
+            super(
+                    PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete.class,
+                    value
+            );
         }
     }
 
     private static final class MainPodcastSearchPodcastIdentifiedListServiceResponseFailed
-            extends Either31.MiddleImpl<
+            extends Either31.RightImpl<
             PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
             PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
             PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed,
@@ -59,7 +65,10 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
             >
             implements PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed {
         MainPodcastSearchPodcastIdentifiedListServiceResponseFailed(PodcastIdentifiedList value) {
-            super(value);
+            super(
+                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed.class,
+                    value
+            );
         }
     }
 
@@ -108,9 +117,7 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
         }
     }
 
-    public MainPodcastSearchFragment(
-            PodcastSearchPodcastListStateFactory podcastSearchPodcastListStateFactory
-    ) {
+    public MainPodcastSearchFragment() {
         super(
                 MainPodcastSearchFragmentListener.class,
                 MainPodcastSearchPodcastIdentifiedListServiceResponseLoading::new,

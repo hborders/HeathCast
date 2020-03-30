@@ -60,14 +60,14 @@ public interface Either<
     }
 
     // Not final to allow reification
-    class LeftImpl<
-            LeftType extends LeftImpl<
+    abstract class LeftImpl<
+            LeftType extends Left<
                     LeftType,
                     RightType,
                     LeftValueType,
                     RightValueType
                     >,
-            RightType extends RightImpl<
+            RightType extends Right<
                     LeftType,
                     RightType,
                     LeftValueType,
@@ -81,9 +81,14 @@ public interface Either<
             LeftValueType,
             RightValueType
             > {
+        private final Class<LeftType> selfClass;
         public final LeftValueType value;
 
-        public LeftImpl(LeftValueType value) {
+        protected LeftImpl(
+                Class<LeftType> selfClass,
+                LeftValueType value
+        ) {
+            this.selfClass = selfClass;
             this.value = value;
         }
 
@@ -142,7 +147,7 @@ public interface Either<
         }
 
         private LeftType getSelf() {
-            return (LeftType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -170,14 +175,14 @@ public interface Either<
     }
 
     // Not final to allow reification
-    class RightImpl<
-            LeftType extends LeftImpl<
+    abstract class RightImpl<
+            LeftType extends Left<
                     LeftType,
                     RightType,
                     LeftValueType,
                     RightValueType
                     >,
-            RightType extends RightImpl<
+            RightType extends Right<
                     LeftType,
                     RightType,
                     LeftValueType,
@@ -191,9 +196,14 @@ public interface Either<
             LeftValueType,
             RightValueType
             > {
+        private final Class<RightType> selfClass;
         public final RightValueType value;
 
-        public RightImpl(RightValueType value) {
+        protected RightImpl(
+                Class<RightType> selfClass,
+                RightValueType value
+        ) {
+            this.selfClass = selfClass;
             this.value = value;
         }
 
@@ -252,7 +262,7 @@ public interface Either<
         }
 
         private RightType getSelf() {
-            return (RightType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 }

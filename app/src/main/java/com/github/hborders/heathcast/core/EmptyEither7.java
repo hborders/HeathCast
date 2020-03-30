@@ -186,7 +186,7 @@ public interface EmptyEither7<
     }
 
     // Not final to allow reification
-    class LeftLeftLeftImpl<
+    abstract class LeftLeftLeftImpl<
             LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -259,6 +259,12 @@ public interface EmptyEither7<
             RightRightType,
             RightRightRightType
             > {
+        private final Class<LeftLeftLeftType> selfClass;
+
+        protected LeftLeftLeftImpl(Class<LeftLeftLeftType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -332,7 +338,7 @@ public interface EmptyEither7<
         }
 
         private LeftLeftLeftType getSelf() {
-            return (LeftLeftLeftType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -412,7 +418,7 @@ public interface EmptyEither7<
     }
 
     // Not final to allow reification
-    class LeftLeftImpl<
+    abstract class LeftLeftImpl<
             LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -485,6 +491,12 @@ public interface EmptyEither7<
             RightRightType,
             RightRightRightType
             > {
+        private final Class<LeftLeftType> selfClass;
+
+        protected LeftLeftImpl(Class<LeftLeftType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -558,7 +570,7 @@ public interface EmptyEither7<
         }
 
         private LeftLeftType getSelf() {
-            return (LeftLeftType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -638,7 +650,7 @@ public interface EmptyEither7<
     }
 
     // Not final to allow reification
-    class LeftImpl<
+    abstract class LeftImpl<
             LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -711,6 +723,12 @@ public interface EmptyEither7<
             RightRightType,
             RightRightRightType
             > {
+        private final Class<LeftType> selfClass;
+
+        protected LeftImpl(Class<LeftType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -785,7 +803,7 @@ public interface EmptyEither7<
 
 
         private LeftType getSelf() {
-            return (LeftType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -865,7 +883,7 @@ public interface EmptyEither7<
     }
 
     // Not final to allow reification
-    class MiddleImpl<
+    abstract class MiddleImpl<
             LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -938,6 +956,12 @@ public interface EmptyEither7<
             RightRightType,
             RightRightRightType
             > {
+        private final Class<MiddleType> selfClass;
+
+        protected MiddleImpl(Class<MiddleType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -1011,7 +1035,7 @@ public interface EmptyEither7<
         }
 
         private MiddleType getSelf() {
-            return (MiddleType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -1091,7 +1115,7 @@ public interface EmptyEither7<
     }
 
     // Not final to allow reification
-    class RightImpl<
+    abstract class RightImpl<
             LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -1164,6 +1188,12 @@ public interface EmptyEither7<
             RightRightType,
             RightRightRightType
             > {
+        private final Class<RightType> selfClass;
+
+        protected RightImpl(Class<RightType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -1237,7 +1267,7 @@ public interface EmptyEither7<
         }
 
         private RightType getSelf() {
-            return (RightType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -1317,7 +1347,7 @@ public interface EmptyEither7<
     }
 
     // Not final to allow reification
-    class RightRightImpl<
+    abstract class RightRightImpl<
             LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -1390,6 +1420,12 @@ public interface EmptyEither7<
             RightRightType,
             RightRightRightType
             > {
+        private final Class<RightRightType> selfClass;
+
+        protected RightRightImpl(Class<RightRightType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -1463,7 +1499,7 @@ public interface EmptyEither7<
         }
 
         private RightRightType getSelf() {
-            return (RightRightType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -1543,7 +1579,7 @@ public interface EmptyEither7<
     }
 
     // Not final to allow reification
-    class RightRightRightImpl<
+    abstract class RightRightRightImpl<
             LeftLeftLeftType extends LeftLeftLeft<
                     LeftLeftLeftType,
                     LeftLeftType,
@@ -1616,6 +1652,12 @@ public interface EmptyEither7<
             RightRightType,
             RightRightRightType
             > {
+        private final Class<RightRightRightType> selfClass;
+
+        protected RightRightRightImpl(Class<RightRightRightType> selfClass) {
+            this.selfClass = selfClass;
+        }
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -1689,7 +1731,7 @@ public interface EmptyEither7<
         }
 
         private RightRightRightType getSelf() {
-            return (RightRightRightType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 }

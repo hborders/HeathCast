@@ -74,6 +74,7 @@ public abstract class RxFragment<
             );
         }
 
+        private final Class<AttachmentType> selfClass;
         public final FragmentType fragment;
         public final Context context;
         public final ListenerType listener;
@@ -82,12 +83,14 @@ public abstract class RxFragment<
         private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         protected Attachment(
+                Class<AttachmentType> selfClass,
                 FragmentType fragment,
                 Context context,
                 ListenerType listener,
                 Observable<FragmentCreation> fragmenCreationObservable,
                 Completable onDetachCompletable
         ) {
+            this.selfClass = selfClass;
             this.fragment = fragment;
             this.context = context;
             this.listener = listener;
@@ -155,7 +158,7 @@ public abstract class RxFragment<
         }
 
         private AttachmentType getSelf() {
-            return (AttachmentType) this;
+            return Objects.requireNonNull(selfClass.cast(this));
         }
     }
 
@@ -405,6 +408,7 @@ public abstract class RxFragment<
         );
     }
 
+    private final Class<FragmentType> selfClass;
     private final Class<ListenerType> listenerClass;
     private final OnAttached<
             FragmentType,
@@ -475,12 +479,14 @@ public abstract class RxFragment<
                     AttachmentType
                     >
             > RxFragment(
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
             WillDetachType willDetach,
             @LayoutRes int layoutResource
     ) {
+        this.selfClass = selfClass;
         this.listenerClass = listenerClass;
         this.onAttached = onAttached;
         this.willDetach = willDetach;
@@ -714,7 +720,7 @@ public abstract class RxFragment<
      * Use instead of <code>this</code> when you want to refer to the subclass type.
      */
     protected final FragmentType getSelf() {
-        return (FragmentType) this;
+        return Objects.requireNonNull(selfClass.cast(this));
     }
 
     interface Subscriber<T> {

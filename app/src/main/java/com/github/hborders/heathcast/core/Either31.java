@@ -75,7 +75,7 @@ public interface Either31<
     }
 
     // Not final to allow reification
-    class LeftImpl<
+    abstract class LeftImpl<
             LeftType extends Either31.Left<
                     LeftType,
                     MiddleType,
@@ -108,8 +108,14 @@ public interface Either31<
             RightType,
             ValueType
             > {
-        public LeftImpl(ValueType value) {
-            super(value);
+        protected LeftImpl(
+                Class<LeftType> selfClass,
+                ValueType value
+        ) {
+            super(
+                    selfClass,
+                    value
+            );
         }
     }
 
@@ -144,7 +150,7 @@ public interface Either31<
     }
 
     // Not final to allow reification
-    class MiddleImpl<
+    abstract class MiddleImpl<
             LeftType extends Either31.Left<
                     LeftType,
                     MiddleType,
@@ -177,8 +183,14 @@ public interface Either31<
             RightType,
             ValueType
             > {
-        public MiddleImpl(ValueType value) {
-            super(value);
+        protected MiddleImpl(
+                Class<MiddleType> selfClass,
+                ValueType value
+        ) {
+            super(
+                    selfClass,
+                    value
+            );
         }
     }
 
@@ -213,7 +225,7 @@ public interface Either31<
     }
 
     // Not final to allow reification
-    class RightImpl<
+    abstract class RightImpl<
             LeftType extends Either31.Left<
                     LeftType,
                     MiddleType,
@@ -246,8 +258,14 @@ public interface Either31<
             RightType,
             ValueType
             > {
-        public RightImpl(ValueType value) {
-            super(value);
+        public RightImpl(
+                Class<RightType> selfClass,
+                ValueType value
+        ) {
+            super(
+                    selfClass,
+                    value
+            );
         }
     }
 }

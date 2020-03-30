@@ -1,7 +1,9 @@
 package com.github.hborders.heathcast.fragments;
 
+import android.content.Context;
 import android.view.View;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
@@ -433,6 +435,7 @@ public abstract class PodcastListFragment2<
         public ViewFacade newViewFacade(
                 PodcastListFragmentType fragment,
                 PodcastListFragmentListenerType listener,
+                Context context,
                 View view
         ) {
             final RecyclerView recyclerView =
@@ -448,6 +451,8 @@ public abstract class PodcastListFragment2<
                                             podcastIdentified
                                     )
                     );
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            recyclerView.setAdapter(podcastRecyclerViewAdapter);
             final View emptyItemsLoadingView =
                     view.requireViewById(
                             R.id.fragment_podcast_list_empty_loading_group
@@ -508,6 +513,7 @@ public abstract class PodcastListFragment2<
                     PodcastIdentifiedListAsyncStateType
                     >
             > PodcastListFragment2(
+            Class<PodcastListFragmentType> selfClass,
             Class<PodcastListFragmentListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
@@ -515,6 +521,7 @@ public abstract class PodcastListFragment2<
             StateObservableProviderType stateObservableProvider
     ) {
         super(
+                selfClass,
                 listenerClass,
                 attachmentFactory,
                 onAttached,
