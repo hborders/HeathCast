@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".fragments.PodcastListFragment">
+    tools:context=".fragments.EpisodeListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragment_episode_list_episodes_recycler_view"

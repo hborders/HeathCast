@@ -1,8 +1,8 @@
 package com.github.hborders.heathcast.features.search;
 
-import com.github.hborders.heathcast.fragments.PodcastListFragment;
+import com.github.hborders.heathcast.fragments.PodcastListFragmentListener;
 
-public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
+public interface PodcastSearchPodcastListFragmentListener extends PodcastListFragmentListener<
         PodcastSearchPodcastListFragment,
         PodcastSearchPodcastListFragmentListener,
         PodcastSearchPodcastListAttachment,
@@ -12,14 +12,4 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
         PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
         PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
         > {
-
-    public PodcastSearchPodcastListFragment() {
-        super(
-                PodcastSearchPodcastListFragmentListener.class,
-                PodcastSearchPodcastListAttachment::new,
-                PodcastSearchPodcastListFragmentListener::onPodcastListFragmentAttached,
-                PodcastSearchPodcastListFragmentListener::onPodcastListFragmentWillDetach,
-                PodcastSearchPodcastListFragmentListener::podcastIdentifiedListStateObservable
-        );
-    }
 }

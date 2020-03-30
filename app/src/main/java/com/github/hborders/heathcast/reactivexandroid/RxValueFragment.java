@@ -32,6 +32,7 @@ public abstract class RxValueFragment<
         ListenerType,
         AttachmentType
         > {
+
     protected interface State<UnparcelableValueType> {
         boolean isEnabled();
         UnparcelableValueType getValue();
@@ -79,6 +80,7 @@ public abstract class RxValueFragment<
         ViewFacadeType newViewFacade(
                 FragmentType fragment,
                 ListenerType listener,
+                Context context,
                 View view
         );
     }
@@ -235,6 +237,7 @@ public abstract class RxValueFragment<
                                 final ViewFacadeType viewFacade = viewFacadeFactory.newViewFacade(
                                         getSelf(),
                                         listener,
+                                        context,
                                         view
                                 );
                                 viewCreation.addDisposable(viewFacade);

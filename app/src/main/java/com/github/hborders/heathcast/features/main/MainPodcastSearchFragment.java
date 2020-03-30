@@ -5,11 +5,12 @@ import androidx.annotation.Nullable;
 import com.github.hborders.heathcast.core.Either31;
 import com.github.hborders.heathcast.features.main.MainPodcastSearchFragment.MainPodcastSearchFragmentListener;
 import com.github.hborders.heathcast.features.search.PodcastSearchFragment;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListState;
+import com.github.hborders.heathcast.features.search.PodcastSearchFragmentListener;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListState;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 
 import java.util.Objects;
@@ -19,9 +20,9 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
         MainPodcastSearchFragmentListener
         > {
     public interface MainPodcastSearchFragmentListener extends PodcastSearchFragmentListener<
-            MainPodcastSearchFragment,
-            MainPodcastSearchFragmentListener
-            > {
+                MainPodcastSearchFragment,
+                MainPodcastSearchFragmentListener
+                > {
     }
 
     private static final class MainPodcastSearchPodcastIdentifiedListServiceResponseLoading
@@ -108,9 +109,7 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
         }
     }
 
-    public MainPodcastSearchFragment(
-            PodcastSearchPodcastListStateFactory podcastSearchPodcastListStateFactory
-    ) {
+    public MainPodcastSearchFragment() {
         super(
                 MainPodcastSearchFragmentListener.class,
                 MainPodcastSearchPodcastIdentifiedListServiceResponseLoading::new,

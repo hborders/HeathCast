@@ -15,10 +15,10 @@ import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.core.Result;
-import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory;
-import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory;
-import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory;
+import com.github.hborders.heathcast.features.search.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
