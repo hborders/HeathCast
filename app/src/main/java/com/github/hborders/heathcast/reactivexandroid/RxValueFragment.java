@@ -8,7 +8,6 @@ import androidx.annotation.LayoutRes;
 import com.github.hborders.heathcast.core.Function;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 // Make this RxAsyncValue
@@ -278,7 +277,6 @@ public abstract class RxValueFragment<
                                                                     prez.listener,
                                                                     getSelf()
                                                             )
-                                                            .observeOn(AndroidSchedulers.mainThread())
                                                             .map(
                                                                     state ->
                                                                             new Prerender(

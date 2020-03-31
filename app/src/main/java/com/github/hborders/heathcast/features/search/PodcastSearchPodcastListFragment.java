@@ -2,10 +2,10 @@ package com.github.hborders.heathcast.features.search;
 
 import android.content.Context;
 
-import com.github.hborders.heathcast.fragments.PodcastListFragment2;
-import com.github.hborders.heathcast.fragments.PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete;
-import com.github.hborders.heathcast.fragments.PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed;
-import com.github.hborders.heathcast.fragments.PodcastListFragment2.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading;
+import com.github.hborders.heathcast.fragments.PodcastListFragment;
+import com.github.hborders.heathcast.fragments.PodcastListFragment.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete;
+import com.github.hborders.heathcast.fragments.PodcastListFragment.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed;
+import com.github.hborders.heathcast.fragments.PodcastListFragment.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListAttachment;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete;
@@ -21,7 +21,7 @@ import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceRespon
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
-public final class PodcastSearchPodcastListFragment extends PodcastListFragment2<
+public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
         PodcastSearchPodcastListFragment,
         PodcastSearchPodcastListFragmentListener,
         PodcastSearchPodcastListAttachment,

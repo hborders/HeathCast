@@ -2,6 +2,8 @@ package com.github.hborders.heathcast.features.search;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
@@ -111,7 +114,9 @@ public abstract class PodcastSearchFragment<
 
     private static final String TAG = "PodcastSearch";
     private static final String QUERY_KEY = "query";
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
+    private final Class<PodcastSearchFragmentType> selfClass;
     private final Class<PodcastSearchFragmentListenerType> listenerClass;
     private final PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory;
     private final PodcastSearchPodcastListStateFactory podcastSearchPodcastListStateFactory;
@@ -147,12 +152,14 @@ public abstract class PodcastSearchFragment<
     private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
 
     protected PodcastSearchFragment(
+            Class<PodcastSearchFragmentType> selfClass,
             Class<PodcastSearchFragmentListenerType> listenerClass,
             PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory,
             PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory,
             PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory failedFactory,
             PodcastSearchPodcastListStateFactory podcastSearchPodcastListStateFactory
     ) {
+        this.selfClass = selfClass;
         this.listenerClass = listenerClass;
         this.completeFactory = completeFactory;
         this.podcastSearchPodcastListStateFactory = podcastSearchPodcastListStateFactory;
@@ -162,12 +169,14 @@ public abstract class PodcastSearchFragment<
                         queryOptional -> queryOptional.map(
                                 query -> Objects.requireNonNull(listener)
                                         .searchForPodcasts2(
-                                                (PodcastSearchFragmentType) this,
+                                                Objects.requireNonNull(selfClass.cast(this)),
                                                 new PodcastSearch(query),
                                                 loadingFactory,
                                                 completeFactory,
                                                 failedFactory
-                                        ).map(Optional::of)
+                                        )
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .map(Optional::of)
                         ).orElse(Observable.just(Optional.empty()))
                 );
     }
@@ -181,7 +190,7 @@ public abstract class PodcastSearchFragment<
                 listenerClass
         );
         this.listener = listener;
-        listener.onPodcastSearchFragmentAttached((PodcastSearchFragmentType) this);
+        listener.onPodcastSearchFragmentAttached(Objects.requireNonNull(selfClass.cast(this)));
     }
 
     @Override
@@ -212,7 +221,21 @@ public abstract class PodcastSearchFragment<
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                handler.post(() ->{
+                    System.out.println("Immediately after getting event");
+                });
                 searchView.clearFocus();
+                // since the queryOptionalPublishSubject chain is asynchronous,
+                // we must disable the podcast list until we get a response back
+                // otherwise, we won't have a new state, and the IdlingResources won't update properly
+                podcastIdentifiedListStateBehaviorSubject.onNext(
+                        podcastSearchPodcastListStateFactory.newPodcastSearchPodcastListState(
+                                false,
+                                completeFactory.newPodcastIdentifiedListServiceResponseComplete(
+                                        new PodcastIdentifiedList()
+                                )
+                        )
+                );
                 queryOptionalPublishSubject.onNext(Optional.of(query));
 
                 return true;
@@ -257,7 +280,7 @@ public abstract class PodcastSearchFragment<
                         );
         podcastIdentifiedListStateBehaviorSubject.onNext(
                 podcastSearchPodcastListStateFactory.newPodcastSearchPodcastListState(
-                        false,
+                        true,
                         completeFactory.newPodcastIdentifiedListServiceResponseComplete(
                                 new PodcastIdentifiedList()
                         )
@@ -315,7 +338,7 @@ public abstract class PodcastSearchFragment<
     public void onDetach() {
         final PodcastSearchFragmentListenerType listener = Objects.requireNonNull(this.listener);
         this.listener = null;
-        listener.onPodcastSearchFragmentWillDetach((PodcastSearchFragmentType) this);
+        listener.onPodcastSearchFragmentWillDetach(Objects.requireNonNull(selfClass.cast(this)));
 
         super.onDetach();
     }
@@ -345,7 +368,7 @@ public abstract class PodcastSearchFragment<
             PodcastIdentified podcastIdentified
     ) {
         Objects.requireNonNull(listener).onClickPodcastIdentified(
-                (PodcastSearchFragmentType) this,
+                Objects.requireNonNull(selfClass.cast(this)),
                 podcastIdentified
         );
     }

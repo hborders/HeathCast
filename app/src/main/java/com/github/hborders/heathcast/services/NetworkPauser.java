@@ -1,51 +1,52 @@
 package com.github.hborders.heathcast.services;
 
-import java.util.HashSet;
-import java.util.Set;
+import android.os.Handler;
+import android.os.Looper;
 
-import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import io.reactivex.Single;
+import io.reactivex.subjects.CompletableSubject;
 
 public final class NetworkPauser {
     private final Object monitor = new Object();
     private boolean paused = true;
-    private final HashSet<CompletableEmitter> completableEmitters = new HashSet<>();
-    private final Completable completable;
-
-    public NetworkPauser() {
-        completable = Completable.create(emitter -> {
-            final HashSet<CompletableEmitter> completingCompletableEmitters = new HashSet<>();
-            synchronized (monitor) {
-                if (paused) {
-                    completableEmitters.add(emitter);
-                } else {
-                    completingCompletableEmitters.add(emitter);
-                    completingCompletableEmitters.addAll(completableEmitters);
-                    completableEmitters.clear();
-                }
-            }
-
-            completingCompletableEmitters.forEach(CompletableEmitter::onComplete);
-        });
-    }
+    private final CompletableSubject completableSubject = CompletableSubject.create();
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     public <T> Single<T> pauseSingle(Single<T> single) {
-        return completable.andThen(single);
+        return completableSubject.andThen(single);
     }
 
-    public void resume() {
-        final Set<CompletableEmitter> completingCompletableEmitters;
+    public void resume() throws InterruptedException {
+        final boolean unpaused;
         synchronized (monitor) {
-            if (paused) {
-                paused = false;
-                completingCompletableEmitters = new HashSet<>(completableEmitters);
-                completableEmitters.clear();
-            } else {
-                throw new IllegalStateException("Should only resume once");
-            }
+            unpaused = paused;
+            paused = false;
         }
 
-        completingCompletableEmitters.forEach(CompletableEmitter::onComplete);
+        if (unpaused) {
+            if (Looper.getMainLooper() == Looper.myLooper()) {
+                completableSubject.onComplete();
+            } else {
+                // We need to wait until the main thread
+
+                final CountDownLatch countDownLatch = new CountDownLatch(1);
+                final boolean postedOnComplete = handler.post(completableSubject::onComplete);
+                if (!postedOnComplete) {
+                    throw new IllegalStateException("Failed to post onComplete");
+                }
+                // give the main thread a chance to react to the onComplete
+                final boolean postedCountDown = handler.post(countDownLatch::countDown);
+                if (!postedCountDown) {
+                    throw new IllegalStateException("Failed to post countDown");
+                }
+                final boolean countedDown = countDownLatch.await(5, TimeUnit.SECONDS);
+                if (!countedDown) {
+                    throw new IllegalStateException("Looping the main thread never counted down");
+                }
+            }
+        }
     }
 }

@@ -73,11 +73,17 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                         ""
                 );
         onView(withId(R.id.fragment_podcast_search_search_view)).perform(
-                typeText(unmatchingText),
+                typeText(unmatchingText)
+        );
+        onView(withId(R.id.fragment_podcast_search_search_view)).perform(
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
+        Thread.sleep(1000);
 
         IdlingRegistry.getInstance().register(podcastSearchLoadingIdlingResource);
+
+        Thread.sleep(1000);
+
         onView(withId(R.id.fragment_podcast_list_empty_loading_progress_bar)).check(
                 matches(
                         isDisplayed()
@@ -101,7 +107,11 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
 
     @Test
     public void searchForPlanetMoneyThenForRandomTextShowsNoResults() throws Exception {
-        final IdlingResource podcastSearchCompleteOrErrorLoadingIdlingResource =
+        final IdlingResource podcastSearchLoadingIdlingResource =
+                getIdlingResource(
+                        MainActivity::getPodcastSearchResultPodcastListLoadingIdlingResource
+                );
+        final IdlingResource podcastSearchCompleteOrErrorIdlingResource =
                 getIdlingResource(
                         MainActivity::getPodcastSearchResultPodcastListCompleteOrErrorIdlingResource
                 );
@@ -120,7 +130,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                 typeText(planetMoney),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
-        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorLoadingIdlingResource);
+        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorIdlingResource);
         planetMoneySearchForPodcasts2NetworkPauser.resume();
 
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).check(
@@ -130,7 +140,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                 )
         );
 
-        IdlingRegistry.getInstance().unregister(podcastSearchCompleteOrErrorLoadingIdlingResource);
+        IdlingRegistry.getInstance().unregister(podcastSearchCompleteOrErrorIdlingResource);
 
         onView(withId(R.id.fragment_podcast_search_search_view)).perform(clickSearchViewCloseButton());
 
@@ -146,6 +156,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
 
+        IdlingRegistry.getInstance().register(podcastSearchLoadingIdlingResource);
         onView(withId(R.id.fragment_podcast_list_empty_loading_progress_bar)).check(
                 matches(
                         isDisplayed()
@@ -156,8 +167,9 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                         isDisplayed()
                 )
         );
+        IdlingRegistry.getInstance().unregister(podcastSearchLoadingIdlingResource);
 
-        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorLoadingIdlingResource);
+        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorIdlingResource);
         randomTextSearchForPodcasts2NetworkPauser.resume();
 
         onView(withId(R.id.fragment_podcast_list_empty_complete_text_view)).check(
@@ -181,7 +193,11 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
 
         onView(withId(R.id.fragment_main_add_podcast_fab)).perform(click());
 
-        final IdlingResource podcastSearchCompleteOrErrorLoadingIdlingResource =
+        final IdlingResource podcastSearchLoadingIdlingResource =
+                getIdlingResource(
+                        MainActivity::getPodcastSearchResultPodcastListLoadingIdlingResource
+                );
+        final IdlingResource podcastSearchCompleteOrErrorIdlingResource =
                 getIdlingResource(
                         MainActivity::getPodcastSearchResultPodcastListCompleteOrErrorIdlingResource
                 );
@@ -189,7 +205,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                 typeText(planetMoney),
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
-        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorLoadingIdlingResource);
+        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorIdlingResource);
         planetMoneySearchForPodcasts2NetworkPauser.resume();
 
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).check(
@@ -199,7 +215,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                 )
         );
 
-        IdlingRegistry.getInstance().unregister(podcastSearchCompleteOrErrorLoadingIdlingResource);
+        IdlingRegistry.getInstance().unregister(podcastSearchCompleteOrErrorIdlingResource);
 
         onView(withId(R.id.fragment_podcast_search_search_view)).perform(clickSearchViewCloseButton());
 
@@ -208,6 +224,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                 pressKey(KeyEvent.KEYCODE_ENTER)
         );
 
+        IdlingRegistry.getInstance().register(podcastSearchLoadingIdlingResource);
         onView(withId(R.id.fragment_podcast_list_empty_loading_progress_bar)).check(
                 matches(
                         isDisplayed()
@@ -218,8 +235,9 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
                         isDisplayed()
                 )
         );
+        IdlingRegistry.getInstance().unregister(podcastSearchLoadingIdlingResource);
 
-        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorLoadingIdlingResource);
+        IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorIdlingResource);
         modernLoveSearchForPodcasts2NetworkPauser.resume();
 
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).check(
@@ -231,7 +249,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
     }
 
     @Test
-    public void searchForPlanetMoneyThenSelectPlanetMoneyThenSwitchBackDoesntReload() {
+    public void searchForPlanetMoneyThenSelectPlanetMoneyThenSwitchBackDoesntReload() throws Exception {
         final String planetMoney = "Planet Money";
         final NetworkPauser planetMoneySearchForPodcasts2NetworkPauser = new NetworkPauser();
         final NetworkPauser extraSearchForPodcasts2NetworkPauser = new NetworkPauser();

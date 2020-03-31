@@ -377,8 +377,8 @@ public abstract class RxAsyncValueFragment<
                 viewFacadeFactory,
                 stateObservableProvider,
                 (fragmentType, listener, context, viewHolder) -> {
-                    loadingMutableIdlingResource.setBusy();
-                    completeOrFailedMutableIdlingResource.setBusy();
+//                    loadingMutableIdlingResource.setBusy();
+//                    completeOrFailedMutableIdlingResource.setBusy();
 
                     if (unrenderer != null) {
                         unrenderer.unrender(fragmentType, listener, context, viewHolder);
@@ -404,6 +404,8 @@ public abstract class RxAsyncValueFragment<
                         );
                     } else {
                         // leave idling resources busy
+                        loadingMutableIdlingResource.setBusy();
+                        completeOrFailedMutableIdlingResource.setBusy();
                     }
                 }
         );

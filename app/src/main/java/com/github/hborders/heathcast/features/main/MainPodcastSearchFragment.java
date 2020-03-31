@@ -108,7 +108,7 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
 
         @Override
         public boolean isEnabled() {
-            return false;
+            return enabled;
         }
 
         @Override
@@ -119,6 +119,7 @@ public final class MainPodcastSearchFragment extends PodcastSearchFragment<
 
     public MainPodcastSearchFragment() {
         super(
+                MainPodcastSearchFragment.class,
                 MainPodcastSearchFragmentListener.class,
                 MainPodcastSearchPodcastIdentifiedListServiceResponseLoading::new,
                 MainPodcastSearchPodcastIdentifiedListServiceResponseComplete::new,

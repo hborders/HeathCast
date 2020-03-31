@@ -1,281 +1,535 @@
 package com.github.hborders.heathcast.fragments;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.android.ViewUtil;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
-import com.github.hborders.heathcast.parcelables.PodcastIdentifiedHolder;
-import com.github.hborders.heathcast.views.recyclerviews.ItemRange;
+import com.github.hborders.heathcast.reactivexandroid.RxFragment;
+import com.github.hborders.heathcast.reactivexandroid.RxListAsyncValueFragment;
+import com.github.hborders.heathcast.reactivexandroid.RxValueFragment;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
 
-public final class PodcastListFragment extends Fragment {
+// Next, I should consume it in the MainFragment as well
+public abstract class PodcastListFragment<
+        PodcastListFragmentType extends PodcastListFragment<
+                        PodcastListFragmentType,
+                        PodcastListFragmentListenerType,
+                        PodcastListAttachmentType,
+                        PodcastIdentifiedListStateType,
+                        PodcastIdentifiedListAsyncStateType,
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+        PodcastListFragmentListenerType extends PodcastListFragment.PodcastListFragmentListener<
+                PodcastListFragmentType,
+                PodcastListFragmentListenerType,
+                PodcastListAttachmentType,
+                PodcastIdentifiedListStateType,
+                PodcastIdentifiedListAsyncStateType,
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        PodcastListAttachmentType extends RxFragment.Attachment<
+                PodcastListFragmentType,
+                PodcastListFragmentListenerType,
+                PodcastListAttachmentType
+                >,
+        PodcastIdentifiedListStateType extends PodcastListFragment.PodcastIdentifiedListState<
+                PodcastIdentifiedListAsyncStateType,
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        PodcastIdentifiedListAsyncStateType extends PodcastListFragment.PodcastIdentifiedListAsyncState<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        LoadingType extends PodcastListFragment.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        CompleteType extends PodcastListFragment.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
+        FailedType extends PodcastListFragment.PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                LoadingType,
+                CompleteType,
+                FailedType
+                >
+        > extends RxListAsyncValueFragment<
+        PodcastListFragmentType,
+        PodcastListFragmentListenerType,
+        PodcastListAttachmentType
+        > {
+    public interface PodcastListFragmentListener<
+            PodcastListFragmentType extends PodcastListFragment<
+                                PodcastListFragmentType,
+                                PodcastListFragmentListenerType,
+                                PodcastListAttachmentType,
+                                PodcastIdentifiedListStateType,
+                                PodcastIdentifiedListAsyncStateType,
+                                LoadingType,
+                                CompleteType,
+                                FailedType
+                                >,
+            PodcastListFragmentListenerType extends PodcastListFragmentListener<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastListAttachmentType extends RxFragment.Attachment<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType
+                    >,
+            PodcastIdentifiedListStateType extends PodcastIdentifiedListState<
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastIdentifiedListAsyncStateType extends PodcastIdentifiedListAsyncState<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > {
+        void onPodcastListFragmentAttached(PodcastListFragmentType podcastListFragment);
+
+        Observable<PodcastIdentifiedListStateType> podcastIdentifiedListStateObservable(
+                PodcastListFragmentType podcastListFragment
+        );
+
+        void onClickPodcastIdentified(
+                PodcastListFragmentType podcastListFragment,
+                PodcastIdentified podcastIdentified
+        );
+
+        void onPodcastListFragmentWillDetach(PodcastListFragmentType podcastListFragment);
+    }
+
+    public interface PodcastIdentifiedListState<
+            PodcastIdentifiedListAsyncStateType extends PodcastIdentifiedListAsyncState<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > extends State<
+            PodcastIdentifiedListAsyncStateType
+            > {
+    }
+
+    public interface PodcastIdentifiedListAsyncState<
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > extends AsyncState<
+            LoadingType,
+            CompleteType,
+            FailedType,
+            PodcastIdentifiedList
+            > {
+        interface PodcastIdentifiedListAsyncStateLoading<
+                LoadingType extends PodcastIdentifiedListAsyncStateLoading<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                CompleteType extends PodcastIdentifiedListAsyncStateComplete<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                FailedType extends PodcastIdentifiedListAsyncStateFailed<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >
+                > extends AsyncState.Loading<
+                LoadingType,
+                CompleteType,
+                FailedType,
+                PodcastIdentifiedList
+                > {
+        }
+
+        interface PodcastIdentifiedListAsyncStateComplete<
+                LoadingType extends PodcastIdentifiedListAsyncStateLoading<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                CompleteType extends PodcastIdentifiedListAsyncStateComplete<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                FailedType extends PodcastIdentifiedListAsyncStateFailed<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >
+                > extends AsyncState.Complete<
+                LoadingType,
+                CompleteType,
+                FailedType,
+                PodcastIdentifiedList
+                > {
+        }
+
+        interface PodcastIdentifiedListAsyncStateFailed<
+                LoadingType extends PodcastIdentifiedListAsyncStateLoading<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                CompleteType extends PodcastIdentifiedListAsyncStateComplete<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >,
+                FailedType extends PodcastIdentifiedListAsyncStateFailed<
+                        LoadingType,
+                        CompleteType,
+                        FailedType
+                        >
+                > extends AsyncState.Failed<
+                LoadingType,
+                CompleteType,
+                FailedType,
+                PodcastIdentifiedList
+                > {
+        }
+    }
+
+    private static final class ViewFacade implements ListViewFacade<
+            PodcastIdentifiedList,
+            PodcastIdentified
+            > {
+        private final AtomicBoolean disposed = new AtomicBoolean();
+        private final View view;
+        private final RecyclerView recyclerView;
+        private final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter;
+        private final View emptyItemsLoadingView;
+        private final View nonEmptyItemsLoadingView;
+        private final View emptyItemsCompleteView;
+        private final View emptyItemsFailedView;
+        private final View nonEmptyItemsFailedView;
+
+        private ViewFacade(
+                View view,
+                RecyclerView recyclerView,
+                PodcastRecyclerViewAdapter podcastRecyclerViewAdapter,
+                View emptyItemsLoadingView,
+                View nonEmptyItemsLoadingView,
+                View emptyItemsCompleteView,
+                View emptyItemsFailedView,
+                View nonEmptyItemsFailedView
+        ) {
+            this.view = view;
+            this.recyclerView = recyclerView;
+            this.podcastRecyclerViewAdapter = podcastRecyclerViewAdapter;
+            this.emptyItemsLoadingView = emptyItemsLoadingView;
+            this.nonEmptyItemsLoadingView = nonEmptyItemsLoadingView;
+            this.emptyItemsCompleteView = emptyItemsCompleteView;
+            this.emptyItemsFailedView = emptyItemsFailedView;
+            this.nonEmptyItemsFailedView = nonEmptyItemsFailedView;
+        }
+
+        @Override
+        public void dispose() {
+            // theoretically, we could clean up after the recyclerView here
+            // if it was shared or something
+            disposed.set(true);
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return disposed.get();
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            ViewUtil.setUserInteractionEnabled(
+                    view,
+                    enabled
+            );
+        }
+
+        @Override
+        public void setListValue(PodcastIdentifiedList listValue) {
+            podcastRecyclerViewAdapter.setItems(listValue);
+        }
+
+        @Override
+        public void setEmptyItemsLoadingViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    emptyItemsLoadingView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setNonEmptyItemsLoadingViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    nonEmptyItemsLoadingView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setEmptyItemsCompleteViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    emptyItemsCompleteView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setListViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    recyclerView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setEmptyItemsFailedViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    emptyItemsFailedView,
+                    visible
+            );
+        }
+
+        @Override
+        public void setNonEmptyItemsFailedViewVisible(boolean visible) {
+            ViewUtil.setVisibility(
+                    nonEmptyItemsFailedView,
+                    visible
+            );
+        }
+    }
+
+    private static final class ViewFacadeFactory<
+            PodcastListFragmentType extends PodcastListFragment<
+                                PodcastListFragmentType,
+                                PodcastListFragmentListenerType,
+                                PodcastListAttachmentType,
+                                PodcastIdentifiedListStateType,
+                                PodcastIdentifiedListAsyncStateType,
+                                LoadingType,
+                                CompleteType,
+                                FailedType
+                                >,
+            PodcastListFragmentListenerType extends PodcastListFragmentListener<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastListAttachmentType extends RxFragment.Attachment<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType
+                    >,
+            PodcastIdentifiedListStateType extends PodcastIdentifiedListState<
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            PodcastIdentifiedListAsyncStateType extends PodcastIdentifiedListAsyncState<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            LoadingType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateLoading<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            CompleteType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateComplete<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
+            FailedType extends PodcastIdentifiedListAsyncState.PodcastIdentifiedListAsyncStateFailed<
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >
+            > implements RxValueFragment.ViewFacadeFactory<
+            PodcastListFragmentType,
+            PodcastListFragmentListenerType,
+            PodcastListAttachmentType,
+            ViewFacade
+            > {
+        @Override
+        public ViewFacade newViewFacade(
+                PodcastListFragmentType fragment,
+                PodcastListFragmentListenerType listener,
+                Context context,
+                View view
+        ) {
+            final RecyclerView recyclerView =
+                    view.requireViewById(
+                            R.id.fragment_podcast_list_podcasts_recycler_view
+                    );
+            final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter =
+                    new PodcastRecyclerViewAdapter(
+                            new PodcastIdentifiedList(),
+                            podcastIdentified ->
+                                    listener.onClickPodcastIdentified(
+                                            fragment,
+                                            podcastIdentified
+                                    )
+                    );
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            recyclerView.setAdapter(podcastRecyclerViewAdapter);
+            final View emptyItemsLoadingView =
+                    view.requireViewById(
+                            R.id.fragment_podcast_list_empty_loading_group
+                    );
+            final View nonEmptyItemsLoadingView =
+                    view.requireViewById(
+                            R.id.fragment_podcast_list_non_empty_loading_group
+                    );
+            final View emptyItemsCompleteView =
+                    view.requireViewById(
+                            R.id.fragment_podcast_list_empty_complete_text_view
+                    );
+            final View emptyItemsFailedView =
+                    view.requireViewById(
+                            R.id.fragment_podcast_list_empty_error_text_view
+                    );
+            final View nonEmptyItemsFailedView =
+                    view.requireViewById(
+                            R.id.fragment_podcast_list_non_empty_error_text_view
+                    );
+
+            return new ViewFacade(
+                    view,
+                    recyclerView,
+                    podcastRecyclerViewAdapter,
+                    emptyItemsLoadingView,
+                    nonEmptyItemsLoadingView,
+                    emptyItemsCompleteView,
+                    emptyItemsFailedView,
+                    nonEmptyItemsFailedView
+            );
+        }
+    }
+
     private static final String TAG = "PodcastList";
-    private static final String PODCAST_PARCELABLES_KEY = "podcastParcelables";
-    private static final String ITEM_RANGE_ENABLED_KEY = "itemRangeEnabled";
 
-    private final BehaviorSubject<Optional<ItemRange>> itemRangeOptionalBehaviorSubject =
-            BehaviorSubject.createDefault(Optional.empty());
-    private boolean itemRangeEnabled;
-
-    @Nullable
-    private PodcastListFragmentListener listener;
-
-    @Nullable
-    private PodcastRecyclerViewAdapter adapter;
-
-    @Nullable
-    private Disposable disposable;
-
-    public PodcastListFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        final PodcastListFragmentListener listener = FragmentUtil.requireFragmentListener(
-                this,
-                context,
-                PodcastListFragmentListener.class
-        );
-        this.listener = listener;
-        listener.onPodcastListFragmentAttached(this);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            itemRangeEnabled = savedInstanceState.getBoolean(ITEM_RANGE_ENABLED_KEY);
-        }
-    }
-
-    @Override
-    @Nullable
-    public View onCreateView(LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(
-                R.layout.fragment_podcast_list,
-                container,
-                false
-        );
-    }
-
-    @Override
-    public void onViewCreated(
-            View view,
-            @Nullable Bundle savedInstanceState
+    protected <
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType
+                    >,
+            OnAttachedType extends OnAttached<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType
+                    >,
+            WillDetachType extends WillDetach<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType
+                    >,
+            StateObservableProviderType extends StateObservableProvider<
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType
+                    >
+            > PodcastListFragment(
+            Class<PodcastListFragmentType> selfClass,
+            Class<PodcastListFragmentListenerType> listenerClass,
+            AttachmentFactoryType attachmentFactory,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
+            StateObservableProviderType stateObservableProvider
     ) {
-        super.onViewCreated(view, savedInstanceState);
-
-        final RecyclerView podcastsRecyclerView =
-                view.requireViewById(R.id.fragment_podcast_list_podcasts_recycler_view);
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
-        podcastsRecyclerView.setLayoutManager(linearLayoutManager);
-        @Nullable final PodcastIdentifiedList podcastIdentifieds =
-                FragmentUtil.getUnparcelableListArgument(
-                        this,
-                        PodcastIdentifiedHolder.class,
-                        PodcastIdentifiedList::new,
-                        PODCAST_PARCELABLES_KEY
-                );
-        final PodcastRecyclerViewAdapter adapter = new PodcastRecyclerViewAdapter(
-                podcastIdentifieds == null ? new PodcastIdentifiedList() : podcastIdentifieds,
-                identifiedPodcast ->
-                        Objects.requireNonNull(this.listener).onClick(
-                                this,
-                                identifiedPodcast)
+        super(
+                selfClass,
+                listenerClass,
+                attachmentFactory,
+                onAttached,
+                willDetach,
+                R.layout.fragment_podcast_list,
+                TAG,
+                new ViewFacadeFactory<>(),
+                stateObservableProvider
         );
-        this.adapter = adapter;
-        podcastsRecyclerView.setAdapter(adapter);
-        podcastsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (itemRangeEnabled) {
-                    @Nullable final RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
-                    final Optional<ItemRange> itemRangeOptional;
-                    if (adapter == null) {
-                        itemRangeOptional = Optional.empty();
-                    } else {
-                        @Nullable final RecyclerView.LayoutManager recyclerViewLayoutManager =
-                                recyclerView.getLayoutManager();
-                        if (linearLayoutManager != recyclerViewLayoutManager) {
-                            throw new IllegalStateException("RecyclerView.layoutManager should be: "
-                                    + linearLayoutManager +
-                                    " but is: "
-                                    + recyclerViewLayoutManager
-                            );
-                        }
-
-                        final int itemCount = adapter.getItemCount();
-                        final int firstVisibleItemPosition =
-                                linearLayoutManager.findFirstVisibleItemPosition();
-                        if (firstVisibleItemPosition == RecyclerView.NO_POSITION) {
-                            itemRangeOptional = Optional.of(
-                                    ItemRange.invisible(itemCount)
-                            );
-                        } else {
-                            final int lastVisibleItemPosition =
-                                    linearLayoutManager.findLastVisibleItemPosition();
-                            if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
-                                throw new IllegalStateException(
-                                        "A firstVisibleItemPosition: "
-                                                + firstVisibleItemPosition
-                                                + " should imply a " +
-                                                "lastVisibleItemPosition"
-                                );
-                            } else {
-                                itemRangeOptional = Optional.of(
-                                        ItemRange.visible(
-                                                itemCount,
-                                                firstVisibleItemPosition,
-                                                lastVisibleItemPosition
-                                        )
-                                );
-                            }
-                        }
-                    }
-                    itemRangeOptionalBehaviorSubject.onNext(itemRangeOptional);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        disposable = Objects.requireNonNull(this.listener)
-                .podcastIdentifiedsObservable(this)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        podcastIdentifieds -> {
-                            final Bundle args = new Bundle();
-                            args.putParcelableArray(
-                                    PODCAST_PARCELABLES_KEY,
-                                    podcastIdentifieds
-                                            .stream()
-                                            .map(PodcastIdentifiedHolder::new)
-                                            .toArray(PodcastIdentifiedHolder[]::new)
-                            );
-                            setArguments(args);
-                            Objects.requireNonNull(this.adapter).setItems(podcastIdentifieds);
-                        },
-                        throwable -> {
-                            Objects.requireNonNull(this.listener).onPodcastIdentifiedsError(
-                                    this,
-                                    throwable
-                            );
-                            Log.e(
-                                    TAG,
-                                    "Error loading podcast list",
-                                    throwable
-                            );
-                        }
-                );
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putBoolean(
-                ITEM_RANGE_ENABLED_KEY,
-                itemRangeEnabled
-        );
-
-        afterOnSaveInstanceStateOrOnStop();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        afterOnSaveInstanceStateOrOnStop();
-    }
-
-    // Note that `onStop` is only called before `onSaveInstanceState()` on Android 28+ devices.
-    // Prior to that, the order can be reversed - this is a case Lifecycle specifically handles.
-    // I was under the impression that `AutoDispose` does as well
-    // https://androidstudygroup.slack.com/archives/C09HE40J0/p1551849597051100
-
-    private void afterOnSaveInstanceStateOrOnStop() {
-        @Nullable final Disposable disposable = this.disposable;
-        if (disposable != null) {
-            disposable.dispose();
-            this.disposable = null;
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onDetach() {
-        final PodcastListFragmentListener listener = Objects.requireNonNull(this.listener);
-        this.listener = null;
-        listener.onPodcastListFragmentWillDetach(this);
-
-        super.onDetach();
-    }
-
-    public void enableItemRangeObservable() {
-        itemRangeEnabled = true;
-    }
-
-    public Observable<Optional<ItemRange>> getItemRangeOptionalObservable() {
-        return itemRangeOptionalBehaviorSubject;
-    }
-
-    public interface PodcastListFragmentListener {
-        void onPodcastListFragmentAttached(PodcastListFragment podcastListFragment);
-
-        Observable<PodcastIdentifiedList> podcastIdentifiedsObservable(
-                PodcastListFragment podcastListFragment
-        );
-
-        void onPodcastIdentifiedsError(
-                PodcastListFragment podcastListFragment,
-                Throwable throwable
-        );
-
-        void onClick(
-                PodcastListFragment podcastListFragment,
-                PodcastIdentified identifiedPodcast
-        );
-
-        void onPodcastListFragmentWillDetach(PodcastListFragment podcastListFragment);
     }
 }
