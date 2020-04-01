@@ -24,7 +24,7 @@ public abstract class RxListAsyncValueFragment<
     protected interface ListViewFacade<
             UnparcelableListValueType extends List<UnparcelableItemType>,
             UnparcelableItemType
-            > extends ViewFacade {
+            > extends AsyncValueViewFacade {
         void setListValue(UnparcelableListValueType listValue);
 
         void setEmptyItemsLoadingViewVisible(boolean visible);

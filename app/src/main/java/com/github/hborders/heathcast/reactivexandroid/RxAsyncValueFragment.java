@@ -4,10 +4,12 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.test.espresso.IdlingResource;
 
+import com.github.hborders.heathcast.android.ViewUtil.ViewAction;
 import com.github.hborders.heathcast.core.Either31;
 import com.github.hborders.heathcast.core.Function;
 import com.github.hborders.heathcast.core.VoidFunction;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
+import com.github.hborders.heathcast.idlingresource.MutableIdlingResource.Deceleration;
 
 // Make this RxAsyncValue
 // Make RxValue just have the Model+ViewHolder+Renderer
@@ -181,6 +183,10 @@ public abstract class RxAsyncValueFragment<
         );
     }
 
+    protected interface AsyncValueViewFacade extends ViewFacade {
+        void doOnLayout(ViewAction viewAction);
+    }
+
     private final IdlingResource loadingIdlingResource;
     private final IdlingResource completeOrFailedIdlingResource;
 
@@ -204,7 +210,7 @@ public abstract class RxAsyncValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewFacadeType
+                    AsyncValueViewFacadeType
                     >,
             StateObservableProviderType extends StateObservableProvider<
                     FragmentType,
@@ -217,7 +223,7 @@ public abstract class RxAsyncValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewFacadeType
+                    AsyncValueViewFacadeType
                     >,
             RendererType extends Renderer<
                     FragmentType,
@@ -225,7 +231,7 @@ public abstract class RxAsyncValueFragment<
                     AttachmentType,
                     StateType,
                     AsyncStateType,
-                    ViewFacadeType
+                    AsyncValueViewFacadeType
                     >,
             StateType extends State<AsyncStateType>,
             AsyncStateType extends AsyncState<
@@ -252,7 +258,7 @@ public abstract class RxAsyncValueFragment<
                     FailedType,
                     UnparcelableValueType
                     >,
-            ViewFacadeType extends ViewFacade,
+            AsyncValueViewFacadeType extends AsyncValueViewFacade,
             UnparcelableValueType
             > RxAsyncValueFragment(
             Class<FragmentType> selfClass,
@@ -303,7 +309,7 @@ public abstract class RxAsyncValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewFacadeType
+                    AsyncValueViewFacadeType
                     >,
             StateObservableProviderType extends StateObservableProvider<
                     FragmentType,
@@ -316,7 +322,7 @@ public abstract class RxAsyncValueFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ViewFacadeType
+                    AsyncValueViewFacadeType
                     >,
             RendererType extends Renderer<
                     FragmentType,
@@ -324,7 +330,7 @@ public abstract class RxAsyncValueFragment<
                     AttachmentType,
                     StateType,
                     AsyncStateType,
-                    ViewFacadeType
+                    AsyncValueViewFacadeType
                     >,
             StateType extends State<AsyncStateType>,
             AsyncStateType extends AsyncState<
@@ -351,7 +357,7 @@ public abstract class RxAsyncValueFragment<
                     FailedType,
                     UnparcelableValueType
                     >,
-            ViewFacadeType extends ViewFacade,
+            AsyncValueViewFacadeType extends AsyncValueViewFacade,
             UnparcelableValueType
             > RxAsyncValueFragment(
             Class<FragmentType> selfClass,
@@ -376,34 +382,37 @@ public abstract class RxAsyncValueFragment<
                 layoutResource,
                 viewFacadeFactory,
                 stateObservableProvider,
-                (fragmentType, listener, context, viewHolder) -> {
+                (fragmentType, listener, context, viewFacade) -> {
 //                    loadingMutableIdlingResource.setBusy();
 //                    completeOrFailedMutableIdlingResource.setBusy();
 
                     if (unrenderer != null) {
-                        unrenderer.unrender(fragmentType, listener, context, viewHolder);
+                        unrenderer.unrender(fragmentType, listener, context, viewFacade);
                     }
                 },
-                (fragmentType, listener, context, viewHolder, state) -> {
-                    renderer.render(fragmentType, listener, context, viewHolder, state);
+                (fragmentType, listener, context, viewFacade, state) -> {
+                    renderer.render(fragmentType, listener, context, viewFacade, state);
 
                     if (state.isEnabled()) {
-                        state.getValue().act(
-                                loading -> {
-                                    loadingMutableIdlingResource.setIdle();
-                                    completeOrFailedMutableIdlingResource.setBusy();
-                                },
-                                complete -> {
-                                    loadingMutableIdlingResource.setBusy();
-                                    completeOrFailedMutableIdlingResource.setIdle();
-                                },
-                                failed -> {
-                                    loadingMutableIdlingResource.setBusy();
-                                    completeOrFailedMutableIdlingResource.setIdle();
-                                }
+                        final Deceleration deceleration =
+                                state.getValue().reduce(
+                                        loading -> {
+                                            completeOrFailedMutableIdlingResource.setBusy();
+                                            return loadingMutableIdlingResource.decelerate();
+                                        },
+                                        complete -> {
+                                            loadingMutableIdlingResource.setBusy();
+                                            return completeOrFailedMutableIdlingResource.decelerate();
+                                        },
+                                        failed -> {
+                                            loadingMutableIdlingResource.setBusy();
+                                            return completeOrFailedMutableIdlingResource.decelerate();
+                                        }
+                                );
+                        viewFacade.doOnLayout(
+                                view -> deceleration.maybeSetIdle()
                         );
                     } else {
-                        // leave idling resources busy
                         loadingMutableIdlingResource.setBusy();
                         completeOrFailedMutableIdlingResource.setBusy();
                     }

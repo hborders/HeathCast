@@ -10,8 +10,6 @@ import com.github.hborders.heathcast.core.Function;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
-// Make this RxAsyncValue
-// Make RxValue just have the Model+ViewHolder+Renderer
 public abstract class RxValueFragment<
         FragmentType extends RxFragment<
                 FragmentType,

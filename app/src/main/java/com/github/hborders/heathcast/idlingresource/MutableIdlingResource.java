@@ -1,7 +1,20 @@
 package com.github.hborders.heathcast.idlingresource;
 
+import androidx.annotation.CheckResult;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.annotation.Nullable;
 
+/**
+ * A thread-safe IdlingResource that supports mutation and staged idling.
+ *
+ * Staged idling: Busy -> Decelerating -> Idle
+ * If a #setBusy call happens while Decelerating, that Deceleration is invalid and no-ops.
+ * If a #setIdle call happens while Decelerating, that Deceleration is invalid and no-ops.
+ * After Deceleration#maybeSetIdle, that Deceleration is invalid and no-ops.
+ */
 public final class MutableIdlingResource implements NullabilitiedIdlingResource {
     public static MutableIdlingResource idle(String name) {
         return new MutableIdlingResource(
@@ -17,16 +30,31 @@ public final class MutableIdlingResource implements NullabilitiedIdlingResource 
         );
     }
 
+    public final class Deceleration {
+        private Deceleration() {
+        }
+
+        public void maybeSetIdle() {
+            if (
+                    decelerationAtomicReference.compareAndSet(
+                            this,
+                            null
+                    )
+            ) {
+                setIdle();
+            }
+        }
+    }
+
     private final String name;
+    private final AtomicBoolean idleNow = new AtomicBoolean();
 
-    private volatile boolean idleNow;
-
-    @Nullable
-    private volatile ResourceCallback resourceCallback;
+    private final AtomicReference<ResourceCallback> resourceCallbackAtomicReference = new AtomicReference<>();
+    private final AtomicReference<Deceleration> decelerationAtomicReference = new AtomicReference<>();
 
     private MutableIdlingResource(String name, boolean idleNow) {
         this.name = name;
-        this.idleNow = idleNow;
+        this.idleNow.set(idleNow);
     }
 
     // IdlingResource
@@ -38,7 +66,7 @@ public final class MutableIdlingResource implements NullabilitiedIdlingResource 
 
     @Override
     public boolean isIdleNow() {
-        return idleNow;
+        return idleNow.get();
     }
 
     @Override
@@ -47,14 +75,14 @@ public final class MutableIdlingResource implements NullabilitiedIdlingResource 
                 this,
                 "before registerIdleTransitionCallback"
         );
-        this.resourceCallback = resourceCallback;
+        this.resourceCallbackAtomicReference.set(resourceCallback);
         if (resourceCallback == null) {
             IdlingResourceLog.v(
                     this,
                     "no registerIdleTransitionCallback, so no immediate transitionToIdle"
             );
         } else {
-            if (idleNow) {
+            if (idleNow.get()) {
                 IdlingResourceLog.v(
                         this,
                         "before immediate transitionToIdle"
@@ -84,11 +112,19 @@ public final class MutableIdlingResource implements NullabilitiedIdlingResource 
                 this,
                 "before busy"
         );
-        idleNow = false;
+        decelerationAtomicReference.set(null);
+        idleNow.set(false);
         IdlingResourceLog.v(
                 this,
                 "after busy"
         );
+    }
+
+    @CheckResult
+    public Deceleration decelerate() {
+        final Deceleration deceleration = new Deceleration();
+        decelerationAtomicReference.set(deceleration);
+        return deceleration;
     }
 
     public void setIdle() {
@@ -96,9 +132,17 @@ public final class MutableIdlingResource implements NullabilitiedIdlingResource 
                 this,
                 "before idle"
         );
-        if (!idleNow) {
-            idleNow = true;
-            @Nullable final ResourceCallback resourceCallback = this.resourceCallback;
+        if (
+                idleNow.compareAndSet(
+                        false,
+                        true)
+        ) {
+            // technically this isn't necessary since leaving the old deceleration hanging around
+            // will just trigger a redundant setIdle() call, which is harmless, but I
+            // feel safer keeping state consistent.
+            decelerationAtomicReference.set(null);
+            @Nullable final ResourceCallback resourceCallback =
+                    this.resourceCallbackAtomicReference.get();
             if (resourceCallback == null) {
                 IdlingResourceLog.v(
                         this,

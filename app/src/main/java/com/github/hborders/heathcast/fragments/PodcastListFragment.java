@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.ViewUtil;
+import com.github.hborders.heathcast.android.ViewUtil.ViewAction;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
@@ -22,15 +23,15 @@ import io.reactivex.Observable;
 // Next, I should consume it in the MainFragment as well
 public abstract class PodcastListFragment<
         PodcastListFragmentType extends PodcastListFragment<
-                        PodcastListFragmentType,
-                        PodcastListFragmentListenerType,
-                        PodcastListAttachmentType,
-                        PodcastIdentifiedListStateType,
-                        PodcastIdentifiedListAsyncStateType,
-                        LoadingType,
-                        CompleteType,
-                        FailedType
-                        >,
+                PodcastListFragmentType,
+                PodcastListFragmentListenerType,
+                PodcastListAttachmentType,
+                PodcastIdentifiedListStateType,
+                PodcastIdentifiedListAsyncStateType,
+                LoadingType,
+                CompleteType,
+                FailedType
+                >,
         PodcastListFragmentListenerType extends PodcastListFragment.PodcastListFragmentListener<
                 PodcastListFragmentType,
                 PodcastListFragmentListenerType,
@@ -79,15 +80,15 @@ public abstract class PodcastListFragment<
         > {
     public interface PodcastListFragmentListener<
             PodcastListFragmentType extends PodcastListFragment<
-                                PodcastListFragmentType,
-                                PodcastListFragmentListenerType,
-                                PodcastListAttachmentType,
-                                PodcastIdentifiedListStateType,
-                                PodcastIdentifiedListAsyncStateType,
-                                LoadingType,
-                                CompleteType,
-                                FailedType
-                                >,
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
             PodcastListFragmentListenerType extends PodcastListFragmentListener<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
@@ -299,6 +300,8 @@ public abstract class PodcastListFragment<
             this.nonEmptyItemsFailedView = nonEmptyItemsFailedView;
         }
 
+        // Disposable
+
         @Override
         public void dispose() {
             // theoretically, we could clean up after the recyclerView here
@@ -311,6 +314,8 @@ public abstract class PodcastListFragment<
             return disposed.get();
         }
 
+        // ViewFacade
+
         @Override
         public void setEnabled(boolean enabled) {
             ViewUtil.setUserInteractionEnabled(
@@ -319,6 +324,18 @@ public abstract class PodcastListFragment<
             );
         }
 
+        // AsyncValueViewFacade
+
+        @Override
+        public void doOnLayout(ViewAction viewAction) {
+            ViewUtil.doOnLayout(
+                    view,
+                    viewAction
+            );
+        }
+
+        // ListViewFacade
+
         @Override
         public void setListValue(PodcastIdentifiedList listValue) {
             podcastRecyclerViewAdapter.setItems(listValue);
@@ -326,7 +343,7 @@ public abstract class PodcastListFragment<
 
         @Override
         public void setEmptyItemsLoadingViewVisible(boolean visible) {
-            ViewUtil.setVisibility(
+            ViewUtil.setVisible(
                     emptyItemsLoadingView,
                     visible
             );
@@ -334,7 +351,7 @@ public abstract class PodcastListFragment<
 
         @Override
         public void setNonEmptyItemsLoadingViewVisible(boolean visible) {
-            ViewUtil.setVisibility(
+            ViewUtil.setVisible(
                     nonEmptyItemsLoadingView,
                     visible
             );
@@ -342,7 +359,7 @@ public abstract class PodcastListFragment<
 
         @Override
         public void setEmptyItemsCompleteViewVisible(boolean visible) {
-            ViewUtil.setVisibility(
+            ViewUtil.setVisible(
                     emptyItemsCompleteView,
                     visible
             );
@@ -350,7 +367,7 @@ public abstract class PodcastListFragment<
 
         @Override
         public void setListViewVisible(boolean visible) {
-            ViewUtil.setVisibility(
+            ViewUtil.setVisible(
                     recyclerView,
                     visible
             );
@@ -358,7 +375,7 @@ public abstract class PodcastListFragment<
 
         @Override
         public void setEmptyItemsFailedViewVisible(boolean visible) {
-            ViewUtil.setVisibility(
+            ViewUtil.setVisible(
                     emptyItemsFailedView,
                     visible
             );
@@ -366,7 +383,7 @@ public abstract class PodcastListFragment<
 
         @Override
         public void setNonEmptyItemsFailedViewVisible(boolean visible) {
-            ViewUtil.setVisibility(
+            ViewUtil.setVisible(
                     nonEmptyItemsFailedView,
                     visible
             );
@@ -375,15 +392,15 @@ public abstract class PodcastListFragment<
 
     private static final class ViewFacadeFactory<
             PodcastListFragmentType extends PodcastListFragment<
-                                PodcastListFragmentType,
-                                PodcastListFragmentListenerType,
-                                PodcastListAttachmentType,
-                                PodcastIdentifiedListStateType,
-                                PodcastIdentifiedListAsyncStateType,
-                                LoadingType,
-                                CompleteType,
-                                FailedType
-                                >,
+                    PodcastListFragmentType,
+                    PodcastListFragmentListenerType,
+                    PodcastListAttachmentType,
+                    PodcastIdentifiedListStateType,
+                    PodcastIdentifiedListAsyncStateType,
+                    LoadingType,
+                    CompleteType,
+                    FailedType
+                    >,
             PodcastListFragmentListenerType extends PodcastListFragmentListener<
                     PodcastListFragmentType,
                     PodcastListFragmentListenerType,
