@@ -57,6 +57,7 @@ public interface Either<
             LeftValueType,
             RightValueType
             > {
+        LeftValueType getValue();
     }
 
     // Not final to allow reification
@@ -142,6 +143,7 @@ public interface Either<
             leftAction.apply(getSelf());
         }
 
+        @Override
         public LeftValueType getValue() {
             return value;
         }
@@ -172,6 +174,7 @@ public interface Either<
             LeftValueType,
             RightValueType
             > {
+        RightValueType getValue();
     }
 
     // Not final to allow reification
@@ -257,6 +260,7 @@ public interface Either<
             rightAction.apply(getSelf());
         }
 
+        @Override
         public RightValueType getValue() {
             return value;
         }

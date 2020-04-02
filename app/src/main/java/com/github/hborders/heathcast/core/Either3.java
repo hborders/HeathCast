@@ -90,6 +90,7 @@ public interface Either3<
             MiddleValueType,
             RightValueType
             > {
+        LeftValueType getValue();
     }
 
     // Not final to allow reification
@@ -194,6 +195,7 @@ public interface Either3<
             leftAction.apply(getSelf());
         }
 
+        @Override
         public LeftValueType getValue() {
             return value;
         }
@@ -239,6 +241,7 @@ public interface Either3<
             MiddleValueType,
             RightValueType
             > {
+        MiddleValueType getValue();
     }
 
     // Not final to allow reification
@@ -343,6 +346,7 @@ public interface Either3<
             middleAction.apply(getSelf());
         }
 
+        @Override
         public MiddleValueType getValue() {
             return value;
         }
@@ -388,6 +392,7 @@ public interface Either3<
             MiddleValueType,
             RightValueType
             > {
+        RightValueType getValue();
     }
 
     // Not final to allow reification
@@ -492,6 +497,7 @@ public interface Either3<
             rightAction.apply(getSelf());
         }
 
+        @Override
         public RightValueType getValue() {
             return value;
         }

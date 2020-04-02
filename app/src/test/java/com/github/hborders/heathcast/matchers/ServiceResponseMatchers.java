@@ -199,7 +199,7 @@ public final class ServiceResponseMatchers {
         @Override
         protected boolean matchesSafely(ServiceResponseType item) {
             return item.reduce(
-                    loading -> valueMatcher.matches(loading.value),
+                    loading -> valueMatcher.matches(loading.getValue()),
                     complete -> false,
                     failed -> false
             );
@@ -265,7 +265,7 @@ public final class ServiceResponseMatchers {
         protected boolean matchesSafely(ServiceResponseType item) {
             return item.reduce(
                     loading -> false,
-                    complete -> valueMatcher.matches(complete.value),
+                    complete -> valueMatcher.matches(complete.getValue()),
                     failed -> false
             );
         }
@@ -331,7 +331,7 @@ public final class ServiceResponseMatchers {
             return item.reduce(
                     loading -> false,
                     complete -> false,
-                    failed -> valueMatcher.matches(failed.value)
+                    failed -> valueMatcher.matches(failed.getValue())
             );
         }
 
