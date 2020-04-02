@@ -118,6 +118,7 @@ public abstract class PodcastSearchFragment<
 
     private final Class<PodcastSearchFragmentType> selfClass;
     private final Class<PodcastSearchFragmentListenerType> listenerClass;
+    private final PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory;
     private final PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory;
     private final PodcastSearchPodcastListStateFactory podcastSearchPodcastListStateFactory;
 
@@ -161,6 +162,7 @@ public abstract class PodcastSearchFragment<
     ) {
         this.selfClass = selfClass;
         this.listenerClass = listenerClass;
+        this.loadingFactory = loadingFactory;
         this.completeFactory = completeFactory;
         this.podcastSearchPodcastListStateFactory = podcastSearchPodcastListStateFactory;
 
@@ -231,7 +233,7 @@ public abstract class PodcastSearchFragment<
                 podcastIdentifiedListStateBehaviorSubject.onNext(
                         podcastSearchPodcastListStateFactory.newPodcastSearchPodcastListState(
                                 false,
-                                completeFactory.newPodcastIdentifiedListServiceResponseComplete(
+                                loadingFactory.newPodcastIdentifiedListServiceResponseLoading(
                                         new PodcastIdentifiedList()
                                 )
                         )

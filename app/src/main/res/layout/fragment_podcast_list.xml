@@ -25,7 +25,7 @@
         app:constraint_referenced_ids="fragment_podcast_list_empty_loading_progress_bar, fragment_podcast_list_empty_loading_text_view"
         tools:visibility="visible" />
 
-    <com.github.hborders.heathcast.fragments.EmptyPodcastListProgressBar
+    <ProgressBar
         android:id="@+id/fragment_podcast_list_empty_loading_progress_bar"
         android:layout_width="0dp"
         android:layout_height="0dp"
