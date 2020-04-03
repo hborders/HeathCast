@@ -60,6 +60,38 @@ public final class ViewUtil {
      */
     public static void doOnNextLayout(
             View view,
+            Runnable runnable
+    ) {
+        view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(
+                    View view_,
+                    int left,
+                    int top,
+                    int right,
+                    int bottom,
+                    int oldLeft,
+                    int oldTop,
+                    int oldRight,
+                    int oldBottom
+            ) {
+                // it's important that we reference [view_] here and not [view]
+                // so that we don't need to call extra accessors
+                view_.removeOnLayoutChangeListener(this);
+                runnable.run();
+            }
+        });
+    }
+
+    /**
+     * Performs the given action when this view is next laid out.
+     * <p>
+     * The action will only be invoked once on the next layout and then removed.
+     *
+     * @see #doOnLayout
+     */
+    public static void doOnNextLayout(
+            View view,
             ViewAction viewAction
     ) {
         view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -81,6 +113,29 @@ public final class ViewUtil {
                 viewAction.act(view_);
             }
         });
+    }
+
+    /**
+     * Performs the given action when this view is laid out. If the view has been laid out and it
+     * has not requested a layout, the action will be performed straight away, otherwise the
+     * action will be performed after the view is next laid out.
+     * <p>
+     * The action will only be invoked once on the next layout and then removed.
+     *
+     * @see #doOnNextLayout
+     */
+    public static void doOnLayout(
+            View view,
+            Runnable runnable
+    ) {
+        if (ViewCompat.isLaidOut(view)) {
+            runnable.run();
+        } else {
+            doOnNextLayout(
+                    view,
+                    runnable
+            );
+        }
     }
 
     /**

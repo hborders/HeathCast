@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.ViewUtil;
-import com.github.hborders.heathcast.android.ViewUtil.ViewAction;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
@@ -16,9 +15,12 @@ import com.github.hborders.heathcast.reactivexandroid.RxListAsyncValueFragment;
 import com.github.hborders.heathcast.reactivexandroid.RxValueFragment;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.subjects.CompletableSubject;
 
 // Next, I should consume it in the MainFragment as well
 public abstract class PodcastListFragment<
@@ -266,10 +268,22 @@ public abstract class PodcastListFragment<
         }
     }
 
-    private static final class ViewFacade implements ListViewFacade<
+    private static final class PodcastListViewFacade implements ListViewFacade<
+            PodcastListViewFacade,
+            PodcastListViewFacadeTransaction,
+            PodcastListViewFacadeEmptyAction,
             PodcastIdentifiedList,
             PodcastIdentified
             > {
+        public static PodcastListViewFacadeTransaction newPodcastListViewFacadeTransaction(
+                PodcastListViewFacade podcastListViewFacade
+        ) {
+            return new PodcastListViewFacadeTransaction(
+                    podcastListViewFacade,
+                    podcastListViewFacade.view
+            );
+        }
+
         private final AtomicBoolean disposed = new AtomicBoolean();
         private final View view;
         private final RecyclerView recyclerView;
@@ -280,7 +294,7 @@ public abstract class PodcastListFragment<
         private final View emptyItemsFailedView;
         private final View nonEmptyItemsFailedView;
 
-        private ViewFacade(
+        private PodcastListViewFacade(
                 View view,
                 RecyclerView recyclerView,
                 PodcastRecyclerViewAdapter podcastRecyclerViewAdapter,
@@ -321,16 +335,6 @@ public abstract class PodcastListFragment<
             ViewUtil.setUserInteractionEnabled(
                     view,
                     enabled
-            );
-        }
-
-        // AsyncValueViewFacade
-
-        @Override
-        public void doOnLayout(ViewAction viewAction) {
-            ViewUtil.doOnLayout(
-                    view,
-                    viewAction
             );
         }
 
@@ -390,6 +394,82 @@ public abstract class PodcastListFragment<
         }
     }
 
+    private static final class PodcastListViewFacadeTransaction implements ViewFacade.ViewFacadeTransaction<
+            PodcastListViewFacade,
+            PodcastListViewFacadeTransaction,
+            PodcastListViewFacadeEmptyAction
+            > {
+        private final ArrayList<PodcastListViewFacadeThunk> thunks = new ArrayList<>();
+        private final PodcastListViewFacade podcastListViewFacade;
+        private final View view;
+
+        PodcastListViewFacadeTransaction(
+                PodcastListViewFacade podcastListViewFacade,
+                View view
+        ) {
+            this.podcastListViewFacade = podcastListViewFacade;
+            this.view = view;
+        }
+
+        @Override
+        public <
+                ViewFacadeActionType extends ViewFacadeAction<
+                        PodcastListViewFacade,
+                        PodcastListViewFacadeTransaction,
+                        PodcastListViewFacadeEmptyAction,
+                        ArgType
+                        >,
+                ArgType
+                > PodcastListViewFacadeTransaction act(
+                ViewFacadeActionType action,
+                ArgType arg
+        ) {
+            thunks.add(
+                    podcastListViewFacade ->
+                            action.act(
+                                    podcastListViewFacade,
+                                    arg
+                            )
+            );
+
+            return this;
+        }
+
+        @Override
+        public Completable complete() {
+            final CompletableSubject completableSubject = CompletableSubject.create();
+            for (PodcastListViewFacadeThunk thunk : thunks) {
+                thunk.thunk(podcastListViewFacade);
+            }
+            ViewUtil.doOnLayout(
+                    view,
+                    completableSubject::onComplete
+            );
+            return completableSubject;
+        }
+    }
+
+    private interface PodcastListViewFacadeThunk {
+        void thunk(PodcastListViewFacade podcastListViewFacade);
+    }
+
+    private static final class PodcastListViewFacadeEmptyAction implements ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
+            PodcastListViewFacade,
+            PodcastListViewFacadeTransaction,
+            PodcastListViewFacadeEmptyAction
+            > {
+        private final PodcastListViewFacadeThunk thunk;
+
+        PodcastListViewFacadeEmptyAction(PodcastListViewFacadeThunk thunk) {
+            this.thunk = thunk;
+        }
+
+        @Override
+        public void act(PodcastListViewFacade viewFacade) {
+            thunk.thunk(viewFacade);
+        }
+    }
+
     private static final class ViewFacadeFactory<
             PodcastListFragmentType extends PodcastListFragment<
                     PodcastListFragmentType,
@@ -446,10 +526,10 @@ public abstract class PodcastListFragment<
             PodcastListFragmentType,
             PodcastListFragmentListenerType,
             PodcastListAttachmentType,
-            ViewFacade
+            PodcastListViewFacade
             > {
         @Override
-        public ViewFacade newViewFacade(
+        public PodcastListViewFacade newViewFacade(
                 PodcastListFragmentType fragment,
                 PodcastListFragmentListenerType listener,
                 Context context,
@@ -491,7 +571,7 @@ public abstract class PodcastListFragment<
                             R.id.fragment_podcast_list_non_empty_error_text_view
                     );
 
-            return new ViewFacade(
+            return new PodcastListViewFacade(
                     view,
                     recyclerView,
                     podcastRecyclerViewAdapter,
@@ -546,7 +626,8 @@ public abstract class PodcastListFragment<
                 R.layout.fragment_podcast_list,
                 TAG,
                 new ViewFacadeFactory<>(),
-                stateObservableProvider
+                stateObservableProvider,
+                PodcastListViewFacade::newPodcastListViewFacadeTransaction
         );
     }
 }

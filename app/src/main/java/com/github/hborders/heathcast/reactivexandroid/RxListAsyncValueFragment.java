@@ -2,8 +2,16 @@ package com.github.hborders.heathcast.reactivexandroid;
 
 import android.content.Context;
 
+import androidx.annotation.LayoutRes;
+
 import java.util.List;
 
+import io.reactivex.Completable;
+
+// Extract EmptyLoading, NonEmptyLoading, EmptyComplete, NonEmptyComplete,
+// EmptyFailed, NonEmptyFailed into RxAsyncValue
+// RxAsyncValueFragment can have its own ViewFacade that accepts a value
+// and RxListAsyncValueFragment can specify that to be a List
 public abstract class RxListAsyncValueFragment<
         FragmentType extends RxListAsyncValueFragment<
                 FragmentType,
@@ -22,9 +30,30 @@ public abstract class RxListAsyncValueFragment<
         AttachmentType
         > {
     protected interface ListViewFacade<
+            ListViewFacadeType extends ListViewFacade<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType,
+                    UnparcelableListValueType,
+                    UnparcelableItemType
+                    >,
+            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
             UnparcelableListValueType extends List<UnparcelableItemType>,
             UnparcelableItemType
-            > extends AsyncValueViewFacade {
+            > extends ViewFacade<
+            ListViewFacadeType,
+            ViewFacadeTransactionType,
+            ViewFacadeEmptyActionType
+            > {
         void setListValue(UnparcelableListValueType listValue);
 
         void setEmptyItemsLoadingViewVisible(boolean visible);
@@ -55,8 +84,21 @@ public abstract class RxListAsyncValueFragment<
             StateType extends State<AsyncStateType>,
             UnparcelableListValueType extends List<UnparcelableItemType>,
             ListViewFacadeType extends ListViewFacade<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType,
                     UnparcelableListValueType,
                     UnparcelableItemType
+                    >,
+            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
                     >,
             AsyncStateType extends AsyncState<
                     LoadingType,
@@ -89,72 +131,191 @@ public abstract class RxListAsyncValueFragment<
             AttachmentType,
             StateType,
             AsyncStateType,
-            ListViewFacadeType
+            ListViewFacadeType,
+            ViewFacadeTransactionType,
+            ViewFacadeEmptyActionType
             > {
         @Override
-        public void render(
+        public Completable render(
                 FragmentType fragmentType,
                 ListenerType listener,
                 Context context,
-                ListViewFacadeType listViewFacade,
-                StateType state
+                StateType state,
+                ViewFacadeTransactionType viewFacadeTransaction
         ) {
             final AsyncStateType asyncState = state.getValue();
             final UnparcelableListValueType items = asyncState.getValue();
-            listViewFacade.setListValue(items);
+            viewFacadeTransaction.act(
+                    ListViewFacadeType::setListValue,
+                    items
+            );
             if (items.isEmpty()) {
-                state.getValue().act(
-                        loading -> {
-                            listViewFacade.setEmptyItemsLoadingViewVisible(true);
-                            listViewFacade.setNonEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setEmptyItemsCompleteViewVisible(false);
-                            listViewFacade.setListViewVisible(false);
-                            listViewFacade.setEmptyItemsFailedViewVisible(false);
-                            listViewFacade.setNonEmptyItemsFailedViewVisible(false);
-                        },
-                        complete -> {
-                            listViewFacade.setEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setNonEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setEmptyItemsCompleteViewVisible(true);
-                            listViewFacade.setListViewVisible(false);
-                            listViewFacade.setEmptyItemsFailedViewVisible(false);
-                            listViewFacade.setNonEmptyItemsFailedViewVisible(false);
-                        },
-                        failed -> {
-                            listViewFacade.setEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setNonEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setEmptyItemsCompleteViewVisible(false);
-                            listViewFacade.setListViewVisible(false);
-                            listViewFacade.setEmptyItemsFailedViewVisible(true);
-                            listViewFacade.setNonEmptyItemsFailedViewVisible(false);
-                        }
+                return state.getValue().reduce(
+                        loading ->
+                                viewFacadeTransaction
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsLoadingViewVisible,
+                                                true
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsCompleteViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setListViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .complete(),
+                        complete ->
+                                viewFacadeTransaction
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsCompleteViewVisible,
+                                                true
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setListViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .complete(),
+                        failed ->
+                                viewFacadeTransaction
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsCompleteViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setListViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsFailedViewVisible,
+                                                true
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .complete()
                 );
             } else {
-                asyncState.act(
-                        loading -> {
-                            listViewFacade.setEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setNonEmptyItemsLoadingViewVisible(true);
-                            listViewFacade.setEmptyItemsCompleteViewVisible(false);
-                            listViewFacade.setListViewVisible(true);
-                            listViewFacade.setEmptyItemsFailedViewVisible(false);
-                            listViewFacade.setNonEmptyItemsFailedViewVisible(false);
-                        },
-                        complete -> {
-                            listViewFacade.setEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setNonEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setEmptyItemsCompleteViewVisible(false);
-                            listViewFacade.setListViewVisible(true);
-                            listViewFacade.setEmptyItemsFailedViewVisible(false);
-                            listViewFacade.setNonEmptyItemsFailedViewVisible(false);
-                        },
-                        failed -> {
-                            listViewFacade.setEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setNonEmptyItemsLoadingViewVisible(false);
-                            listViewFacade.setEmptyItemsCompleteViewVisible(false);
-                            listViewFacade.setListViewVisible(true);
-                            listViewFacade.setEmptyItemsFailedViewVisible(false);
-                            listViewFacade.setNonEmptyItemsFailedViewVisible(true);
-                        }
+                return asyncState.reduce(
+                        loading ->
+                                viewFacadeTransaction
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsLoadingViewVisible,
+                                                true
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsCompleteViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setListViewVisible,
+                                                true
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .complete(),
+                        complete ->
+                                viewFacadeTransaction
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsCompleteViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setListViewVisible,
+                                                true
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .complete(),
+                        failed ->
+                                viewFacadeTransaction
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsLoadingViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsCompleteViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setListViewVisible,
+                                                true
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setEmptyItemsFailedViewVisible,
+                                                false
+                                        )
+                                        .act(
+                                                ListViewFacadeType::setNonEmptyItemsFailedViewVisible,
+                                                true
+                                        )
+                                        .complete()
                 );
             }
         }
@@ -189,6 +350,10 @@ public abstract class RxListAsyncValueFragment<
                     StateType,
                     AsyncStateType
                     >,
+            ViewFacadeTransactionFactoryType extends ViewFacadeTransactionFactory<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType
+                    >,
             StateType extends State<AsyncStateType>,
             AsyncStateType extends AsyncState<
                     LoadingType,
@@ -214,11 +379,24 @@ public abstract class RxListAsyncValueFragment<
                     FailedType,
                     UnparcelableListValueType
                     >,
+            UnparcelableListValueType extends List<UnparcelableItemType>,
             ListViewFacadeType extends ListViewFacade<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType,
                     UnparcelableListValueType,
                     UnparcelableItemType
                     >,
-            UnparcelableListValueType extends List<UnparcelableItemType>,
+            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
+                    ListViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
             UnparcelableItemType
             > RxListAsyncValueFragment(
             Class<FragmentType> selfClass,
@@ -226,10 +404,11 @@ public abstract class RxListAsyncValueFragment<
             AttachmentFactoryType attachmentFactory,
             OnAttachedType onAttached,
             WillDetachType willDetach,
-            int layoutResource,
+            @LayoutRes int layoutResource,
             String idlingResourceNamePrefix,
             ViewFacadeFactoryType viewFacadeFactory,
-            StateObservableProviderType stateObservableProvider
+            StateObservableProviderType stateObservableProvider,
+            ViewFacadeTransactionFactoryType viewFacadeTransactionFactory
     ) {
         super(
                 selfClass,
@@ -241,7 +420,7 @@ public abstract class RxListAsyncValueFragment<
                 idlingResourceNamePrefix,
                 viewFacadeFactory,
                 stateObservableProvider,
-                null,
+                viewFacadeTransactionFactory,
                 new ListValueRenderer<>()
         );
     }

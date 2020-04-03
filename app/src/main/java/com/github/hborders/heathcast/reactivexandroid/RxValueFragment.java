@@ -3,10 +3,12 @@ package com.github.hborders.heathcast.reactivexandroid;
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
 
 import com.github.hborders.heathcast.core.Function;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
@@ -58,7 +60,110 @@ public abstract class RxValueFragment<
         );
     }
 
-    protected interface ViewFacade extends Disposable {
+    protected interface ViewFacade<
+            ViewFacadeType extends ViewFacade<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >
+            > extends Disposable {
+        interface ViewFacadeTransaction<
+                ViewFacadeType extends ViewFacade<
+                        ViewFacadeType,
+                        ViewFacadeTransactionType,
+                        ViewFacadeEmptyActionType
+                        >,
+                ViewFacadeTransactionType extends ViewFacadeTransaction<
+                        ViewFacadeType,
+                        ViewFacadeTransactionType,
+                        ViewFacadeEmptyActionType
+                        >,
+                ViewFacadeEmptyActionType extends ViewFacadeTransaction.ViewFacadeEmptyAction<
+                        ViewFacadeType,
+                        ViewFacadeTransactionType,
+                        ViewFacadeEmptyActionType
+                        >
+                > {
+
+            // Reifying ViewFacadeEmptyActionType might not work
+            // not sure how it will compile when I actually use it in
+            // RxListAsyncValueFragment
+            interface ViewFacadeEmptyAction<
+                    ViewFacadeType extends ViewFacade<
+                            ViewFacadeType,
+                            ViewFacadeTransactionType,
+                            ViewFacadeEmptyActionType
+                            >,
+                    ViewFacadeTransactionType extends ViewFacadeTransaction<
+                            ViewFacadeType,
+                            ViewFacadeTransactionType,
+                            ViewFacadeEmptyActionType
+                            >,
+                    ViewFacadeEmptyActionType extends ViewFacadeTransaction.ViewFacadeEmptyAction<
+                            ViewFacadeType,
+                            ViewFacadeTransactionType,
+                            ViewFacadeEmptyActionType
+                            >
+                    > {
+                void act(ViewFacadeType viewFacade);
+            }
+
+            interface ViewFacadeAction<
+                    ViewFacadeType extends ViewFacade<
+                            ViewFacadeType,
+                            ViewFacadeTransactionType,
+                            ViewFacadeEmptyActionType
+                            >,
+                    ViewFacadeTransactionType extends ViewFacadeTransaction<
+                            ViewFacadeType,
+                            ViewFacadeTransactionType,
+                            ViewFacadeEmptyActionType
+                            >,
+                    ViewFacadeEmptyActionType extends ViewFacadeTransaction.ViewFacadeEmptyAction<
+                            ViewFacadeType,
+                            ViewFacadeTransactionType,
+                            ViewFacadeEmptyActionType
+                            >,
+                    ArgType
+                    > {
+                void act(
+                        ViewFacadeType viewFacade,
+                        ArgType arg
+                );
+            }
+
+            // Need to figure out how to make this work
+            // Might be able to unreify ViewFacadeEmptyActionType
+            // but get it working reified first
+            // we can always make a new interface if necessary
+//            ViewFacadeTransactionType act(ViewFacadeEmptyActionType emptyAction);
+
+            <
+                    ViewFacadeActionType extends ViewFacadeAction<
+                            ViewFacadeType,
+                            ViewFacadeTransactionType,
+                            ViewFacadeEmptyActionType,
+                            ArgType
+                            >,
+                    ArgType
+                    > ViewFacadeTransactionType act(
+                    ViewFacadeActionType action,
+                    ArgType arg
+            );
+
+            Completable complete();
+        }
+
         void setEnabled(boolean enabled);
     }
 
@@ -84,26 +189,11 @@ public abstract class RxValueFragment<
         );
     }
 
-    protected interface Unrenderer<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ViewFacadeType
+    protected interface ViewFacadeTransactionFactory<
+            ViewFacadeType,
+            ViewFacadeTransactionType
             > {
-        void unrender(
-                FragmentType fragmentType,
-                ListenerType listener,
-                Context context,
-                ViewFacadeType viewFacade
-        );
+        ViewFacadeTransactionType newViewFacadeTransaction(ViewFacadeType viewFacade);
     }
 
     protected interface Renderer<
@@ -120,14 +210,29 @@ public abstract class RxValueFragment<
                     >,
             StateType extends State<UnparcelableValueType>,
             UnparcelableValueType,
-            ViewFacadeType
+            ViewFacadeType extends ViewFacade<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >
             > {
-        void render(
+        @CheckResult
+        Completable render(
                 FragmentType fragmentType,
                 ListenerType listener,
                 Context context,
-                ViewFacadeType viewFacade,
-                StateType state
+                StateType state,
+                ViewFacadeTransactionType viewFacadeTransaction
         );
     }
 
@@ -162,11 +267,9 @@ public abstract class RxValueFragment<
                     StateType,
                     UnparcelableValueType
                     >,
-            UnrendererType extends Unrenderer<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    ViewFacadeType
+            ViewFacadeTransactionFactoryType extends ViewFacadeTransactionFactory<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType
                     >,
             RendererType extends Renderer<
                     FragmentType,
@@ -174,12 +277,29 @@ public abstract class RxValueFragment<
                     AttachmentType,
                     StateType,
                     UnparcelableValueType,
-                    ViewFacadeType
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
                     >,
             StateType extends State<UnparcelableValueType>,
             UnparcelableValueType,
-            ViewFacadeType extends ViewFacade
-            > RxValueFragment(
+            ViewFacadeType extends ViewFacade<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >,
+            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
+                    ViewFacadeType,
+                    ViewFacadeTransactionType,
+                    ViewFacadeEmptyActionType
+                    >
+            >
+    RxValueFragment(
             Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
             AttachmentFactoryType attachmentFactory,
@@ -188,7 +308,7 @@ public abstract class RxValueFragment<
             @LayoutRes int layoutResource,
             ViewFacadeFactoryType viewFacadeFactory,
             StateObservableProviderType stateObservableProvider,
-            UnrendererType unrenderer,
+            ViewFacadeTransactionFactoryType viewFacadeTransactionFactory,
             RendererType renderer
     ) {
         super(
@@ -288,22 +408,22 @@ public abstract class RxValueFragment<
 
             return prerenderObservable.subscribe(
                     prerender -> {
-                        unrenderer.unrender(
-                                getSelf(),
-                                prerender.prez.listener,
-                                prerender.prez.context,
-                                prerender.prez.viewFacade
-                        );
+                        ViewFacadeTransactionType viewFacadeTransaction =
+                                viewFacadeTransactionFactory.newViewFacadeTransaction(
+                                        prerender.prez.viewFacade
+                                );
                         prerender.prez.viewFacade.setEnabled(
                                 prerender.state.isEnabled()
                         );
-                        renderer.render(
-                                getSelf(),
-                                prerender.prez.listener,
-                                prerender.prez.context,
-                                prerender.prez.viewFacade,
-                                prerender.state
-                        );
+
+                        final Completable ignored =
+                                renderer.render(
+                                        getSelf(),
+                                        prerender.prez.listener,
+                                        prerender.prez.context,
+                                        prerender.state,
+                                        viewFacadeTransaction
+                                );
                     }
             );
         };
