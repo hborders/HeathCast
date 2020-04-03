@@ -15,7 +15,6 @@ import com.github.hborders.heathcast.reactivexandroid.RxListAsyncValueFragment;
 import com.github.hborders.heathcast.reactivexandroid.RxValueFragment;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
-import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Completable;
@@ -271,7 +270,6 @@ public abstract class PodcastListFragment<
     private static final class PodcastListViewFacade implements ListViewFacade<
             PodcastListViewFacade,
             PodcastListViewFacadeTransaction,
-            PodcastListViewFacadeEmptyAction,
             PodcastIdentifiedList,
             PodcastIdentified
             > {
@@ -394,79 +392,31 @@ public abstract class PodcastListFragment<
         }
     }
 
-    private static final class PodcastListViewFacadeTransaction implements ViewFacade.ViewFacadeTransaction<
+    private static final class PodcastListViewFacadeTransaction extends ViewFacadeTransaction<
             PodcastListViewFacade,
-            PodcastListViewFacadeTransaction,
-            PodcastListViewFacadeEmptyAction
+            PodcastListViewFacadeTransaction
             > {
-        private final ArrayList<PodcastListViewFacadeThunk> thunks = new ArrayList<>();
-        private final PodcastListViewFacade podcastListViewFacade;
         private final View view;
 
         PodcastListViewFacadeTransaction(
                 PodcastListViewFacade podcastListViewFacade,
                 View view
         ) {
-            this.podcastListViewFacade = podcastListViewFacade;
+            super(
+                    PodcastListViewFacadeTransaction.class,
+                    podcastListViewFacade
+            );
             this.view = view;
         }
 
         @Override
-        public <
-                ViewFacadeActionType extends ViewFacadeAction<
-                        PodcastListViewFacade,
-                        PodcastListViewFacadeTransaction,
-                        PodcastListViewFacadeEmptyAction,
-                        ArgType
-                        >,
-                ArgType
-                > PodcastListViewFacadeTransaction act(
-                ViewFacadeActionType action,
-                ArgType arg
-        ) {
-            thunks.add(
-                    podcastListViewFacade ->
-                            action.act(
-                                    podcastListViewFacade,
-                                    arg
-                            )
-            );
-
-            return this;
-        }
-
-        @Override
         public Completable complete() {
-            final CompletableSubject completableSubject = CompletableSubject.create();
-            for (PodcastListViewFacadeThunk thunk : thunks) {
-                thunk.thunk(podcastListViewFacade);
-            }
+            final CompletableSubject completableSubject = transact();
             ViewUtil.doOnLayout(
                     view,
                     completableSubject::onComplete
             );
             return completableSubject;
-        }
-    }
-
-    private interface PodcastListViewFacadeThunk {
-        void thunk(PodcastListViewFacade podcastListViewFacade);
-    }
-
-    private static final class PodcastListViewFacadeEmptyAction implements ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
-            PodcastListViewFacade,
-            PodcastListViewFacadeTransaction,
-            PodcastListViewFacadeEmptyAction
-            > {
-        private final PodcastListViewFacadeThunk thunk;
-
-        PodcastListViewFacadeEmptyAction(PodcastListViewFacadeThunk thunk) {
-            this.thunk = thunk;
-        }
-
-        @Override
-        public void act(PodcastListViewFacade viewFacade) {
-            thunk.thunk(viewFacade);
         }
     }
 

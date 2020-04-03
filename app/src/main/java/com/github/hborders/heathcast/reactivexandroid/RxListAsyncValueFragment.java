@@ -33,26 +33,18 @@ public abstract class RxListAsyncValueFragment<
             ListViewFacadeType extends ListViewFacade<
                     ListViewFacadeType,
                     ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType,
                     UnparcelableListValueType,
                     UnparcelableItemType
                     >,
-            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+            ViewFacadeTransactionType extends ViewFacadeTransaction<
                     ListViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
-                    >,
-            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
-                    ListViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >,
             UnparcelableListValueType extends List<UnparcelableItemType>,
             UnparcelableItemType
             > extends ViewFacade<
             ListViewFacadeType,
-            ViewFacadeTransactionType,
-            ViewFacadeEmptyActionType
+            ViewFacadeTransactionType
             > {
         void setListValue(UnparcelableListValueType listValue);
 
@@ -86,19 +78,12 @@ public abstract class RxListAsyncValueFragment<
             ListViewFacadeType extends ListViewFacade<
                     ListViewFacadeType,
                     ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType,
                     UnparcelableListValueType,
                     UnparcelableItemType
                     >,
-            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+            ViewFacadeTransactionType extends ViewFacadeTransaction<
                     ListViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
-                    >,
-            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
-                    ListViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >,
             AsyncStateType extends AsyncState<
                     LoadingType,
@@ -132,8 +117,7 @@ public abstract class RxListAsyncValueFragment<
             StateType,
             AsyncStateType,
             ListViewFacadeType,
-            ViewFacadeTransactionType,
-            ViewFacadeEmptyActionType
+            ViewFacadeTransactionType
             > {
         @Override
         public Completable render(
@@ -383,19 +367,12 @@ public abstract class RxListAsyncValueFragment<
             ListViewFacadeType extends ListViewFacade<
                     ListViewFacadeType,
                     ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType,
                     UnparcelableListValueType,
                     UnparcelableItemType
                     >,
-            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+            ViewFacadeTransactionType extends ViewFacadeTransaction<
                     ListViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
-                    >,
-            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
-                    ListViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >,
             UnparcelableItemType
             > RxListAsyncValueFragment(

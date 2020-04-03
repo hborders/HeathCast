@@ -232,8 +232,7 @@ public abstract class RxAsyncValueFragment<
                     StateType,
                     AsyncStateType,
                     ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >,
             StateType extends State<AsyncStateType>,
             AsyncStateType extends AsyncState<
@@ -263,18 +262,11 @@ public abstract class RxAsyncValueFragment<
             UnparcelableValueType,
             ViewFacadeType extends ViewFacade<
                     ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >,
-            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+            ViewFacadeTransactionType extends ViewFacadeTransaction<
                     ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
-                    >,
-            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >
             > RxAsyncValueFragment(
             Class<FragmentType> selfClass,
@@ -345,8 +337,7 @@ public abstract class RxAsyncValueFragment<
                     StateType,
                     AsyncStateType,
                     ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >,
             StateType extends State<AsyncStateType>,
             AsyncStateType extends AsyncState<
@@ -376,18 +367,11 @@ public abstract class RxAsyncValueFragment<
             UnparcelableValueType,
             ViewFacadeType extends ViewFacade<
                     ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >,
-            ViewFacadeTransactionType extends ViewFacade.ViewFacadeTransaction<
+            ViewFacadeTransactionType extends ViewFacadeTransaction<
                     ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
-                    >,
-            ViewFacadeEmptyActionType extends ViewFacade.ViewFacadeTransaction.ViewFacadeEmptyAction<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType,
-                    ViewFacadeEmptyActionType
+                    ViewFacadeTransactionType
                     >
             > RxAsyncValueFragment(
             Class<FragmentType> selfClass,
