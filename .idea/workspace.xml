@@ -114,9 +114,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/ObjectTransaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/ObjectTransaction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxAsyncValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxAsyncValueFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -781,10 +780,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585513526860" />
-    <state width="735" height="123" key="javadoc.popup.new" timestamp="1586023771821">
+    <state width="735" height="123" key="javadoc.popup.new" timestamp="1586025566562">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="735" height="123" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586023771821" />
+    <state width="735" height="123" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586025566562" />
     <state width="620" height="143" key="javadoc.popup.new/3840.2400" timestamp="1577555866836" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1585956447110">
       <screen x="0" y="23" width="1920" height="1100" />

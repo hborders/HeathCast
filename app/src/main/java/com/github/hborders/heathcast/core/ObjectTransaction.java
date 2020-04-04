@@ -13,51 +13,50 @@ public abstract class ObjectTransaction<
                 >,
         ObjectType
         > {
-    public interface ObjectEmptyAction<
-            ObjectTransactionType extends ObjectTransaction<
-                    ObjectTransactionType,
-                    ObjectType
-                    >,
+    public interface ObjectAction0<
             ObjectType
             > {
-        void act(ObjectType viewFacade);
+        void act(ObjectType object);
     }
 
-    public interface ObjectAction<
-            ObjectTransactionType extends ObjectTransaction<
-                    ObjectTransactionType,
-                    ObjectType
-                    >,
+    public interface ObjectAction1<
             ObjectType,
-            ArgType
+            ArgType1
             > {
         void act(
-                ObjectType viewFacade,
-                ArgType arg
+                ObjectType object,
+                ArgType1 arg1
         );
     }
 
     public interface ObjectAction2<
-            ObjectTransactionType extends ObjectTransaction<
-                    ObjectTransactionType,
-                    ObjectType
-                    >,
             ObjectType,
             ArgType1,
             ArgType2
             > {
         void act(
-                ObjectType viewFacade,
+                ObjectType object,
                 ArgType1 arg1,
                 ArgType2 arg2
         );
     }
 
+    public interface ObjectAction3<
+            ObjectType,
+            ArgType1,
+            ArgType2,
+            ArgType3
+            > {
+        void act(
+                ObjectType object,
+                ArgType1 arg1,
+                ArgType2 arg2,
+                ArgType3 arg3
+        );
+    }
+
     private final ArrayList<
-            ObjectEmptyAction<
-                    ObjectTransactionType,
-                    ObjectType
-                    >
+            ObjectAction0<ObjectType>
             > emptyActions = new ArrayList<>();
     private final CompletableSubject completableSubject = CompletableSubject.create();
     private final Class<ObjectTransactionType> objectTransactionClass;
@@ -70,10 +69,7 @@ public abstract class ObjectTransaction<
     }
 
     public final ObjectTransactionType act(
-            ObjectEmptyAction<
-                    ObjectTransactionType,
-                    ObjectType
-                    > emptyAction
+            ObjectAction0<ObjectType> emptyAction
     ) {
         if (transacted) {
             throw new IllegalStateException("Can't act after transact");
@@ -84,28 +80,26 @@ public abstract class ObjectTransaction<
     }
 
     public final <
-            ObjectActionType extends ObjectAction<
-                    ObjectTransactionType,
-                    ObjectType,
-                    ArgType
-                    >,
-            ArgType
+            ObjectActionType extends ObjectAction1<
+                                ObjectType,
+                                ArgType1
+                                >,
+            ArgType1
             > ObjectTransactionType act(
             ObjectActionType action,
-            ArgType arg
+            ArgType1 arg1
     ) {
         return act(
-                viewFacade ->
+                object ->
                         action.act(
-                                viewFacade,
-                                arg
+                                object,
+                                arg1
                         )
         );
     }
 
     public final <
             ObjectAction2Type extends ObjectAction2<
-                    ObjectTransactionType,
                     ObjectType,
                     ArgType1,
                     ArgType2
@@ -118,11 +112,38 @@ public abstract class ObjectTransaction<
             ArgType2 arg2
     ) {
         return act(
-                viewFacade ->
+                object ->
                         action.act(
-                                viewFacade,
+                                object,
                                 arg1,
                                 arg2
+                        )
+        );
+    }
+
+    public final <
+            ObjectAction3Type extends ObjectAction3<
+                    ObjectType,
+                    ArgType1,
+                    ArgType2,
+                    ArgType3
+                    >,
+            ArgType1,
+            ArgType2,
+            ArgType3
+            > ObjectTransactionType act(
+            ObjectAction3Type action,
+            ArgType1 arg1,
+            ArgType2 arg2,
+            ArgType3 arg3
+    ) {
+        return act(
+                object ->
+                        action.act(
+                                object,
+                                arg1,
+                                arg2,
+                                arg3
                         )
         );
     }
@@ -137,10 +158,7 @@ public abstract class ObjectTransaction<
         }
 
         transacted = true;
-        for (ObjectEmptyAction<
-                ObjectTransactionType,
-                ObjectType
-                > emptyAction : emptyActions) {
+        for (ObjectAction0<ObjectType> emptyAction : emptyActions) {
             emptyAction.act(object);
         }
 

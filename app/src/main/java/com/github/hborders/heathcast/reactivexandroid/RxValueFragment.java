@@ -7,7 +7,6 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
 
 import com.github.hborders.heathcast.core.Function;
-import com.github.hborders.heathcast.core.ObjectTransaction;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -93,6 +92,10 @@ public abstract class RxValueFragment<
         void setValue(ValueUnparcelableType value);
     }
 
+    protected interface ValueViewFacadeTransaction {
+        Completable completeValue();
+    }
+
     protected interface ValueViewFacadeTransactionFactory<
             // even though we don't use these bounds in our declarations,
             // javac gives better error messages with boundary enforcement
@@ -108,13 +111,14 @@ public abstract class RxValueFragment<
                     ValueAttachmentType
                     >,
             ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>,
+            ValueStateType extends ValueState<ValueUnparcelableType>,
             ValueUnparcelableType,
-            ValueViewFacadeTransactionType extends ObjectTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
-                    >
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction
             > {
-        ValueViewFacadeTransactionType newValueViewFacadeTransaction(ValueViewFacadeType valueViewFacade);
+        ValueViewFacadeTransactionType newValueViewFacadeTransaction(
+                ValueViewFacadeType valueViewFacade,
+                ValueStateType valueState
+        );
     }
 
     protected interface ValueRenderer<
@@ -133,11 +137,7 @@ public abstract class RxValueFragment<
                     >,
             ValueStateType extends ValueState<ValueUnparcelableType>,
             ValueUnparcelableType,
-            ValueViewFacadeTransactionType extends ObjectTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
-                    >,
-            ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction
             > {
         @CheckResult
         Completable render(
@@ -188,21 +188,18 @@ public abstract class RxValueFragment<
                     ValueListenerType,
                     ValueAttachmentType,
                     ValueViewFacadeType,
+                    ValueStateType,
                     ValueUnparcelableType,
                     ValueViewFacadeTransactionType
                     >,
-            ValueViewFacadeTransactionType extends ObjectTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
-                    >,
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
             ValueRendererType extends ValueRenderer<
                     ValueFragmentType,
                     ValueListenerType,
                     ValueAttachmentType,
                     ValueStateType,
                     ValueUnparcelableType,
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
+                    ValueViewFacadeTransactionType
                     >
             >
     RxValueFragment(
@@ -316,17 +313,9 @@ public abstract class RxValueFragment<
                     prerender -> {
                         final ValueViewFacadeTransactionType valueViewFacadeTransaction =
                                 valueViewFacadeTransactionFactory.newValueViewFacadeTransaction(
-                                        prerender.prez.valueViewFacade
+                                        prerender.prez.valueViewFacade,
+                                        prerender.valueState
                                 );
-
-                        valueViewFacadeTransaction.act(
-                                ValueViewFacadeType::setEnabled,
-                                prerender.valueState.isEnabled()
-                        );
-                        valueViewFacadeTransaction.act(
-                                ValueViewFacadeType::setValue,
-                                prerender.valueState.getValue()
-                        );
 
                         final Completable ignored =
                                 valueRenderer.render(

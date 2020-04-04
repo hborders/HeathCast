@@ -206,10 +206,7 @@ public abstract class RxAsyncValueFragment<
     protected interface AsyncValueViewFacadeTransactionFactory<
             // even though we don't use these bounds in our declarations,
             // javac gives better error messages with boundary enforcement
-            ValueViewFacadeTransactionType extends ObjectTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
-                    >,
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
             ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>,
             ValueUnparcelableType,
             AsyncValueViewFacadeTransactionType extends ObjectTransaction<
@@ -260,10 +257,7 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueFailedType,
                     AsyncValueUnparcelableType
                     >,
-            ValueViewFacadeTransactionType extends ObjectTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
-                    >,
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
             ValueViewFacadeType extends ValueViewFacade<AsyncValueStateType>,
             AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
                     AsyncValueLoadingType,
@@ -308,8 +302,7 @@ public abstract class RxAsyncValueFragment<
             AsyncValueAttachmentType,
             ValueStateType,
             AsyncValueStateType,
-            ValueViewFacadeTransactionType,
-            ValueViewFacadeType
+            ValueViewFacadeTransactionType
             > {
         private final AsyncValueViewFacadeTransactionFactoryType asyncValueViewFacadeTransactionFactory;
         private final MutableIdlingResource loadingMutableIdlingResource;
@@ -497,13 +490,11 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueListenerType,
                     AsyncValueAttachmentType,
                     ValueViewFacadeType,
+                    ValueStateType,
                     AsyncValueStateType,
                     ValueViewFacadeTransactionType
                     >,
-            ValueViewFacadeTransactionType extends ObjectTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
-                    >,
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
             AsyncValueViewFacadeTransactionFactoryType extends AsyncValueViewFacadeTransactionFactory<
                     ValueViewFacadeTransactionType,
                     ValueViewFacadeType,
@@ -581,10 +572,10 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueFragmentType,
                     AsyncValueListenerType,
                     AsyncValueAttachmentType,
-                    AsyncValueValueStateType,
+                    ValueStateType,
                     AsyncValueStateType
                     >,
-            AsyncValueValueStateType extends ValueState<AsyncValueStateType>,
+            ValueStateType extends ValueState<AsyncValueStateType>,
             AsyncValueStateType extends AsyncValueState<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
@@ -615,13 +606,11 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueListenerType,
                     AsyncValueAttachmentType,
                     ValueViewFacadeType,
+                    ValueStateType,
                     AsyncValueStateType,
                     ValueViewFacadeTransactionType
                     >,
-            ValueViewFacadeTransactionType extends ObjectTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueViewFacadeType
-                    >,
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
             AsyncValueViewFacadeTransactionFactoryType extends AsyncValueViewFacadeTransactionFactory<
                     ValueViewFacadeTransactionType,
                     ValueViewFacadeType,
