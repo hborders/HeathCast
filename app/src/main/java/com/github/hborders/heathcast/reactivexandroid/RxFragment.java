@@ -59,7 +59,7 @@ public abstract class RxFragment<
                         AttachmentType
                         >,
                 ListenerType,
-                AttachmentType extends RxFragment.Attachment<
+                AttachmentType extends Attachment<
                         FragmentType,
                         ListenerType,
                         AttachmentType
@@ -371,17 +371,8 @@ public abstract class RxFragment<
     }
 
     protected interface OnAttached<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >
+            FragmentType,
+            ListenerType
             > {
         void onAttached(
                 ListenerType listener,
@@ -390,17 +381,8 @@ public abstract class RxFragment<
     }
 
     protected interface WillDetach<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >
+            FragmentType,
+            ListenerType
             > {
         void willDetach(
                 ListenerType listener,
@@ -412,13 +394,11 @@ public abstract class RxFragment<
     private final Class<ListenerType> listenerClass;
     private final OnAttached<
             FragmentType,
-            ListenerType,
-            AttachmentType
+            ListenerType
             > onAttached;
     private final WillDetach<
             FragmentType,
-            ListenerType,
-            AttachmentType
+            ListenerType
             > willDetach;
     private final Function5<
             FragmentType,
@@ -470,13 +450,11 @@ public abstract class RxFragment<
                     >,
             OnAttachedType extends OnAttached<
                     FragmentType,
-                    ListenerType,
-                    AttachmentType
+                    ListenerType
                     >,
             WillDetachType extends WillDetach<
                     FragmentType,
-                    ListenerType,
-                    AttachmentType
+                    ListenerType
                     >
             > RxFragment(
             Class<FragmentType> selfClass,

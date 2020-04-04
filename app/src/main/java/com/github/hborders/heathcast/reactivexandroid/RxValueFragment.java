@@ -7,320 +7,161 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
 
 import com.github.hborders.heathcast.core.Function;
-
-import java.util.ArrayList;
-import java.util.Objects;
+import com.github.hborders.heathcast.core.ObjectTransaction;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.CompletableSubject;
 
 public abstract class RxValueFragment<
-        FragmentType extends RxFragment<
-                FragmentType,
-                ListenerType,
-                AttachmentType
+        ValueFragmentType extends RxFragment<
+                ValueFragmentType,
+                ValueListenerType,
+                ValueAttachmentType
                 >,
-        ListenerType,
-        AttachmentType extends RxFragment.Attachment<
-                FragmentType,
-                ListenerType,
-                AttachmentType
+        ValueListenerType,
+        ValueAttachmentType extends RxFragment.Attachment<
+                ValueFragmentType,
+                ValueListenerType,
+                ValueAttachmentType
                 >
         > extends RxFragment<
-        FragmentType,
-        ListenerType,
-        AttachmentType
+        ValueFragmentType,
+        ValueListenerType,
+        ValueAttachmentType
         > {
-    // even though State could be protected for us, we should make it public
+    // even though ValueState could be protected for us, we should make it public
     // so that subclasses can use it in public generic boundaries
     // Java bugs: 9064231, 9064232
     // https://github.com/hborders/HeathCast/tree/jdk_8_bug
-    public interface State<UnparcelableValueType> {
+    public interface ValueState<ValueUnparcelableType> {
         boolean isEnabled();
 
-        UnparcelableValueType getValue();
+        ValueUnparcelableType getValue();
     }
 
-    protected interface StateObservableProvider<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            StateType extends State<UnparcelableValueType>,
-            UnparcelableValueType
+    protected interface ValueStateObservableProvider<
+            ValueFragmentType,
+            ValueListenerType,
+            ValueStateType
             > {
-        Observable<StateType> stateObservable(
-                ListenerType listener,
-                FragmentType fragment
+        Observable<ValueStateType> valueStateObservable(
+                ValueListenerType listener,
+                ValueFragmentType fragment
         );
     }
 
-    protected interface ViewFacade<
-            ViewFacadeType extends ViewFacade<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    >,
-            ViewFacadeTransactionType extends ViewFacadeTransaction<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    >
-            > extends Disposable {
+    protected interface ValueViewFacade<ValueUnparcelableType> extends Disposable {
+        interface ValueViewFacadeFactory<
+                ValueFragmentType extends RxValueFragment<
+                        ValueFragmentType,
+                        ValueListenerType,
+                        ValueAttachmentType
+                        >,
+                ValueListenerType,
+                ValueAttachmentType extends Attachment<
+                        ValueFragmentType,
+                        ValueListenerType,
+                        ValueAttachmentType
+                        >,
+                ValueViewFacadeType extends ValueViewFacade<
+                        ValueUnparcelableType
+                        >,
+                ValueUnparcelableType
+                > {
+            ValueViewFacadeType newViewFacade(
+                    ValueFragmentType fragment,
+                    ValueListenerType listener,
+                    Context context,
+                    View view
+            );
+        }
+
         void setEnabled(boolean enabled);
+
+        void setValue(ValueUnparcelableType value);
     }
 
-    protected abstract static class ViewFacadeTransaction<
-            ViewFacadeType extends ViewFacade<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    >,
-            ViewFacadeTransactionType extends ViewFacadeTransaction<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    >
+    protected interface ValueViewFacadeTransactionFactory<
+            ValueViewFacadeType,
+            ValueViewFacadeTransactionType
             > {
-        private final ArrayList<
-                ViewFacadeEmptyAction<
-                        ViewFacadeType,
-                        ViewFacadeTransactionType
-                        >
-                > emptyActions = new ArrayList<>();
-        private final CompletableSubject completableSubject = CompletableSubject.create();
-        private final Class<ViewFacadeTransactionType> viewFacadeTransactionClass;
-        private final ViewFacadeType viewFacade;
-        private boolean transacted;
-
-        protected ViewFacadeTransaction(
-                Class<ViewFacadeTransactionType> viewFacadeTransactionClass,
-                ViewFacadeType viewFacade
-        ) {
-            this.viewFacadeTransactionClass = viewFacadeTransactionClass;
-            this.viewFacade = viewFacade;
-        }
-
-        interface ViewFacadeEmptyAction<
-                ViewFacadeType extends ViewFacade<
-                        ViewFacadeType,
-                        ViewFacadeTransactionType
-                        >,
-                ViewFacadeTransactionType extends ViewFacadeTransaction<
-                        ViewFacadeType,
-                        ViewFacadeTransactionType
-                        >
-                > {
-            void act(ViewFacadeType viewFacade);
-        }
-
-        interface ViewFacadeAction<
-                ViewFacadeType extends ViewFacade<
-                        ViewFacadeType,
-                        ViewFacadeTransactionType
-                        >,
-                ViewFacadeTransactionType extends ViewFacadeTransaction<
-                        ViewFacadeType,
-                        ViewFacadeTransactionType
-                        >,
-                ArgType
-                > {
-            void act(
-                    ViewFacadeType viewFacade,
-                    ArgType arg
-            );
-        }
-
-        public final ViewFacadeTransactionType act(
-                ViewFacadeEmptyAction<
-                        ViewFacadeType,
-                        ViewFacadeTransactionType
-                        > emptyAction
-        ) {
-            if (transacted) {
-                throw new IllegalStateException("Can't act after transact");
-            }
-
-            emptyActions.add(emptyAction);
-            return getSelf();
-        }
-
-        public final <
-                ViewFacadeActionType extends ViewFacadeAction<
-                        ViewFacadeType,
-                        ViewFacadeTransactionType,
-                        ArgType
-                        >,
-                ArgType
-                > ViewFacadeTransactionType act(
-                ViewFacadeActionType action,
-                ArgType arg
-        ) {
-            return act(
-                    viewFacade ->
-                            action.act(
-                                    viewFacade,
-                                    arg
-                            )
-            );
-        }
-
-        protected final ViewFacadeTransactionType getSelf() {
-            return Objects.requireNonNull(viewFacadeTransactionClass.cast(this));
-        }
-
-        protected final CompletableSubject transact() {
-            if (transacted) {
-                throw new IllegalStateException("Only transact once");
-            }
-
-            transacted = true;
-            for (ViewFacadeEmptyAction<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    > emptyAction : emptyActions) {
-                emptyAction.act(viewFacade);
-            }
-
-            return completableSubject;
-        }
-
-        public abstract Completable complete();
+        ValueViewFacadeTransactionType newValueViewFacadeTransaction(ValueViewFacadeType valueViewFacade);
     }
 
-    protected interface ViewFacadeFactory<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ViewFacadeType
-            > {
-        ViewFacadeType newViewFacade(
-                FragmentType fragment,
-                ListenerType listener,
-                Context context,
-                View view
-        );
-    }
-
-    protected interface ViewFacadeTransactionFactory<
-            ViewFacadeType,
-            ViewFacadeTransactionType
-            > {
-        ViewFacadeTransactionType newViewFacadeTransaction(ViewFacadeType viewFacade);
-    }
-
-    protected interface Renderer<
-            FragmentType extends RxFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            StateType extends State<UnparcelableValueType>,
-            UnparcelableValueType,
-            ViewFacadeType extends ViewFacade<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    >,
-            ViewFacadeTransactionType extends ViewFacadeTransaction<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    >
+    protected interface ValueRenderer<
+            ValueFragmentType,
+            ValueListenerType,
+            ValueStateType,
+            ValueViewFacadeTransactionType
             > {
         @CheckResult
         Completable render(
-                FragmentType fragmentType,
-                ListenerType listener,
+                ValueFragmentType fragment,
+                ValueListenerType listener,
                 Context context,
-                StateType state,
-                ViewFacadeTransactionType viewFacadeTransaction
+                ValueStateType valueState,
+                ValueViewFacadeTransactionType viewFacadeTransaction
         );
     }
 
-    private final Function<Observable<AttachmentType>, Disposable> subscribeFunction;
+    private final Function<Observable<ValueAttachmentType>, Disposable> subscribeFunction;
 
     protected <
-            AttachmentFactoryType extends Attachment.AttachmentFactory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
+            ValueAttachmentFactoryType extends Attachment.AttachmentFactory<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType
                     >,
-            OnAttachedType extends OnAttached<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
+            ValueOnAttachedType extends OnAttached<
+                    ValueFragmentType,
+                    ValueListenerType
                     >,
-            WillDetachType extends WillDetach<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
+            ValueWillDetachType extends WillDetach<
+                    ValueFragmentType,
+                    ValueListenerType
                     >,
-            ViewFacadeFactoryType extends ViewFacadeFactory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    ViewFacadeType
+            ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType,
+                    ValueViewFacadeType,
+                    ValueUnparcelableType
                     >,
-            StateObservableProviderType extends StateObservableProvider<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    StateType,
-                    UnparcelableValueType
+            ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>,
+            ValueStateObservableProviderType extends ValueStateObservableProvider<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueStateType
                     >,
-            ViewFacadeTransactionFactoryType extends ViewFacadeTransactionFactory<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
+            ValueStateType extends ValueState<ValueUnparcelableType>,
+            ValueUnparcelableType,
+            ValueViewFacadeTransactionFactoryType extends ValueViewFacadeTransactionFactory<
+                    ValueViewFacadeType,
+                    ValueViewFacadeTransactionType
                     >,
-            RendererType extends Renderer<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    StateType,
-                    UnparcelableValueType,
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
+            ValueViewFacadeTransactionType extends ObjectTransaction<
+                    ValueViewFacadeTransactionType,
+                    ValueViewFacadeType
                     >,
-            StateType extends State<UnparcelableValueType>,
-            UnparcelableValueType,
-            ViewFacadeType extends ViewFacade<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
-                    >,
-            ViewFacadeTransactionType extends ViewFacadeTransaction<
-                    ViewFacadeType,
-                    ViewFacadeTransactionType
+            ValueRendererType extends ValueRenderer<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueStateType,
+                    ValueViewFacadeTransactionType
                     >
             >
     RxValueFragment(
-            Class<FragmentType> selfClass,
-            Class<ListenerType> listenerClass,
-            AttachmentFactoryType attachmentFactory,
-            OnAttachedType onAttached,
-            WillDetachType willDetach,
+            Class<ValueFragmentType> selfClass,
+            Class<ValueListenerType> listenerClass,
+            ValueAttachmentFactoryType attachmentFactory,
+            ValueOnAttachedType onAttached,
+            ValueWillDetachType willDetach,
             @LayoutRes int layoutResource,
-            ViewFacadeFactoryType viewFacadeFactory,
-            StateObservableProviderType stateObservableProvider,
-            ViewFacadeTransactionFactoryType viewFacadeTransactionFactory,
-            RendererType renderer
+            ValueViewFacadeFactoryType valueViewFacadeFactory,
+            ValueStateObservableProviderType valueStateObservableProvider,
+            ValueViewFacadeTransactionFactoryType valueViewFacadeTransactionFactory,
+            ValueRendererType valueRenderer
     ) {
         super(
                 selfClass,
@@ -333,23 +174,23 @@ public abstract class RxValueFragment<
         subscribeFunction = attachmentObservable -> {
             final class Prez {
                 final Context context;
-                final ListenerType listener;
+                final ValueListenerType listener;
                 final ViewCreation viewCreation;
                 final View view;
-                final ViewFacadeType viewFacade;
+                final ValueViewFacadeType valueViewFacade;
 
                 Prez(
                         Context context,
-                        ListenerType listener,
+                        ValueListenerType listener,
                         ViewCreation viewCreation,
                         View view,
-                        ViewFacadeType viewFacade
+                        ValueViewFacadeType valueViewFacade
                 ) {
                     this.context = context;
                     this.listener = listener;
                     this.viewCreation = viewCreation;
                     this.view = view;
-                    this.viewFacade = viewFacade;
+                    this.valueViewFacade = valueViewFacade;
                 }
             }
 
@@ -361,12 +202,12 @@ public abstract class RxValueFragment<
                             attachmentFragmentCreationViewCreationTriple -> {
                                 final Context context =
                                         attachmentFragmentCreationViewCreationTriple.first.context;
-                                final ListenerType listener =
+                                final ValueListenerType listener =
                                         attachmentFragmentCreationViewCreationTriple.first.listener;
                                 final ViewCreation viewCreation =
                                         attachmentFragmentCreationViewCreationTriple.third;
                                 final View view = viewCreation.view;
-                                final ViewFacadeType viewFacade = viewFacadeFactory.newViewFacade(
+                                final ValueViewFacadeType viewFacade = valueViewFacadeFactory.newViewFacade(
                                         getSelf(),
                                         listener,
                                         context,
@@ -385,14 +226,14 @@ public abstract class RxValueFragment<
 
             final class Prerender {
                 final Prez prez;
-                final StateType state;
+                final ValueStateType valueState;
 
                 Prerender(
                         Prez prez,
-                        StateType state
+                        ValueStateType valueState
                 ) {
                     this.prez = prez;
-                    this.state = state;
+                    this.valueState = valueState;
                 }
             }
 
@@ -401,8 +242,8 @@ public abstract class RxValueFragment<
                             prez ->
                                     prez.viewCreation.switchMapToStart().switchMap(
                                             start ->
-                                                    stateObservableProvider
-                                                            .stateObservable(
+                                                    valueStateObservableProvider
+                                                            .valueStateObservable(
                                                                     prez.listener,
                                                                     getSelf()
                                                             )
@@ -419,21 +260,27 @@ public abstract class RxValueFragment<
 
             return prerenderObservable.subscribe(
                     prerender -> {
-                        ViewFacadeTransactionType viewFacadeTransaction =
-                                viewFacadeTransactionFactory.newViewFacadeTransaction(
-                                        prerender.prez.viewFacade
+                        final ValueViewFacadeTransactionType valueViewFacadeTransaction =
+                                valueViewFacadeTransactionFactory.newValueViewFacadeTransaction(
+                                        prerender.prez.valueViewFacade
                                 );
-                        prerender.prez.viewFacade.setEnabled(
-                                prerender.state.isEnabled()
+
+                        valueViewFacadeTransaction.act(
+                                ValueViewFacadeType::setEnabled,
+                                prerender.valueState.isEnabled()
+                        );
+                        valueViewFacadeTransaction.act(
+                                ValueViewFacadeType::setValue,
+                                prerender.valueState.getValue()
                         );
 
                         final Completable ignored =
-                                renderer.render(
+                                valueRenderer.render(
                                         getSelf(),
                                         prerender.prez.listener,
                                         prerender.prez.context,
-                                        prerender.state,
-                                        viewFacadeTransaction
+                                        prerender.valueState,
+                                        valueViewFacadeTransaction
                                 );
                     }
             );
@@ -441,7 +288,7 @@ public abstract class RxValueFragment<
     }
 
     @Override
-    protected final Disposable subscribe(Observable<AttachmentType> attachmentObservable) {
+    protected final Disposable subscribe(Observable<ValueAttachmentType> attachmentObservable) {
         return subscribeFunction.apply(attachmentObservable);
     }
 }

@@ -267,7 +267,7 @@ public abstract class PodcastListFragment<
         }
     }
 
-    private static final class PodcastListViewFacade implements ListViewFacade<
+    private static final class PodcastListViewFacade implements ListAsyncValueViewFacade<
             PodcastListViewFacade,
             PodcastListViewFacadeTransaction,
             PodcastIdentifiedList,
@@ -336,11 +336,16 @@ public abstract class PodcastListFragment<
             );
         }
 
-        // ListViewFacade
+        // AsyncValueViewFacade
 
         @Override
-        public void setListValue(PodcastIdentifiedList listValue) {
-            podcastRecyclerViewAdapter.setItems(listValue);
+        public void setValue(PodcastIdentifiedList value) {
+            podcastRecyclerViewAdapter.setItems(value);
+        }
+
+        @Override
+        public void setLoadingViewVisible(boolean visible) {
+
         }
 
         @Override
