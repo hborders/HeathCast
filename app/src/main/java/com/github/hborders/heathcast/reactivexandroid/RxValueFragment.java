@@ -14,7 +14,7 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
 public abstract class RxValueFragment<
-        ValueFragmentType extends RxFragment<
+        ValueFragmentType extends RxValueFragment<
                 ValueFragmentType,
                 ValueListenerType,
                 ValueAttachmentType
@@ -41,9 +41,21 @@ public abstract class RxValueFragment<
     }
 
     protected interface ValueStateObservableProvider<
-            ValueFragmentType,
+            // even though we don't use these bounds in our declarations,
+            // javac gives better error messages with boundary enforcement
+            ValueFragmentType extends RxValueFragment<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType
+                    >,
             ValueListenerType,
-            ValueStateType
+            ValueAttachmentType extends RxFragment.Attachment<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType
+                    >,
+            ValueStateType extends ValueState<ValueUnparcelableType>,
+            ValueUnparcelableType
             > {
         Observable<ValueStateType> valueStateObservable(
                 ValueListenerType listener,
@@ -53,21 +65,20 @@ public abstract class RxValueFragment<
 
     protected interface ValueViewFacade<ValueUnparcelableType> extends Disposable {
         interface ValueViewFacadeFactory<
+                // even though we don't use these bounds in our declarations,
+                // javac gives better error messages with boundary enforcement
                 ValueFragmentType extends RxValueFragment<
                         ValueFragmentType,
                         ValueListenerType,
                         ValueAttachmentType
                         >,
                 ValueListenerType,
-                ValueAttachmentType extends Attachment<
+                ValueAttachmentType extends RxFragment.Attachment<
                         ValueFragmentType,
                         ValueListenerType,
                         ValueAttachmentType
                         >,
-                ValueViewFacadeType extends ValueViewFacade<
-                        ValueUnparcelableType
-                        >,
-                ValueUnparcelableType
+                ValueViewFacadeType
                 > {
             ValueViewFacadeType newViewFacade(
                     ValueFragmentType fragment,
@@ -83,17 +94,50 @@ public abstract class RxValueFragment<
     }
 
     protected interface ValueViewFacadeTransactionFactory<
-            ValueViewFacadeType,
-            ValueViewFacadeTransactionType
+            // even though we don't use these bounds in our declarations,
+            // javac gives better error messages with boundary enforcement
+            ValueFragmentType extends RxValueFragment<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType
+                    >,
+            ValueListenerType,
+            ValueAttachmentType extends RxFragment.Attachment<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType
+                    >,
+            ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>,
+            ValueUnparcelableType,
+            ValueViewFacadeTransactionType extends ObjectTransaction<
+                    ValueViewFacadeTransactionType,
+                    ValueViewFacadeType
+                    >
             > {
         ValueViewFacadeTransactionType newValueViewFacadeTransaction(ValueViewFacadeType valueViewFacade);
     }
 
     protected interface ValueRenderer<
-            ValueFragmentType,
+            // even though we don't use these bounds in our declarations,
+            // javac gives better error messages with boundary enforcement
+            ValueFragmentType extends RxValueFragment<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType
+                    >,
             ValueListenerType,
-            ValueStateType,
-            ValueViewFacadeTransactionType
+            ValueAttachmentType extends RxFragment.Attachment<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType
+                    >,
+            ValueStateType extends ValueState<ValueUnparcelableType>,
+            ValueUnparcelableType,
+            ValueViewFacadeTransactionType extends ObjectTransaction<
+                    ValueViewFacadeTransactionType,
+                    ValueViewFacadeType
+                    >,
+            ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>
             > {
         @CheckResult
         Completable render(
@@ -115,29 +159,36 @@ public abstract class RxValueFragment<
                     >,
             ValueOnAttachedType extends OnAttached<
                     ValueFragmentType,
-                    ValueListenerType
+                    ValueListenerType,
+                    ValueAttachmentType
                     >,
             ValueWillDetachType extends WillDetach<
                     ValueFragmentType,
-                    ValueListenerType
+                    ValueListenerType,
+                    ValueAttachmentType
                     >,
             ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
                     ValueFragmentType,
                     ValueListenerType,
                     ValueAttachmentType,
-                    ValueViewFacadeType,
-                    ValueUnparcelableType
+                    ValueViewFacadeType
                     >,
             ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>,
             ValueStateObservableProviderType extends ValueStateObservableProvider<
                     ValueFragmentType,
                     ValueListenerType,
-                    ValueStateType
+                    ValueAttachmentType,
+                    ValueStateType,
+                    ValueUnparcelableType
                     >,
             ValueStateType extends ValueState<ValueUnparcelableType>,
             ValueUnparcelableType,
             ValueViewFacadeTransactionFactoryType extends ValueViewFacadeTransactionFactory<
+                    ValueFragmentType,
+                    ValueListenerType,
+                    ValueAttachmentType,
                     ValueViewFacadeType,
+                    ValueUnparcelableType,
                     ValueViewFacadeTransactionType
                     >,
             ValueViewFacadeTransactionType extends ObjectTransaction<
@@ -147,8 +198,11 @@ public abstract class RxValueFragment<
             ValueRendererType extends ValueRenderer<
                     ValueFragmentType,
                     ValueListenerType,
+                    ValueAttachmentType,
                     ValueStateType,
-                    ValueViewFacadeTransactionType
+                    ValueUnparcelableType,
+                    ValueViewFacadeTransactionType,
+                    ValueViewFacadeType
                     >
             >
     RxValueFragment(

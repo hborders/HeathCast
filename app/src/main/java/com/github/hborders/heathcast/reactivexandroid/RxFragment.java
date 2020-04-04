@@ -53,6 +53,8 @@ public abstract class RxFragment<
                     >
             > {
         public interface AttachmentFactory<
+                // even though we don't use these bounds in our declarations,
+                // javac gives better error messages with boundary enforcement
                 FragmentType extends RxFragment<
                         FragmentType,
                         ListenerType,
@@ -371,8 +373,19 @@ public abstract class RxFragment<
     }
 
     protected interface OnAttached<
-            FragmentType,
-            ListenerType
+            // even though we don't use these bounds in our declarations,
+            // javac gives better error messages with boundary enforcement
+            FragmentType extends RxFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >
             > {
         void onAttached(
                 ListenerType listener,
@@ -381,8 +394,19 @@ public abstract class RxFragment<
     }
 
     protected interface WillDetach<
-            FragmentType,
-            ListenerType
+            // even though we don't use these bounds in our declarations,
+            // javac gives better error messages with boundary enforcement
+            FragmentType extends RxFragment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >
             > {
         void willDetach(
                 ListenerType listener,
@@ -394,11 +418,13 @@ public abstract class RxFragment<
     private final Class<ListenerType> listenerClass;
     private final OnAttached<
             FragmentType,
-            ListenerType
+            ListenerType,
+            AttachmentType
             > onAttached;
     private final WillDetach<
             FragmentType,
-            ListenerType
+            ListenerType,
+            AttachmentType
             > willDetach;
     private final Function5<
             FragmentType,
@@ -450,11 +476,13 @@ public abstract class RxFragment<
                     >,
             OnAttachedType extends OnAttached<
                     FragmentType,
-                    ListenerType
+                    ListenerType,
+                    AttachmentType
                     >,
             WillDetachType extends WillDetach<
                     FragmentType,
-                    ListenerType
+                    ListenerType,
+                    AttachmentType
                     >
             > RxFragment(
             Class<FragmentType> selfClass,
