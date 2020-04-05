@@ -14,22 +14,6 @@ public interface EmptyEither<
                 RightType
                 >
         > {
-    <T> T reduce(
-            Function<
-                    ? super LeftType,
-                    ? extends T
-                    > leftReducer,
-            Function<
-                    ? super RightType,
-                    ? extends T
-                    > rightReducer
-    );
-
-    void act(
-            VoidFunction<? super LeftType> leftAction,
-            VoidFunction<? super RightType> rightAction
-    );
-
     interface Left<
             LeftType extends EmptyEither.Left<
                     LeftType,
@@ -205,6 +189,22 @@ public interface EmptyEither<
             return Objects.requireNonNull(selfClass.cast(this));
         }
     }
+
+    <T> T reduce(
+            Function<
+                    ? super LeftType,
+                    ? extends T
+                    > leftReducer,
+            Function<
+                    ? super RightType,
+                    ? extends T
+                    > rightReducer
+    );
+
+    void act(
+            VoidFunction<? super LeftType> leftAction,
+            VoidFunction<? super RightType> rightAction
+    );
 }
 
 

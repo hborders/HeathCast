@@ -2,22 +2,17 @@ package com.github.hborders.heathcast.reactivexandroid;
 
 import android.content.Context;
 
-import androidx.annotation.CheckResult;
 import androidx.annotation.LayoutRes;
 import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.core.Either31;
 import com.github.hborders.heathcast.core.Function;
-import com.github.hborders.heathcast.core.ObjectTransaction;
 import com.github.hborders.heathcast.core.VoidFunction;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource.Deceleration;
 
-import java.util.Optional;
-
 import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.disposables.Disposables;
 
 // Keep renderer types and ViewFacade types totally separate
 // Don't have them keep extending each other. That way, each
@@ -25,21 +20,21 @@ import io.reactivex.disposables.Disposables;
 public abstract class RxAsyncValueFragment<
         AsyncValueFragmentType extends RxAsyncValueFragment<
                 AsyncValueFragmentType,
-                AsyncValueListenerType,
-                AsyncValueAttachmentType
+                ListenerType,
+                AttachmentType
                 >,
-        AsyncValueListenerType,
-        AsyncValueAttachmentType extends RxFragment.Attachment<
+        ListenerType,
+        AttachmentType extends RxFragment.Attachment<
                 AsyncValueFragmentType,
-                AsyncValueListenerType,
-                AsyncValueAttachmentType
+                ListenerType,
+                AttachmentType
                 >
         > extends RxValueFragment<
         AsyncValueFragmentType,
-        AsyncValueListenerType,
-        AsyncValueAttachmentType
+        ListenerType,
+        AttachmentType
         > {
-    // even though AsyncState could be protected for us, we should make it public
+    // even though AsyncValueState could be protected for us, we should make it public
     // so that subclasses can use it in public generic boundaries
     // Java bugs: 9064231, 9064232
     // https://github.com/hborders/HeathCast/tree/jdk_8_bug
@@ -48,57 +43,57 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
-            AsyncValueUnparcelableType
+            AsyncValueType
             > extends Either31<
             AsyncValueLoadingType,
             AsyncValueCompleteType,
             AsyncValueFailedType,
-            AsyncValueUnparcelableType
+            AsyncValueType
             > {
         interface AsyncValueLoading<
                 AsyncValueLoadingType extends AsyncValueLoading<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
                 AsyncValueCompleteType extends AsyncValueComplete<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
                 AsyncValueFailedType extends AsyncValueFailed<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 > extends Either31.Left<
                 AsyncValueLoadingType,
                 AsyncValueCompleteType,
                 AsyncValueFailedType,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 >, AsyncValueState<
                 AsyncValueLoadingType,
                 AsyncValueCompleteType,
                 AsyncValueFailedType,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 > {
         }
 
@@ -107,31 +102,31 @@ public abstract class RxAsyncValueFragment<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
                 AsyncValueCompleteType extends AsyncValueComplete<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
                 AsyncValueFailedType extends AsyncValueFailed<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 > extends Either31.Middle<
                 AsyncValueLoadingType,
                 AsyncValueCompleteType,
                 AsyncValueFailedType,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 >, AsyncValueState<
                 AsyncValueLoadingType,
                 AsyncValueCompleteType,
                 AsyncValueFailedType,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 > {
         }
 
@@ -140,31 +135,31 @@ public abstract class RxAsyncValueFragment<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
                 AsyncValueCompleteType extends AsyncValueComplete<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
                 AsyncValueFailedType extends AsyncValueFailed<
                         AsyncValueLoadingType,
                         AsyncValueCompleteType,
                         AsyncValueFailedType,
-                        AsyncValueUnparcelableType
+                        AsyncValueType
                         >,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 > extends Either31.Right<
                 AsyncValueLoadingType,
                 AsyncValueCompleteType,
                 AsyncValueFailedType,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 >, AsyncValueState<
                 AsyncValueLoadingType,
                 AsyncValueCompleteType,
                 AsyncValueFailedType,
-                AsyncValueUnparcelableType
+                AsyncValueType
                 > {
         }
 
@@ -193,236 +188,277 @@ public abstract class RxAsyncValueFragment<
     }
 
     protected interface AsyncValueViewFacade {
-        void setLoadingViewVisible(boolean visible);
-
-        void setCompleteViewVisible(boolean visible);
-
-        void setFailedViewVisible(boolean visible);
     }
 
-    // TODO make real objects for transactions instead of generic ones
-    // generic objects don't tell us what methods are required, so they provide no guidance
-    // it's cool that we were able to make that though.
-    protected interface AsyncValueViewFacadeTransactionFactory<
-            // even though we don't use these bounds in our declarations,
-            // javac gives better error messages with boundary enforcement
-            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
-            ValueViewFacadeType extends ValueViewFacade<ValueUnparcelableType>,
-            ValueUnparcelableType,
-            AsyncValueViewFacadeTransactionType extends ObjectTransaction<
-                    AsyncValueViewFacadeTransactionType,
-                    AsyncValueViewFacadeType
-                    >,
-            AsyncValueViewFacadeType extends AsyncValueViewFacade
+    protected interface AsyncValueViewFacadeTransaction {
+    }
+
+    protected interface AsyncValueCompletable<
+            ValueCompletableType extends ValueCompletable
             > {
-        AsyncValueViewFacadeTransactionType newAsyncValueViewFacadeTransaction(
-                ValueViewFacadeTransactionType valueViewFacadeTransaction
-        );
+        Completable toCompletable();
+        ValueCompletableType toValueCompletable();
     }
 
-    protected interface AsyncValueRenderer<
-            AsyncValueFragmentType,
-            AsyncValueListenerType,
-            AsyncValueStateType,
-            AsyncValueViewFacadeTransactionType
-            > {
-        @CheckResult
-        Completable render(
-                AsyncValueFragmentType fragment,
-                AsyncValueListenerType listener,
-                Context context,
-                AsyncValueStateType asyncValueState,
-                AsyncValueViewFacadeTransactionType asyncViewFacadeTransaction
-        );
-    }
-
-    private static final class ValueRendererImplAsync<
-            // even though we don't use these bounds in our declarations,
-            // javac gives better error messages with boundary enforcement
-            AsyncValueFragmentType extends RxAsyncValueFragment<
-                    AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
-                    >,
-            AsyncValueListenerType,
-            AsyncValueAttachmentType extends RxFragment.Attachment<
-                    AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
-                    >,
-            ValueStateType extends ValueState<AsyncValueStateType>,
+    protected interface AsyncValueViewFacadeCompletableTransaction<
+            AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
             AsyncValueStateType extends AsyncValueState<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
-            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
-            ValueViewFacadeType extends ValueViewFacade<AsyncValueStateType>,
             AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
-            AsyncValueUnparcelableType,
+            AsyncValueType,
+            AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
+            ValueCompletableType extends ValueCompletable
+            > {
+        AsyncValueViewFacadeTransactionType toAsyncValueViewFacadeTransaction(
+                AsyncValueStateType asyncValueState
+        );
+
+        AsyncValueCompletableType complete();
+
+        void addDisposable(Disposable disposable);
+    }
+
+    protected interface AsyncValueViewFacadeCompletableTransactionFactory<
+            // even though we don't use these bounds in our declarations,
+            // javac gives better error messages with boundary enforcement
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
+            AsyncValueViewFacadeCompletableTransactionType extends AsyncValueViewFacadeCompletableTransaction<
+                    AsyncValueViewFacadeTransactionType,
+                    AsyncValueStateType,
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
+                    >,
+            AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
+            AsyncValueStateType extends AsyncValueState<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType
+                    >,
+            AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType>,
+            AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType>,
+            AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType>,
+            AsyncValueType,
+            AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
+            ValueCompletableType extends ValueCompletable
+            > {
+        AsyncValueViewFacadeCompletableTransactionType newAsyncValueViewFacadeCompletableTransaction(
+                ValueViewFacadeTransactionType valueViewFacadeTransaction
+        );
+    }
+
+    protected interface AsyncValueRenderer<
+            AsyncValueFragmentType extends RxAsyncValueFragment<
+                    AsyncValueFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    AsyncValueFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            AsyncValueType,
+            AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
+            AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
+            ValueCompletableType extends ValueCompletable
+            > {
+        AsyncValueCompletableType render(
+                AsyncValueFragmentType fragment,
+                ListenerType listener,
+                Context context,
+                AsyncValueType asyncValue,
+                AsyncValueViewFacadeTransactionType asyncValueViewFacadeTransaction
+        );
+    }
+
+    private static final class ValueRendererImpl<
+            // even though we don't use these bounds in our declarations,
+            // javac gives better error messages with boundary enforcement
+            AsyncValueFragmentType extends RxAsyncValueFragment<
+                    AsyncValueFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    AsyncValueFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            AsyncValueStateType extends AsyncValueState<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType
+                    >,
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
+            AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType
+                    >,
+            AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType
+                    >,
+            AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType
+                    >,
+            AsyncValueType,
             AsyncValueRendererType extends AsyncValueRenderer<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueStateType,
-                    AsyncValueViewFacadeTransactionType
-                    >,
-            AsyncValueViewFacadeType extends RxAsyncValueFragment.AsyncValueViewFacade,
-            AsyncValueViewFacadeTransactionType extends ObjectTransaction<
+                    ListenerType,
+                    AttachmentType,
+                    AsyncValueType,
                     AsyncValueViewFacadeTransactionType,
-                    AsyncValueViewFacadeType
+                    AsyncValueCompletableType,
+                    ValueCompletableType
                     >,
-            AsyncValueViewFacadeTransactionFactoryType extends AsyncValueViewFacadeTransactionFactory<
+            AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
+            AsyncValueViewFacadeCompletableTransactionFactoryType extends AsyncValueViewFacadeCompletableTransactionFactory<
                     ValueViewFacadeTransactionType,
-                    ValueViewFacadeType,
-                    AsyncValueStateType,
+                    AsyncValueViewFacadeCompletableTransactionType,
                     AsyncValueViewFacadeTransactionType,
-                    AsyncValueViewFacadeType
-                    >
+                    AsyncValueStateType,
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
+                    >,
+            AsyncValueViewFacadeCompletableTransactionType extends AsyncValueViewFacadeCompletableTransaction<
+                    AsyncValueViewFacadeTransactionType,
+                    AsyncValueStateType,
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
+                    >,
+            AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
+            ValueCompletableType extends ValueCompletable
             > implements ValueRenderer<
             AsyncValueFragmentType,
-            AsyncValueListenerType,
-            AsyncValueAttachmentType,
-            ValueStateType,
+            ListenerType,
+            AttachmentType,
             AsyncValueStateType,
-            ValueViewFacadeTransactionType
+            ValueViewFacadeTransactionType,
+            ValueCompletableType
             > {
-        private final AsyncValueViewFacadeTransactionFactoryType asyncValueViewFacadeTransactionFactory;
+        private final AsyncValueViewFacadeCompletableTransactionFactoryType asyncValueViewFacadeCompletableTransactionFactory;
         private final MutableIdlingResource loadingMutableIdlingResource;
         private final MutableIdlingResource completeOrFailedMutableIdlingResource;
         private final AsyncValueRendererType asyncValueRenderer;
 
-        private ValueRendererImplAsync(
-                AsyncValueViewFacadeTransactionFactoryType asyncValueViewFacadeTransactionFactory,
+        private ValueRendererImpl(
+                AsyncValueViewFacadeCompletableTransactionFactoryType asyncValueViewFacadeCompletableTransactionFactory,
                 MutableIdlingResource loadingMutableIdlingResource,
                 MutableIdlingResource completeOrFailedMutableIdlingResource,
                 AsyncValueRendererType asyncValueRenderer
         ) {
-            this.asyncValueViewFacadeTransactionFactory = asyncValueViewFacadeTransactionFactory;
+            this.asyncValueViewFacadeCompletableTransactionFactory = asyncValueViewFacadeCompletableTransactionFactory;
             this.loadingMutableIdlingResource = loadingMutableIdlingResource;
             this.completeOrFailedMutableIdlingResource = completeOrFailedMutableIdlingResource;
             this.asyncValueRenderer = asyncValueRenderer;
         }
 
         @Override
-        public Completable render(
+        public ValueCompletableType render(
                 AsyncValueFragmentType fragment,
-                AsyncValueListenerType listener,
+                ListenerType listener,
                 Context context,
-                ValueStateType valueState,
+                AsyncValueStateType asyncValueState,
                 ValueViewFacadeTransactionType valueViewFacadeTransaction
         ) {
-            final AsyncValueViewFacadeTransactionType asyncValueViewFacadeTransaction =
-                    asyncValueViewFacadeTransactionFactory.newAsyncValueViewFacadeTransaction(
+            final AsyncValueType asyncValue = asyncValueState.getValue();
+            final AsyncValueViewFacadeCompletableTransactionType asyncValueViewFacadeCompletableTransaction =
+                    asyncValueViewFacadeCompletableTransactionFactory.newAsyncValueViewFacadeCompletableTransaction(
                             valueViewFacadeTransaction
                     );
+            final AsyncValueViewFacadeTransactionType asyncValueViewFacadeTransaction =
+                    asyncValueViewFacadeCompletableTransaction.toAsyncValueViewFacadeTransaction(
+                            // TODO move asyncValueState into completableTransactionFactory
+                            asyncValueState
+                    );
 
-            final AsyncValueStateType asyncValueState = valueState.getValue();
+            final Deceleration deceleration =
+                    asyncValueState.reduce(
+                            loading -> {
+                                completeOrFailedMutableIdlingResource.setBusy();
+                                return loadingMutableIdlingResource.decelerate();
+                            },
+                            complete -> {
+                                loadingMutableIdlingResource.setBusy();
+                                return completeOrFailedMutableIdlingResource.decelerate();
+                            },
+                            failed -> {
+                                loadingMutableIdlingResource.setBusy();
+                                return completeOrFailedMutableIdlingResource.decelerate();
+                            }
+                    );
 
-            asyncValueState.act(
-                    loading -> {
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setLoadingViewVisible,
-                                true
-                        );
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setCompleteViewVisible,
-                                false
-                        );
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setFailedViewVisible,
-                                false
-                        );
-                    },
-                    complete -> {
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setLoadingViewVisible,
-                                false
-                        );
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setCompleteViewVisible,
-                                true
-                        );
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setFailedViewVisible,
-                                false
-                        );
-                    },
-                    failed -> {
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setLoadingViewVisible,
-                                false
-                        );
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setCompleteViewVisible,
-                                false
-                        );
-                        asyncValueViewFacadeTransaction.act(
-                                AsyncValueViewFacadeType::setFailedViewVisible,
-                                true
-                        );
-                    }
-            );
-
-            final Optional<Deceleration> decelerationOptional;
-            if (valueState.isEnabled()) {
-                final Deceleration deceleration =
-                        asyncValueState.reduce(
-                                loading -> {
-                                    completeOrFailedMutableIdlingResource.setBusy();
-                                    return loadingMutableIdlingResource.decelerate();
-                                },
-                                complete -> {
-                                    loadingMutableIdlingResource.setBusy();
-                                    return completeOrFailedMutableIdlingResource.decelerate();
-                                },
-                                failed -> {
-                                    loadingMutableIdlingResource.setBusy();
-                                    return completeOrFailedMutableIdlingResource.decelerate();
-                                }
-                        );
-                decelerationOptional = Optional.of(deceleration);
-            } else {
-                loadingMutableIdlingResource.setBusy();
-                completeOrFailedMutableIdlingResource.setBusy();
-                decelerationOptional = Optional.empty();
-            }
-
-            final Completable completable =
+            final AsyncValueCompletableType asyncValueCompletable =
                     asyncValueRenderer.render(
                             fragment,
                             listener,
                             context,
-                            asyncValueState,
+                            asyncValue,
                             asyncValueViewFacadeTransaction
                     );
+            final Completable completable = asyncValueCompletable.toCompletable();
 
-            final Disposable ignored =
-                    decelerationOptional.map(
-                            deceleration ->
-                                    completable.subscribe(
-                                            deceleration::maybeSetIdle
-                                    )
-                    ).orElse(Disposables.disposed());
+            final Disposable disposable =
+                    completable.subscribe(deceleration::maybeSetIdle);
+            asyncValueViewFacadeCompletableTransaction.addDisposable(disposable);
 
-            return completable;
+            return asyncValueCompletable.toValueCompletable();
         }
     }
 
@@ -432,30 +468,30 @@ public abstract class RxAsyncValueFragment<
     protected <
             AsyncValueAttachmentFactoryType extends Attachment.AttachmentFactory<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
+                    ListenerType,
+                    AttachmentType
                     >,
             AsyncValueOnAttachedType extends OnAttached<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
+                    ListenerType,
+                    AttachmentType
                     >,
             AsyncValueWillDetachType extends WillDetach<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
+                    ListenerType,
+                    AttachmentType
                     >,
             ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType,
+                    ListenerType,
+                    AttachmentType,
                     ValueViewFacadeType
                     >,
-            ValueViewFacadeType extends ValueViewFacade<AsyncValueStateType>,
+            ValueViewFacadeType extends ValueViewFacade,
             ValueStateObservableProviderType extends ValueStateObservableProvider<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType,
+                    ListenerType,
+                    AttachmentType,
                     ValueStateType,
                     AsyncValueStateType
                     >,
@@ -464,58 +500,84 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
-            AsyncValueUnparcelableType,
-            ValueViewFacadeTransactionFactoryType extends ValueViewFacadeTransactionFactory<
+            AsyncValueType,
+            ValueViewFacadeCompletableTransactionFactoryType extends ValueViewFacadeCompletableTransactionFactory<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType,
+                    ListenerType,
+                    AttachmentType,
                     ValueViewFacadeType,
+                    ValueViewFacadeCompletableTransactionType,
+                    ValueViewFacadeTransactionType,
                     ValueStateType,
                     AsyncValueStateType,
-                    ValueViewFacadeTransactionType
+                    ValueCompletableType
+                    >,
+            ValueViewFacadeCompletableTransactionType extends ValueViewFacadeCompletableTransaction<
+                    ValueViewFacadeTransactionType,
+                    ValueStateType,
+                    AsyncValueStateType,
+                    ValueCompletableType
                     >,
             ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
-            AsyncValueViewFacadeTransactionFactoryType extends AsyncValueViewFacadeTransactionFactory<
+            AsyncValueViewFacadeCompletableTransactionFactoryType extends AsyncValueViewFacadeCompletableTransactionFactory<
                     ValueViewFacadeTransactionType,
-                    ValueViewFacadeType,
+                    AsyncValueViewFacadeCompletableTransactionType,
+                    AsyncValueViewFacadeTransactionType,
                     AsyncValueStateType,
-                    AsyncValueViewFacadeTransactionType,
-                    AsyncValueViewFacadeType
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
                     >,
-            AsyncValueViewFacadeTransactionType extends ObjectTransaction<
+            AsyncValueViewFacadeCompletableTransactionType extends AsyncValueViewFacadeCompletableTransaction<
                     AsyncValueViewFacadeTransactionType,
-                    AsyncValueViewFacadeType
+                    AsyncValueStateType,
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
                     >,
-            AsyncValueViewFacadeType extends AsyncValueViewFacade,
+            AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
             AsyncValueRendererType extends AsyncValueRenderer<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueStateType,
-                    AsyncValueViewFacadeTransactionType
-                    >
+                    ListenerType,
+                    AttachmentType,
+                    AsyncValueType,
+                    AsyncValueViewFacadeTransactionType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
+                    >,
+            AsyncValueCompletableType extends AsyncValueCompletable<
+                    ValueCompletableType
+                    >,
+            ValueCompletableType extends ValueCompletable
             > RxAsyncValueFragment(
             Class<AsyncValueFragmentType> selfClass,
-            Class<AsyncValueListenerType> listenerClass,
+            Class<ListenerType> listenerClass,
             AsyncValueAttachmentFactoryType attachmentFactory,
             AsyncValueOnAttachedType onAttached,
             AsyncValueWillDetachType willDetach,
@@ -523,8 +585,8 @@ public abstract class RxAsyncValueFragment<
             String idlingResourceNamePrefix,
             ValueViewFacadeFactoryType valueViewFacadeFactory,
             ValueStateObservableProviderType valueStateObservableProvider,
-            ValueViewFacadeTransactionFactoryType valueViewFacadeTransactionFactory,
-            AsyncValueViewFacadeTransactionFactoryType asyncValueViewFacadeTransactionFactory,
+            ValueViewFacadeCompletableTransactionFactoryType valueViewFacadeCompletableTransactionFactory,
+            AsyncValueViewFacadeCompletableTransactionFactoryType asyncValueViewFacadeCompletableTransactionFactory,
             AsyncValueRendererType asyncValueRenderer
     ) {
         this(
@@ -536,8 +598,8 @@ public abstract class RxAsyncValueFragment<
                 layoutResource,
                 valueViewFacadeFactory,
                 valueStateObservableProvider,
-                valueViewFacadeTransactionFactory,
-                asyncValueViewFacadeTransactionFactory,
+                valueViewFacadeCompletableTransactionFactory,
+                asyncValueViewFacadeCompletableTransactionFactory,
                 MutableIdlingResource.idle(idlingResourceNamePrefix + "Loading"),
                 MutableIdlingResource.idle(idlingResourceNamePrefix + "CompleteOrFailed"),
                 asyncValueRenderer
@@ -548,30 +610,30 @@ public abstract class RxAsyncValueFragment<
     private <
             AsyncValueAttachmentFactoryType extends Attachment.AttachmentFactory<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
+                    ListenerType,
+                    AttachmentType
                     >,
             AsyncValueOnAttachedType extends OnAttached<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
+                    ListenerType,
+                    AttachmentType
                     >,
             AsyncValueWillDetachType extends WillDetach<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType
+                    ListenerType,
+                    AttachmentType
                     >,
             ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType,
+                    ListenerType,
+                    AttachmentType,
                     ValueViewFacadeType
                     >,
-            ValueViewFacadeType extends ValueViewFacade<AsyncValueStateType>,
+            ValueViewFacadeType extends ValueViewFacade,
             ValueStateObservableProviderType extends ValueStateObservableProvider<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType,
+                    ListenerType,
+                    AttachmentType,
                     ValueStateType,
                     AsyncValueStateType
                     >,
@@ -580,66 +642,92 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
             AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    AsyncValueUnparcelableType
+                    AsyncValueType
                     >,
-            AsyncValueUnparcelableType,
-            ValueViewFacadeTransactionFactoryType extends ValueViewFacadeTransactionFactory<
+            AsyncValueType,
+            ValueViewFacadeCompletableTransactionFactoryType extends ValueViewFacadeCompletableTransactionFactory<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueAttachmentType,
+                    ListenerType,
+                    AttachmentType,
                     ValueViewFacadeType,
+                    ValueViewFacadeCompletableTransactionType,
+                    ValueViewFacadeTransactionType,
                     ValueStateType,
                     AsyncValueStateType,
-                    ValueViewFacadeTransactionType
+                    ValueCompletableType
+                    >,
+            ValueViewFacadeCompletableTransactionType extends ValueViewFacadeCompletableTransaction<
+                    ValueViewFacadeTransactionType,
+                    ValueStateType,
+                    AsyncValueStateType,
+                    ValueCompletableType
                     >,
             ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
-            AsyncValueViewFacadeTransactionFactoryType extends AsyncValueViewFacadeTransactionFactory<
+            AsyncValueViewFacadeCompletableTransactionFactoryType extends AsyncValueViewFacadeCompletableTransactionFactory<
                     ValueViewFacadeTransactionType,
-                    ValueViewFacadeType,
+                    AsyncValueViewFacadeCompletableTransactionType,
+                    AsyncValueViewFacadeTransactionType,
                     AsyncValueStateType,
-                    AsyncValueViewFacadeTransactionType,
-                    AsyncValueViewFacadeType
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
                     >,
-            AsyncValueViewFacadeTransactionType extends ObjectTransaction<
+            AsyncValueViewFacadeCompletableTransactionType extends AsyncValueViewFacadeCompletableTransaction<
                     AsyncValueViewFacadeTransactionType,
-                    AsyncValueViewFacadeType
+                    AsyncValueStateType,
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
                     >,
-            AsyncValueViewFacadeType extends AsyncValueViewFacade,
+            AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
             AsyncValueRendererType extends AsyncValueRenderer<
                     AsyncValueFragmentType,
-                    AsyncValueListenerType,
-                    AsyncValueStateType,
-                    AsyncValueViewFacadeTransactionType
-                    >
+                    ListenerType,
+                    AttachmentType,
+                    AsyncValueType,
+                    AsyncValueViewFacadeTransactionType,
+                    AsyncValueCompletableType,
+                    ValueCompletableType
+                    >,
+            AsyncValueCompletableType extends AsyncValueCompletable<
+                    ValueCompletableType
+                    >,
+            ValueCompletableType extends ValueCompletable
             > RxAsyncValueFragment(
             Class<AsyncValueFragmentType> selfClass,
-            Class<AsyncValueListenerType> listenerClass,
+            Class<ListenerType> listenerClass,
             AsyncValueAttachmentFactoryType attachmentFactory,
             AsyncValueOnAttachedType onAttached,
             AsyncValueWillDetachType willDetach,
             @LayoutRes int layoutResource,
             ValueViewFacadeFactoryType valueViewFacadeFactory,
             ValueStateObservableProviderType valueStateObservableProvider,
-            ValueViewFacadeTransactionFactoryType valueViewFacadeTransactionFactory,
-            AsyncValueViewFacadeTransactionFactoryType asyncValueViewFacadeTransactionFactory,
+            ValueViewFacadeCompletableTransactionFactoryType valueViewFacadeCompletableTransactionFactory,
+            AsyncValueViewFacadeCompletableTransactionFactoryType asyncValueViewFacadeCompletableTransactionFactory,
             MutableIdlingResource loadingMutableIdlingResource,
             MutableIdlingResource completeOrFailedMutableIdlingResource,
             AsyncValueRendererType asyncValueRenderer
@@ -653,9 +741,9 @@ public abstract class RxAsyncValueFragment<
                 layoutResource,
                 valueViewFacadeFactory,
                 valueStateObservableProvider,
-                valueViewFacadeTransactionFactory,
-                new ValueRendererImplAsync<>(
-                        asyncValueViewFacadeTransactionFactory,
+                valueViewFacadeCompletableTransactionFactory,
+                new ValueRendererImpl<>(
+                        asyncValueViewFacadeCompletableTransactionFactory,
                         loadingMutableIdlingResource,
                         completeOrFailedMutableIdlingResource,
                         asyncValueRenderer
