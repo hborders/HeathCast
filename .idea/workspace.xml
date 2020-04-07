@@ -114,16 +114,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/ModelObservableProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/MvpFragment.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/Prerender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/Presentation.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/Presenter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/Vista.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/async/AsyncPresenter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/async/package-info.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/package-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListAsyncValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListAsyncValueFragment.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -781,10 +772,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585513526860" />
-    <state width="729" height="123" key="javadoc.popup.new" timestamp="1586231464261">
+    <state width="729" height="123" key="javadoc.popup.new" timestamp="1586232406048">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="729" height="123" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586231464261" />
+    <state width="729" height="123" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586232406048" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1585956447110">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>

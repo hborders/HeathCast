@@ -5,14 +5,11 @@ import android.content.Context;
 import androidx.annotation.LayoutRes;
 
 import com.github.hborders.heathcast.core.Either;
-import com.github.hborders.heathcast.core.EmptyEither;
 import com.github.hborders.heathcast.core.Function;
 import com.github.hborders.heathcast.core.Nothing;
 import com.github.hborders.heathcast.core.VoidFunction;
 
 import java.util.List;
-
-import io.reactivex.Completable;
 
 // Extract EmptyLoading, NonEmptyLoading, EmptyComplete, NonEmptyComplete,
 // EmptyFailed, NonEmptyFailed into RxAsyncValue
@@ -137,84 +134,10 @@ public abstract class RxListAsyncValueFragment<
         );
     }
 
-    protected interface ListAsyncValueViewFacadeTransaction<
-            ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >
-            > extends EmptyEither<
-            ListAsyncValueEmptyViewFacadeTransactionType,
-            ListAsyncValueNonEmptyViewFacadeTransactionType
-            > {
-        interface ListAsyncValueEmptyViewFacadeTransaction<
-                ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                        ListAsyncValueEmptyViewFacadeTransactionType,
-                        ListAsyncValueNonEmptyViewFacadeTransactionType
-                        >,
-                ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                        ListAsyncValueEmptyViewFacadeTransactionType,
-                        ListAsyncValueNonEmptyViewFacadeTransactionType
-                        >
-                > extends ListAsyncValueViewFacadeTransaction<
-                ListAsyncValueEmptyViewFacadeTransactionType,
-                ListAsyncValueNonEmptyViewFacadeTransactionType
-                >,
-                EmptyEither.Left<
-                        ListAsyncValueEmptyViewFacadeTransactionType,
-                        ListAsyncValueNonEmptyViewFacadeTransactionType
-                        > {
-        }
-
-        interface ListAsyncValueNonEmptyViewFacadeTransaction<
-                ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                        ListAsyncValueEmptyViewFacadeTransactionType,
-                        ListAsyncValueNonEmptyViewFacadeTransactionType
-                        >,
-                ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                        ListAsyncValueEmptyViewFacadeTransactionType,
-                        ListAsyncValueNonEmptyViewFacadeTransactionType
-                        >
-                > extends ListAsyncValueViewFacadeTransaction<
-                ListAsyncValueEmptyViewFacadeTransactionType,
-                ListAsyncValueNonEmptyViewFacadeTransactionType
-                >,
-                EmptyEither.Right<
-                        ListAsyncValueEmptyViewFacadeTransactionType,
-                        ListAsyncValueNonEmptyViewFacadeTransactionType
-                        > {
-        }
-
-        // EmptyEither
-
-        <T> T reduce(
-                Function<
-                        ? super ListAsyncValueEmptyViewFacadeTransactionType,
-                        ? extends T
-                        > emptyReducer,
-                Function<
-                        ? super ListAsyncValueNonEmptyViewFacadeTransactionType,
-                        ? extends T
-                        > nonEmptyReducer
-        );
-
-        void act(
-                VoidFunction<? super ListAsyncValueEmptyViewFacadeTransactionType> emptyAction,
-                VoidFunction<? super ListAsyncValueNonEmptyViewFacadeTransactionType> nonEmptyAction
-        );
-
-        // Public API
-
-
+    protected interface ListAsyncValueViewFacade {
     }
 
-    protected interface ListAsyncValueViewEmptyFacade {
-    }
-
-    protected interface ListAsyncValueViewNonEmptyFacade {
+    protected interface ListAsyncValueViewFacadeTransaction {
     }
 
     protected interface ListAsyncValueCompletable<
@@ -223,24 +146,11 @@ public abstract class RxListAsyncValueFragment<
                     >,
             ValueCompletableType extends ValueCompletable
             > {
-        Completable toCompletable();
-
         AsyncValueCompletableType toAsyncValueCompletable();
     }
 
     protected interface ListAsyncValueViewFacadeCompletableTransaction<
-            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
+            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction,
             ListAsyncValueStateType extends ListAsyncValueState<
                     ListAsyncValueEmptyType,
                     ListAsyncValueNonEmptyType,
@@ -299,8 +209,6 @@ public abstract class RxListAsyncValueFragment<
             ListAsyncValueItemType,
             ListAsyncValueViewFacadeCompletableTransactionType extends ListAsyncValueViewFacadeCompletableTransaction<
                     ListAsyncValueViewFacadeTransactionType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
                     ListAsyncValueStateType,
                     ListAsyncValueEmptyType,
                     ListAsyncValueNonEmptyType,
@@ -310,18 +218,7 @@ public abstract class RxListAsyncValueFragment<
                     AsyncValueCompletableType,
                     ValueCompletableType
                     >,
-            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
+            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction,
             ListAsyncValueCompletableType extends ListAsyncValueCompletable<
                     AsyncValueCompletableType,
                     ValueCompletableType
@@ -334,7 +231,7 @@ public abstract class RxListAsyncValueFragment<
         );
     }
 
-    protected interface ListAsyncValueEmptyRenderer<
+    protected interface ListAsyncValueRenderer<
             ListAsyncValueFragmentType extends RxListAsyncValueFragment<
                     ListAsyncValueFragmentType,
                     ListenerType,
@@ -345,6 +242,12 @@ public abstract class RxListAsyncValueFragment<
                     ListAsyncValueFragmentType,
                     ListenerType,
                     AttachmentType
+                    >,
+            ListAsyncValueStateType extends ListAsyncValueState<
+                    ListAsyncValueEmptyType,
+                    ListAsyncValueNonEmptyType,
+                    ListAsyncValueListType,
+                    ListAsyncValueItemType
                     >,
             ListAsyncValueEmptyType extends ListAsyncValueState.ListAsyncValueEmpty<
                     ListAsyncValueEmptyType,
@@ -360,14 +263,7 @@ public abstract class RxListAsyncValueFragment<
                     >,
             ListAsyncValueListType extends List<ListAsyncValueItemType>,
             ListAsyncValueItemType,
-            ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
+            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction,
             ListAsyncValueCompletableType extends ListAsyncValueCompletable<
                     AsyncValueCompletableType,
                     ValueCompletableType
@@ -379,58 +275,8 @@ public abstract class RxListAsyncValueFragment<
                 ListAsyncValueFragmentType fragment,
                 ListenerType listener,
                 Context context,
-                ListAsyncValueEmptyType listAsyncValueEmptyState,
-                ListAsyncValueEmptyViewFacadeTransactionType listAsyncValueEmptyViewFacadeTransaction
-        );
-    }
-
-    protected interface ListAsyncValueNonEmptyRenderer<
-            ListAsyncValueFragmentType extends RxListAsyncValueFragment<
-                    ListAsyncValueFragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    ListAsyncValueFragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListAsyncValueEmptyType extends ListAsyncValueState.ListAsyncValueEmpty<
-                    ListAsyncValueEmptyType,
-                    ListAsyncValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType
-                    >,
-            ListAsyncValueNonEmptyType extends ListAsyncValueState.ListAsyncValueNonEmpty<
-                    ListAsyncValueEmptyType,
-                    ListAsyncValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType
-                    >,
-            ListAsyncValueListType extends List<ListAsyncValueItemType>,
-            ListAsyncValueItemType,
-            ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueCompletableType extends ListAsyncValueCompletable<
-                    AsyncValueCompletableType,
-                    ValueCompletableType
-                    >,
-            AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
-            ValueCompletableType extends ValueCompletable
-            > {
-        ListAsyncValueCompletableType render(
-                ListAsyncValueFragmentType fragment,
-                ListenerType listener,
-                Context context,
-                ListAsyncValueNonEmptyType listAsyncValueNonEmptyState,
-                ListAsyncValueNonEmptyViewFacadeTransactionType listAsyncValueNonEmptyViewFacadeTransaction
+                ListAsyncValueStateType listAsyncValueState,
+                ListAsyncValueViewFacadeTransactionType listAsyncValueViewFacadeTransaction
         );
     }
 
@@ -476,16 +322,12 @@ public abstract class RxListAsyncValueFragment<
                     ListAsyncValueItemType,
                     ListAsyncValueViewFacadeCompletableTransactionType,
                     ListAsyncValueViewFacadeTransactionType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
                     ListAsyncValueCompletableType,
                     AsyncValueCompletableType,
                     ValueCompletableType
                     >,
             ListAsyncValueViewFacadeCompletableTransactionType extends ListAsyncValueViewFacadeCompletableTransaction<
                     ListAsyncValueViewFacadeTransactionType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
                     ListAsyncValueStateType,
                     ListAsyncValueEmptyType,
                     ListAsyncValueNonEmptyType,
@@ -495,48 +337,23 @@ public abstract class RxListAsyncValueFragment<
                     AsyncValueCompletableType,
                     ValueCompletableType
                     >,
-            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
+            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction,
             ListAsyncValueCompletableType extends ListAsyncValueCompletable<
                     AsyncValueCompletableType,
                     ValueCompletableType
                     >,
             AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
             ValueCompletableType extends ValueCompletable,
-            ListAsyncValueEmptyRendererType extends ListAsyncValueEmptyRenderer<
+            ListAsyncValueRendererType extends ListAsyncValueRenderer<
                     ListAsyncValueFragmentType,
                     ListenerType,
                     AttachmentType,
+                    ListAsyncValueStateType,
                     ListAsyncValueEmptyType,
                     ListAsyncValueNonEmptyType,
                     ListAsyncValueListType,
                     ListAsyncValueItemType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
-                    ListAsyncValueCompletableType,
-                    AsyncValueCompletableType,
-                    ValueCompletableType
-                    >,
-            ListAsyncValueNonEmptyRendererType extends ListAsyncValueNonEmptyRenderer<
-                    ListAsyncValueFragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    ListAsyncValueEmptyType,
-                    ListAsyncValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
+                    ListAsyncValueViewFacadeTransactionType,
                     ListAsyncValueCompletableType,
                     AsyncValueCompletableType,
                     ValueCompletableType
@@ -551,17 +368,14 @@ public abstract class RxListAsyncValueFragment<
             ValueCompletableType
             > {
         private final ListAsyncValueViewFacadeCompletableTransactionFactoryType listAsyncValueViewFacadeCompletableTransactionFactory;
-        private final ListAsyncValueEmptyRendererType listAsyncValueEmptyRenderer;
-        private final ListAsyncValueNonEmptyRendererType listAsyncValueNonEmptyRenderer;
+        private final ListAsyncValueRendererType listAsyncValueRenderer;
 
         private AsyncValueRendererImpl(
                 ListAsyncValueViewFacadeCompletableTransactionFactoryType listAsyncValueViewFacadeCompletableTransactionFactory,
-                ListAsyncValueEmptyRendererType listAsyncValueEmptyRenderer,
-                ListAsyncValueNonEmptyRendererType listAsyncValueNonEmptyRenderer
+                ListAsyncValueRendererType listAsyncValueRenderer
         ) {
             this.listAsyncValueViewFacadeCompletableTransactionFactory = listAsyncValueViewFacadeCompletableTransactionFactory;
-            this.listAsyncValueEmptyRenderer = listAsyncValueEmptyRenderer;
-            this.listAsyncValueNonEmptyRenderer = listAsyncValueNonEmptyRenderer;
+            this.listAsyncValueRenderer = listAsyncValueRenderer;
         }
 
         @Override
@@ -581,25 +395,12 @@ public abstract class RxListAsyncValueFragment<
                             listAsyncValueState
                     );
             final ListAsyncValueCompletableType listAsyncValueCompletable =
-                    listAsyncValueViewFacadeTransaction.reduce(
-                            empty ->
-                                    listAsyncValueEmptyRenderer.render(
-                                            fragment,
-                                            listener,
-                                            context,
-                                            // TODO move listAsyncValueState into completableTransactionFactory
-                                            (ListAsyncValueEmptyType) listAsyncValueState,
-                                            empty
-                                    ),
-                            nonEmpty ->
-                                    listAsyncValueNonEmptyRenderer.render(
-                                            fragment,
-                                            listener,
-                                            context,
-                                            // TODO move listAsyncValueState into completableTransactionFactory
-                                            (ListAsyncValueNonEmptyType) listAsyncValueState,
-                                            nonEmpty
-                                    )
+                    listAsyncValueRenderer.render(
+                            fragment,
+                            listener,
+                            context,
+                            listAsyncValueState,
+                            listAsyncValueViewFacadeTransaction
                     );
             return listAsyncValueCompletable.toAsyncValueCompletable();
         }
@@ -732,16 +533,12 @@ public abstract class RxListAsyncValueFragment<
                     ListAsyncValueItemType,
                     ListAsyncValueViewFacadeCompletableTransactionType,
                     ListAsyncValueViewFacadeTransactionType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
                     ListAsyncValueCompletableType,
                     AsyncValueCompletableType,
                     ValueCompletableType
                     >,
             ListAsyncValueViewFacadeCompletableTransactionType extends ListAsyncValueViewFacadeCompletableTransaction<
                     ListAsyncValueViewFacadeTransactionType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
                     ListAsyncValueStateType,
                     ListAsyncValueEmptyType,
                     ListAsyncValueNonEmptyType,
@@ -751,47 +548,22 @@ public abstract class RxListAsyncValueFragment<
                     AsyncValueCompletableType,
                     ValueCompletableType
                     >,
-            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueEmptyRendererType extends ListAsyncValueEmptyRenderer<
+            ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction,
+            ListAsyncValueRendererType extends ListAsyncValueRenderer<
                     ListAsyncValueFragmentType,
                     ListenerType,
                     AttachmentType,
+                    ListAsyncValueStateType,
                     ListAsyncValueEmptyType,
                     ListAsyncValueNonEmptyType,
                     ListAsyncValueListType,
                     ListAsyncValueItemType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
+                    ListAsyncValueViewFacadeTransactionType,
                     ListAsyncValueCompletableType,
                     AsyncValueCompletableType,
                     ValueCompletableType
-                    >,
-            ListAsyncValueEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
-                    >,
-            ListAsyncValueNonEmptyViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction.ListAsyncValueNonEmptyViewFacadeTransaction<
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType
                     >,
             ListAsyncValueCompletableType extends ListAsyncValueCompletable<
-                    AsyncValueCompletableType,
-                    ValueCompletableType
-                    >,
-            ListAsyncValueNonEmptyRendererType extends ListAsyncValueNonEmptyRenderer<
-                    ListAsyncValueFragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    ListAsyncValueEmptyType,
-                    ListAsyncValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType,
-                    ListAsyncValueEmptyViewFacadeTransactionType,
-                    ListAsyncValueNonEmptyViewFacadeTransactionType,
-                    ListAsyncValueCompletableType,
                     AsyncValueCompletableType,
                     ValueCompletableType
                     >
@@ -808,8 +580,7 @@ public abstract class RxListAsyncValueFragment<
             ValueViewFacadeCompletableTransactionFactoryType valueViewFacadeCompletableTransactionFactory,
             AsyncValueViewFacadeCompletableTransactionFactoryType asyncValueViewFacadeCompletableTransactionFactory,
             ListAsyncValueViewFacadeCompletableTransactionFactoryType listAsyncValueViewFacadeCompletableTransactionFactory,
-            ListAsyncValueEmptyRendererType listAsyncValueEmptyRenderer,
-            ListAsyncValueNonEmptyRendererType listAsyncValueNonEmptyRenderer
+            ListAsyncValueRendererType listAsyncValueRenderer
     ) {
         super(
                 selfClass,
@@ -825,8 +596,7 @@ public abstract class RxListAsyncValueFragment<
                 asyncValueViewFacadeCompletableTransactionFactory,
                 new AsyncValueRendererImpl<>(
                         listAsyncValueViewFacadeCompletableTransactionFactory,
-                        listAsyncValueEmptyRenderer,
-                        listAsyncValueNonEmptyRenderer
+                        listAsyncValueRenderer
                 )
         );
     }
