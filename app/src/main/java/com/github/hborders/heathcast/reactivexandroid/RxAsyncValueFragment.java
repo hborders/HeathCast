@@ -18,19 +18,19 @@ import io.reactivex.disposables.Disposable;
 // Don't have them keep extending each other. That way, each
 // layer has a specific job.
 public abstract class RxAsyncValueFragment<
-        AsyncValueFragmentType extends RxAsyncValueFragment<
-                AsyncValueFragmentType,
+        FragmentType extends RxAsyncValueFragment<
+                FragmentType,
                 ListenerType,
                 AttachmentType
                 >,
         ListenerType,
         AttachmentType extends RxFragment.Attachment<
-                AsyncValueFragmentType,
+                FragmentType,
                 ListenerType,
                 AttachmentType
                 >
         > extends RxValueFragment<
-        AsyncValueFragmentType,
+        FragmentType,
         ListenerType,
         AttachmentType
         > {
@@ -58,12 +58,13 @@ public abstract class RxAsyncValueFragment<
                     AsyncValueType
                     >,
             AsyncValueType
-            > extends Either31<
-            AsyncValueLoadingType,
-            AsyncValueCompleteType,
-            AsyncValueFailedType,
-            AsyncValueType
-            > {
+            > extends ValueState,
+            Either31<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    AsyncValueType
+                    > {
         interface AsyncValueLoading<
                 AsyncValueLoadingType extends AsyncValueLoading<
                         AsyncValueLoadingType,
@@ -197,6 +198,7 @@ public abstract class RxAsyncValueFragment<
             ValueCompletableType extends ValueCompletable
             > {
         Completable toCompletable();
+
         ValueCompletableType toValueCompletable();
     }
 
@@ -234,9 +236,9 @@ public abstract class RxAsyncValueFragment<
                 AsyncValueStateType asyncValueState
         );
 
-        AsyncValueCompletableType complete();
+        AsyncValueCompletableType completeAsyncValue();
 
-        void addDisposable(Disposable disposable);
+        void addAsyncValueDisposable(Disposable disposable);
     }
 
     protected interface AsyncValueViewFacadeCompletableTransactionFactory<
@@ -285,14 +287,14 @@ public abstract class RxAsyncValueFragment<
     }
 
     protected interface AsyncValueRenderer<
-            AsyncValueFragmentType extends RxAsyncValueFragment<
-                    AsyncValueFragmentType,
+            FragmentType extends RxAsyncValueFragment<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
@@ -302,7 +304,7 @@ public abstract class RxAsyncValueFragment<
             ValueCompletableType extends ValueCompletable
             > {
         AsyncValueCompletableType render(
-                AsyncValueFragmentType fragment,
+                FragmentType fragment,
                 ListenerType listener,
                 Context context,
                 AsyncValueType asyncValue,
@@ -313,14 +315,14 @@ public abstract class RxAsyncValueFragment<
     private static final class ValueRendererImpl<
             // even though we don't use these bounds in our declarations,
             // javac gives better error messages with boundary enforcement
-            AsyncValueFragmentType extends RxAsyncValueFragment<
-                    AsyncValueFragmentType,
+            FragmentType extends RxAsyncValueFragment<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
@@ -351,7 +353,7 @@ public abstract class RxAsyncValueFragment<
                     >,
             AsyncValueType,
             AsyncValueRendererType extends AsyncValueRenderer<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     AsyncValueType,
@@ -385,7 +387,7 @@ public abstract class RxAsyncValueFragment<
             AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
             ValueCompletableType extends ValueCompletable
             > implements ValueRenderer<
-            AsyncValueFragmentType,
+            FragmentType,
             ListenerType,
             AttachmentType,
             AsyncValueStateType,
@@ -411,7 +413,7 @@ public abstract class RxAsyncValueFragment<
 
         @Override
         public ValueCompletableType render(
-                AsyncValueFragmentType fragment,
+                FragmentType fragment,
                 ListenerType listener,
                 Context context,
                 AsyncValueStateType asyncValueState,
@@ -456,7 +458,7 @@ public abstract class RxAsyncValueFragment<
 
             final Disposable disposable =
                     completable.subscribe(deceleration::maybeSetIdle);
-            asyncValueViewFacadeCompletableTransaction.addDisposable(disposable);
+            asyncValueViewFacadeCompletableTransaction.addAsyncValueDisposable(disposable);
 
             return asyncValueCompletable.toValueCompletable();
         }
@@ -466,36 +468,34 @@ public abstract class RxAsyncValueFragment<
     private final IdlingResource completeOrFailedIdlingResource;
 
     protected <
-            AsyncValueAttachmentFactoryType extends Attachment.AttachmentFactory<
-                    AsyncValueFragmentType,
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
-            AsyncValueOnAttachedType extends OnAttached<
-                    AsyncValueFragmentType,
+            OnAttachedType extends OnAttached<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
-            AsyncValueWillDetachType extends WillDetach<
-                    AsyncValueFragmentType,
+            WillDetachType extends WillDetach<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ValueViewFacadeType
                     >,
             ValueViewFacadeType extends ValueViewFacade,
             ValueStateObservableProviderType extends ValueStateObservableProvider<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ValueStateType,
                     AsyncValueStateType
                     >,
-            ValueStateType extends ValueState<AsyncValueStateType>,
             AsyncValueStateType extends AsyncValueState<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
@@ -522,19 +522,17 @@ public abstract class RxAsyncValueFragment<
                     >,
             AsyncValueType,
             ValueViewFacadeCompletableTransactionFactoryType extends ValueViewFacadeCompletableTransactionFactory<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ValueViewFacadeType,
                     ValueViewFacadeCompletableTransactionType,
                     ValueViewFacadeTransactionType,
-                    ValueStateType,
                     AsyncValueStateType,
                     ValueCompletableType
                     >,
             ValueViewFacadeCompletableTransactionType extends ValueViewFacadeCompletableTransaction<
                     ValueViewFacadeTransactionType,
-                    ValueStateType,
                     AsyncValueStateType,
                     ValueCompletableType
                     >,
@@ -563,7 +561,7 @@ public abstract class RxAsyncValueFragment<
                     >,
             AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
             AsyncValueRendererType extends AsyncValueRenderer<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     AsyncValueType,
@@ -576,11 +574,11 @@ public abstract class RxAsyncValueFragment<
                     >,
             ValueCompletableType extends ValueCompletable
             > RxAsyncValueFragment(
-            Class<AsyncValueFragmentType> selfClass,
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
-            AsyncValueAttachmentFactoryType attachmentFactory,
-            AsyncValueOnAttachedType onAttached,
-            AsyncValueWillDetachType willDetach,
+            AttachmentFactoryType attachmentFactory,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
             @LayoutRes int layoutResource,
             String idlingResourceNamePrefix,
             ValueViewFacadeFactoryType valueViewFacadeFactory,
@@ -608,36 +606,34 @@ public abstract class RxAsyncValueFragment<
 
 
     private <
-            AsyncValueAttachmentFactoryType extends Attachment.AttachmentFactory<
-                    AsyncValueFragmentType,
+            AttachmentFactoryType extends Attachment.AttachmentFactory<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
-            AsyncValueOnAttachedType extends OnAttached<
-                    AsyncValueFragmentType,
+            OnAttachedType extends OnAttached<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
-            AsyncValueWillDetachType extends WillDetach<
-                    AsyncValueFragmentType,
+            WillDetachType extends WillDetach<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ValueViewFacadeType
                     >,
             ValueViewFacadeType extends ValueViewFacade,
             ValueStateObservableProviderType extends ValueStateObservableProvider<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ValueStateType,
                     AsyncValueStateType
                     >,
-            ValueStateType extends ValueState<AsyncValueStateType>,
             AsyncValueStateType extends AsyncValueState<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
@@ -664,19 +660,17 @@ public abstract class RxAsyncValueFragment<
                     >,
             AsyncValueType,
             ValueViewFacadeCompletableTransactionFactoryType extends ValueViewFacadeCompletableTransactionFactory<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ValueViewFacadeType,
                     ValueViewFacadeCompletableTransactionType,
                     ValueViewFacadeTransactionType,
-                    ValueStateType,
                     AsyncValueStateType,
                     ValueCompletableType
                     >,
             ValueViewFacadeCompletableTransactionType extends ValueViewFacadeCompletableTransaction<
                     ValueViewFacadeTransactionType,
-                    ValueStateType,
                     AsyncValueStateType,
                     ValueCompletableType
                     >,
@@ -705,7 +699,7 @@ public abstract class RxAsyncValueFragment<
                     >,
             AsyncValueViewFacadeTransactionType extends AsyncValueViewFacadeTransaction,
             AsyncValueRendererType extends AsyncValueRenderer<
-                    AsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     AsyncValueType,
@@ -718,11 +712,11 @@ public abstract class RxAsyncValueFragment<
                     >,
             ValueCompletableType extends ValueCompletable
             > RxAsyncValueFragment(
-            Class<AsyncValueFragmentType> selfClass,
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
-            AsyncValueAttachmentFactoryType attachmentFactory,
-            AsyncValueOnAttachedType onAttached,
-            AsyncValueWillDetachType willDetach,
+            AttachmentFactoryType attachmentFactory,
+            OnAttachedType onAttached,
+            WillDetachType willDetach,
             @LayoutRes int layoutResource,
             ValueViewFacadeFactoryType valueViewFacadeFactory,
             ValueStateObservableProviderType valueStateObservableProvider,

@@ -16,19 +16,19 @@ import java.util.List;
 // RxAsyncValueFragment can have its own ViewFacade that accepts a value
 // and RxListAsyncValueFragment can specify that to be a List
 public abstract class RxListAsyncValueFragment<
-        ListAsyncValueFragmentType extends RxListAsyncValueFragment<
-                ListAsyncValueFragmentType,
+        FragmentType extends RxListAsyncValueFragment<
+                FragmentType,
                 ListenerType,
                 AttachmentType
                 >,
         ListenerType,
         AttachmentType extends RxFragment.Attachment<
-                ListAsyncValueFragmentType,
+                FragmentType,
                 ListenerType,
                 AttachmentType
                 >
         > extends RxAsyncValueFragment<
-        ListAsyncValueFragmentType,
+        FragmentType,
         ListenerType,
         AttachmentType
         > {
@@ -182,7 +182,7 @@ public abstract class RxListAsyncValueFragment<
                 ListAsyncValueStateType listAsyncValueState
         );
 
-        ListAsyncValueCompletableType complete();
+        ListAsyncValueCompletableType completeListAsyncValue();
     }
 
     protected interface ListAsyncValueViewFacadeCompletableTransactionFactory<
@@ -232,14 +232,14 @@ public abstract class RxListAsyncValueFragment<
     }
 
     protected interface ListAsyncValueRenderer<
-            ListAsyncValueFragmentType extends RxListAsyncValueFragment<
-                    ListAsyncValueFragmentType,
+            FragmentType extends RxListAsyncValueFragment<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
@@ -272,7 +272,7 @@ public abstract class RxListAsyncValueFragment<
             ValueCompletableType extends ValueCompletable
             > {
         ListAsyncValueCompletableType render(
-                ListAsyncValueFragmentType fragment,
+                FragmentType fragment,
                 ListenerType listener,
                 Context context,
                 ListAsyncValueStateType listAsyncValueState,
@@ -281,14 +281,14 @@ public abstract class RxListAsyncValueFragment<
     }
 
     private static final class AsyncValueRendererImpl<
-            ListAsyncValueFragmentType extends RxListAsyncValueFragment<
-                    ListAsyncValueFragmentType,
+            FragmentType extends RxListAsyncValueFragment<
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ListenerType,
             AttachmentType extends RxFragment.Attachment<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
@@ -345,7 +345,7 @@ public abstract class RxListAsyncValueFragment<
             AsyncValueCompletableType extends AsyncValueCompletable<ValueCompletableType>,
             ValueCompletableType extends ValueCompletable,
             ListAsyncValueRendererType extends ListAsyncValueRenderer<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ListAsyncValueStateType,
@@ -359,7 +359,7 @@ public abstract class RxListAsyncValueFragment<
                     ValueCompletableType
                     >
             > implements AsyncValueRenderer<
-            ListAsyncValueFragmentType,
+            FragmentType,
             ListenerType,
             AttachmentType,
             ListAsyncValueStateType,
@@ -380,7 +380,7 @@ public abstract class RxListAsyncValueFragment<
 
         @Override
         public AsyncValueCompletableType render(
-                ListAsyncValueFragmentType fragment,
+                FragmentType fragment,
                 ListenerType listener,
                 Context context,
                 ListAsyncValueStateType listAsyncValueState,
@@ -408,35 +408,33 @@ public abstract class RxListAsyncValueFragment<
 
     protected <
             ListAsyncValueAttachmentFactoryType extends Attachment.AttachmentFactory<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ListAsyncValueOnAttachedType extends OnAttached<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ListAsyncValueWillDetachType extends WillDetach<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType
                     >,
             ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ValueViewFacadeType
                     >,
             ValueViewFacadeType extends ValueViewFacade,
             ValueStateObservableProviderType extends ValueStateObservableProvider<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
-                    ValueStateType,
                     AsyncValueStateType
                     >,
-            ValueStateType extends ValueState<AsyncValueStateType>,
             AsyncValueStateType extends AsyncValueState<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
@@ -482,19 +480,17 @@ public abstract class RxListAsyncValueFragment<
             ListAsyncValueListType extends List<ListAsyncValueItemType>,
             ListAsyncValueItemType,
             ValueViewFacadeCompletableTransactionFactoryType extends ValueViewFacadeCompletableTransactionFactory<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ValueViewFacadeType,
                     ValueViewFacadeCompletableTransactionType,
                     ValueViewFacadeTransactionType,
-                    ValueStateType,
                     AsyncValueStateType,
                     ValueCompletableType
                     >,
             ValueViewFacadeCompletableTransactionType extends ValueViewFacadeCompletableTransaction<
                     ValueViewFacadeTransactionType,
-                    ValueStateType,
                     AsyncValueStateType,
                     ValueCompletableType
                     >,
@@ -550,7 +546,7 @@ public abstract class RxListAsyncValueFragment<
                     >,
             ListAsyncValueViewFacadeTransactionType extends ListAsyncValueViewFacadeTransaction,
             ListAsyncValueRendererType extends ListAsyncValueRenderer<
-                    ListAsyncValueFragmentType,
+                    FragmentType,
                     ListenerType,
                     AttachmentType,
                     ListAsyncValueStateType,
@@ -568,7 +564,7 @@ public abstract class RxListAsyncValueFragment<
                     ValueCompletableType
                     >
             > RxListAsyncValueFragment(
-            Class<ListAsyncValueFragmentType> selfClass,
+            Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
             ListAsyncValueAttachmentFactoryType attachmentFactory,
             ListAsyncValueOnAttachedType onAttached,
