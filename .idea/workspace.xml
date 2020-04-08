@@ -116,7 +116,6 @@
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -658,10 +657,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="755" y="409" key="#com.intellij.ide.actions.DebugLogConfigureAction/0.23.1920.1100@0.23.1920.1100" timestamp="1583602217176" />
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586318356694">
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586320985205">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586318356694" />
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586320985205" />
     <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585108867255">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -758,10 +757,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="com.android.tools.idea.avdmanager.AvdListDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585894616159" />
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1586310160658">
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1586320044174">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586310160658" />
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586320044174" />
     <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579558329648">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -774,10 +773,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585513526860" />
-    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586318864491">
+    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586322574042">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586318864491" />
+    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586322574042" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586235741335">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
