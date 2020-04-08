@@ -84,75 +84,17 @@ public abstract class RxValueFragment<
     }
 
     protected interface ValueViewFacadeTransaction {
-    }
-
-    protected interface ValueCompletable {
-        Completable toCompletable();
-    }
-
-    protected interface ValueViewFacadeCompletableTransaction<
-            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
-            ValueStateType extends ValueState,
-            ValueCompletableType extends ValueCompletable
-            > {
-        ValueViewFacadeTransactionType toValueViewFacadeTransaction(ValueStateType valueState);
-
-        ValueCompletableType completeValue();
-    }
-
-    protected interface ValueViewFacadeCompletableTransactionFactory<
-            // even though we don't use these bounds in our declarations,
-            // javac gives better error messages with boundary enforcement
-            FragmentType extends RxValueFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ValueViewFacadeType extends ValueViewFacade,
-            ValueViewFacadeCompletableTransactionType extends ValueViewFacadeCompletableTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueStateType,
-                    ValueCompletableType
-                    >,
-            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
-            ValueStateType extends ValueState,
-            ValueCompletableType extends ValueCompletable
-            > {
-        ValueViewFacadeCompletableTransactionType newValueViewFacadeCompletableTransaction(
-                ValueViewFacadeType valueViewFacade
-        );
+        Completable complete();
     }
 
     protected interface ValueRenderer<
-            // even though we don't use these bounds in our declarations,
-            // javac gives better error messages with boundary enforcement
-            Type extends RxValueFragment<
-                    Type,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            ListenerType,
-            AttachmentType extends RxFragment.Attachment<
-                    Type,
-                    ListenerType,
-                    AttachmentType
-                    >,
+            ValueViewFacadeType extends ValueViewFacade,
             ValueStateType extends ValueState,
-            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction,
-            ValueCompletableType extends ValueCompletable
+            ValueViewFacadeTransactionType extends ValueViewFacadeTransaction
             > {
-        ValueCompletableType render(
-                Type fragment,
-                ListenerType listener,
-                Context context,
-                ValueStateType valueState,
-                ValueViewFacadeTransactionType viewFacadeTransaction
+        ValueViewFacadeTransactionType render(
+                ValueViewFacadeType valueViewFacade,
+                ValueStateType valueState
         );
     }
 
@@ -188,29 +130,10 @@ public abstract class RxValueFragment<
                     ValueStateType
                     >,
             ValueStateType extends ValueState,
-            ValueViewFacadeCompletableTransactionFactoryType extends ValueViewFacadeCompletableTransactionFactory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    ValueViewFacadeType,
-                    ValueViewFacadeCompletableTransactionType,
-                    ValueViewFacadeTransactionType,
-                    ValueStateType,
-                    ValueCompletableType
-                    >,
-            ValueViewFacadeCompletableTransactionType extends ValueViewFacadeCompletableTransaction<
-                    ValueViewFacadeTransactionType,
-                    ValueStateType,
-                    ValueCompletableType
-                    >,
-            ValueCompletableType extends ValueCompletable,
             ValueRendererType extends ValueRenderer<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
+                    ValueViewFacadeType,
                     ValueStateType,
-                    ValueViewFacadeTransactionType,
-                    ValueCompletableType
+                    ValueViewFacadeTransactionType
                     >,
             ValueViewFacadeTransactionType extends ValueViewFacadeTransaction
             >
@@ -223,7 +146,6 @@ public abstract class RxValueFragment<
             @LayoutRes int layoutResource,
             ValueViewFacadeFactoryType valueViewFacadeFactory,
             ValueStateObservableProviderType valueStateObservableProvider,
-            ValueViewFacadeCompletableTransactionFactoryType valueViewFacadeCompletableTransactionFactory,
             ValueRendererType valueRenderer
     ) {
         super(
@@ -270,12 +192,13 @@ public abstract class RxValueFragment<
                                 final ViewCreation viewCreation =
                                         attachmentFragmentCreationViewCreationTriple.third;
                                 final View view = viewCreation.view;
-                                final ValueViewFacadeType viewFacade = valueViewFacadeFactory.newViewFacade(
-                                        getSelf(),
-                                        listener,
-                                        context,
-                                        view
-                                );
+                                final ValueViewFacadeType viewFacade =
+                                        valueViewFacadeFactory.newViewFacade(
+                                                getSelf(),
+                                                listener,
+                                                context,
+                                                view
+                                        );
                                 viewCreation.addDisposable(viewFacade);
                                 return new Prez(
                                         context,
@@ -324,24 +247,12 @@ public abstract class RxValueFragment<
             return prerenderObservable.subscribe(
                     prerender -> {
                         final ValueStateType valueState = prerender.valueState;
-                        final ValueViewFacadeCompletableTransactionType valueViewFacadeCompletableTransaction =
-                                valueViewFacadeCompletableTransactionFactory.newValueViewFacadeCompletableTransaction(
-                                        prerender.prez.valueViewFacade
-                                );
                         final ValueViewFacadeTransactionType valueViewFacadeTransaction =
-                                valueViewFacadeCompletableTransaction.toValueViewFacadeTransaction(
-                                        // TODO move valueState into completableTransactionFactory
+                                valueRenderer.render(
+                                        prerender.prez.valueViewFacade,
                                         valueState
                                 );
-
-                        final ValueCompletableType ignored =
-                                valueRenderer.render(
-                                        getSelf(),
-                                        prerender.prez.listener,
-                                        prerender.prez.context,
-                                        valueState,
-                                        valueViewFacadeTransaction
-                                );
+                        final Completable ignored = valueViewFacadeTransaction.complete();
                     }
             );
         };

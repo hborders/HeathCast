@@ -7,6 +7,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.core.Either;
+import com.github.hborders.heathcast.core.Either31;
+import com.github.hborders.heathcast.core.Nothing;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
@@ -17,466 +20,228 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
 
 // Next, I should consume it in the MainFragment as well
-public abstract class PodcastListFragment<
-        FragmentType extends PodcastListFragment<
-                FragmentType,
-                ListenerType,
-                AttachmentType,
-                PodcastListAsyncValueStateType,
-                PodcastListAsyncValueEmptyType,
-                PodcastListAsyncValueNonEmptyType
-                >,
-        ListenerType extends PodcastListFragment.PodcastListFragmentListener<
-                FragmentType,
-                ListenerType,
-                AttachmentType,
-                PodcastListAsyncValueStateType,
-                PodcastListAsyncValueEmptyType,
-                PodcastListAsyncValueNonEmptyType
-                >,
-        AttachmentType extends RxFragment.Attachment<
-                FragmentType,
-                ListenerType,
-                AttachmentType
-                >,
-        PodcastListAsyncValueStateType extends PodcastListFragment.PodcastListAsyncValueState<
-                PodcastListAsyncValueEmptyType,
-                PodcastListAsyncValueNonEmptyType
-                >,
-        PodcastListAsyncValueEmptyType extends PodcastListFragment.PodcastListAsyncValueState.PodcastListAsyncValueEmpty<
-                PodcastListAsyncValueEmptyType,
-                PodcastListAsyncValueNonEmptyType
-                >,
-        PodcastListAsyncValueNonEmptyType extends PodcastListFragment.PodcastListAsyncValueState.PodcastListAsyncValueNonEmpty<
-                PodcastListAsyncValueEmptyType,
-                PodcastListAsyncValueNonEmptyType
-                >
-        > extends RxListAsyncValueFragment<
-        FragmentType,
-        ListenerType,
-        AttachmentType
+public final class PodcastListFragment extends RxListAsyncValueFragment<
+        PodcastListFragment,
+        PodcastListFragment.PodcastListFragmentListener,
+        PodcastListFragment.PodcastListFragmentAttachment
         > {
-    public interface PodcastListFragmentListener<
-            FragmentType extends PodcastListFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    PodcastListAsyncValueStateType,
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            ListenerType extends PodcastListFragmentListener<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    PodcastListAsyncValueStateType,
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            PodcastListAsyncValueStateType extends PodcastListAsyncValueState<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueNonEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueNonEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >
-            > {
-        void onPodcastListFragmentAttached(FragmentType podcastListFragment);
+    public interface PodcastListFragmentListener {
+        void onPodcastListFragmentAttached(PodcastListFragment podcastListFragment);
 
-        Observable<PodcastListAsyncValueStateType> podcastListAsyncValueStateObservable(
-                FragmentType podcastListFragment
+        Observable<PodcastListAsyncValueState> podcastListAsyncValueStateObservable(
+                PodcastListFragment podcastListFragment
         );
 
         void onClickPodcastIdentified(
-                FragmentType podcastListFragment,
+                PodcastListFragment podcastListFragment,
                 PodcastIdentified podcastIdentified
         );
 
-        void onPodcastListFragmentWillDetach(FragmentType podcastListFragment);
+        void onPodcastListFragmentWillDetach(PodcastListFragment podcastListFragment);
     }
 
-    public interface PodcastListAsyncValueState<
-            PodcastListAsyncValueEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueNonEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueNonEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >
-            > extends ListAsyncValueState<
-            PodcastListAsyncValueEmptyType,
-            PodcastListAsyncValueNonEmptyType,
+    public static final class PodcastListFragmentAttachment extends RxFragment.Attachment<
+            PodcastListFragment,
+            PodcastListFragmentListener,
+            PodcastListFragmentAttachment
+            > {
+        PodcastListFragmentAttachment(
+                PodcastListFragment fragment,
+                Context context,
+                PodcastListFragmentListener listener,
+                Observable<FragmentCreation> fragmenCreationObservable,
+                Completable onDetachCompletable
+        ) {
+            super(
+                    PodcastListFragmentAttachment.class,
+                    fragment,
+                    context,
+                    listener,
+                    fragmenCreationObservable,
+                    onDetachCompletable
+            );
+        }
+    }
+
+    public interface PodcastIdentifiedListValueStateAsyncValueState extends AsyncValueState<
+            PodcastIdentifiedListValueStateAsyncValueState.PodcastIdentifiedListValueStateAsyncValueLoading,
+            PodcastIdentifiedListValueStateAsyncValueState.PodcastIdentifiedListValueStateAsyncValueComplete,
+            PodcastIdentifiedListValueStateAsyncValueState.PodcastIdentifiedListValueStateAsyncValueFailed,
+            PodcastIdentifiedListValueState
+            > {
+        final class PodcastIdentifiedListValueStateAsyncValueLoading extends Either31.LeftImpl<
+                PodcastIdentifiedListValueStateAsyncValueLoading,
+                PodcastIdentifiedListValueStateAsyncValueComplete,
+                PodcastIdentifiedListValueStateAsyncValueFailed,
+                PodcastIdentifiedListValueState
+                > implements AsyncValueState.AsyncValueLoading<
+                PodcastIdentifiedListValueStateAsyncValueLoading,
+                PodcastIdentifiedListValueStateAsyncValueComplete,
+                PodcastIdentifiedListValueStateAsyncValueFailed,
+                PodcastIdentifiedListValueState
+                >, PodcastIdentifiedListValueStateAsyncValueState {
+            public PodcastIdentifiedListValueStateAsyncValueLoading(PodcastIdentifiedListValueState value) {
+                super(
+                        PodcastIdentifiedListValueStateAsyncValueLoading.class,
+                        value
+                );
+            }
+        }
+
+        final class PodcastIdentifiedListValueStateAsyncValueComplete extends Either31.MiddleImpl<
+                PodcastIdentifiedListValueStateAsyncValueLoading,
+                PodcastIdentifiedListValueStateAsyncValueComplete,
+                PodcastIdentifiedListValueStateAsyncValueFailed,
+                PodcastIdentifiedListValueState
+                > implements AsyncValueState.AsyncValueComplete<
+                PodcastIdentifiedListValueStateAsyncValueLoading,
+                PodcastIdentifiedListValueStateAsyncValueComplete,
+                PodcastIdentifiedListValueStateAsyncValueFailed,
+                PodcastIdentifiedListValueState
+                >, PodcastIdentifiedListValueStateAsyncValueState {
+
+            public PodcastIdentifiedListValueStateAsyncValueComplete(PodcastIdentifiedListValueState value) {
+                super(
+                        PodcastIdentifiedListValueStateAsyncValueComplete.class,
+                        value
+                );
+            }
+        }
+
+        final class PodcastIdentifiedListValueStateAsyncValueFailed extends Either31.RightImpl<
+                PodcastIdentifiedListValueStateAsyncValueLoading,
+                PodcastIdentifiedListValueStateAsyncValueComplete,
+                PodcastIdentifiedListValueStateAsyncValueFailed,
+                PodcastIdentifiedListValueState
+                > implements AsyncValueState.AsyncValueFailed<
+                PodcastIdentifiedListValueStateAsyncValueLoading,
+                PodcastIdentifiedListValueStateAsyncValueComplete,
+                PodcastIdentifiedListValueStateAsyncValueFailed,
+                PodcastIdentifiedListValueState
+                >, PodcastIdentifiedListValueStateAsyncValueState {
+
+            public PodcastIdentifiedListValueStateAsyncValueFailed(PodcastIdentifiedListValueState value) {
+                super(
+                        PodcastIdentifiedListValueStateAsyncValueFailed.class,
+                        value
+                );
+            }
+        }
+    }
+
+    public interface PodcastIdentifiedListValueState extends ListValueState<
+            PodcastIdentifiedListValueState.PodcastIdentifiedListValueEmpty,
+            PodcastIdentifiedListValueState.PodcastIdentifiedListValueNonEmpty,
             PodcastIdentifiedList,
             PodcastIdentified
             > {
-        interface PodcastListAsyncValueEmpty<
-                PodcastListAsyncValueEmptyType extends PodcastListAsyncValueEmpty<
-                        PodcastListAsyncValueEmptyType,
-                        PodcastListAsyncValueNonEmptyType
-                        >,
-                PodcastListAsyncValueNonEmptyType extends PodcastListAsyncValueNonEmpty<
-                        PodcastListAsyncValueEmptyType,
-                        PodcastListAsyncValueNonEmptyType
-                        >
-                > extends ListAsyncValueEmpty<
-                PodcastListAsyncValueEmptyType,
-                PodcastListAsyncValueNonEmptyType,
+        final class PodcastIdentifiedListValueEmpty extends Either.LeftImpl<
+                PodcastIdentifiedListValueEmpty,
+                PodcastIdentifiedListValueNonEmpty,
+                Nothing,
+                PodcastIdentifiedList
+                > implements ListValueState.ListValueEmpty<
+                PodcastIdentifiedListValueEmpty,
+                PodcastIdentifiedListValueNonEmpty,
                 PodcastIdentifiedList,
                 PodcastIdentified
-                > {
+                >, PodcastIdentifiedListValueState {
+            public PodcastIdentifiedListValueEmpty() {
+                super(
+                        PodcastIdentifiedListValueEmpty.class,
+                        Nothing.INSTANCE
+                );
+            }
         }
 
-        interface PodcastListAsyncValueNonEmpty<
-                PodcastListAsyncValueEmptyType extends PodcastListAsyncValueEmpty<
-                        PodcastListAsyncValueEmptyType,
-                        PodcastListAsyncValueNonEmptyType
-                        >,
-                PodcastListAsyncValueNonEmptyType extends PodcastListAsyncValueNonEmpty<
-                        PodcastListAsyncValueEmptyType,
-                        PodcastListAsyncValueNonEmptyType
-                        >
-                > extends ListAsyncValueNonEmpty<
-                PodcastListAsyncValueEmptyType,
-                PodcastListAsyncValueNonEmptyType,
+        final class PodcastIdentifiedListValueNonEmpty extends Either.RightImpl<
+                PodcastIdentifiedListValueEmpty,
+                PodcastIdentifiedListValueNonEmpty,
+                Nothing,
+                PodcastIdentifiedList
+                > implements ListValueState.ListValueNonEmpty<
+                PodcastIdentifiedListValueEmpty,
+                PodcastIdentifiedListValueNonEmpty,
                 PodcastIdentifiedList,
                 PodcastIdentified
-                > {
+                >, PodcastIdentifiedListValueState {
+            public PodcastIdentifiedListValueNonEmpty(PodcastIdentifiedList value) {
+                super(
+                        PodcastIdentifiedListValueNonEmpty.class,
+                        value
+                );
+            }
         }
     }
 
-    protected static final class PodcastListAsyncValueViewFacadeTransaction implements
-            ListAsyncValueViewFacadeTransaction,
-            AsyncValueViewFacadeTransaction,
-            ValueViewFacadeTransaction {
+    private static final class PodcastListAsyncValueViewFacade implements ValueViewFacade {
+        final AtomicBoolean disposed = new AtomicBoolean();
+        final View view;
+        final RecyclerView recyclerView;
+        final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter;
+        final View emptyItemsLoadingView;
+        final View nonEmptyItemsLoadingView;
+        final View emptyItemsCompleteView;
+        final View emptyItemsFailedView;
+        final View nonEmptyItemsFailedView;
 
-    }
-
-    protected static final class PodcastListAsyncValueCompletable implements
-            ListAsyncValueCompletable<
-                    PodcastListAsyncValueCompletable,
-                    PodcastListAsyncValueCompletable
-                    >, AsyncValueCompletable<
-            PodcastListAsyncValueCompletable
-            >, ValueCompletable {
-        private final Completable completable;
-
-        private PodcastListAsyncValueCompletable(Completable completable) {
-            this.completable = completable;
-        }
-
-        @Override
-        public PodcastListAsyncValueCompletable toAsyncValueCompletable() {
-            return this;
-        }
-
-        @Override
-        public PodcastListAsyncValueCompletable toValueCompletable() {
-            return this;
-        }
-
-        @Override
-        public Completable toCompletable() {
-            return completable;
-        }
-    }
-
-    protected static abstract class PodcastListAsyncValueViewFacadeCompletableTransaction<
-            PodcastListAsyncValueStateType extends PodcastListAsyncValueState<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueNonEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueNonEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            AsyncValueStateType extends AsyncValueState<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >,
-            AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >,
-            AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >,
-            AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >
-            > implements ListAsyncValueViewFacadeCompletableTransaction<
-            PodcastListAsyncValueViewFacadeTransaction,
-            PodcastListAsyncValueStateType,
-            PodcastListAsyncValueEmptyType,
-            PodcastListAsyncValueNonEmptyType,
-            PodcastIdentifiedList,
-            PodcastIdentified,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable
-            >, AsyncValueViewFacadeCompletableTransaction<
-            PodcastListAsyncValueViewFacadeTransaction,
-            AsyncValueStateType,
-            AsyncValueLoadingType,
-            AsyncValueCompleteType,
-            AsyncValueFailedType,
-            PodcastListAsyncValueStateType,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable
-            >, ValueViewFacadeCompletableTransaction<
-            PodcastListAsyncValueViewFacadeTransaction,
-            AsyncValueStateType,
-            PodcastListAsyncValueCompletable
-            > {
-
-        // ListAsyncValueViewFacadeCompletableTransaction
-
-        @Override
-        public PodcastListAsyncValueViewFacadeTransaction toListAsyncValueViewFacadeTransaction(
-                PodcastListAsyncValueStateType listAsyncValueState
+        private PodcastListAsyncValueViewFacade(
+                View view,
+                RecyclerView recyclerView,
+                PodcastRecyclerViewAdapter podcastRecyclerViewAdapter,
+                View emptyItemsLoadingView,
+                View nonEmptyItemsLoadingView,
+                View emptyItemsCompleteView,
+                View emptyItemsFailedView,
+                View nonEmptyItemsFailedView
         ) {
-            return null;
+            this.view = view;
+            this.recyclerView = recyclerView;
+            this.podcastRecyclerViewAdapter = podcastRecyclerViewAdapter;
+            this.emptyItemsLoadingView = emptyItemsLoadingView;
+            this.nonEmptyItemsLoadingView = nonEmptyItemsLoadingView;
+            this.emptyItemsCompleteView = emptyItemsCompleteView;
+            this.emptyItemsFailedView = emptyItemsFailedView;
+            this.nonEmptyItemsFailedView = nonEmptyItemsFailedView;
+        }
+
+        // Disposable
+
+        @Override
+        public void dispose() {
+            // theoretically, we could clean up after the recyclerView here
+            // if it was shared or something
+            disposed.set(true);
         }
 
         @Override
-        public PodcastListAsyncValueCompletable completeListAsyncValue() {
-            return null;
+        public boolean isDisposed() {
+            return disposed.get();
         }
+    }
 
-        // AsyncValueViewFacadeCompletableTransaction
+    private static final class PodcastListValueViewFacadeTransaction implements ValueViewFacadeTransaction {
+        private final PodcastListAsyncValueViewFacade viewFacade;
+        private final PodcastIdentifiedListValueStateAsyncValueState state;
+
 
         @Override
-        public PodcastListAsyncValueViewFacadeTransaction toAsyncValueViewFacadeTransaction(AsyncValueStateType asyncValueState) {
-            return null;
-        }
-
-        @Override
-        public PodcastListAsyncValueCompletable completeAsyncValue() {
-            return null;
-        }
-
-        @Override
-        public void addAsyncValueDisposable(Disposable disposable) {
-
-        }
-
-        // ValueViewFacadeCompletableTransaction
-
-        @Override
-        public PodcastListAsyncValueViewFacadeTransaction toValueViewFacadeTransaction(AsyncValueStateType valueState) {
-            return null;
-        }
-
-        @Override
-        public PodcastListAsyncValueCompletable completeValue() {
+        public Completable complete() {
             return null;
         }
     }
 
-    protected static abstract class PodcastListAsyncValueViewFacadeCompletableTransactionFactory<
-            FragmentType extends PodcastListFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    PodcastListAsyncValueStateType,
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            ListenerType extends PodcastListFragment.PodcastListFragmentListener<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    PodcastListAsyncValueStateType,
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            PodcastListAsyncValueStateType extends PodcastListAsyncValueState<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueNonEmptyType extends PodcastListAsyncValueState.PodcastListAsyncValueNonEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueViewFacadeCompletableTransactionType extends PodcastListAsyncValueViewFacadeCompletableTransaction<
-                    PodcastListAsyncValueStateType,
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType,
-                    AsyncValueStateType,
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType
-                    >,
-            AsyncValueStateType extends AsyncValueState<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >,
-            AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >,
-            AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >,
-            AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
-                    AsyncValueLoadingType,
-                    AsyncValueCompleteType,
-                    AsyncValueFailedType,
-                    PodcastListAsyncValueStateType
-                    >
-            > implements ListAsyncValueViewFacadeCompletableTransactionFactory<
-            PodcastListAsyncValueViewFacadeTransaction,
-            PodcastListAsyncValueStateType,
-            PodcastListAsyncValueEmptyType,
-            PodcastListAsyncValueNonEmptyType,
-            PodcastIdentifiedList,
-            PodcastIdentified,
-            PodcastListAsyncValueViewFacadeCompletableTransactionType,
-            PodcastListAsyncValueViewFacadeTransaction,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable
-            >, AsyncValueViewFacadeCompletableTransactionFactory<
-            PodcastListAsyncValueViewFacadeTransaction,
-            PodcastListAsyncValueViewFacadeCompletableTransactionType,
-            PodcastListAsyncValueViewFacadeTransaction,
-            AsyncValueStateType,
-            AsyncValueLoadingType,
-            AsyncValueCompleteType,
-            AsyncValueFailedType,
-            PodcastListAsyncValueStateType,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable
-            >, ValueViewFacadeCompletableTransactionFactory<
-            FragmentType,
-            ListenerType,
-            AttachmentType,
+    protected static final class PodcastListAsyncValueRenderer implements ValueRenderer<
             PodcastListAsyncValueViewFacade,
-            PodcastListAsyncValueViewFacadeCompletableTransactionType,
-            PodcastListAsyncValueViewFacadeTransaction,
-            AsyncValueStateType,
-            PodcastListAsyncValueCompletable
+            PodcastIdentifiedListValueState,
+            PodcastListAsyncValueViewFacadeTransaction
             > {
         @Override
-        public final PodcastListAsyncValueViewFacadeCompletableTransactionType newListAsyncValueViewFacadeCompletableTransaction(
-                PodcastListAsyncValueViewFacadeTransaction asyncValueViewFacadeTransaction
-        ) {
-            return null;
-        }
-
-        @Override
-        public PodcastListAsyncValueViewFacadeCompletableTransactionType newAsyncValueViewFacadeCompletableTransaction(
-                PodcastListAsyncValueViewFacadeTransaction valueViewFacadeTransaction
-        ) {
-            return null;
-        }
-
-        @Override
-        public PodcastListAsyncValueViewFacadeCompletableTransactionType newValueViewFacadeCompletableTransaction(
-                PodcastListAsyncValueViewFacade valueViewFacade
-        ) {
-            return null;
-        }
-    }
-
-    protected static abstract class PodcastListAsyncValueRenderer<
-            FragmentType extends PodcastListFragment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    PodcastListAsyncValueStateType,
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            ListenerType extends PodcastListFragment.PodcastListFragmentListener<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType,
-                    PodcastListAsyncValueStateType,
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            AttachmentType extends RxFragment.Attachment<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            PodcastListAsyncValueStateType extends PodcastListFragment.PodcastListAsyncValueState<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueEmptyType extends PodcastListFragment.PodcastListAsyncValueState.PodcastListAsyncValueEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >,
-            PodcastListAsyncValueNonEmptyType extends PodcastListFragment.PodcastListAsyncValueState.PodcastListAsyncValueNonEmpty<
-                    PodcastListAsyncValueEmptyType,
-                    PodcastListAsyncValueNonEmptyType
-                    >
-            > implements ListAsyncValueRenderer<
-            FragmentType,
-            ListenerType,
-            AttachmentType,
-            PodcastListAsyncValueStateType,
-            PodcastListAsyncValueEmptyType,
-            PodcastListAsyncValueNonEmptyType,
-            PodcastIdentifiedList,
-            PodcastIdentified,
-            PodcastListAsyncValueViewFacadeTransaction,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable,
-            PodcastListAsyncValueCompletable
-            > {
-        @Override
-        public final PodcastListAsyncValueCompletable render(
-                FragmentType fragment,
-                ListenerType listener,
-                Context context,
-                PodcastListAsyncValueStateType listAsyncValueState,
-                PodcastListAsyncValueViewFacadeTransaction listAsyncValueViewFacadeTransaction
+        public PodcastListAsyncValueViewFacadeTransaction render(
+                PodcastListAsyncValueViewFacade valueViewFacade,
+                PodcastIdentifiedListValueState valueState
         ) {
             return null;
         }
@@ -487,7 +252,7 @@ public abstract class PodcastListFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    PodcastListAsyncValueStateType,
+                    PodcastListValueStateType,
                     PodcastListAsyncValueEmptyType,
                     PodcastListAsyncValueNonEmptyType
                     >,
@@ -495,7 +260,7 @@ public abstract class PodcastListFragment<
                     FragmentType,
                     ListenerType,
                     AttachmentType,
-                    PodcastListAsyncValueStateType,
+                    PodcastListValueStateType,
                     PodcastListAsyncValueEmptyType,
                     PodcastListAsyncValueNonEmptyType
                     >,
@@ -504,15 +269,15 @@ public abstract class PodcastListFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            PodcastListAsyncValueStateType extends PodcastListFragment.PodcastListAsyncValueState<
+            PodcastListValueStateType extends PodcastIdentifiedListValueState<
                     PodcastListAsyncValueEmptyType,
                     PodcastListAsyncValueNonEmptyType
                     >,
-            PodcastListAsyncValueEmptyType extends PodcastListFragment.PodcastListAsyncValueState.PodcastListAsyncValueEmpty<
+            PodcastListAsyncValueEmptyType extends PodcastIdentifiedListValueState.PodcastListAsyncValueEmpty<
                     PodcastListAsyncValueEmptyType,
                     PodcastListAsyncValueNonEmptyType
                     >,
-            PodcastListAsyncValueNonEmptyType extends PodcastListFragment.PodcastListAsyncValueState.PodcastListAsyncValueNonEmpty<
+            PodcastListAsyncValueNonEmptyType extends PodcastIdentifiedListValueState.PodcastListAsyncValueNonEmpty<
                     PodcastListAsyncValueEmptyType,
                     PodcastListAsyncValueNonEmptyType
                     >
@@ -575,55 +340,6 @@ public abstract class PodcastListFragment<
                     emptyItemsFailedView,
                     nonEmptyItemsFailedView
             );
-        }
-    }
-
-    protected static final class PodcastListAsyncValueViewFacade implements
-            ListAsyncValueViewFacade,
-            AsyncValueViewFacade,
-            ValueViewFacade {
-        private final AtomicBoolean disposed = new AtomicBoolean();
-        private final View view;
-        private final RecyclerView recyclerView;
-        private final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter;
-        private final View emptyItemsLoadingView;
-        private final View nonEmptyItemsLoadingView;
-        private final View emptyItemsCompleteView;
-        private final View emptyItemsFailedView;
-        private final View nonEmptyItemsFailedView;
-
-        private PodcastListAsyncValueViewFacade(
-                View view,
-                RecyclerView recyclerView,
-                PodcastRecyclerViewAdapter podcastRecyclerViewAdapter,
-                View emptyItemsLoadingView,
-                View nonEmptyItemsLoadingView,
-                View emptyItemsCompleteView,
-                View emptyItemsFailedView,
-                View nonEmptyItemsFailedView
-        ) {
-            this.view = view;
-            this.recyclerView = recyclerView;
-            this.podcastRecyclerViewAdapter = podcastRecyclerViewAdapter;
-            this.emptyItemsLoadingView = emptyItemsLoadingView;
-            this.nonEmptyItemsLoadingView = nonEmptyItemsLoadingView;
-            this.emptyItemsCompleteView = emptyItemsCompleteView;
-            this.emptyItemsFailedView = emptyItemsFailedView;
-            this.nonEmptyItemsFailedView = nonEmptyItemsFailedView;
-        }
-
-        // Disposable
-
-        @Override
-        public void dispose() {
-            // theoretically, we could clean up after the recyclerView here
-            // if it was shared or something
-            disposed.set(true);
-        }
-
-        @Override
-        public boolean isDisposed() {
-            return disposed.get();
         }
     }
 

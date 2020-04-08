@@ -258,7 +258,7 @@ public interface Either31<
             RightType,
             ValueType
             > {
-        public RightImpl(
+        protected RightImpl(
                 Class<RightType> selfClass,
                 ValueType value
         ) {
