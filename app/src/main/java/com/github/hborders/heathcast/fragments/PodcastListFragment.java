@@ -30,7 +30,7 @@ public final class PodcastListFragment extends RxListAsyncValueFragment<
     public interface PodcastListFragmentListener {
         void onPodcastListFragmentAttached(PodcastListFragment podcastListFragment);
 
-        Observable<PodcastListAsyncValueState> podcastListAsyncValueStateObservable(
+        Observable<PodcastIdentifiedListValueStateAsyncValueState> podcastIdentifiedListValueStateAsyncValueStateObservable(
                 PodcastListFragment podcastListFragment
         );
 
