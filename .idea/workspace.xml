@@ -114,7 +114,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -657,10 +656,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="755" y="409" key="#com.intellij.ide.actions.DebugLogConfigureAction/0.23.1920.1100@0.23.1920.1100" timestamp="1583602217176" />
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586320985205">
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586402930171">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586320985205" />
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586402930171" />
     <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585108867255">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -773,14 +772,14 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585513526860" />
-    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586322574042">
+    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586402509713">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586322574042" />
-    <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586235741335">
+    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586402509713" />
+    <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586401059744">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586235741335" />
+    <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586401059744" />
     <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586316441708">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
