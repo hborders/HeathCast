@@ -2,17 +2,10 @@ package com.github.hborders.heathcast.features.search;
 
 import android.content.Context;
 
-import com.github.hborders.heathcast.fragments.PodcastListFragment;
-import com.github.hborders.heathcast.fragments.PodcastListFragment.PodcastListAsyncValueState.PodcastIdentifiedListAsyncStateComplete;
-import com.github.hborders.heathcast.fragments.PodcastListFragment.PodcastListAsyncValueState.PodcastIdentifiedListAsyncStateFailed;
-import com.github.hborders.heathcast.fragments.PodcastListFragment.PodcastListAsyncValueState.PodcastIdentifiedListAsyncStateLoading;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListAttachment;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListFragmentListener;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListState;
+import com.github.hborders.heathcast.fragments.PodcastListFragment;
+import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseComplete;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseFailed;
@@ -24,23 +17,20 @@ import io.reactivex.Observable;
 public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
         PodcastSearchPodcastListFragment,
         PodcastSearchPodcastListFragmentListener,
-        PodcastSearchPodcastListAttachment,
-        PodcastSearchPodcastIdentifiedListState,
-        PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
-        PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-        PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-        PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+        PodcastSearchPodcastListAttachment
         > {
-    public interface PodcastSearchPodcastListFragmentListener extends PodcastListFragmentListener<
-            PodcastSearchPodcastListFragment,
-            PodcastSearchPodcastListFragmentListener,
-            PodcastSearchPodcastListAttachment,
-            PodcastSearchPodcastIdentifiedListState,
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
-            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
-            > {
+    public interface PodcastSearchPodcastListFragmentListener {
+        void onPodcastSearchPodcastListFragmentAttached(
+                PodcastSearchPodcastListFragment fragment
+        );
+
+        void onPodcastSearchPodcastListFragmentClickedPodcastIdentified(
+                PodcastIdentified podcastIdentified
+        );
+
+        void onPodcastSearchPodcastListFragmentWillDetach(
+                PodcastSearchPodcastListFragment fragment
+        );
     }
 
     public static final class PodcastSearchPodcastListAttachment extends Attachment<
@@ -75,10 +65,10 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
     }
 
     public interface PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse extends PodcastListAsyncValueState<
-                PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-                PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
-                >, PodcastIdentifiedListServiceResponse<
+            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
+            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
+            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+            >, PodcastIdentifiedListServiceResponse<
             PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
             PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
             PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
@@ -119,10 +109,11 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
                     PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
                     PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
                     >,
-            PodcastIdentifiedListAsyncStateFailed<
+            AsyncValueState.AsyncValueFailed<
                     PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
                     PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed,
+                    PodcastIdentified
                     >,
             PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse {
     }

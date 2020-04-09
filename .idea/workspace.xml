@@ -114,7 +114,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchPodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchPodcastListFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/ListRecyclerViewAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/ListRecyclerViewAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/PodcastRecyclerViewAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/PodcastRecyclerViewAdapter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -772,18 +776,18 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585513526860" />
-    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586403917772">
+    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586411099097">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586403917772" />
+    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586411099097" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586401059744">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586401059744" />
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586316441708">
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586408740664">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586316441708" />
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586408740664" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -9,63 +9,169 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.squareup.picasso.Picasso;
 
-public class PodcastRecyclerViewAdapter extends ListRecyclerViewAdapter<
-        PodcastIdentifiedList,
-        PodcastIdentified,
-        PodcastRecyclerViewAdapter.PodcastViewHolder
+import java.net.URL;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+public abstract class PodcastRecyclerViewAdapter<
+        PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
+                PodcastRecyclerViewAdapterType,
+                PodcastViewHolderType,
+                PodcastListType,
+                PodcastItemType,
+                ListenerType
+                >,
+        PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
+                PodcastRecyclerViewAdapterType,
+                PodcastViewHolderType,
+                PodcastListType,
+                PodcastItemType,
+                ListenerType
+                >,
+        PodcastListType extends List<PodcastItemType>,
+        PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+        ListenerType
+        > extends ListRecyclerViewAdapter<
+        PodcastRecyclerViewAdapterType,
+        PodcastViewHolderType,
+        PodcastListType,
+        PodcastItemType
         > {
-
-    private final PodcastRecyclerViewAdapterListener listener;
-
-    public PodcastRecyclerViewAdapter(
-            PodcastIdentifiedList identifiedPodcasts,
-            PodcastRecyclerViewAdapterListener listener
-    ) {
-        super(identifiedPodcasts);
-        this.listener = listener;
-    }
-
-    @Override
-    public PodcastViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.item_podcast,
-                parent,
-                false
+    public interface PodcastRecyclerViewAdapterFactory<
+            PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    ListenerType
+                    >,
+            PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    ListenerType
+                    >,
+            PodcastListType extends List<PodcastItemType>,
+            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+            ListenerType
+            > {
+        PodcastRecyclerViewAdapterType newPodcastRecyclerViewAdapter(
+                PodcastListType podcasts,
+                ListenerType listener
         );
-        return new PodcastViewHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(
-            PodcastViewHolder holder,
-            PodcastIdentified podcastIdentified) {
-        final Podcast podcast = podcastIdentified.model;
-        holder.nameTextView.setText(podcast.name);
-        holder.itemView.setOnClickListener(itemView -> listener.onClick(podcastIdentified));
-        Picasso.get().cancelRequest(holder.artworkImageView);
-        if (podcast.artworkURL != null) {
-            final String artworkUrlString = podcast.artworkURL.toExternalForm();
-            Picasso.get().load(artworkUrlString).into(holder.artworkImageView);
-        }
+    public interface PodcastItem {
+        String getName();
+
+        @Nullable
+        URL getArtworkURL();
     }
 
-    public static final class PodcastViewHolder extends RecyclerView.ViewHolder {
+    protected interface OnClick<
+            ListenerType,
+            PodcastItemType
+            > {
+        void onClick(
+                ListenerType listener,
+                PodcastItemType podcastItem
+        );
+    }
+
+    final ListenerType listener;
+    final OnClick<
+            ListenerType,
+            PodcastItemType
+            > onClick;
+
+    protected PodcastRecyclerViewAdapter(
+            Class<PodcastRecyclerViewAdapterType> selfClass,
+            OnCreateViewHolder<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType
+                    > onCreateViewHolder,
+            PodcastListType podcasts,
+            ListenerType listener,
+            OnClick<
+                    ListenerType,
+                    PodcastItemType
+                    > onClick
+    ) {
+        super(
+                selfClass,
+                onCreateViewHolder,
+                PodcastViewHolder::onBind,
+                podcasts
+        );
+        this.listener = listener;
+        this.onClick = onClick;
+    }
+
+    public static abstract class PodcastViewHolder<
+            PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    ListenerType
+                    >,
+            PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    ListenerType
+                    >,
+            PodcastListType extends List<PodcastItemType>,
+            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+            ListenerType
+            > extends RecyclerView.ViewHolder {
         final ImageView artworkImageView;
         final TextView nameTextView;
 
-        PodcastViewHolder(View itemView) {
+        protected PodcastViewHolder(
+                ViewGroup parent,
+                int viewType
+        ) {
+            this(
+                    LayoutInflater.from(parent.getContext()).inflate(
+                            R.layout.item_podcast,
+                            parent,
+                            false
+                    )
+            );
+        }
+
+        private PodcastViewHolder(View itemView) {
             super(itemView);
             this.artworkImageView = itemView.requireViewById(R.id.item_podcast_artwork_image_view);
             this.nameTextView = itemView.requireViewById(R.id.item_podcast_name_text_view);
         }
-    }
 
-    public interface PodcastRecyclerViewAdapterListener {
-        void onClick(PodcastIdentified podcastIdentified);
+        final void onBind(
+                PodcastRecyclerViewAdapterType podcastRecyclerViewAdapter,
+                PodcastItemType podcastItem
+        ) {
+            nameTextView.setText(podcastItem.getName());
+            itemView.setOnClickListener(
+                    itemView ->
+                            podcastRecyclerViewAdapter.onClick.onClick(
+                                    podcastRecyclerViewAdapter.listener,
+                                    podcastItem
+                            )
+            );
+            Picasso.get().cancelRequest(artworkImageView);
+            @Nullable final URL artworkURL = podcastItem.getArtworkURL();
+            if (artworkURL != null) {
+                final String artworkUrlString = artworkURL.toExternalForm();
+                Picasso.get().load(artworkUrlString).into(artworkImageView);
+            }
+        }
     }
 }

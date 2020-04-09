@@ -16,6 +16,7 @@ import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.github.hborders.heathcast.reactivexandroid.RxListAsyncValueFragment;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Completable;
@@ -281,7 +282,31 @@ public abstract class PodcastListFragment<
                     PodcastListFragmentType,
                     ListenerType,
                     AttachmentType
-                    >
+                    >,
+            PodcastRecyclerViewAdapterFactoryType extends PodcastRecyclerViewAdapter.PodcastRecyclerViewAdapterFactory<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastListType extends List<PodcastItemType>,
+            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+            PodcastRecyclerViewAdapterListenerType
             > implements
             ValueViewFacade.ValueViewFacadeFactory<
                     PodcastListFragmentType,
@@ -289,9 +314,14 @@ public abstract class PodcastListFragment<
                     AttachmentType,
                     PodcastListAsyncValueViewFacade
                     > {
+        private final PodcastRecyclerViewAdapterFactoryType podcastRecyclerViewAdapterFactory;
         private final PodcastListFragmentOnClickPodcastIdentifiedType onClickPodcastIdentified;
 
-        private PodcastListAsyncValueViewFacadeFactory(PodcastListFragmentOnClickPodcastIdentifiedType onClickPodcastIdentified) {
+        private PodcastListAsyncValueViewFacadeFactory(
+                PodcastRecyclerViewAdapterFactoryType podcastRecyclerViewAdapterFactory,
+                PodcastListFragmentOnClickPodcastIdentifiedType onClickPodcastIdentified
+        ) {
+            this.podcastRecyclerViewAdapterFactory = podcastRecyclerViewAdapterFactory;
             this.onClickPodcastIdentified = onClickPodcastIdentified;
         }
 
@@ -306,9 +336,12 @@ public abstract class PodcastListFragment<
                     view.requireViewById(
                             R.id.fragment_podcast_list_podcasts_recycler_view
                     );
-            final PodcastRecyclerViewAdapter podcastRecyclerViewAdapter =
-                    new PodcastRecyclerViewAdapter(
+            final PodcastRecyclerViewAdapterType podcastRecyclerViewAdapter =
+                    podcastRecyclerViewAdapterFactory.newPodcastRecyclerViewAdapter(
                             new PodcastIdentifiedList(),
+                            // this is tricky.
+                            // I think I have to create a PodcastRecyclerViewAdapter subclass in
+                            // PodcastListFragment to bind the listener into onClickPodcastIdentified
                             podcastIdentified ->
                                     onClickPodcastIdentified.onClickPodcastIdentified(
                                             listener,
