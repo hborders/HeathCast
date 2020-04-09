@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.android.ViewUtil;
 import com.github.hborders.heathcast.core.Either;
 import com.github.hborders.heathcast.core.Nothing;
 import com.github.hborders.heathcast.models.PodcastIdentified;
@@ -18,6 +19,7 @@ import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdap
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Completable;
+import io.reactivex.subjects.CompletableSubject;
 
 // Next, I should consume it in the MainFragment as well
 public abstract class PodcastListFragment<
@@ -193,9 +195,73 @@ public abstract class PodcastListFragment<
             }
             complete = true;
 
+            state.act(
+                    loading ->
+                            loading.getValue().act(
+                                    empty -> {
+                                        viewFacade.emptyItemsLoadingView.setVisibility(View.VISIBLE);
+                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                                        viewFacade.recyclerView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                                    },
+                                    nonEmpty -> {
+                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.VISIBLE);
+                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                                        viewFacade.recyclerView.setVisibility(View.VISIBLE);
+                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                                    }
+                            ),
+                    complete ->
+                            complete.getValue().act(
+                                    empty -> {
+                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsCompleteView.setVisibility(View.VISIBLE);
+                                        viewFacade.recyclerView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                                    },
+                                    nonEmpty -> {
+                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                                        viewFacade.recyclerView.setVisibility(View.VISIBLE);
+                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                                    }
+                            ),
+                    failed ->
+                            failed.getValue().act(
+                                    empty -> {
+                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                                        viewFacade.recyclerView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsFailedView.setVisibility(View.VISIBLE);
+                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                                    },
+                                    nonEmpty -> {
+                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                                        viewFacade.recyclerView.setVisibility(View.VISIBLE);
+                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.VISIBLE);
+                                    }
+                            )
+            );
 
-            // TODO implement!
-            return null;
+            final CompletableSubject completableSubject = CompletableSubject.create();
+            ViewUtil.doOnLayout(
+                    viewFacade.view,
+                    completableSubject::onComplete
+            );
+
+            return completableSubject;
         }
     }
 
