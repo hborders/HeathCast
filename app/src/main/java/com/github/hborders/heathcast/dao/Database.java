@@ -42,13 +42,13 @@ import javax.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
-public final class Database<N> {
-    private final DimDatabase<N> dimDatabase;
-    final PodcastSearchTable<N> podcastSearchTable;
-    final PodcastTable<N> podcastTable;
-    final EpisodeTable<N> episodeTable;
-    private final PodcastSearchResultTable<N> podcastSearchResultTable;
-    final SubscriptionTable<N> subscriptionTable;
+public final class Database<MarkerType> {
+    private final DimDatabase<MarkerType> dimDatabase;
+    final PodcastSearchTable<MarkerType> podcastSearchTable;
+    final PodcastTable<MarkerType> podcastTable;
+    final EpisodeTable<MarkerType> episodeTable;
+    private final PodcastSearchResultTable<MarkerType> podcastSearchResultTable;
+    final SubscriptionTable<MarkerType> subscriptionTable;
 
     public Database(
             Context context,
@@ -62,7 +62,7 @@ public final class Database<N> {
                 .build();
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
         final SupportSQLiteOpenHelper supportSQLiteOpenHelper = factory.create(configuration);
-        final SqlDim<N> sqlBrite = new SqlDim.Builder<N>().build();
+        final SqlDim<MarkerType> sqlBrite = new SqlDim.Builder<MarkerType>().build();
         dimDatabase = sqlBrite.wrapDatabaseHelper(
                 supportSQLiteOpenHelper,
                 scheduler
@@ -87,11 +87,11 @@ public final class Database<N> {
     }
 
     public void replacePodcastSearchPodcasts(
-            N marker,
+            MarkerType marker,
             PodcastSearchIdentified podcastSearchIdentified,
             PodcastList podcasts
     ) {
-        try (final DimDatabase.Transaction<N> transaction = dimDatabase.newTransaction()) {
+        try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
             podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.identifier);
             ListUtil.indexedStream(podcasts).forEach(indexedPodcast ->
                     podcastTable.upsertPodcast(indexedPodcast.second).act(
@@ -111,7 +111,7 @@ public final class Database<N> {
         }
     }
 
-    public void markPodcastSearchFailure(N marker) {
+    public void markPodcastSearchFailure(MarkerType marker) {
         podcastTable.triggerMarked(marker);
     }
 
@@ -188,7 +188,7 @@ public final class Database<N> {
         );
     }
 
-    public Observable<MarkedValue<N, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds(
+    public Observable<MarkedValue<MarkerType, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds(
             PodcastSearchIdentifier podcastSearchIdentifier
     ) {
         return dimDatabase.createMarkedQuery(

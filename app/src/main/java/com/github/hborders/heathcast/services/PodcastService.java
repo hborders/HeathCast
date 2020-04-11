@@ -17,12 +17,11 @@ import com.github.hborders.heathcast.models.PodcastSearchIdentifiedOpt;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseComplete;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseComplete.PodcastIdentifiedListServiceResponseCompleteFactory;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseFailed;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseFailed.PodcastIdentifiedListServiceResponseFailedFactory;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseLoading;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseLoading.PodcastIdentifiedListServiceResponseLoadingFactory;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete.PodcastIdentifiedListServiceResponseCompleteFactory;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed.PodcastIdentifiedListServiceResponseFailedFactory;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseLoading;
 import com.google.gson.Gson;
 
 import java.net.URL;
@@ -46,7 +45,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public final class PodcastService {
+public abstract class PodcastService {
     private static class PodcastSearchResponse {
         private final PodcastList podcasts;
 
@@ -174,48 +173,64 @@ public final class PodcastService {
     }
 
     public <
-            PodcastIdentifiedListServiceResponseType extends PodcastIdentifiedListServiceResponse<
-                    LoadingType,
-                    CompleteType,
-                    FailedType
+            PodcastListServiceResponseFactoryLoadingType extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
+                    PodcastListServiceResponseType,
+                    PodcastListServiceResponseLoadingType,
+                    PodcastListServiceResponseCompleteType,
+                    PodcastListServiceResponseFailedType,
+                    PodcastListType,
+                    PodcastItemType
                     >,
-            LoadingType extends PodcastIdentifiedListServiceResponseLoading<
-                    LoadingType,
-                    CompleteType,
-                    FailedType
+            PodcastListServiceResponseFactoryCompleteType extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
+                    PodcastListServiceResponseType,
+                    PodcastListServiceResponseLoadingType,
+                    PodcastListServiceResponseCompleteType,
+                    PodcastListServiceResponseFailedType,
+                    PodcastListType,
+                    PodcastItemType
                     >,
-            CompleteType extends PodcastIdentifiedListServiceResponseComplete<
-                    LoadingType,
-                    CompleteType,
-                    FailedType
+            PodcastListServiceResponseFactoryFailedType extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
+                    PodcastListServiceResponseType,
+                    PodcastListServiceResponseLoadingType,
+                    PodcastListServiceResponseCompleteType,
+                    PodcastListServiceResponseFailedType,
+                    PodcastListType,
+                    PodcastItemType
                     >,
-            FailedType extends PodcastIdentifiedListServiceResponseFailed<
-                    LoadingType,
-                    CompleteType,
-                    FailedType
+            PodcastListServiceResponseType extends PodcastListServiceResponse<
+                    PodcastListServiceResponseLoadingType,
+                    PodcastListServiceResponseCompleteType,
+                    PodcastListServiceResponseFailedType,
+                    PodcastListType,
+                    PodcastItemType
                     >,
-            PodcastIdentifiedListServiceResponseLoadingFactoryType extends PodcastIdentifiedListServiceResponseLoadingFactory<
-                    PodcastIdentifiedListServiceResponseType,
-                    LoadingType,
-                    CompleteType,
-                    FailedType
+            PodcastListServiceResponseLoadingType extends PodcastListServiceResponseLoading<
+                    PodcastListServiceResponseLoadingType,
+                    PodcastListServiceResponseCompleteType,
+                    PodcastListServiceResponseFailedType,
+                    PodcastListType,
+                    PodcastItemType
                     >,
-            PodcastIdentifiedListServiceResponseCompleteFactoryType extends PodcastIdentifiedListServiceResponseCompleteFactory<
-                    PodcastIdentifiedListServiceResponseType,
-                    LoadingType,
-                    CompleteType,
-                    FailedType
+            PodcastListServiceResponseCompleteType extends PodcastListServiceResponseComplete<
+                    PodcastListServiceResponseLoadingType,
+                    PodcastListServiceResponseCompleteType,
+                    PodcastListServiceResponseFailedType,
+                    PodcastListType,
+                    PodcastItemType
                     >,
-            PodcastIdentifiedListServiceResponseFailedFactoryType extends PodcastIdentifiedListServiceResponseFailedFactory<
-                    PodcastIdentifiedListServiceResponseType,
-                    LoadingType,
-                    CompleteType,
-                    FailedType
-                    >
-            > Observable<PodcastIdentifiedListServiceResponseType> searchForPodcasts2(
-            PodcastIdentifiedListServiceResponseLoadingFactoryType loadingFactory,
-            PodcastIdentifiedListServiceResponseCompleteFactoryType completeFactory,
-            PodcastIdentifiedListServiceResponseFailedFactoryType failedFactory,
+            PodcastListServiceResponseFailedType extends PodcastListServiceResponseFailed<
+                    PodcastListServiceResponseLoadingType,
+                    PodcastListServiceResponseCompleteType,
+                    PodcastListServiceResponseFailedType,
+                    PodcastListType,
+                    PodcastItemType
+                    >,
+            PodcastListType extends List<PodcastItemType>,
+            PodcastItemType
+            > Observable<PodcastListServiceResponseType> searchForPodcasts2(
+            PodcastListServiceResponseFactoryLoadingType loadingFactory,
+            PodcastListServiceResponseFactoryCompleteType completeFactory,
+            PodcastListServiceResponseFactoryFailedType failedFactory,
             @Nullable NetworkPauser networkPauser,
             PodcastSearch podcastSearch
     ) {
@@ -284,34 +299,34 @@ public final class PodcastService {
                                         loading -> {
                                             // we don't care if we saw the marker because we don't know if
                                             // we completed or failed
-                                            return loadingFactory.newPodcastIdentifiedListServiceResponseLoading(
+                                            return loadingFactory.newPodcastListServiceResponse(
                                                     podcastIdentifiedList
                                             );
                                         },
                                         complete -> {
                                             if (sawMarker) {
-                                                return completeFactory.newPodcastIdentifiedListServiceResponseComplete(
+                                                return completeFactory.newPodcastListServiceResponse(
                                                         podcastIdentifiedList
                                                 );
                                             } else {
                                                 // we haven't seen the marker yet, so
                                                 // even though the service finished, the database
                                                 // transaction hasn't completed, so stay loading
-                                                return failedFactory.newPodcastIdentifiedListServiceResponseFailed(
+                                                return failedFactory.newPodcastListServiceResponse(
                                                         podcastIdentifiedList
                                                 );
                                             }
                                         },
                                         failed -> {
                                             if (sawMarker) {
-                                                return failedFactory.newPodcastIdentifiedListServiceResponseFailed(
+                                                return failedFactory.newPodcastListServiceResponse(
                                                         podcastIdentifiedList
                                                 );
                                             } else {
                                                 // we haven't seen the marker yet, so
                                                 // even though the service finished, the database
                                                 // transaction hasn't completed, so stay loading
-                                                return loadingFactory.newPodcastIdentifiedListServiceResponseLoading(
+                                                return loadingFactory.newPodcastListServiceResponse(
                                                         podcastIdentifiedList
                                                 );
                                             }

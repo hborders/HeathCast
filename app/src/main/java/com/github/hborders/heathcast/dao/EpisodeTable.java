@@ -42,7 +42,7 @@ import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 
-final class EpisodeTable<N> extends Table<N> {
+final class EpisodeTable<MarkerType> extends Table<MarkerType> {
     static final String TABLE_EPISODE = "episode";
 
     private static final String ARTWORK_URL = "artwork_url";
@@ -70,7 +70,7 @@ final class EpisodeTable<N> extends Table<N> {
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
 
-    EpisodeTable(DimDatabase<N> dimDatabase) {
+    EpisodeTable(DimDatabase<MarkerType> dimDatabase) {
         super(dimDatabase);
     }
 
@@ -359,7 +359,8 @@ final class EpisodeTable<N> extends Table<N> {
         return values;
     }
 
-    private static class EpisodeTableUpsertAdapter implements UpsertAdapter<String> {
+    private static final class EpisodeTableUpsertAdapter<
+            > implements UpsertAdapter<String> {
         private final PodcastIdentifier podcastIdentifier;
 
         public EpisodeTableUpsertAdapter(PodcastIdentifier podcastIdentifier) {

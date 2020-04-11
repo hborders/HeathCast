@@ -21,29 +21,6 @@ public interface Either31<
                 >,
         ValueType
         > {
-    <T> T reduce(
-            Function<
-                    ? super LeftType,
-                    ? extends T
-                    > leftReducer,
-            Function<
-                    ? super MiddleType,
-                    ? extends T
-                    > middleReducer,
-            Function<
-                    ? super RightType,
-                    ? extends T
-                    > rightReducer
-    );
-
-    void act(
-            VoidFunction<? super LeftType> leftAction,
-            VoidFunction<? super MiddleType> middleAction,
-            VoidFunction<? super RightType> rightAction
-    );
-
-    ValueType getValue();
-
     interface Left<
             LeftType extends Either31.Left<
                     LeftType,
@@ -268,4 +245,27 @@ public interface Either31<
             );
         }
     }
+
+    <T> T reduce(
+            Function<
+                    ? super LeftType,
+                    ? extends T
+                    > leftReducer,
+            Function<
+                    ? super MiddleType,
+                    ? extends T
+                    > middleReducer,
+            Function<
+                    ? super RightType,
+                    ? extends T
+                    > rightReducer
+    );
+
+    void act(
+            VoidFunction<? super LeftType> leftAction,
+            VoidFunction<? super MiddleType> middleAction,
+            VoidFunction<? super RightType> rightAction
+    );
+
+    ValueType getValue();
 }

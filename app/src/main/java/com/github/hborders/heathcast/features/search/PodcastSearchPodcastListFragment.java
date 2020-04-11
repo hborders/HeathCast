@@ -7,10 +7,10 @@ import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFra
 import com.github.hborders.heathcast.fragments.PodcastListFragment;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifiedList;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseComplete;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseFailed;
-import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseLoading;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseLoading;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -70,19 +70,19 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
             PodcastSearchPodcastListStateComplete,
             PodcastSearchPodcastListStateFailed,
             PodcastIdentifiedPodcastListState
-            >, PodcastIdentifiedListServiceResponse<
-            PodcastSearchPodcastListStateLoading,
-            PodcastSearchPodcastListStateComplete,
-            PodcastSearchPodcastListStateFailed
-            > {
+            >, PodcastListServiceResponse<
+                        PodcastSearchPodcastListStateLoading,
+                        PodcastSearchPodcastListStateComplete,
+                        PodcastSearchPodcastListStateFailed
+                        > {
     }
 
     public interface PodcastSearchPodcastListStateLoading extends
-            PodcastIdentifiedListServiceResponseLoading<
-                    PodcastSearchPodcastListStateLoading,
-                    PodcastSearchPodcastListStateComplete,
-                    PodcastSearchPodcastListStateFailed
-                    >,
+            PodcastListServiceResponseLoading<
+                                PodcastSearchPodcastListStateLoading,
+                                PodcastSearchPodcastListStateComplete,
+                                PodcastSearchPodcastListStateFailed
+                                >,
             AsyncValueState.AsyncValueLoading<
                     PodcastSearchPodcastListStateLoading,
                     PodcastSearchPodcastListStateComplete,
@@ -92,11 +92,11 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
     }
 
     public interface PodcastSearchPodcastListStateComplete extends
-            PodcastIdentifiedListServiceResponseComplete<
-                    PodcastSearchPodcastListStateLoading,
-                    PodcastSearchPodcastListStateComplete,
-                    PodcastSearchPodcastListStateFailed
-                    >,
+            PodcastListServiceResponseComplete<
+                                PodcastSearchPodcastListStateLoading,
+                                PodcastSearchPodcastListStateComplete,
+                                PodcastSearchPodcastListStateFailed
+                                >,
             AsyncValueState.AsyncValueComplete<
                     PodcastSearchPodcastListStateLoading,
                     PodcastSearchPodcastListStateComplete,
@@ -106,11 +106,11 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
     }
 
     public interface PodcastSearchPodcastListStateFailed extends
-            PodcastIdentifiedListServiceResponseFailed<
-                    PodcastSearchPodcastListStateLoading,
-                    PodcastSearchPodcastListStateComplete,
-                    PodcastSearchPodcastListStateFailed
-                    >,
+            PodcastListServiceResponseFailed<
+                                PodcastSearchPodcastListStateLoading,
+                                PodcastSearchPodcastListStateComplete,
+                                PodcastSearchPodcastListStateFailed
+                                >,
             AsyncValueState.AsyncValueFailed<
                     PodcastSearchPodcastListStateLoading,
                     PodcastSearchPodcastListStateComplete,
