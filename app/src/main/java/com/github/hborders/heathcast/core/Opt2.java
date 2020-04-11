@@ -6,15 +6,15 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 public interface Opt2<ValueType> {
-    interface OptFactoryEmpty<
-            OptType extends Opt<ValueType>,
+    interface EmptyOptFactory<
+            OptType extends Opt2<ValueType>,
             ValueType
             > {
         OptType newOpt();
     }
 
-    interface OptFactoryNonEmpty<
-            OptType extends Opt<ValueType>,
+    interface NonEmptyOptFactory<
+            OptType extends Opt2<ValueType>,
             ValueType
             > {
         OptType newOpt(ValueType value);
@@ -62,19 +62,17 @@ public interface Opt2<ValueType> {
     }
 
     default <
-            OtherOptFactoryEmptyType extends OptFactoryEmpty<
-                    OtherOptType,
-                    OtherType
-                    >,
-            OtherOptFactoryNonEmptyType extends OptFactoryNonEmpty<
-                    OtherOptType,
-                    OtherType
-                    >,
-            OtherOptType extends Opt<OtherType>,
+            OtherOptType extends Opt2<OtherType>,
             OtherType
             > OtherOptType map(
-            OtherOptFactoryEmptyType otherOptFactoryEmpty,
-            OtherOptFactoryNonEmptyType otherOptFactoryNonEmpty,
+            EmptyOptFactory<
+                    OtherOptType,
+                    OtherType
+                    > emptyOtherOptFactory,
+            NonEmptyOptFactory<
+                    OtherOptType,
+                    OtherType
+                    > nonEmptyOtherOptFactory,
             Function<
                     ? super ValueType,
                     OtherType
@@ -82,27 +80,21 @@ public interface Opt2<ValueType> {
     ) {
         @Nullable final ValueType value = getValue();
         if (value == null) {
-            return otherOptFactoryEmpty.newOpt();
+            return emptyOtherOptFactory.newOpt();
         } else {
             @Nullable final OtherType other = mapper.apply(value);
-            return otherOptFactoryNonEmpty.newOpt(other);
+            return nonEmptyOtherOptFactory.newOpt(other);
         }
     }
 
     default <
-            OtherOptFactoryEmptyType extends OptFactoryEmpty<
-                    OtherOptType,
-                    OtherType
-                    >,
-            OtherOptFactoryNonEmptyType extends OptFactoryNonEmpty<
-                    OtherOptType,
-                    OtherType
-                    >,
-            OtherOptType extends Opt<OtherType>,
+            OtherOptType extends Opt2<OtherType>,
             OtherType
             > OtherOptType flatMap(
-            OtherOptFactoryEmptyType otherOptFactoryEmpty,
-            OtherOptFactoryNonEmptyType otherOptFactoryNonEmpty,
+            EmptyOptFactory<
+                    OtherOptType,
+                    OtherType
+                    > emptyOtherOptFactory,
             Function<
                     ? super ValueType,
                     OtherOptType
@@ -110,7 +102,7 @@ public interface Opt2<ValueType> {
     ) {
         @Nullable final ValueType value = getValue();
         if (value == null) {
-            return otherOptFactoryEmpty.newOpt();
+            return emptyOtherOptFactory.newOpt();
         } else {
             @Nullable final OtherOptType otherOpt = mapper.apply(value);
             return otherOpt;

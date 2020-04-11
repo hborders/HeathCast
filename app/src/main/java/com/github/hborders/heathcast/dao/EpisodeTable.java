@@ -8,15 +8,14 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
+import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedOpt;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedSet;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.EpisodeIdentifierOpt;
-import com.github.hborders.heathcast.models.EpisodeIdentifierOptList;
-import com.github.hborders.heathcast.models.EpisodeList;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
@@ -74,9 +73,28 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         super(dimDatabase);
     }
 
-    EpisodeIdentifierOpt insertEpisode(
-            PodcastIdentifier podcastIdentifier,
-            Episode episode
+    <
+            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
+            EpisodeType extends Episode2,
+            EpisodeIdentifierOptType extends EpisodeIdentifierOpt2<
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    >,
+            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2
+            > EpisodeIdentifierOptType insertEpisode(
+            Opt2.EmptyOptFactory<
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierEmptyOptFactory,
+            Opt2.NonEmptyOptFactory<
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierNonEmptyOptFactory,
+            Identified2.Identifier2.IdentifierFactory2<
+                    EpisodeIdentifierType
+                    > episodeIdentifierFactory,
+            PodcastIdentifierType podcastIdentifier,
+            EpisodeType episode
     ) {
         final long id = dimDatabase.insert(
                 TABLE_EPISODE,
@@ -87,15 +105,25 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                 )
         );
         if (id == -1) {
-            return EpisodeIdentifierOpt.EMPTY;
+            return episodeIdentifierEmptyOptFactory.newOpt();
         } else {
-            return new EpisodeIdentifierOpt(new EpisodeIdentifier(id));
+            return episodeIdentifierNonEmptyOptFactory.newOpt(
+                    episodeIdentifierFactory.newIdentifier(id)
+            );
         }
     }
 
-    int updateEpisodeIdentified(
-            PodcastIdentifier podcastIdentifier,
-            EpisodeIdentified episodeIdentified) {
+    <
+            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
+            EpisodeIdentifiedType extends EpisodeIdentified2<
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    >,
+            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
+            EpisodeType extends Episode2
+            > int updateEpisodeIdentified(
+            PodcastIdentifierType podcastIdentifier,
+            EpisodeIdentifiedType episodeIdentified) {
         return dimDatabase.update(
                 TABLE_EPISODE,
                 CONFLICT_ROLLBACK,
@@ -104,33 +132,79 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                         episodeIdentified
                 ),
                 ID + " = ?",
-                Long.toString(episodeIdentified.identifier.id)
+                Long.toString(episodeIdentified.getIdentifier().getId())
         );
     }
 
-    EpisodeIdentifierOptList upsertEpisodes(
-            PodcastIdentifier podcastIdentifier,
-            EpisodeList episodes
+    <
+            EpisodeIdentifiedType extends EpisodeIdentified2<
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    >,
+            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
+            EpisodeType extends Episode2,
+            EpisodeIdentifierOptType extends EpisodeIdentifierOpt2<
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    >,
+            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
+            EpisodeListType extends EpisodeList2<EpisodeType>,
+            EpisodeIdentifierOptListType extends EpisodeIdentifierOptList2<
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    >
+            > EpisodeIdentifierOptListType upsertEpisodes(
+            Identified2.Identifier2.IdentifierFactory2<
+                    EpisodeIdentifierType
+                    > episodeIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    > episodeIdentifiedFactory,
+            Opt2.EmptyOptFactory<
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierEmptyOptFactory,
+            Opt2.NonEmptyOptFactory<
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierNonEmptyOptFactory,
+            CollectionFactory.Capacity<
+                    EpisodeIdentifierOptListType,
+                    EpisodeIdentifierOptType
+                    > capacityCollectionFactory,
+            PodcastIdentifierType podcastIdentifier,
+            EpisodeListType episodes
     ) {
-        final UpsertAdapter<String> upsertAdapter = new EpisodeTableUpsertAdapter(podcastIdentifier);
+        final UpsertAdapter<String> upsertAdapter = new EpisodeTableUpsertAdapter<>(podcastIdentifier);
 
-        return super.upsertModels(
+        return super.upsertModels2(
                 upsertAdapter,
                 String.class,
                 episodes,
-                episode -> episode.url.toExternalForm(),
-                EpisodeIdentifier::new,
-                EpisodeIdentified::new,
-                episode -> insertEpisode(
-                        podcastIdentifier,
-                        episode
-                ),
-                episodeIdentified -> updateEpisodeIdentified(
-                        podcastIdentifier,
-                        episodeIdentified
-                ),
-                EpisodeIdentifierOpt.FACTORY,
-                EpisodeIdentifierOptList::new
+                modelType ->
+                        modelType.getURL().toExternalForm(),
+                episodeIdentifierFactory,
+                episodeIdentifiedFactory,
+                episode ->
+                        insertEpisode(
+                                episodeIdentifierEmptyOptFactory,
+                                episodeIdentifierNonEmptyOptFactory,
+                                episodeIdentifierFactory,
+                                podcastIdentifier,
+                                episode
+
+                        ),
+                episodeIdentified ->
+                        updateEpisodeIdentified(
+                                podcastIdentifier,
+                                episodeIdentified
+                        ),
+                episodeIdentifierEmptyOptFactory,
+                episodeIdentifierNonEmptyOptFactory,
+                capacityCollectionFactory
         );
     }
 
@@ -298,23 +372,26 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         );
     }
 
-    static ContentValues getEpisodeContentValues(
-            PodcastIdentifier podcastIdentifier,
-            Episode episode
+    static <
+            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
+            EpisodeType extends Episode2
+            > ContentValues getEpisodeContentValues(
+            PodcastIdentifierType podcastIdentifier,
+            EpisodeType episode
     ) {
         final ContentValues values = new ContentValues(8);
 
         putURLAsString(
                 values,
                 ARTWORK_URL,
-                episode.artworkURL
+                episode.getArtworkURL()
         );
         putDurationAsLong(
                 values,
                 DURATION,
-                episode.duration
+                episode.getDuration()
         );
-        putIdentifier(
+        putIdentifier2(
                 values,
                 PODCAST_ID,
                 podcastIdentifier
@@ -322,35 +399,43 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         putDateAsLong(
                 values,
                 PUBLISH_TIME_MILLIS,
-                episode.publishDate
+                episode.getPublishDate()
         );
         values.put(
                 SUMMARY,
-                episode.summary
+                episode.getSummary()
         );
         values.put(
                 TITLE,
-                episode.title
+                episode.getTitle()
         );
         putURLAsString(
                 values,
                 URL,
-                episode.url
+                episode.getURL()
         );
 
         return values;
     }
 
-    static ContentValues getEpisodeIdentifiedContentValues(
-            PodcastIdentifier podcastIdentifier,
-            EpisodeIdentified episodeIdentified
+    static <
+            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
+            EpisodeIdentifiedType extends EpisodeIdentified2<
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    >,
+            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
+            EpisodeType extends Episode2
+            > ContentValues getEpisodeIdentifiedContentValues(
+            PodcastIdentifierType podcastIdentifier,
+            EpisodeIdentifiedType episodeIdentified
     ) {
         final ContentValues values = getEpisodeContentValues(
                 podcastIdentifier,
-                episodeIdentified.model
+                episodeIdentified.getModel()
         );
 
-        putIdentifier(
+        putIdentifier2(
                 values,
                 ID,
                 episodeIdentified
@@ -360,10 +445,11 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
     }
 
     private static final class EpisodeTableUpsertAdapter<
+            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2
             > implements UpsertAdapter<String> {
-        private final PodcastIdentifier podcastIdentifier;
+        private final PodcastIdentifierType podcastIdentifier;
 
-        public EpisodeTableUpsertAdapter(PodcastIdentifier podcastIdentifier) {
+        public EpisodeTableUpsertAdapter(PodcastIdentifierType podcastIdentifier) {
             this.podcastIdentifier = podcastIdentifier;
         }
 
@@ -374,7 +460,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                             + " AND " + PODCAST_ID + " = ? ";
             final Object[] bindArgs = new Object[secondaryKeys.size() + 1];
             secondaryKeys.toArray(bindArgs);
-            bindArgs[secondaryKeys.size()] = podcastIdentifier.id;
+            bindArgs[secondaryKeys.size()] = podcastIdentifier.getId();
             return SupportSQLiteQueryBuilder
                     .builder(TABLE_EPISODE)
                     .columns(new String[]{

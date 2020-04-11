@@ -1,9 +1,10 @@
 package com.github.hborders.heathcast.dao;
 
+import androidx.annotation.Nullable;
+
 import java.net.URL;
 import java.time.Duration;
-
-import javax.annotation.Nullable;
+import java.util.Date;
 
 public interface Episode2 {
     @Nullable
@@ -11,6 +12,9 @@ public interface Episode2 {
 
     @Nullable
     Duration getDuration();
+
+    @Nullable
+    Date getPublishDate();
 
     @Nullable
     String getSummary();
