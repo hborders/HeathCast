@@ -56,7 +56,7 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
         }
     }
 
-    public interface PodcastSearchPodcastIdentifiedListState extends PodcastIdentifiedListState<
+    public interface PodcastSearchPodcastIdentifiedListState extends PodcastListState<
             PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
             PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
             PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
@@ -123,8 +123,8 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
                 PodcastSearchPodcastListFragment.class,
                 PodcastSearchPodcastListFragmentListener.class,
                 PodcastSearchPodcastListAttachment::new,
-                PodcastSearchPodcastListFragmentListener::onPodcastListFragmentAttached,
-                PodcastSearchPodcastListFragmentListener::onPodcastListFragmentWillDetach,
+                PodcastSearchPodcastListFragmentListener::onPodcastSearchPodcastListFragmentAttached,
+                PodcastSearchPodcastListFragmentListener::onPodcastSearchPodcastListFragmentWillDetach,
                 PodcastSearchPodcastListFragmentListener::podcastIdentifiedListStateObservable
         );
     }

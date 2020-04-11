@@ -59,10 +59,7 @@ public abstract class PodcastRecyclerViewAdapter<
             PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
             ListenerType
             > {
-        PodcastRecyclerViewAdapterType newPodcastRecyclerViewAdapter(
-                PodcastListType podcasts,
-                ListenerType listener
-        );
+        PodcastRecyclerViewAdapterType newPodcastRecyclerViewAdapter();
     }
 
     public interface PodcastItem {
@@ -96,7 +93,7 @@ public abstract class PodcastRecyclerViewAdapter<
                     PodcastListType,
                     PodcastItemType
                     > onCreateViewHolder,
-            PodcastListType podcasts,
+            PodcastListType podcastItems,
             ListenerType listener,
             OnClick<
                     ListenerType,
@@ -107,7 +104,7 @@ public abstract class PodcastRecyclerViewAdapter<
                 selfClass,
                 onCreateViewHolder,
                 PodcastViewHolder::onBind,
-                podcasts
+                podcastItems
         );
         this.listener = listener;
         this.onClick = onClick;
