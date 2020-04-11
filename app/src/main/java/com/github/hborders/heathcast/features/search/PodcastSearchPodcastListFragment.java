@@ -6,6 +6,7 @@ import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFra
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListFragmentListener;
 import com.github.hborders.heathcast.fragments.PodcastListFragment;
 import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseComplete;
 import com.github.hborders.heathcast.services.PodcastIdentifiedListServiceResponse.PodcastIdentifiedListServiceResponseFailed;
@@ -56,66 +57,94 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
         }
     }
 
-    public interface PodcastSearchPodcastIdentifiedListState extends PodcastListState<
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
-            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
-            > {
-    }
+//    public interface PodcastSearchPodcastIdentifiedListState extends PodcastIdentifiedListState<
+//            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
+//            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
+//            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
+//            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+//            > {
+//    }
 
-    public interface PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse extends PodcastListAsyncValueState<
-            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+    public interface PodcastSearchPodcastListState extends AsyncValueState<
+            PodcastSearchPodcastListStateLoading,
+            PodcastSearchPodcastListStateComplete,
+            PodcastSearchPodcastListStateFailed,
+            PodcastIdentifiedPodcastListState
             >, PodcastIdentifiedListServiceResponse<
-            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+            PodcastSearchPodcastListStateLoading,
+            PodcastSearchPodcastListStateComplete,
+            PodcastSearchPodcastListStateFailed
             > {
     }
 
-    public interface PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading extends
+    public interface PodcastSearchPodcastListStateLoading extends
             PodcastIdentifiedListServiceResponseLoading<
-                    PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-                    PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+                    PodcastSearchPodcastListStateLoading,
+                    PodcastSearchPodcastListStateComplete,
+                    PodcastSearchPodcastListStateFailed
                     >,
-            PodcastIdentifiedListAsyncStateLoading<
-                    PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-                    PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+            AsyncValueState.AsyncValueLoading<
+                    PodcastSearchPodcastListStateLoading,
+                    PodcastSearchPodcastListStateComplete,
+                    PodcastSearchPodcastListStateFailed
                     >,
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse {
+            PodcastSearchPodcastListState {
     }
 
-    public interface PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete extends
+    public interface PodcastSearchPodcastListStateComplete extends
             PodcastIdentifiedListServiceResponseComplete<
-                    PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-                    PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+                    PodcastSearchPodcastListStateLoading,
+                    PodcastSearchPodcastListStateComplete,
+                    PodcastSearchPodcastListStateFailed
                     >,
-            PodcastIdentifiedListAsyncStateComplete<
-                    PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-                    PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+            AsyncValueState.AsyncValueComplete<
+                    PodcastSearchPodcastListStateLoading,
+                    PodcastSearchPodcastListStateComplete,
+                    PodcastSearchPodcastListStateFailed
                     >,
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse {
+            PodcastSearchPodcastListState {
     }
 
-    public interface PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed extends
+    public interface PodcastSearchPodcastListStateFailed extends
             PodcastIdentifiedListServiceResponseFailed<
-                    PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-                    PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+                    PodcastSearchPodcastListStateLoading,
+                    PodcastSearchPodcastListStateComplete,
+                    PodcastSearchPodcastListStateFailed
                     >,
             AsyncValueState.AsyncValueFailed<
-                    PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-                    PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-                    PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed,
+                    PodcastSearchPodcastListStateLoading,
+                    PodcastSearchPodcastListStateComplete,
+                    PodcastSearchPodcastListStateFailed,
                     PodcastIdentified
                     >,
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse {
+            PodcastSearchPodcastListState {
+    }
+
+    public interface PodcastIdentifiedPodcastListValueState extends PodcastListValueState<
+            PodcastIdentifiedPodcastListValueEmpty,
+            PodcastIdentifiedPodcastListValueNonEmpty,
+            PodcastIdentifiedList,
+            PodcastIdentified
+            > {
+
+    }
+
+    public interface PodcastIdentifiedPodcastListValueEmpty extends PodcastListValueState.PodcastListValueEmpty<
+            PodcastIdentifiedPodcastListValueEmpty,
+            PodcastIdentifiedPodcastListValueNonEmpty,
+            PodcastIdentifiedList,
+            PodcastIdentified
+            >, PodcastIdentifiedPodcastListValueState {
+
+    }
+
+    public interface PodcastIdentifiedPodcastListValueNonEmpty extends PodcastListValueState.PodcastListValueNonEmpty<
+            PodcastIdentifiedPodcastListValueEmpty,
+            PodcastIdentifiedPodcastListValueNonEmpty,
+            PodcastIdentifiedList,
+            PodcastIdentified
+            >, PodcastIdentifiedPodcastListValueState {
+
     }
 
     public PodcastSearchPodcastListFragment() {

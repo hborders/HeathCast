@@ -42,9 +42,11 @@ final class PodcastJson {
         @Nullable final String collectionName = this.collectionName;
         @Nullable final String feedURLString = this.feedUrl;
 
-        if (artistName == null ||
-                collectionName == null ||
-                feedURLString == null) {
+        if (
+                artistName == null ||
+                        collectionName == null ||
+                        feedURLString == null
+        ) {
             return null;
         } else {
             final Optional<URL> artworkURLOptional =

@@ -115,7 +115,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchPodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchPodcastListFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastJson.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastJson.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -681,10 +681,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585458275115" />
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1586579923262">
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1586583173615">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586579923262" />
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586583173615" />
     <state x="698" y="326" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1585803783950">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -773,10 +773,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1585513526860" />
-    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586581013246">
+    <state width="728" height="83" key="javadoc.popup.new" timestamp="1586583064828">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586581013246" />
+    <state width="728" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586583064828" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586401059744">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
