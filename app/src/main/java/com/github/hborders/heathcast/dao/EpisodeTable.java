@@ -101,14 +101,14 @@ final class EpisodeTable<
             EpisodeIdentifierType,
             EpisodeType
             > episodeIdentifiedFactory;
-    private final Opt2.EmptyOptFactory<
-            EpisodeIdentifierOptType,
-            EpisodeIdentifierType
-            > episodeIdentifierEmptyOptFactory;
-    private final Opt2.NonEmptyOptFactory<
-            EpisodeIdentifierOptType,
-            EpisodeIdentifierType
-            > episodeIdentifierNonEmptyOptFactory;
+    private final Opt2.OptEmptyFactory<
+                EpisodeIdentifierOptType,
+                EpisodeIdentifierType
+                > episodeIdentifierOptEmptyFactory;
+    private final Opt2.OptNonEmptyFactory<
+                EpisodeIdentifierOptType,
+                EpisodeIdentifierType
+                > episodeIdentifierOptNonEmptyFactory;
     private final CollectionFactory.Capacity<
             EpisodeIdentifiedListType,
             EpisodeIdentifiedType
@@ -132,14 +132,14 @@ final class EpisodeTable<
                     EpisodeIdentifierType,
                     EpisodeType
                     > episodeIdentifiedFactory,
-            Opt2.EmptyOptFactory<
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierType
-                    > episodeIdentifierEmptyOptFactory,
-            Opt2.NonEmptyOptFactory<
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierType
-                    > episodeIdentifierNonEmptyOptFactory,
+            Opt2.OptEmptyFactory<
+                                EpisodeIdentifierOptType,
+                                EpisodeIdentifierType
+                                > episodeIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                                EpisodeIdentifierOptType,
+                                EpisodeIdentifierType
+                                > episodeIdentifierOptNonEmptyFactory,
             CollectionFactory.Capacity<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
@@ -158,8 +158,8 @@ final class EpisodeTable<
         this.episodeFactory2 = episodeFactory2;
         this.episodeIdentifierFactory = episodeIdentifierFactory;
         this.episodeIdentifiedFactory = episodeIdentifiedFactory;
-        this.episodeIdentifierEmptyOptFactory = episodeIdentifierEmptyOptFactory;
-        this.episodeIdentifierNonEmptyOptFactory = episodeIdentifierNonEmptyOptFactory;
+        this.episodeIdentifierOptEmptyFactory = episodeIdentifierOptEmptyFactory;
+        this.episodeIdentifierOptNonEmptyFactory = episodeIdentifierOptNonEmptyFactory;
         this.episodeIdentifiedListCapacityFactory = episodeIdentifiedListCapacityFactory;
         this.episodeIdentifiedSetCollectionFactory = episodeIdentifiedSetCollectionFactory;
         this.episodeIdentifierOptListCapacityFactory = episodeIdentifierOptListCapacityFactory;
@@ -178,9 +178,9 @@ final class EpisodeTable<
                 )
         );
         if (id == -1) {
-            return episodeIdentifierEmptyOptFactory.newOpt();
+            return episodeIdentifierOptEmptyFactory.newOpt();
         } else {
-            return episodeIdentifierNonEmptyOptFactory.newOpt(
+            return episodeIdentifierOptNonEmptyFactory.newOpt(
                     episodeIdentifierFactory.newIdentifier(id)
             );
         }
@@ -226,8 +226,8 @@ final class EpisodeTable<
                                 podcastIdentifier,
                                 episodeIdentified
                         ),
-                episodeIdentifierEmptyOptFactory,
-                episodeIdentifierNonEmptyOptFactory,
+                episodeIdentifierOptEmptyFactory,
+                episodeIdentifierOptNonEmptyFactory,
                 episodeIdentifierOptListCapacityFactory
         );
     }

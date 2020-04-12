@@ -9,13 +9,9 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.Subscription;
-import com.github.hborders.heathcast.models.SubscriptionIdentified;
-import com.github.hborders.heathcast.models.SubscriptionIdentifiedList;
+import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
-import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -27,7 +23,39 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 
-public final class SubscriptionTable<N> extends Table<N> {
+public final class SubscriptionTable<
+        MarkerType,
+        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
+        SubscriptionType extends Subscription2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastType extends Podcast2,
+        SubscriptionIdentifiedListType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedList2<
+                SubscriptionIdentifiedType,
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifierOptType extends Subscription2.SubscriptionIdentifier2.SubscriptionIdentifierOpt2<
+                SubscriptionIdentifierType
+                >
+        > extends Table<MarkerType> {
     static final String TABLE_SUBSCRIPTION = "subscription";
 
     private static final String ID = "_id";
@@ -36,11 +64,94 @@ public final class SubscriptionTable<N> extends Table<N> {
 
     private static final String[] COLUMNS_ID = new String[]{ID};
 
-    SubscriptionTable(DimDatabase<N> dimDatabase) {
+    private final Subscription2.SubscriptionFactory2<
+            SubscriptionType,
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType
+            > subscriptionFactory;
+    private final Identifier2.IdentifierFactory2<
+            SubscriptionIdentifierType
+            > subscriptionIdentifierFactory;
+    private final Identified2.IdentifiedFactory2<
+            SubscriptionIdentifiedType,
+            SubscriptionIdentifierType,
+            SubscriptionType
+            > subscriptionIdentifiedFactory;
+    private final Podcast2.PodcastFactory2<PodcastType> podcastFactory;
+    private final Identifier2.IdentifierFactory2<
+            PodcastIdentifierType
+            > podcastIdentifierFactory;
+    private final Identified2.IdentifiedFactory2<
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType
+            > podcastIdentifiedFactory;
+    private final Opt2.OptEmptyFactory<
+            SubscriptionIdentifierOptType,
+            SubscriptionIdentifierType
+            > subscriptionIdentifierOptEmptyFactory;
+    private final Opt2.OptNonEmptyFactory<
+            SubscriptionIdentifierOptType,
+            SubscriptionIdentifierType
+            > subscriptionIdentifierOptNonEmptyFactory;
+    private final CollectionFactory.Capacity<
+            SubscriptionIdentifiedListType,
+            SubscriptionIdentifiedType
+            > subscriptionIdentifiedListCapacityFactory;
+
+    SubscriptionTable(
+            DimDatabase<MarkerType> dimDatabase,
+            Subscription2.SubscriptionFactory2<
+                    SubscriptionType,
+                    PodcastIdentifiedType,
+                    PodcastIdentifierType,
+                    PodcastType
+                    > subscriptionFactory,
+            Identifier2.IdentifierFactory2<
+                    SubscriptionIdentifierType
+                    > subscriptionIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    SubscriptionIdentifiedType,
+                    SubscriptionIdentifierType,
+                    SubscriptionType
+                    > subscriptionIdentifiedFactory,
+            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier2.IdentifierFactory2<
+                    PodcastIdentifierType
+                    > podcastIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    PodcastIdentifiedType,
+                    PodcastIdentifierType,
+                    PodcastType
+                    > podcastIdentifiedFactory,
+            Opt2.OptEmptyFactory<
+                    SubscriptionIdentifierOptType,
+                    SubscriptionIdentifierType
+                    > subscriptionIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    SubscriptionIdentifierOptType,
+                    SubscriptionIdentifierType
+                    > subscriptionIdentifierOptNonEmptyFactory,
+            CollectionFactory.Capacity<
+                    SubscriptionIdentifiedListType,
+                    SubscriptionIdentifiedType
+                    > subscriptionIdentifiedListCapacityFactory
+    ) {
         super(dimDatabase);
+
+        this.subscriptionFactory = subscriptionFactory;
+        this.subscriptionIdentifierFactory = subscriptionIdentifierFactory;
+        this.subscriptionIdentifiedFactory = subscriptionIdentifiedFactory;
+        this.podcastFactory = podcastFactory;
+        this.podcastIdentifierFactory = podcastIdentifierFactory;
+        this.podcastIdentifiedFactory = podcastIdentifiedFactory;
+        this.subscriptionIdentifierOptEmptyFactory = subscriptionIdentifierOptEmptyFactory;
+        this.subscriptionIdentifierOptNonEmptyFactory = subscriptionIdentifierOptNonEmptyFactory;
+        this.subscriptionIdentifiedListCapacityFactory = subscriptionIdentifiedListCapacityFactory;
     }
 
-    SubscriptionIdentifierOpt insertSubscription(PodcastIdentifier podcastIdentifier) {
+    SubscriptionIdentifierOptType insertSubscription(PodcastIdentifierType podcastIdentifier) {
         final long id = dimDatabase.insert(
                 TABLE_SUBSCRIPTION,
                 CONFLICT_ABORT,
@@ -48,9 +159,11 @@ public final class SubscriptionTable<N> extends Table<N> {
         );
 
         if (id == -1) {
-            return SubscriptionIdentifierOpt.EMPTY;
+            return subscriptionIdentifierOptEmptyFactory.newOpt();
         } else {
-            return new SubscriptionIdentifierOpt(new SubscriptionIdentifier(id));
+            return subscriptionIdentifierOptNonEmptyFactory.newOpt(
+                    subscriptionIdentifierFactory.newIdentifier(id)
+            );
         }
     }
 
@@ -154,15 +267,15 @@ public final class SubscriptionTable<N> extends Table<N> {
         );
     }
 
-    int deleteSubscription(SubscriptionIdentifier subscriptionIdentifier) {
+    int deleteSubscription(SubscriptionIdentifierType subscriptionIdentifier) {
         return dimDatabase.delete(
                 TABLE_SUBSCRIPTION,
                 ID + " = ?",
-                Long.toString(subscriptionIdentifier.id)
+                Long.toString(subscriptionIdentifier.getId())
         );
     }
 
-    Observable<SubscriptionIdentifiedList> observeQueryForSubscriptions() {
+    Observable<SubscriptionIdentifiedListType> observeQueryForSubscriptions() {
         return dimDatabase.createQuery(
                 Arrays.asList(
                         PodcastTable.TABLE_PODCAST,
@@ -180,19 +293,19 @@ public final class SubscriptionTable<N> extends Table<N> {
                         + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
                         + "ORDER BY " + TABLE_SUBSCRIPTION + "." + SORT
         ).mapToSpecificList(
-                SubscriptionTable::getSubscriptionIdentified,
-                SubscriptionIdentifiedList::new
+                this::getSubscriptionIdentified,
+                subscriptionIdentifiedListCapacityFactory::newCollection
         );
     }
 
-    Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(PodcastIdentifier podcastIdentifier) {
+    Observable<Optional<SubscriptionIdentifierType>> observeQueryForSubscriptionIdentifier(PodcastIdentifierType podcastIdentifier) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_SUBSCRIPTION)
                         .columns(COLUMNS_ID)
                         .selection(
                                 PODCAST_ID + " = ?",
-                                new Object[]{podcastIdentifier.id}
+                                new Object[]{podcastIdentifier.getId()}
                         ).create();
         return dimDatabase.createQuery(
                 Arrays.asList(
@@ -200,7 +313,7 @@ public final class SubscriptionTable<N> extends Table<N> {
                         SubscriptionTable.TABLE_SUBSCRIPTION
                 ),
                 query
-        ).mapToOptional(SubscriptionTable::getSubscriptionIdentifier);
+        ).mapToOptional(this::getSubscriptionIdentifier);
     }
 
     static void createSubscriptionTable(SupportSQLiteDatabase db) {
@@ -229,10 +342,10 @@ public final class SubscriptionTable<N> extends Table<N> {
                 + " ON " + TABLE_SUBSCRIPTION + "(" + SORT + ")");
     }
 
-    static ContentValues getSubscriptionContentValues(PodcastIdentifier podcastIdentifier) {
+    ContentValues getSubscriptionContentValues(PodcastIdentifierType podcastIdentifier) {
         final ContentValues values = new ContentValues(1);
 
-        putIdentifier(
+        putIdentifier2(
                 values,
                 PODCAST_ID,
                 podcastIdentifier
@@ -241,22 +354,27 @@ public final class SubscriptionTable<N> extends Table<N> {
         return values;
     }
 
-    static SubscriptionIdentified getSubscriptionIdentified(Cursor cursor) {
-        final PodcastIdentified podcastIdentified = PodcastTable.getPodcastIdentified(cursor);
-        final SubscriptionIdentifier subscriptionIdentifier = new SubscriptionIdentifier(
+    SubscriptionIdentifiedType getSubscriptionIdentified(Cursor cursor) {
+        final PodcastIdentifiedType podcastIdentified = PodcastTable.getPodcastIdentified(
+                podcastFactory,
+                podcastIdentifierFactory,
+                podcastIdentifiedFactory,
+                cursor
+        );
+        final SubscriptionIdentifierType subscriptionIdentifier = subscriptionIdentifierFactory.newIdentifier(
                 CursorUtil.getNonnullLong(
                         cursor,
                         ID
                 )
         );
-        return new SubscriptionIdentified(
+        return subscriptionIdentifiedFactory.newIdentified(
                 subscriptionIdentifier,
-                new Subscription(podcastIdentified)
+                subscriptionFactory.newSubscription(podcastIdentified)
         );
     }
 
-    static SubscriptionIdentifier getSubscriptionIdentifier(Cursor cursor) {
-        return new SubscriptionIdentifier(
+    SubscriptionIdentifierType getSubscriptionIdentifier(Cursor cursor) {
+        return subscriptionIdentifierFactory.newIdentifier(
                 CursorUtil.getNonnullLong(
                         cursor,
                         ID

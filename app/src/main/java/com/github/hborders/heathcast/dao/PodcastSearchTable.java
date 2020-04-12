@@ -74,14 +74,14 @@ final class PodcastSearchTable<
             PodcastSearchIdentifiedListType,
             PodcastSearchIdentifiedType
             > podcastSearchIdentifiedListCapacityFactory;
-    private final Opt2.EmptyOptFactory<
-            PodcastSearchIdentifierOptType,
-            PodcastSearchIdentifierType
-            > podcastSearchIdentifierOptEmptyFactory;
-    private final Opt2.NonEmptyOptFactory<
-            PodcastSearchIdentifierOptType,
-            PodcastSearchIdentifierType
-            > podcastSearchIdentifierOptNonEmptyFactory;
+    private final Opt2.OptEmptyFactory<
+                PodcastSearchIdentifierOptType,
+                PodcastSearchIdentifierType
+                > podcastSearchIdentifierOptEmptyFactory;
+    private final Opt2.OptNonEmptyFactory<
+                PodcastSearchIdentifierOptType,
+                PodcastSearchIdentifierType
+                > podcastSearchIdentifierOptNonEmptyFactory;
 
     PodcastSearchTable(
             DimDatabase<MarkerType> dimDatabase,
@@ -96,14 +96,14 @@ final class PodcastSearchTable<
                     PodcastSearchIdentifiedListType,
                     PodcastSearchIdentifiedType
                     > podcastSearchIdentifiedListCapacityFactory,
-            Opt2.EmptyOptFactory<
-                    PodcastSearchIdentifierOptType,
-                    PodcastSearchIdentifierType
-                    > podcastSearchIdentifierOptEmptyFactory,
-            Opt2.NonEmptyOptFactory<
-                    PodcastSearchIdentifierOptType,
-                    PodcastSearchIdentifierType
-                    > podcastSearchIdentifierOptNonEmptyFactory
+            Opt2.OptEmptyFactory<
+                                PodcastSearchIdentifierOptType,
+                                PodcastSearchIdentifierType
+                                > podcastSearchIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                                PodcastSearchIdentifierOptType,
+                                PodcastSearchIdentifierType
+                                > podcastSearchIdentifierOptNonEmptyFactory
     ) {
         super(dimDatabase);
 

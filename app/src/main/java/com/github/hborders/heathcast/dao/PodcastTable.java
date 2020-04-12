@@ -86,14 +86,14 @@ final class PodcastTable<
             PodcastIdentifierType,
             PodcastType
             > podcastIdentifiedFactory;
-    private final Opt2.EmptyOptFactory<
-            PodcastIdentifierOptType,
-            PodcastIdentifierType
-            > podcastIdentifierEmptyOptFactory;
-    private final Opt2.NonEmptyOptFactory<
-            PodcastIdentifierOptType,
-            PodcastIdentifierType
-            > podcastIdentifierNonEmptyOptFactory;
+    private final Opt2.OptEmptyFactory<
+                PodcastIdentifierOptType,
+                PodcastIdentifierType
+                > podcastIdentifierOptEmptyFactory;
+    private final Opt2.OptNonEmptyFactory<
+                PodcastIdentifierOptType,
+                PodcastIdentifierType
+                > podcastIdentifierOptNonEmptyFactory;
     private final CollectionFactory.Collection<
             PodcastIdentifiedSetType,
             PodcastIdentifiedType
@@ -114,14 +114,14 @@ final class PodcastTable<
                     PodcastIdentifierType,
                     PodcastType
                     > podcastIdentifiedFactory,
-            Opt2.EmptyOptFactory<
-                    PodcastIdentifierOptType,
-                    PodcastIdentifierType
-                    > podcastIdentifierEmptyOptFactory,
-            Opt2.NonEmptyOptFactory<
-                    PodcastIdentifierOptType,
-                    PodcastIdentifierType
-                    > podcastIdentifierNonEmptyOptFactory,
+            Opt2.OptEmptyFactory<
+                                PodcastIdentifierOptType,
+                                PodcastIdentifierType
+                                > podcastIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                                PodcastIdentifierOptType,
+                                PodcastIdentifierType
+                                > podcastIdentifierOptNonEmptyFactory,
             CollectionFactory.Collection<
                     PodcastIdentifiedSetType,
                     PodcastIdentifiedType
@@ -136,8 +136,8 @@ final class PodcastTable<
         this.podcastFactory = podcastFactory;
         this.podcastIdentifierFactory = podcastIdentifierFactory;
         this.podcastIdentifiedFactory = podcastIdentifiedFactory;
-        this.podcastIdentifierEmptyOptFactory = podcastIdentifierEmptyOptFactory;
-        this.podcastIdentifierNonEmptyOptFactory = podcastIdentifierNonEmptyOptFactory;
+        this.podcastIdentifierOptEmptyFactory = podcastIdentifierOptEmptyFactory;
+        this.podcastIdentifierOptNonEmptyFactory = podcastIdentifierOptNonEmptyFactory;
         this.podcastIdentifiedSetCollectionFactory = podcastIdentifiedSetCollectionFactory;
         this.podcastIdentifierOptListCapacityFactory = podcastIdentifierOptListCapacityFactory;
     }
@@ -149,9 +149,9 @@ final class PodcastTable<
                 getPodcastContentValues(podcast)
         );
         if (id == -1) {
-            return podcastIdentifierEmptyOptFactory.newOpt();
+            return podcastIdentifierOptEmptyFactory.newOpt();
         } else {
-            return podcastIdentifierNonEmptyOptFactory.newOpt(
+            return podcastIdentifierOptNonEmptyFactory.newOpt(
                     podcastIdentifierFactory.newIdentifier(id)
             );
         }
@@ -177,8 +177,8 @@ final class PodcastTable<
                 podcastIdentifiedFactory,
                 this::insertPodcast,
                 this::updatePodcastIdentified,
-                podcastIdentifierEmptyOptFactory,
-                podcastIdentifierNonEmptyOptFactory
+                podcastIdentifierOptEmptyFactory,
+                podcastIdentifierOptNonEmptyFactory
         );
     }
 
@@ -192,9 +192,9 @@ final class PodcastTable<
                 podcastIdentifiedFactory,
                 this::insertPodcast,
                 this::updatePodcastIdentified,
-                podcastIdentifierEmptyOptFactory,
-                podcastIdentifierNonEmptyOptFactory,
-                podcastIdentifierOptListCapacityFactory::newCollection
+                podcastIdentifierOptEmptyFactory,
+                podcastIdentifierOptNonEmptyFactory,
+                podcastIdentifierOptListCapacityFactory
         );
     }
 
@@ -281,7 +281,34 @@ final class PodcastTable<
                 + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
     }
 
-    PodcastIdentifiedType getPodcastIdentified(Cursor cursor) {
+    private PodcastIdentifiedType getPodcastIdentified(Cursor cursor) {
+        return getPodcastIdentified(
+                podcastFactory,
+                podcastIdentifierFactory,
+                podcastIdentifiedFactory,
+                cursor
+        );
+    }
+
+    static <
+            PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                    PodcastIdentifierType,
+                    PodcastType
+                    >,
+            PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+            PodcastType extends Podcast2
+            > PodcastIdentifiedType getPodcastIdentified(
+            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier2.IdentifierFactory2<
+                    PodcastIdentifierType
+                    > podcastIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    PodcastIdentifiedType,
+                    PodcastIdentifierType,
+                    PodcastType
+                    > podcastIdentifiedFactory,
+            Cursor cursor
+    ) {
         return podcastIdentifiedFactory.newIdentified(
                 podcastIdentifierFactory.newIdentifier(
                         getNonnullInt(

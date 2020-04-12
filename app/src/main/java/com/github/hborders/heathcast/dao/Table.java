@@ -177,14 +177,14 @@ abstract class Table<MarkerType> {
                     IdentifiedType,
                     Integer
                     > identifiedUpdater,
-            Opt2.EmptyOptFactory<
-                    IdentifierOptType,
-                    IdentifierType
-                    > emptyOptFactory,
-            Opt2.NonEmptyOptFactory<
-                    IdentifierOptType,
-                    IdentifierType
-                    > nonEmptyOptFactory
+            Opt2.OptEmptyFactory<
+                                IdentifierOptType,
+                                IdentifierType
+                                > optEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                                IdentifierOptType,
+                                IdentifierType
+                                > optNonEmptyFactory
     ) {
         try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
             final SecondaryKeyType secondaryKey = modelSecondaryKeyGetter.apply(model);
@@ -202,9 +202,9 @@ abstract class Table<MarkerType> {
                     );
                     int rowCount = identifiedUpdater.apply(updatingIdentified);
                     if (rowCount == 1) {
-                        upsertedIdentifierOpt = nonEmptyOptFactory.newOpt(upsertingIdentifier);
+                        upsertedIdentifierOpt = optNonEmptyFactory.newOpt(upsertingIdentifier);
                     } else {
-                        upsertedIdentifierOpt = emptyOptFactory.newOpt();
+                        upsertedIdentifierOpt = optEmptyFactory.newOpt();
                     }
                 } else {
                     upsertedIdentifierOpt = modelInserter
@@ -387,14 +387,14 @@ abstract class Table<MarkerType> {
                     IdentifiedType,
                     Integer
                     > identifiedUpdater,
-            Opt2.EmptyOptFactory<
-                    IdentifierOptType,
-                    IdentifierType
-                    > emptyOptFactory,
-            Opt2.NonEmptyOptFactory<
-                    IdentifierOptType,
-                    IdentifierType
-                    > nonEmptyOptFactory,
+            Opt2.OptEmptyFactory<
+                                IdentifierOptType,
+                                IdentifierType
+                                > optEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                                IdentifierOptType,
+                                IdentifierType
+                                > optNonEmptyFactory,
             CollectionFactory.Capacity<
                     IdentifierOptListType,
                     IdentifierOptType
@@ -458,7 +458,7 @@ abstract class Table<MarkerType> {
                 final int capacity = models.size();
                 final IdentifierOptListType upsertedIdentifierOpts = capacityCollectionFactory.newCollection(capacity);
                 for (int i = 0; i < capacity; i++) {
-                    upsertedIdentifierOpts.add(emptyOptFactory.newOpt());
+                    upsertedIdentifierOpts.add(optEmptyFactory.newOpt());
                 }
                 for (final SecondaryKeyType secondaryKey : insertingSecondaryKeys) {
                     @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
@@ -493,7 +493,7 @@ abstract class Table<MarkerType> {
                             for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
                                 upsertedIdentifierOpts.set(
                                         indexedModel.first,
-                                        nonEmptyOptFactory.newOpt(updatingIdentified.getIdentifier())
+                                        optNonEmptyFactory.newOpt(updatingIdentified.getIdentifier())
                                 );
                             }
                         }

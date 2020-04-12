@@ -6,14 +6,14 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 public interface Opt2<ValueType> {
-    interface EmptyOptFactory<
+    interface OptEmptyFactory<
             OptType extends Opt2<ValueType>,
             ValueType
             > {
         OptType newOpt();
     }
 
-    interface NonEmptyOptFactory<
+    interface OptNonEmptyFactory<
             OptType extends Opt2<ValueType>,
             ValueType
             > {
@@ -65,14 +65,14 @@ public interface Opt2<ValueType> {
             OtherOptType extends Opt2<OtherType>,
             OtherType
             > OtherOptType map(
-            EmptyOptFactory<
-                    OtherOptType,
-                    OtherType
-                    > emptyOtherOptFactory,
-            NonEmptyOptFactory<
-                    OtherOptType,
-                    OtherType
-                    > nonEmptyOtherOptFactory,
+            OptEmptyFactory<
+                                OtherOptType,
+                                OtherType
+                                > emptyOtherOptFactory,
+            OptNonEmptyFactory<
+                                OtherOptType,
+                                OtherType
+                                > nonEmptyOtherOptFactory,
             Function<
                     ? super ValueType,
                     OtherType
@@ -91,10 +91,10 @@ public interface Opt2<ValueType> {
             OtherOptType extends Opt2<OtherType>,
             OtherType
             > OtherOptType flatMap(
-            EmptyOptFactory<
-                    OtherOptType,
-                    OtherType
-                    > emptyOtherOptFactory,
+            OptEmptyFactory<
+                                OtherOptType,
+                                OtherType
+                                > emptyOtherOptFactory,
             Function<
                     ? super ValueType,
                     OtherOptType
