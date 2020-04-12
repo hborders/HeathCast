@@ -10,17 +10,11 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Opt2;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedOpt;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedSet;
-import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import io.reactivex.Observable;
@@ -41,7 +35,36 @@ import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 
-final class EpisodeTable<MarkerType> extends Table<MarkerType> {
+final class EpisodeTable<
+        MarkerType,
+        EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
+        EpisodeType extends Episode2,
+        EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifiedSetType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedSet2<
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+                EpisodeIdentifierOptType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeListType extends EpisodeList2<EpisodeType>,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2
+        > extends Table<MarkerType> {
     static final String TABLE_EPISODE = "episode";
 
     private static final String ARTWORK_URL = "artwork_url";
@@ -69,19 +92,46 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
 
-    EpisodeTable(DimDatabase<MarkerType> dimDatabase) {
-        super(dimDatabase);
-    }
+    private final Episode2.EpisodeFactory<EpisodeType> episodeFactory;
+    private final Identifier2.IdentifierFactory2<
+            EpisodeIdentifierType
+            > episodeIdentifierFactory;
+    private final Identified2.IdentifiedFactory2<
+            EpisodeIdentifiedType,
+            EpisodeIdentifierType,
+            EpisodeType
+            > episodeIdentifiedFactory;
+    private final Opt2.EmptyOptFactory<
+            EpisodeIdentifierOptType,
+            EpisodeIdentifierType
+            > episodeIdentifierEmptyOptFactory;
+    private final Opt2.NonEmptyOptFactory<
+            EpisodeIdentifierOptType,
+            EpisodeIdentifierType
+            > episodeIdentifierNonEmptyOptFactory;
+    private final CollectionFactory.Capacity<
+            EpisodeIdentifiedListType,
+            EpisodeIdentifiedType
+            > episodeIdentifiedListCapacityFactory;
+    private final CollectionFactory.Collection<
+            EpisodeIdentifiedSetType,
+            EpisodeIdentifiedType
+            > episodeIdentifiedSetCollectionFactory;
+    private final CollectionFactory.Capacity<
+            EpisodeIdentifierOptListType,
+            EpisodeIdentifierOptType
+            > episodeIdentifierOptListCapacityFactory;
 
-    <
-            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
-            EpisodeType extends Episode2,
-            EpisodeIdentifierOptType extends EpisodeIdentifierOpt2<
+    EpisodeTable(
+            Episode2.EpisodeFactory<EpisodeType> episodeFactory,
+            Identifier2.IdentifierFactory2<
+                    EpisodeIdentifierType
+                    > episodeIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    EpisodeIdentifiedType,
                     EpisodeIdentifierType,
                     EpisodeType
-                    >,
-            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2
-            > EpisodeIdentifierOptType insertEpisode(
+                    > episodeIdentifiedFactory,
             Opt2.EmptyOptFactory<
                     EpisodeIdentifierOptType,
                     EpisodeIdentifierType
@@ -90,9 +140,32 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                     EpisodeIdentifierOptType,
                     EpisodeIdentifierType
                     > episodeIdentifierNonEmptyOptFactory,
-            Identified2.Identifier2.IdentifierFactory2<
-                    EpisodeIdentifierType
-                    > episodeIdentifierFactory,
+            CollectionFactory.Capacity<
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedType
+                    > episodeIdentifiedListCapacityFactory,
+            CollectionFactory.Collection<
+                    EpisodeIdentifiedSetType,
+                    EpisodeIdentifiedType
+                    > episodeIdentifiedSetCollectionFactory,
+            CollectionFactory.Capacity<
+                    EpisodeIdentifierOptListType,
+                    EpisodeIdentifierOptType
+                    > episodeIdentifierOptListCapacityFactory,
+            DimDatabase<MarkerType> dimDatabase) {
+        super(dimDatabase);
+
+        this.episodeFactory = episodeFactory;
+        this.episodeIdentifierFactory = episodeIdentifierFactory;
+        this.episodeIdentifiedFactory = episodeIdentifiedFactory;
+        this.episodeIdentifierEmptyOptFactory = episodeIdentifierEmptyOptFactory;
+        this.episodeIdentifierNonEmptyOptFactory = episodeIdentifierNonEmptyOptFactory;
+        this.episodeIdentifiedListCapacityFactory = episodeIdentifiedListCapacityFactory;
+        this.episodeIdentifiedSetCollectionFactory = episodeIdentifiedSetCollectionFactory;
+        this.episodeIdentifierOptListCapacityFactory = episodeIdentifierOptListCapacityFactory;
+    }
+
+    EpisodeIdentifierOptType insertEpisode(
             PodcastIdentifierType podcastIdentifier,
             EpisodeType episode
     ) {
@@ -113,15 +186,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         }
     }
 
-    <
-            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
-            EpisodeIdentifiedType extends EpisodeIdentified2<
-                    EpisodeIdentifierType,
-                    EpisodeType
-                    >,
-            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-            EpisodeType extends Episode2
-            > int updateEpisodeIdentified(
+    int updateEpisodeIdentified(
             PodcastIdentifierType podcastIdentifier,
             EpisodeIdentifiedType episodeIdentified) {
         return dimDatabase.update(
@@ -136,45 +201,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         );
     }
 
-    <
-            EpisodeIdentifiedType extends EpisodeIdentified2<
-                    EpisodeIdentifierType,
-                    EpisodeType
-                    >,
-            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-            EpisodeType extends Episode2,
-            EpisodeIdentifierOptType extends EpisodeIdentifierOpt2<
-                    EpisodeIdentifierType,
-                    EpisodeType
-                    >,
-            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
-            EpisodeListType extends EpisodeList2<EpisodeType>,
-            EpisodeIdentifierOptListType extends EpisodeIdentifierOptList2<
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierType,
-                    EpisodeType
-                    >
-            > EpisodeIdentifierOptListType upsertEpisodes(
-            Identified2.Identifier2.IdentifierFactory2<
-                    EpisodeIdentifierType
-                    > episodeIdentifierFactory,
-            Identified2.IdentifiedFactory2<
-                    EpisodeIdentifiedType,
-                    EpisodeIdentifierType,
-                    EpisodeType
-                    > episodeIdentifiedFactory,
-            Opt2.EmptyOptFactory<
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierType
-                    > episodeIdentifierEmptyOptFactory,
-            Opt2.NonEmptyOptFactory<
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierType
-                    > episodeIdentifierNonEmptyOptFactory,
-            CollectionFactory.Capacity<
-                    EpisodeIdentifierOptListType,
-                    EpisodeIdentifierOptType
-                    > capacityCollectionFactory,
+    EpisodeIdentifierOptListType upsertEpisodes(
             PodcastIdentifierType podcastIdentifier,
             EpisodeListType episodes
     ) {
@@ -190,9 +217,6 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                 episodeIdentifiedFactory,
                 episode ->
                         insertEpisode(
-                                episodeIdentifierEmptyOptFactory,
-                                episodeIdentifierNonEmptyOptFactory,
-                                episodeIdentifierFactory,
                                 podcastIdentifier,
                                 episode
 
@@ -204,20 +228,20 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                         ),
                 episodeIdentifierEmptyOptFactory,
                 episodeIdentifierNonEmptyOptFactory,
-                capacityCollectionFactory
+                episodeIdentifierOptListCapacityFactory
         );
     }
 
-    int deleteEpisode(EpisodeIdentifier episodeIdentifier) {
+    int deleteEpisode(EpisodeIdentifierType episodeIdentifier) {
         return dimDatabase.delete(
                 TABLE_EPISODE,
                 ID + " = ?",
-                Long.toString(episodeIdentifier.id)
+                Long.toString(episodeIdentifier.getId())
         );
     }
 
-    int deleteEpisodes(Collection<EpisodeIdentifier> episodeIdentifiers) {
-        final String[] idStrings = idStrings(episodeIdentifiers);
+    int deleteEpisodes(Collection<EpisodeIdentifierType> episodeIdentifiers) {
+        final String[] idStrings = idStrings2(episodeIdentifiers);
         return dimDatabase.delete(
                 TABLE_EPISODE,
                 ID + inPlaceholderClause(episodeIdentifiers.size()),
@@ -225,7 +249,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         );
     }
 
-    Observable<EpisodeIdentifiedSet> observeQueryForAllEpisodeIdentifieds() {
+    Observable<EpisodeIdentifiedSetType> observeQueryForAllEpisodeIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_EPISODE)
@@ -240,17 +264,19 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                         ),
                         query
                 )
-                .mapToList(EpisodeTable::getEpisodeIdentified)
-                .map(EpisodeIdentifiedSet::new);
+                .mapToList(this::getEpisodeIdentified)
+                .map(episodeIdentifiedSetCollectionFactory::newCollection);
     }
 
-    Observable<EpisodeIdentifiedList> observeQueryForEpisodeIdentifiedsForPodcast(PodcastIdentifier podcastIdentifier) {
+    Observable<EpisodeIdentifiedListType> observeQueryForEpisodeIdentifiedsForPodcast(
+            PodcastIdentifierType podcastIdentifier
+    ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_EPISODE)
                         .selection(
                                 PODCAST_ID + " = ?",
-                                new Object[]{podcastIdentifier.id}
+                                new Object[]{podcastIdentifier.getId()}
                         )
                         .orderBy(SORT)
                         .columns(COLUMNS_ALL_BUT_PODCAST_ID)
@@ -265,13 +291,13 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                         query
                 )
                 .mapToSpecificList(
-                        EpisodeTable::getEpisodeIdentified,
-                        EpisodeIdentifiedList::new
+                        this::getEpisodeIdentified,
+                        episodeIdentifiedListCapacityFactory::newCollection
                 );
     }
 
-    Observable<EpisodeIdentifiedOpt> observeQueryForEpisodeIdentified(
-            EpisodeIdentifier episodeIdentifier
+    Observable<Optional<EpisodeIdentifiedType>> observeQueryForEpisodeIdentified(
+            EpisodeIdentifierType episodeIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
@@ -279,7 +305,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                         .columns(COLUMNS_ALL_BUT_PODCAST_ID)
                         .selection(
                                 ID + "= ?",
-                                new Object[]{episodeIdentifier.id}
+                                new Object[]{episodeIdentifier.getId()}
                         ).create();
 
         return dimDatabase
@@ -290,8 +316,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                         ),
                         query
                 )
-                .mapToOptional(EpisodeTable::getEpisodeIdentified)
-                .map(EpisodeIdentifiedOpt.FACTORY::fromOptional);
+                .mapToOptional(this::getEpisodeIdentified);
     }
 
     static void createEpisodeTable(SupportSQLiteDatabase db) {
@@ -335,15 +360,15 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
                 + " ON " + TABLE_EPISODE + "(" + URL + ")");
     }
 
-    static EpisodeIdentified getEpisodeIdentified(Cursor cursor) {
-        return new EpisodeIdentified(
-                new EpisodeIdentifier(
+    EpisodeIdentifiedType getEpisodeIdentified(Cursor cursor) {
+        return episodeIdentifiedFactory.newIdentified(
+                episodeIdentifierFactory.newIdentifier(
                         getNonnullInt(
                                 cursor,
                                 ID
                         )
                 ),
-                new Episode(
+                episodeFactory.newEpisode(
                         getNullableURLFromString(
                                 cursor,
                                 ARTWORK_URL
@@ -372,10 +397,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         );
     }
 
-    static <
-            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
-            EpisodeType extends Episode2
-            > ContentValues getEpisodeContentValues(
+    ContentValues getEpisodeContentValues(
             PodcastIdentifierType podcastIdentifier,
             EpisodeType episode
     ) {
@@ -418,15 +440,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
         return values;
     }
 
-    static <
-            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2,
-            EpisodeIdentifiedType extends EpisodeIdentified2<
-                    EpisodeIdentifierType,
-                    EpisodeType
-                    >,
-            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-            EpisodeType extends Episode2
-            > ContentValues getEpisodeIdentifiedContentValues(
+    ContentValues getEpisodeIdentifiedContentValues(
             PodcastIdentifierType podcastIdentifier,
             EpisodeIdentifiedType episodeIdentified
     ) {
@@ -445,7 +459,7 @@ final class EpisodeTable<MarkerType> extends Table<MarkerType> {
     }
 
     private static final class EpisodeTableUpsertAdapter<
-            PodcastIdentifierType extends PodcastIdentified2.PodcastIdentifier2
+            PodcastIdentifierType extends Podcast2.PodcastIdentifier2
             > implements UpsertAdapter<String> {
         private final PodcastIdentifierType podcastIdentifier;
 

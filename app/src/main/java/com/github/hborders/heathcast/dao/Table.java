@@ -59,7 +59,7 @@ abstract class Table<MarkerType> {
                     IdentifierType,
                     ModelType
                     >,
-            IdentifierType extends Identified2.Identifier2,
+            IdentifierType extends Identifier2,
             ModelType
             > void putIdentifier2(
             ContentValues contentValues,
@@ -70,7 +70,7 @@ abstract class Table<MarkerType> {
     }
 
     protected static <
-            IdentifierType extends Identified2.Identifier2,
+            IdentifierType extends Identifier2,
             ModelType
             > void putIdentifier2(
             ContentValues contentValues,
@@ -265,7 +265,7 @@ abstract class Table<MarkerType> {
     }
 
     protected final <
-            IdentifierType extends Identified2.Identifier2,
+            IdentifierType extends Identifier2,
             IdentifiedType extends Identified2<
                     IdentifierType,
                     ModelType
@@ -286,7 +286,7 @@ abstract class Table<MarkerType> {
                     ModelType,
                     SecondaryKeyType
                     > modelSecondaryKeyGetter,
-            Identified2.Identifier2.IdentifierFactory2<
+            Identifier2.IdentifierFactory2<
                     IdentifierType
                     > identifierFactory,
             Identified2.IdentifiedFactory2<
@@ -431,6 +431,19 @@ abstract class Table<MarkerType> {
         int i = 0;
         for (Identifier<?> identifier : identifiers) {
             idStrings[i] = Long.toString(identifier.id);
+            i++;
+        }
+
+        return idStrings;
+    }
+
+    protected static <
+            IdentifierType extends Identifier2
+            > String[] idStrings2(Collection<IdentifierType> identifiers) {
+        final String[] idStrings = new String[identifiers.size()];
+        int i = 0;
+        for (IdentifierType identifier : identifiers) {
+            idStrings[i] = Long.toString(identifier.getId());
             i++;
         }
 
