@@ -4,8 +4,6 @@ import android.content.ContentValues;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
@@ -14,7 +12,11 @@ import static com.github.hborders.heathcast.dao.PodcastSearchTable.FOREIGN_KEY_P
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 
-final class PodcastSearchResultTable<N> extends Table<N> {
+final class PodcastSearchResultTable<
+        MarkerType,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2
+        > extends Table<MarkerType> {
     static final String TABLE_PODCAST_SEARCH_RESULT = "podcast_search_result";
 
     static final String ID = "_id";
@@ -22,25 +24,34 @@ final class PodcastSearchResultTable<N> extends Table<N> {
     static final String PODCAST_SEARCH_ID = FOREIGN_KEY_PODCAST_SEARCH;
     static final String SORT = "sort";
 
-    private static final String[] COLUMNS_ALL_BUT_SORT = new String[] {
+    private static final String[] COLUMNS_ALL_BUT_SORT = new String[]{
             ID,
             PODCAST_ID,
             PODCAST_SEARCH_ID
     };
 
-    PodcastSearchResultTable(DimDatabase<N> dimDatabase) {
+    PodcastSearchResultTable(DimDatabase<MarkerType> dimDatabase) {
         super(dimDatabase);
     }
 
     long insertPodcastSearchResult(
-            PodcastIdentifier podcastIdentifier,
-            PodcastSearchIdentifier podcastSearchIdentifier,
+            PodcastIdentifierType podcastIdentifier,
+            PodcastSearchIdentifierType podcastSearchIdentifier,
             int sort
     ) {
         final ContentValues values = new ContentValues(3);
-        values.put(PODCAST_ID, podcastIdentifier.id);
-        values.put(PODCAST_SEARCH_ID, podcastSearchIdentifier.id);
-        values.put(SORT, sort);
+        values.put(
+                PODCAST_ID,
+                podcastIdentifier.getId()
+        );
+        values.put(
+                PODCAST_SEARCH_ID,
+                podcastSearchIdentifier.getId()
+        );
+        values.put(
+                SORT,
+                sort
+        );
 
         return dimDatabase.insert(
                 TABLE_PODCAST_SEARCH_RESULT,
@@ -49,11 +60,11 @@ final class PodcastSearchResultTable<N> extends Table<N> {
         );
     }
 
-    int deletePodcastSearchResultsByPodcastSearchIdentifier(PodcastSearchIdentifier podcastSearchIdentifier) {
+    int deletePodcastSearchResultsByPodcastSearchIdentifier(PodcastIdentifierType podcastSearchIdentifier) {
         return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH_RESULT,
                 PODCAST_SEARCH_ID + " = ?",
-                Long.toString(podcastSearchIdentifier.id)
+                Long.toString(podcastSearchIdentifier.getId())
         );
     }
 
