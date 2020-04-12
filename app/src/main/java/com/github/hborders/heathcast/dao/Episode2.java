@@ -11,6 +11,17 @@ import java.util.List;
 import java.util.Set;
 
 public interface Episode2 {
+    interface EpisodeFactory2<EpisodeType extends Episode2> {
+        EpisodeType newEpisode(
+                @Nullable URL artworkURL,
+                @Nullable Duration duration,
+                @Nullable Date publishDate,
+                @Nullable String summary,
+                String title,
+                URL url
+        );
+    }
+
     interface EpisodeIdentified2<
             EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
             EpisodeType extends Episode2
@@ -78,17 +89,6 @@ public interface Episode2 {
                     > extends List<EpisodeIdentifierOptType> {
             }
         }
-    }
-
-    interface EpisodeFactory<EpisodeType extends Episode2> {
-        EpisodeType newEpisode(
-                @Nullable URL artworkURL,
-                @Nullable Duration duration,
-                @Nullable Date publishDate,
-                @Nullable String summary,
-                String title,
-                URL url
-        );
     }
 
     @Nullable

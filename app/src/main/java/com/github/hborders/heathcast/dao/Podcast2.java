@@ -9,6 +9,15 @@ import java.util.List;
 import java.util.Set;
 
 public interface Podcast2 {
+    interface PodcastFactory2<PodcastType extends Podcast2> {
+        PodcastType newPodcast(
+                @Nullable URL artworkURL,
+                @Nullable String author,
+                URL feedURL,
+                String name
+        );
+    }
+
     interface PodcastIdentified2<
             PodcastIdentifierType extends PodcastIdentifier2,
             PodcastType extends Podcast2

@@ -46,11 +46,19 @@ abstract class Table<MarkerType> {
         this.dimDatabase = dimDatabase;
     }
 
-    protected static void putIdentifier(ContentValues contentValues, String key, Identified<?, ?> identified) {
+    protected static void putIdentifier(
+            ContentValues contentValues,
+            String key,
+            Identified<?, ?> identified
+    ) {
         putIdentifier(contentValues, key, identified.identifier);
     }
 
-    protected static void putIdentifier(ContentValues contentValues, String key, Identifier<?> identifier) {
+    protected static void putIdentifier(
+            ContentValues contentValues,
+            String key,
+            Identifier<?> identifier
+    ) {
         contentValues.put(key, identifier.id);
     }
 
@@ -120,6 +128,83 @@ abstract class Table<MarkerType> {
                         upsertedIdentifierOpt = optFactory.of(upsertingIdentifier);
                     } else {
                         upsertedIdentifierOpt = optFactory.empty();
+                    }
+                } else {
+                    upsertedIdentifierOpt = modelInserter
+                            .apply(model);
+                }
+            }
+
+            transaction.markSuccessful();
+
+            return upsertedIdentifierOpt;
+        }
+    }
+
+    protected final <
+            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            ModelType,
+            IdentifierOptType extends Opt2<IdentifierType>,
+            SecondaryKeyType
+            > IdentifierOptType upsertModel2(
+            UpsertAdapter<SecondaryKeyType> upsertAdapter,
+            // secondaryKeyClass exists to force S not to be Serializable or some other
+            // unexpected superclass of unrelated Model and Cursor property classes.
+            // however, we don't actually need the parameter, so we suppress unused.
+            @SuppressWarnings("unused") Class<SecondaryKeyType> secondaryKeyClass,
+            ModelType model,
+            Function<
+                    ModelType,
+                    SecondaryKeyType>
+                    modelSecondaryKeyGetter,
+            Identifier2.IdentifierFactory2<
+                    IdentifierType
+                    > identifierFactory,
+            Identified2.IdentifiedFactory2<
+                    IdentifiedType,
+                    IdentifierType,
+                    ModelType
+                    > identifiedFactory,
+            Function<
+                    ModelType,
+                    IdentifierOptType
+                    > modelInserter,
+            Function<
+                    IdentifiedType,
+                    Integer
+                    > identifiedUpdater,
+            Opt2.EmptyOptFactory<
+                    IdentifierOptType,
+                    IdentifierType
+                    > emptyOptFactory,
+            Opt2.NonEmptyOptFactory<
+                    IdentifierOptType,
+                    IdentifierType
+                    > nonEmptyOptFactory
+    ) {
+        try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
+            final SecondaryKeyType secondaryKey = modelSecondaryKeyGetter.apply(model);
+
+            final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
+                    upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
+            @Nullable final IdentifierOptType upsertedIdentifierOpt;
+            try (final Cursor primaryAndSecondaryKeyCursor = dimDatabase.query(primaryAndSecondaryKeyQuery)) {
+                if (primaryAndSecondaryKeyCursor.moveToNext()) {
+                    final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
+                    final IdentifierType upsertingIdentifier = identifierFactory.newIdentifier(primaryKey);
+                    final IdentifiedType updatingIdentified = identifiedFactory.newIdentified(
+                            upsertingIdentifier,
+                            model
+                    );
+                    int rowCount = identifiedUpdater.apply(updatingIdentified);
+                    if (rowCount == 1) {
+                        upsertedIdentifierOpt = nonEmptyOptFactory.newOpt(upsertingIdentifier);
+                    } else {
+                        upsertedIdentifierOpt = emptyOptFactory.newOpt();
                     }
                 } else {
                     upsertedIdentifierOpt = modelInserter

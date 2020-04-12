@@ -9,19 +9,15 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
-import com.github.hborders.heathcast.models.PodcastIdentifiedSet;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.PodcastIdentifierOpt;
-import com.github.hborders.heathcast.models.PodcastIdentifierOptList;
+import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.core.Opt2;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import io.reactivex.Observable;
 
@@ -35,7 +31,27 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFro
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 import static com.github.hborders.heathcast.dao.EpisodeTable.TABLE_EPISODE;
 
-final class PodcastTable<N> extends Table<N> {
+final class PodcastTable<
+        MarkerType,
+        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastType extends Podcast2,
+        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+                PodcastIdentifierOptType,
+                PodcastIdentifierType
+                >,
+        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<
+                PodcastIdentifierType
+                >
+        > extends Table<MarkerType> {
     static final String TABLE_PODCAST = "podcast";
 
     static final String ARTWORK_URL = "artwork_url";
@@ -61,69 +77,134 @@ final class PodcastTable<N> extends Table<N> {
             cursor -> CursorUtil.getNonnullString(cursor, FEED_URL)
     );
 
-    PodcastTable(DimDatabase<N> dimDatabase) {
+    private final Podcast2.PodcastFactory2<PodcastType> podcastFactory;
+    private final Identifier2.IdentifierFactory2<
+            PodcastIdentifierType
+            > podcastIdentifierFactory;
+    private final Identified2.IdentifiedFactory2<
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType
+            > podcastIdentifiedFactory;
+    private final Opt2.EmptyOptFactory<
+            PodcastIdentifierOptType,
+            PodcastIdentifierType
+            > podcastIdentifierEmptyOptFactory;
+    private final Opt2.NonEmptyOptFactory<
+            PodcastIdentifierOptType,
+            PodcastIdentifierType
+            > podcastIdentifierNonEmptyOptFactory;
+    private final CollectionFactory.Collection<
+            PodcastIdentifiedSetType,
+            PodcastIdentifiedType
+            > podcastIdentifiedSetCollectionFactory;
+    private final CollectionFactory.Capacity<
+            PodcastIdentifierOptListType,
+            PodcastIdentifierOptType
+            > podcastIdentifierOptListCapacityFactory;
+
+    PodcastTable(
+            DimDatabase<MarkerType> dimDatabase,
+            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier2.IdentifierFactory2<
+                    PodcastIdentifierType
+                    > podcastIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    PodcastIdentifiedType,
+                    PodcastIdentifierType,
+                    PodcastType
+                    > podcastIdentifiedFactory,
+            Opt2.EmptyOptFactory<
+                    PodcastIdentifierOptType,
+                    PodcastIdentifierType
+                    > podcastIdentifierEmptyOptFactory,
+            Opt2.NonEmptyOptFactory<
+                    PodcastIdentifierOptType,
+                    PodcastIdentifierType
+                    > podcastIdentifierNonEmptyOptFactory,
+            CollectionFactory.Collection<
+                    PodcastIdentifiedSetType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedSetCollectionFactory,
+            CollectionFactory.Capacity<
+                    PodcastIdentifierOptListType,
+                    PodcastIdentifierOptType
+                    > podcastIdentifierOptListCapacityFactory
+    ) {
         super(dimDatabase);
+
+        this.podcastFactory = podcastFactory;
+        this.podcastIdentifierFactory = podcastIdentifierFactory;
+        this.podcastIdentifiedFactory = podcastIdentifiedFactory;
+        this.podcastIdentifierEmptyOptFactory = podcastIdentifierEmptyOptFactory;
+        this.podcastIdentifierNonEmptyOptFactory = podcastIdentifierNonEmptyOptFactory;
+        this.podcastIdentifiedSetCollectionFactory = podcastIdentifiedSetCollectionFactory;
+        this.podcastIdentifierOptListCapacityFactory = podcastIdentifierOptListCapacityFactory;
     }
 
-    PodcastIdentifierOpt insertPodcast(Podcast podcast) {
+    PodcastIdentifierOptType insertPodcast(PodcastType podcast) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastContentValues(podcast)
         );
         if (id == -1) {
-            return PodcastIdentifierOpt.EMPTY;
+            return podcastIdentifierEmptyOptFactory.newOpt();
         } else {
-            return new PodcastIdentifierOpt(new PodcastIdentifier(id));
+            return podcastIdentifierNonEmptyOptFactory.newOpt(
+                    podcastIdentifierFactory.newIdentifier(id)
+            );
         }
     }
 
-    int updatePodcastIdentified(PodcastIdentified identifiedPodcast) {
+    int updatePodcastIdentified(PodcastIdentifiedType identifiedPodcast) {
         return dimDatabase.update(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastIdentifiedContentValues(identifiedPodcast),
                 ID + " = ?",
-                Long.toString(identifiedPodcast.identifier.id)
+                Long.toString(identifiedPodcast.getIdentifier().getId())
         );
     }
 
-    PodcastIdentifierOpt upsertPodcast(Podcast podcast) {
-        return upsertModel(
+    PodcastIdentifierOptType upsertPodcast(PodcastType podcast) {
+        return upsertModel2(
                 upsertAdapter,
                 String.class,
                 podcast,
-                podcast_ -> podcast_.feedURL.toExternalForm(),
-                PodcastIdentifier::new,
-                PodcastIdentified::new,
+                podcast_ -> podcast_.getFeedURL().toExternalForm(),
+                podcastIdentifierFactory,
+                podcastIdentifiedFactory,
                 this::insertPodcast,
                 this::updatePodcastIdentified,
-                PodcastIdentifierOpt.FACTORY
+                podcastIdentifierEmptyOptFactory,
+                podcastIdentifierNonEmptyOptFactory
         );
     }
 
-    PodcastIdentifierOptList upsertPodcasts(List<Podcast> podcasts) {
-        return upsertModels(
+    PodcastIdentifierOptListType upsertPodcasts(List<PodcastType> podcasts) {
+        return upsertModels2(
                 upsertAdapter,
                 String.class,
                 podcasts,
-                podcast -> podcast.feedURL.toExternalForm(),
-                PodcastIdentifier::new,
-                PodcastIdentified::new,
+                podcast -> podcast.getFeedURL().toExternalForm(),
+                podcastIdentifierFactory,
+                podcastIdentifiedFactory,
                 this::insertPodcast,
                 this::updatePodcastIdentified,
-                PodcastIdentifierOpt.FACTORY,
-                PodcastIdentifierOptList::new
+                podcastIdentifierEmptyOptFactory,
+                podcastIdentifierNonEmptyOptFactory,
+                podcastIdentifierOptListCapacityFactory::newCollection
         );
     }
 
-    int deletePodcast(PodcastIdentifier podcastIdentifier) {
+    int deletePodcast(PodcastIdentifierType podcastIdentifier) {
         final SupportSQLiteStatement deleteStatement =
                 dimDatabase.getWritableDatabase().compileStatement(
                         "DELETE FROM " + TABLE_PODCAST
                                 + " WHERE " + ID + " = ?"
                 );
-        deleteStatement.bindLong(1, podcastIdentifier.id);
+        deleteStatement.bindLong(1, podcastIdentifier.getId());
         return dimDatabase.executeUpdateDelete(
                 new HashSet<>(
                         Arrays.asList(
@@ -135,8 +216,8 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    int deletePodcasts(Collection<PodcastIdentifier> podcastIdentifiers) {
-        final String[] idStrings = idStrings(podcastIdentifiers);
+    int deletePodcasts(Collection<PodcastIdentifierType> podcastIdentifiers) {
+        final String[] idStrings = idStrings2(podcastIdentifiers);
         return dimDatabase.delete(
                 TABLE_PODCAST,
                 ID + inPlaceholderClause(podcastIdentifiers.size()),
@@ -144,14 +225,14 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    void triggerMarked(N marker) {
+    void triggerMarked(MarkerType marker) {
         dimDatabase.triggerMarked(
                 marker,
                 TABLE_PODCAST
         );
     }
 
-    Observable<PodcastIdentifiedSet> observeQueryForAllPodcastIdentifieds() {
+    Observable<PodcastIdentifiedSetType> observeQueryForAllPodcastIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_PODCAST)
@@ -163,12 +244,12 @@ final class PodcastTable<N> extends Table<N> {
                         TABLE_PODCAST,
                         query
                 )
-                .mapToList(PodcastTable::getPodcastIdentified)
-                .map(PodcastIdentifiedSet::new);
+                .mapToList(this::getPodcastIdentified)
+                .map(podcastIdentifiedSetCollectionFactory::newCollection);
     }
 
-    Observable<PodcastIdentifiedOpt> observeQueryForPodcastIdentified(
-            PodcastIdentifier podcastIdentifier
+    Observable<Optional<PodcastIdentifiedType>> observeQueryForPodcastIdentified(
+            PodcastIdentifierType podcastIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
@@ -176,7 +257,7 @@ final class PodcastTable<N> extends Table<N> {
                         .columns(COLUMNS_ALL)
                         .selection(
                                 ID + "= ?",
-                                new Object[]{podcastIdentifier.id}
+                                new Object[]{podcastIdentifier.getId()}
                         ).create();
 
         return dimDatabase
@@ -184,8 +265,7 @@ final class PodcastTable<N> extends Table<N> {
                         TABLE_PODCAST,
                         query
                 )
-                .mapToOptional(PodcastTable::getPodcastIdentified)
-                .map(PodcastIdentifiedOpt.FACTORY::fromOptional);
+                .mapToOptional(this::getPodcastIdentified);
     }
 
     static void createPodcastTable(SupportSQLiteDatabase db) {
@@ -201,15 +281,15 @@ final class PodcastTable<N> extends Table<N> {
                 + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
     }
 
-    static PodcastIdentified getPodcastIdentified(Cursor cursor) {
-        return new PodcastIdentified(
-                new PodcastIdentifier(
+    PodcastIdentifiedType getPodcastIdentified(Cursor cursor) {
+        return podcastIdentifiedFactory.newIdentified(
+                podcastIdentifierFactory.newIdentifier(
                         getNonnullInt(
                                 cursor,
                                 ID
                         )
                 ),
-                new Podcast(
+                podcastFactory.newPodcast(
                         getNullableURLFromString(
                                 cursor,
                                 ARTWORK_URL
@@ -230,34 +310,34 @@ final class PodcastTable<N> extends Table<N> {
         );
     }
 
-    static ContentValues getPodcastContentValues(Podcast podcast) {
+    ContentValues getPodcastContentValues(PodcastType podcast) {
         final ContentValues values = new ContentValues(5);
 
         putURLAsString(
                 values,
-                ARTWORK_URL
-                , podcast.artworkURL
+                ARTWORK_URL,
+                podcast.getArtworkURL()
         );
         values.put(
                 AUTHOR,
-                podcast.author
+                podcast.getAuthor()
         );
         putURLAsString(
                 values,
                 FEED_URL,
-                podcast.feedURL
+                podcast.getFeedURL()
         );
         values.put(
                 NAME,
-                podcast.name
+                podcast.getName()
         );
 
         return values;
     }
 
-    static ContentValues getPodcastIdentifiedContentValues(PodcastIdentified identifiedPodcast) {
-        final ContentValues values = getPodcastContentValues(identifiedPodcast.model);
-        putIdentifier(
+    ContentValues getPodcastIdentifiedContentValues(PodcastIdentifiedType identifiedPodcast) {
+        final ContentValues values = getPodcastContentValues(identifiedPodcast.getModel());
+        putIdentifier2(
                 values,
                 ID,
                 identifiedPodcast

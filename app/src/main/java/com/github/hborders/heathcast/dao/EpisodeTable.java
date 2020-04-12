@@ -92,7 +92,7 @@ final class EpisodeTable<
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
 
-    private final Episode2.EpisodeFactory<EpisodeType> episodeFactory;
+    private final Episode2.EpisodeFactory2<EpisodeType> episodeFactory2;
     private final Identifier2.IdentifierFactory2<
             EpisodeIdentifierType
             > episodeIdentifierFactory;
@@ -123,7 +123,7 @@ final class EpisodeTable<
             > episodeIdentifierOptListCapacityFactory;
 
     EpisodeTable(
-            Episode2.EpisodeFactory<EpisodeType> episodeFactory,
+            Episode2.EpisodeFactory2<EpisodeType> episodeFactory2,
             Identifier2.IdentifierFactory2<
                     EpisodeIdentifierType
                     > episodeIdentifierFactory,
@@ -155,7 +155,7 @@ final class EpisodeTable<
             DimDatabase<MarkerType> dimDatabase) {
         super(dimDatabase);
 
-        this.episodeFactory = episodeFactory;
+        this.episodeFactory2 = episodeFactory2;
         this.episodeIdentifierFactory = episodeIdentifierFactory;
         this.episodeIdentifiedFactory = episodeIdentifiedFactory;
         this.episodeIdentifierEmptyOptFactory = episodeIdentifierEmptyOptFactory;
@@ -368,7 +368,7 @@ final class EpisodeTable<
                                 ID
                         )
                 ),
-                episodeFactory.newEpisode(
+                episodeFactory2.newEpisode(
                         getNullableURLFromString(
                                 cursor,
                                 ARTWORK_URL
