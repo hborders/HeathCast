@@ -60,7 +60,7 @@ final class PodcastSearchResultTable<
         );
     }
 
-    int deletePodcastSearchResultsByPodcastSearchIdentifier(PodcastIdentifierType podcastSearchIdentifier) {
+    int deletePodcastSearchResultsByPodcastSearchIdentifier(PodcastSearchIdentifierType podcastSearchIdentifier) {
         return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH_RESULT,
                 PODCAST_SEARCH_ID + " = ?",

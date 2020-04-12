@@ -20,6 +20,13 @@ public interface Opt2<ValueType> {
         OptType newOpt(ValueType value);
     }
 
+    default void act(VoidFunction<? super ValueType> action) {
+        @Nullable final ValueType value = getValue();
+        if (value != null) {
+            action.apply(value);
+        }
+    }
+
     @Nullable
     ValueType getValue();
 

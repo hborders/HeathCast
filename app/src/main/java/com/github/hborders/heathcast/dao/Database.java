@@ -2,6 +2,7 @@ package com.github.hborders.heathcast.dao;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback;
@@ -9,9 +10,10 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
+import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.ListUtil;
+import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.core.Result;
-import com.github.hborders.heathcast.models.PodcastSearchIdentified;
 import com.stealthmountain.sqldim.DimDatabase;
 import com.stealthmountain.sqldim.SqlDim;
 import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
@@ -20,54 +22,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Nullable;
-
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
 public final class Database<
         MarkerType,
-        PodcastSearchType extends PodcastSearch2,
-        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
-                PodcastSearchIdentifierType,
-                PodcastSearchType
-                >,
-        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
-        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
-                PodcastSearchIdentifiedType,
-                PodcastSearchIdentifierType,
-                PodcastSearchType
-                >,
-        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
-                PodcastSearchIdentifierType
-                >,
-        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastType extends Podcast2,
-        PodcastIdentifiedListType extends Podcast2.PodcastIdentified2.PodcastIdentifiedList2<
-                        PodcastIdentifiedType,
-                        PodcastIdentifierType,
-                        PodcastType
-                        >,
-        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
-                PodcastIdentifierOptType,
-                PodcastIdentifierType
-                >,
-        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
+        EpisodeType extends Episode2,
         EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
-        EpisodeType extends Episode2,
         EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
@@ -78,23 +42,68 @@ public final class Database<
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
+        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
+        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<EpisodeIdentifierType>,
         EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
                 EpisodeIdentifierOptType,
                 EpisodeIdentifierType
                 >,
-        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<EpisodeIdentifierType>,
         EpisodeListType extends EpisodeList2<
                 EpisodeType
                 >,
-        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
-                SubscriptionIdentifierType,
-                SubscriptionType,
+        PodcastType extends Podcast2,
+        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifiedListType extends Podcast2.PodcastIdentified2.PodcastIdentifiedList2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
+        PodcastIdentifiedOptType extends Podcast2.PodcastIdentified2.PodcastIdentifiedOpt2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+                PodcastIdentifierOptType,
+                PodcastIdentifierType
+                >,
+        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
+        PodcastSearchType extends PodcastSearch2,
+        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
+                PodcastSearchIdentifiedType,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifiedOptType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedOpt2<
+                PodcastSearchIdentifiedType,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
+        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
+                PodcastSearchIdentifierType
+                >,
         SubscriptionType extends Subscription2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
+                SubscriptionIdentifierType,
+                SubscriptionType,
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
@@ -107,26 +116,69 @@ public final class Database<
                 PodcastIdentifierType,
                 PodcastType
                 >,
+        SubscriptionIdentifiedOptType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedOpt2<
+                SubscriptionIdentifiedType,
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
         SubscriptionIdentifierOptType extends Subscription2.SubscriptionIdentifier2.SubscriptionIdentifierOpt2<SubscriptionIdentifierType>
         > {
-    private final DimDatabase<MarkerType> dimDatabase;
-    final PodcastSearchTable<
-            MarkerType,
-            PodcastSearchType,
-            PodcastSearchIdentifiedType,
-            PodcastSearchIdentifierType,
-            PodcastSearchIdentifiedListType,
-            PodcastSearchIdentifierOptType
-            > podcastSearchTable;
-    final PodcastTable<
-            MarkerType,
+
+    private final Identified2.IdentifiedFactory2<
             PodcastIdentifiedType,
             PodcastIdentifierType,
-            PodcastType,
-            PodcastIdentifiedSetType,
-            PodcastIdentifierOptListType,
-            PodcastIdentifierOptType
-            > podcastTable;
+            PodcastType
+            > podcastIdentifiedFactory;
+    private final CollectionFactory.Capacity<
+            PodcastIdentifiedListType,
+            PodcastIdentifiedType
+            > podcastIdentifiedListCapacityFactory;
+    private final Opt2.OptEmptyFactory<
+            PodcastIdentifiedOptType,
+            PodcastIdentifiedType
+            > podcastIdentifiedOptEmptyFactory;
+    private final Opt2.OptNonEmptyFactory<
+            PodcastIdentifiedOptType,
+            PodcastIdentifiedType
+            > podcastIdentifiedOptNonEmptyFactory;
+    private final Identified2.IdentifiedFactory2<
+            PodcastSearchIdentifiedType,
+            PodcastSearchIdentifierType,
+            PodcastSearchType
+            > podcastSearchIdentifiedFactory;
+    private final Opt2.OptEmptyFactory<
+            PodcastSearchIdentifiedOptType,
+            PodcastSearchIdentifiedType
+            > podcastSearchIdentifiedOptEmptyFactory;
+    private final Opt2.OptNonEmptyFactory<
+            PodcastSearchIdentifiedOptType,
+            PodcastSearchIdentifiedType
+            > podcastSearchIdentifiedOptNonEmptyFactory;
+    private final Subscription2.SubscriptionFactory2<
+            SubscriptionType,
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType
+            > subscriptionFactory;
+    private final Identified2.IdentifiedFactory2<
+            SubscriptionIdentifiedType,
+            SubscriptionIdentifierType,
+            SubscriptionType
+            > subscriptionIdentifiedFactory;
+    private final Opt2.OptEmptyFactory<
+            SubscriptionIdentifiedOptType,
+            SubscriptionIdentifiedType
+            > subscriptionIdentifiedOptEmptyFactory;
+    private final Opt2.OptNonEmptyFactory<
+            SubscriptionIdentifiedOptType,
+            SubscriptionIdentifiedType
+            > subscriptionIdentifiedOptNonEmptyFactory;
+
+    private final DimDatabase<MarkerType> dimDatabase;
     final EpisodeTable<
             MarkerType,
             EpisodeIdentifiedType,
@@ -139,6 +191,23 @@ public final class Database<
             EpisodeListType,
             PodcastIdentifierType
             > episodeTable;
+    final PodcastTable<
+            MarkerType,
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType,
+            PodcastIdentifiedSetType,
+            PodcastIdentifierOptListType,
+            PodcastIdentifierOptType
+            > podcastTable;
+    final PodcastSearchTable<
+            MarkerType,
+            PodcastSearchType,
+            PodcastSearchIdentifiedType,
+            PodcastSearchIdentifierType,
+            PodcastSearchIdentifiedListType,
+            PodcastSearchIdentifierOptType
+            > podcastSearchTable;
     private final PodcastSearchResultTable<
             MarkerType,
             PodcastIdentifierType,
@@ -159,8 +228,147 @@ public final class Database<
     public Database(
             Context context,
             @Nullable String name,
-            Scheduler scheduler
+            Scheduler scheduler,
+            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
+            Identifier2.IdentifierFactory2<
+                    EpisodeIdentifierType
+                    > episodeIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    > episodeIdentifiedFactory,
+            Opt2.OptEmptyFactory<
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierOptNonEmptyFactory,
+            CollectionFactory.Capacity<
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedType
+                    > episodeIdentifiedListCapacityFactory,
+            CollectionFactory.Collection<
+                    EpisodeIdentifiedSetType,
+                    EpisodeIdentifiedType
+                    > episodeIdentifiedSetCollectionFactory,
+            CollectionFactory.Capacity<
+                    EpisodeIdentifierOptListType,
+                    EpisodeIdentifierOptType
+                    > episodeIdentifierOptListCapacityFactory,
+            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier2.IdentifierFactory2<
+                    PodcastIdentifierType
+                    > podcastIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    PodcastIdentifiedType,
+                    PodcastIdentifierType,
+                    PodcastType
+                    > podcastIdentifiedFactory,
+            CollectionFactory.Capacity<
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedListCapacityFactory,
+            Opt2.OptEmptyFactory<
+                    PodcastIdentifiedOptType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    PodcastIdentifiedOptType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedOptNonEmptyFactory,
+            Opt2.OptEmptyFactory<
+                    PodcastIdentifierOptType,
+                    PodcastIdentifierType
+                    > podcastIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    PodcastIdentifierOptType,
+                    PodcastIdentifierType
+                    > podcastIdentifierOptNonEmptyFactory,
+            CollectionFactory.Collection<
+                    PodcastIdentifiedSetType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedSetCollectionFactory,
+            CollectionFactory.Capacity<
+                    PodcastIdentifierOptListType,
+                    PodcastIdentifierOptType
+                    > podcastIdentifierOptListCapacityFactory,
+            PodcastSearch2.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory,
+            Identifier2.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    PodcastSearchIdentifiedType,
+                    PodcastSearchIdentifierType,
+                    PodcastSearchType
+                    > podcastSearchIdentifiedFactory,
+            CollectionFactory.Capacity<
+                    PodcastSearchIdentifiedListType,
+                    PodcastSearchIdentifiedType
+                    > podcastSearchIdentifiedListCapacityFactory,
+            Opt2.OptEmptyFactory<
+                    PodcastSearchIdentifiedOptType,
+                    PodcastSearchIdentifiedType
+                    > podcastSearchIdentifiedOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    PodcastSearchIdentifiedOptType,
+                    PodcastSearchIdentifiedType
+                    > podcastSearchIdentifiedOptNonEmptyFactory,
+            Opt2.OptEmptyFactory<
+                    PodcastSearchIdentifierOptType,
+                    PodcastSearchIdentifierType
+                    > podcastSearchIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    PodcastSearchIdentifierOptType,
+                    PodcastSearchIdentifierType
+                    > podcastSearchIdentifierOptNonEmptyFactory,
+            Subscription2.SubscriptionFactory2<
+                    SubscriptionType,
+                    PodcastIdentifiedType,
+                    PodcastIdentifierType,
+                    PodcastType
+                    > subscriptionFactory,
+            Identifier2.IdentifierFactory2<
+                    SubscriptionIdentifierType
+                    > subscriptionIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    SubscriptionIdentifiedType,
+                    SubscriptionIdentifierType,
+                    SubscriptionType
+                    > subscriptionIdentifiedFactory,
+            Opt2.OptEmptyFactory<
+                    SubscriptionIdentifiedOptType,
+                    SubscriptionIdentifiedType
+                    > subscriptionIdentifiedOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    SubscriptionIdentifiedOptType,
+                    SubscriptionIdentifiedType
+                    > subscriptionIdentifiedOptNonEmptyFactory,
+            Opt2.OptEmptyFactory<
+                    SubscriptionIdentifierOptType,
+                    SubscriptionIdentifierType
+                    > subscriptionIdentifierOptEmptyFactory,
+            Opt2.OptNonEmptyFactory<
+                    SubscriptionIdentifierOptType,
+                    SubscriptionIdentifierType
+                    > subscriptionIdentifierOptNonEmptyFactory,
+            CollectionFactory.Capacity<
+                    SubscriptionIdentifiedListType,
+                    SubscriptionIdentifiedType
+                    > subscriptionIdentifiedListCapacityFactory
     ) {
+        this.podcastIdentifiedFactory = podcastIdentifiedFactory;
+        this.podcastIdentifiedListCapacityFactory = podcastIdentifiedListCapacityFactory;
+        this.podcastIdentifiedOptEmptyFactory = podcastIdentifiedOptEmptyFactory;
+        this.podcastIdentifiedOptNonEmptyFactory = podcastIdentifiedOptNonEmptyFactory;
+        this.podcastSearchIdentifiedFactory = podcastSearchIdentifiedFactory;
+        this.podcastSearchIdentifiedOptEmptyFactory = podcastSearchIdentifiedOptEmptyFactory;
+        this.podcastSearchIdentifiedOptNonEmptyFactory = podcastSearchIdentifiedOptNonEmptyFactory;
+        this.subscriptionFactory = subscriptionFactory;
+        this.subscriptionIdentifiedFactory = subscriptionIdentifiedFactory;
+        this.subscriptionIdentifiedOptEmptyFactory = subscriptionIdentifiedOptEmptyFactory;
+        this.subscriptionIdentifiedOptNonEmptyFactory = subscriptionIdentifiedOptNonEmptyFactory;
+
         final Configuration configuration = Configuration
                 .builder(context)
                 .callback(new Schema())
@@ -173,19 +381,60 @@ public final class Database<
                 supportSQLiteOpenHelper,
                 scheduler
         );
-        podcastSearchTable = new PodcastSearchTable<>(dimDatabase);
-        podcastTable = new PodcastTable<>(dimDatabase);
-        episodeTable = new EpisodeTable<>(dimDatabase);
-        podcastSearchResultTable = new PodcastSearchResultTable<>(dimDatabase);
-        subscriptionTable = new SubscriptionTable<>(dimDatabase);
+        episodeTable = new EpisodeTable<>(
+                dimDatabase,
+                episodeFactory,
+                episodeIdentifierFactory,
+                episodeIdentifiedFactory,
+                episodeIdentifierOptEmptyFactory,
+                episodeIdentifierOptNonEmptyFactory,
+                episodeIdentifiedListCapacityFactory,
+                episodeIdentifiedSetCollectionFactory,
+                episodeIdentifierOptListCapacityFactory
+        );
+        podcastTable = new PodcastTable<>(
+                dimDatabase,
+                podcastFactory,
+                podcastIdentifierFactory,
+                podcastIdentifiedFactory,
+                podcastIdentifierOptEmptyFactory,
+                podcastIdentifierOptNonEmptyFactory,
+                podcastIdentifiedSetCollectionFactory,
+                podcastIdentifierOptListCapacityFactory
+        );
+        podcastSearchTable = new PodcastSearchTable<>(
+                dimDatabase,
+                podcastSearchFactory,
+                podcastSearchIdentifierFactory,
+                podcastSearchIdentifiedFactory,
+                podcastSearchIdentifiedListCapacityFactory,
+                podcastSearchIdentifierOptEmptyFactory,
+                podcastSearchIdentifierOptNonEmptyFactory
+        );
+        podcastSearchResultTable = new PodcastSearchResultTable<>(
+                dimDatabase
+        );
+        subscriptionTable = new SubscriptionTable<>(
+                dimDatabase,
+                subscriptionFactory,
+                subscriptionIdentifierFactory,
+                subscriptionIdentifiedFactory,
+                podcastFactory,
+                podcastIdentifierFactory,
+                podcastIdentifiedFactory,
+                subscriptionIdentifierOptEmptyFactory,
+                subscriptionIdentifierOptNonEmptyFactory,
+                subscriptionIdentifiedListCapacityFactory
+        );
     }
 
     public PodcastSearchIdentifiedOptType upsertPodcastSearch(PodcastSearchType podcastSearch) {
         return podcastSearchTable
                 .upsertPodcastSearch(podcastSearch)
                 .map(
-                        PodcastSearchIdentifiedOpt.FACTORY,
-                        podcastSearchIdentifier -> new PodcastSearchIdentified(
+                        podcastSearchIdentifiedOptEmptyFactory,
+                        podcastSearchIdentifiedOptNonEmptyFactory,
+                        podcastSearchIdentifier -> podcastSearchIdentifiedFactory.newIdentified(
                                 podcastSearchIdentifier,
                                 podcastSearch
                         )
@@ -198,13 +447,13 @@ public final class Database<
             List<PodcastType> podcasts
     ) {
         try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
-            podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.identifier);
+            podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.getIdentifier());
             ListUtil.indexedStream(podcasts).forEach(indexedPodcast ->
                     podcastTable.upsertPodcast(indexedPodcast.second).act(
                             podcastIdentifier ->
                                     podcastSearchResultTable.insertPodcastSearchResult(
                                             podcastIdentifier,
-                                            podcastSearchIdentified.identifier,
+                                            podcastSearchIdentified.getIdentifier(),
                                             indexedPodcast.first
                                     )
                     )
@@ -225,8 +474,9 @@ public final class Database<
         return podcastTable
                 .upsertPodcast(podcast)
                 .map(
-                        PodcastIdentifiedOpt.FACTORY,
-                        podcastIdentifier -> new PodcastIdentified(
+                        podcastIdentifiedOptEmptyFactory,
+                        podcastIdentifiedOptNonEmptyFactory,
+                        podcastIdentifier -> podcastIdentifiedFactory.newIdentified(
                                 podcastIdentifier,
                                 podcast
                         )
@@ -244,12 +494,13 @@ public final class Database<
     }
 
     public SubscriptionIdentifiedOptType subscribe(PodcastIdentifiedType podcastIdentified) {
-        return subscribe(podcastIdentified.identifier)
+        return subscribe(podcastIdentified.getIdentifier())
                 .map(
-                        SubscriptionIdentifiedOpt.FACTORY,
-                        subscriptionIdentifier -> new SubscriptionIdentified(
+                        subscriptionIdentifiedOptEmptyFactory,
+                        subscriptionIdentifiedOptNonEmptyFactory,
+                        subscriptionIdentifier -> subscriptionIdentifiedFactory.newIdentified(
                                 subscriptionIdentifier,
-                                new Subscription(podcastIdentified)
+                                subscriptionFactory.newSubscription(podcastIdentified)
                         )
                 );
     }
@@ -287,10 +538,10 @@ public final class Database<
                         + "  ON " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_ID + " "
                         + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
                         + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
-                podcastSearchIdentifier.id
+                podcastSearchIdentifier.getId()
         ).mapToSpecificList(
-                PodcastTable::getPodcastIdentified,
-                PodcastIdentifiedList::new
+                podcastTable::getPodcastIdentified,
+                podcastIdentifiedListCapacityFactory::newCollection
         );
     }
 
@@ -322,8 +573,8 @@ public final class Database<
                 podcastSearchIdentifier.getId()
         )
                 .mapToSpecificList(
-                        (cursor, ns) -> PodcastTable.getPodcastIdentified(cursor),
-                        PodcastIdentifiedList::new
+                        (cursor, ns) -> podcastTable.getPodcastIdentified(cursor),
+                        podcastIdentifiedListCapacityFactory::newCollection
                 );
     }
 

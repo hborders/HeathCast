@@ -114,12 +114,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Opt2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Opt2.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Episode2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Episode2.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearch2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearch2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -294,7 +295,7 @@
       <recent name="com.github.hborders.heathcast.core" />
     </key>
   </component>
-  <component name="RunManager" selected="Android Instrumented Tests.SearchEspressoTest2">
+  <component name="RunManager" selected="Android App.app">
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
       <option name="MAIN_CLASS_NAME" value="" />
       <option name="METHOD_NAME" value="" />
@@ -761,10 +762,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="com.android.tools.idea.avdmanager.AvdListDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585894616159" />
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1586627909758">
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1586716663701">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586627909758" />
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586716663701" />
     <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579558329648">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -777,18 +778,18 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586672673965" />
-    <state width="709" height="83" key="javadoc.popup.new" timestamp="1586673812965">
+    <state width="709" height="83" key="javadoc.popup.new" timestamp="1586718653882">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="709" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586673812965" />
+    <state width="709" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586718653882" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586401059744">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586401059744" />
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586672589991">
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586717763144">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586672589991" />
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586717763144" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

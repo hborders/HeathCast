@@ -281,7 +281,7 @@ final class PodcastTable<
                 + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
     }
 
-    private PodcastIdentifiedType getPodcastIdentified(Cursor cursor) {
+    PodcastIdentifiedType getPodcastIdentified(Cursor cursor) {
         return getPodcastIdentified(
                 podcastFactory,
                 podcastIdentifierFactory,

@@ -121,7 +121,8 @@ final class EpisodeTable<
             > episodeIdentifierOptListCapacityFactory;
 
     EpisodeTable(
-            Episode2.EpisodeFactory2<EpisodeType> episodeFactory2,
+            DimDatabase<MarkerType> dimDatabase,
+            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
             Identifier2.IdentifierFactory2<
                     EpisodeIdentifierType
                     > episodeIdentifierFactory,
@@ -149,11 +150,11 @@ final class EpisodeTable<
             CollectionFactory.Capacity<
                     EpisodeIdentifierOptListType,
                     EpisodeIdentifierOptType
-                    > episodeIdentifierOptListCapacityFactory,
-            DimDatabase<MarkerType> dimDatabase) {
+                    > episodeIdentifierOptListCapacityFactory
+    ) {
         super(dimDatabase);
 
-        this.episodeFactory2 = episodeFactory2;
+        this.episodeFactory2 = episodeFactory;
         this.episodeIdentifierFactory = episodeIdentifierFactory;
         this.episodeIdentifiedFactory = episodeIdentifiedFactory;
         this.episodeIdentifierOptEmptyFactory = episodeIdentifierOptEmptyFactory;
