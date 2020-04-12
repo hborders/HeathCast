@@ -3,22 +3,19 @@ package com.github.hborders.heathcast.dao;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import androidx.annotation.Nullable;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
-import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.PodcastSearchIdentified;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
+import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifierOpt;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Collection;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 
@@ -27,7 +24,21 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNonnullInt;
 import static com.github.hborders.heathcast.android.CursorUtil.getNonnullString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
-final class PodcastSearchTable<N> extends Table<N> {
+final class PodcastSearchTable<
+        MarkerType,
+        PodcastSearchType extends PodcastSearch2,
+        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
+        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
+                PodcastSearchIdentifiedType,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifierOptType extends Opt2<PodcastSearchIdentifierType>
+        > extends Table<MarkerType> {
     static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
     static final String ID = "_id";
@@ -52,45 +63,96 @@ final class PodcastSearchTable<N> extends Table<N> {
             cursor -> CursorUtil.getNonnullString(cursor, SEARCH)
     );
 
-    PodcastSearchTable(DimDatabase<N> dimDatabase) {
+    private final PodcastSearch2.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory;
+    private final Identifier2.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory;
+    private final Identified2.IdentifiedFactory2<
+            PodcastSearchIdentifiedType,
+            PodcastSearchIdentifierType,
+            PodcastSearchType
+            > podcastSearchIdentifiedFactory;
+    private final CollectionFactory.Capacity<
+            PodcastSearchIdentifiedListType,
+            PodcastSearchIdentifiedType
+            > podcastSearchIdentifiedListCapacityFactory;
+    private final Opt2.EmptyOptFactory<
+            PodcastSearchIdentifierOptType,
+            PodcastSearchIdentifierType
+            > podcastSearchIdentifierOptEmptyFactory;
+    private final Opt2.NonEmptyOptFactory<
+            PodcastSearchIdentifierOptType,
+            PodcastSearchIdentifierType
+            > podcastSearchIdentifierOptNonEmptyFactory;
+
+    PodcastSearchTable(
+            DimDatabase<MarkerType> dimDatabase,
+            PodcastSearch2.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory,
+            Identifier2.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory,
+            Identified2.IdentifiedFactory2<
+                    PodcastSearchIdentifiedType,
+                    PodcastSearchIdentifierType,
+                    PodcastSearchType
+                    > podcastSearchIdentifiedFactory,
+            CollectionFactory.Capacity<
+                    PodcastSearchIdentifiedListType,
+                    PodcastSearchIdentifiedType
+                    > podcastSearchIdentifiedListCapacityFactory,
+            Opt2.EmptyOptFactory<
+                    PodcastSearchIdentifierOptType,
+                    PodcastSearchIdentifierType
+                    > podcastSearchIdentifierOptEmptyFactory,
+            Opt2.NonEmptyOptFactory<
+                    PodcastSearchIdentifierOptType,
+                    PodcastSearchIdentifierType
+                    > podcastSearchIdentifierOptNonEmptyFactory
+    ) {
         super(dimDatabase);
+
+        this.podcastSearchFactory = podcastSearchFactory;
+        this.podcastSearchIdentifierFactory = podcastSearchIdentifierFactory;
+        this.podcastSearchIdentifiedFactory = podcastSearchIdentifiedFactory;
+        this.podcastSearchIdentifiedListCapacityFactory = podcastSearchIdentifiedListCapacityFactory;
+        this.podcastSearchIdentifierOptEmptyFactory = podcastSearchIdentifierOptEmptyFactory;
+        this.podcastSearchIdentifierOptNonEmptyFactory = podcastSearchIdentifierOptNonEmptyFactory;
     }
 
-    PodcastSearchIdentifierOpt upsertPodcastSearch(PodcastSearch podcastSearch) {
-        return upsertModel(
+    PodcastSearchIdentifierOptType upsertPodcastSearch(PodcastSearchType podcastSearch) {
+        return upsertModel2(
                 upsertAdapter,
                 String.class,
                 podcastSearch,
-                PodcastSearch::getSearch,
-                PodcastSearchIdentifier::new,
-                PodcastSearchIdentified::new,
+                PodcastSearch2::getSearch,
+                podcastSearchIdentifierFactory,
+                podcastSearchIdentifiedFactory,
                 this::insertPodcastSearch,
                 this::updatePodcastSearchIdentified,
-                PodcastSearchIdentifierOpt.FACTORY
+                podcastSearchIdentifierOptEmptyFactory,
+                podcastSearchIdentifierOptNonEmptyFactory
         );
     }
 
-    private PodcastSearchIdentifierOpt insertPodcastSearch(PodcastSearch podcastSearch) {
+    private PodcastSearchIdentifierOptType insertPodcastSearch(PodcastSearchType podcastSearch) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchContentValues(podcastSearch)
         );
         if (id == -1) {
-            return PodcastSearchIdentifierOpt.EMPTY;
+            return podcastSearchIdentifierOptEmptyFactory.newOpt();
         } else {
-            return new PodcastSearchIdentifierOpt(new PodcastSearchIdentifier(id));
+            return podcastSearchIdentifierOptNonEmptyFactory.newOpt(
+                    podcastSearchIdentifierFactory.newIdentifier(id)
+            );
         }
     }
 
     private int updatePodcastSearchIdentified(
-            PodcastSearchIdentified podcastSearchIdentified) {
+            PodcastSearchIdentifiedType podcastSearchIdentified) {
         return dimDatabase.update(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchIdentifiedContentValues(podcastSearchIdentified),
                 ID + " = ?",
-                Long.toString(podcastSearchIdentified.identifier.id)
+                Long.toString(podcastSearchIdentified.getIdentifier().getId())
         );
     }
 
@@ -135,7 +197,7 @@ final class PodcastSearchTable<N> extends Table<N> {
         }
     }
 
-    Observable<PodcastSearchIdentifiedList> observeQueryForAllPodcastSearchIdentifieds() {
+    Observable<PodcastSearchIdentifiedListType> observeQueryForAllPodcastSearchIdentifieds() {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_PODCAST_SEARCH)
@@ -150,12 +212,12 @@ final class PodcastSearchTable<N> extends Table<N> {
         return dimDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
                 .mapToSpecificList(
-                        PodcastSearchTable::getPodcastSearchIdentified,
-                        PodcastSearchIdentifiedList::new
+                        this::getPodcastSearchIdentified,
+                        podcastSearchIdentifiedListCapacityFactory::newCollection
                 );
     }
 
-    Observable<Optional<PodcastSearchIdentified>> observeQueryForPodcastSearchIdentified(
+    Observable<Optional<PodcastSearchIdentifiedType>> observeQueryForPodcastSearchIdentified(
             PodcastSearchIdentifier podcastSearchIdentifier
     ) {
         final SupportSQLiteQuery query =
@@ -169,7 +231,7 @@ final class PodcastSearchTable<N> extends Table<N> {
 
         return dimDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
-                .mapToOptional(PodcastSearchTable::getPodcastSearchIdentified);
+                .mapToOptional(this::getPodcastSearchIdentified);
     }
 
     static void createPodcastSearchTable(SupportSQLiteDatabase db) {
@@ -216,15 +278,15 @@ final class PodcastSearchTable<N> extends Table<N> {
                 + " ON " + TABLE_PODCAST_SEARCH + "(" + SORT + ")");
     }
 
-    static PodcastSearchIdentified getPodcastSearchIdentified(Cursor cursor) {
-        return new PodcastSearchIdentified(
-                new PodcastSearchIdentifier(
+    PodcastSearchIdentifiedType getPodcastSearchIdentified(Cursor cursor) {
+        return podcastSearchIdentifiedFactory.newIdentified(
+                podcastSearchIdentifierFactory.newIdentifier(
                         getNonnullInt(
                                 cursor,
                                 ID
                         )
                 ),
-                new PodcastSearch(
+                podcastSearchFactory.newPodcastSearch(
                         getNonnullString(
                                 cursor,
                                 SEARCH
@@ -233,16 +295,23 @@ final class PodcastSearchTable<N> extends Table<N> {
         );
     }
 
-    static ContentValues getPodcastSearchContentValues(PodcastSearch podcastSearch) {
+    ContentValues getPodcastSearchContentValues(PodcastSearchType podcastSearch) {
         final ContentValues values = new ContentValues(3);
-        values.put(SEARCH, podcastSearch.search);
+        values.put(
+                SEARCH,
+                podcastSearch.getSearch()
+        );
         return values;
     }
 
-    static ContentValues getPodcastSearchIdentifiedContentValues(PodcastSearchIdentified identifiedPodcastSearch) {
-        final ContentValues values = getPodcastSearchContentValues(identifiedPodcastSearch.model);
+    ContentValues getPodcastSearchIdentifiedContentValues(PodcastSearchIdentifiedType podcastSearchIdentified) {
+        final ContentValues values = getPodcastSearchContentValues(podcastSearchIdentified.getModel());
 
-        putIdentifier(values, ID, identifiedPodcastSearch);
+        putIdentifier2(
+                values,
+                ID,
+                podcastSearchIdentified
+        );
 
         return values;
     }
