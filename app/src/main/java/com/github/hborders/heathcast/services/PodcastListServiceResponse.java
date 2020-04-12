@@ -7,66 +7,66 @@ public interface PodcastListServiceResponse<
                 PodcastListServiceResponseLoadingType,
                 PodcastListServiceResponseCompleteType,
                 PodcastListServiceResponseFailedType,
-                PodcastListType,
-                PodcastItemType
+                PodcastIdentifiedListType,
+                PodcastIdentifiedType
                 >,
         PodcastListServiceResponseCompleteType extends PodcastListServiceResponse.PodcastListServiceResponseComplete<
                 PodcastListServiceResponseLoadingType,
                 PodcastListServiceResponseCompleteType,
                 PodcastListServiceResponseFailedType,
-                PodcastListType,
-                PodcastItemType
+                PodcastIdentifiedListType,
+                PodcastIdentifiedType
                 >,
         PodcastListServiceResponseFailedType extends PodcastListServiceResponse.PodcastListServiceResponseFailed<
                 PodcastListServiceResponseLoadingType,
                 PodcastListServiceResponseCompleteType,
                 PodcastListServiceResponseFailedType,
-                PodcastListType,
-                PodcastItemType
+                PodcastIdentifiedListType,
+                PodcastIdentifiedType
                 >,
-        PodcastListType extends List<PodcastItemType>,
-        PodcastItemType
+        PodcastIdentifiedListType extends List<PodcastIdentifiedType>,
+        PodcastIdentifiedType
         > extends ServiceResponse1<
         PodcastListServiceResponseLoadingType,
         PodcastListServiceResponseCompleteType,
         PodcastListServiceResponseFailedType,
-        PodcastListType
+        PodcastIdentifiedListType
         > {
     interface PodcastListServiceResponseLoading<
             PodcastListServiceResponseLoadingType extends PodcastListServiceResponseLoading<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseCompleteType extends PodcastListServiceResponseComplete<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseFailedType extends PodcastListServiceResponseFailed<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
-            PodcastListType extends List<PodcastItemType>,
-            PodcastItemType
+            PodcastIdentifiedListType extends List<PodcastIdentifiedType>,
+            PodcastIdentifiedType
             > extends ServiceResponse1.Loading1<
             PodcastListServiceResponseLoadingType,
             PodcastListServiceResponseCompleteType,
             PodcastListServiceResponseFailedType,
-            PodcastListType
+            PodcastIdentifiedListType
             >, PodcastListServiceResponse<
             PodcastListServiceResponseLoadingType,
             PodcastListServiceResponseCompleteType,
             PodcastListServiceResponseFailedType,
-            PodcastListType,
-            PodcastItemType
+            PodcastIdentifiedListType,
+            PodcastIdentifiedType
             > {
     }
 
@@ -75,36 +75,36 @@ public interface PodcastListServiceResponse<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseCompleteType extends PodcastListServiceResponseComplete<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseFailedType extends PodcastListServiceResponseFailed<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
-            PodcastListType extends List<PodcastItemType>,
-            PodcastItemType
+            PodcastIdentifiedListType extends List<PodcastIdentifiedType>,
+            PodcastIdentifiedType
             > extends ServiceResponse1.Complete1<
             PodcastListServiceResponseLoadingType,
             PodcastListServiceResponseCompleteType,
             PodcastListServiceResponseFailedType,
-            PodcastListType
+            PodcastIdentifiedListType
             >, PodcastListServiceResponse<
             PodcastListServiceResponseLoadingType,
             PodcastListServiceResponseCompleteType,
             PodcastListServiceResponseFailedType,
-            PodcastListType,
-            PodcastItemType
+            PodcastIdentifiedListType,
+            PodcastIdentifiedType
             > {
     }
 
@@ -113,36 +113,36 @@ public interface PodcastListServiceResponse<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseCompleteType extends PodcastListServiceResponseComplete<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseFailedType extends PodcastListServiceResponseFailed<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
-            PodcastListType extends List<PodcastItemType>,
-            PodcastItemType
+            PodcastIdentifiedListType extends List<PodcastIdentifiedType>,
+            PodcastIdentifiedType
             > extends ServiceResponse1.Failed1<
             PodcastListServiceResponseLoadingType,
             PodcastListServiceResponseCompleteType,
             PodcastListServiceResponseFailedType,
-            PodcastListType
+            PodcastIdentifiedListType
             >, PodcastListServiceResponse<
             PodcastListServiceResponseLoadingType,
             PodcastListServiceResponseCompleteType,
             PodcastListServiceResponseFailedType,
-            PodcastListType,
-            PodcastItemType
+            PodcastIdentifiedListType,
+            PodcastIdentifiedType
             > {
     }
 
@@ -151,35 +151,35 @@ public interface PodcastListServiceResponse<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseLoadingType extends PodcastListServiceResponseLoading<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseCompleteType extends PodcastListServiceResponseComplete<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseFailedType extends PodcastListServiceResponseFailed<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
-            PodcastListType extends List<PodcastItemType>,
-            PodcastItemType
+            PodcastIdentifiedListType extends List<PodcastIdentifiedType>,
+            PodcastIdentifiedType
             > {
         PodcastListServiceResponseType newPodcastListServiceResponse(
-                PodcastListType podcastItems
+                PodcastIdentifiedListType podcastIdentifieds
         );
     }
 }

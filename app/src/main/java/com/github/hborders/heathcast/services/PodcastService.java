@@ -12,7 +12,6 @@ import com.github.hborders.heathcast.dao.EpisodeList2;
 import com.github.hborders.heathcast.dao.Podcast2;
 import com.github.hborders.heathcast.dao.PodcastSearch2;
 import com.github.hborders.heathcast.dao.Subscription2;
-import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
@@ -449,54 +448,53 @@ public abstract class PodcastService<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseFactoryCompleteType extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
                     PodcastListServiceResponseType,
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseFactoryFailedType extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
                     PodcastListServiceResponseType,
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
             PodcastListServiceResponseType extends PodcastListServiceResponse<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
-            PodcastListServiceResponseLoadingType extends PodcastListServiceResponseLoading<
+            PodcastListServiceResponseLoadingType extends PodcastListServiceResponse.PodcastListServiceResponseLoading<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
-            PodcastListServiceResponseCompleteType extends PodcastListServiceResponseComplete<
+            PodcastListServiceResponseCompleteType extends PodcastListServiceResponse.PodcastListServiceResponseComplete<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
                     >,
-            PodcastListServiceResponseFailedType extends PodcastListServiceResponseFailed<
+            PodcastListServiceResponseFailedType extends PodcastListServiceResponse.PodcastListServiceResponseFailed<
                     PodcastListServiceResponseLoadingType,
                     PodcastListServiceResponseCompleteType,
                     PodcastListServiceResponseFailedType,
-                    PodcastListType,
-                    PodcastItemType
-                    >,
-            PodcastItemType
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
+                    >
             > Observable<PodcastListServiceResponseType> searchForPodcasts2(
             PodcastListServiceResponseFactoryLoadingType loadingFactory,
             PodcastListServiceResponseFactoryCompleteType completeFactory,
@@ -711,7 +709,7 @@ public abstract class PodcastService<
                             .map(URLUtil::fromString)
                             .filter(Objects::nonNull)
                             .findFirst();
-            final @javax.annotation.Nullable URL feedURL = URLUtil.fromString(feedURLString);
+            @Nullable final URL feedURL = URLUtil.fromString(feedURLString);
             if (feedURL == null) {
                 return null;
             } else {
