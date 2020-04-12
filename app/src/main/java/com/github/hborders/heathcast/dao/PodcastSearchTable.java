@@ -11,7 +11,6 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Opt2;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Collection;
@@ -37,7 +36,9 @@ final class PodcastSearchTable<
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
-        PodcastSearchIdentifierOptType extends Opt2<PodcastSearchIdentifierType>
+        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
+                PodcastSearchIdentifierType
+                >
         > extends Table<MarkerType> {
     static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
@@ -75,13 +76,13 @@ final class PodcastSearchTable<
             PodcastSearchIdentifiedType
             > podcastSearchIdentifiedListCapacityFactory;
     private final Opt2.OptEmptyFactory<
-                PodcastSearchIdentifierOptType,
-                PodcastSearchIdentifierType
-                > podcastSearchIdentifierOptEmptyFactory;
+            PodcastSearchIdentifierOptType,
+            PodcastSearchIdentifierType
+            > podcastSearchIdentifierOptEmptyFactory;
     private final Opt2.OptNonEmptyFactory<
-                PodcastSearchIdentifierOptType,
-                PodcastSearchIdentifierType
-                > podcastSearchIdentifierOptNonEmptyFactory;
+            PodcastSearchIdentifierOptType,
+            PodcastSearchIdentifierType
+            > podcastSearchIdentifierOptNonEmptyFactory;
 
     PodcastSearchTable(
             DimDatabase<MarkerType> dimDatabase,
@@ -97,13 +98,13 @@ final class PodcastSearchTable<
                     PodcastSearchIdentifiedType
                     > podcastSearchIdentifiedListCapacityFactory,
             Opt2.OptEmptyFactory<
-                                PodcastSearchIdentifierOptType,
-                                PodcastSearchIdentifierType
-                                > podcastSearchIdentifierOptEmptyFactory,
+                    PodcastSearchIdentifierOptType,
+                    PodcastSearchIdentifierType
+                    > podcastSearchIdentifierOptEmptyFactory,
             Opt2.OptNonEmptyFactory<
-                                PodcastSearchIdentifierOptType,
-                                PodcastSearchIdentifierType
-                                > podcastSearchIdentifierOptNonEmptyFactory
+                    PodcastSearchIdentifierOptType,
+                    PodcastSearchIdentifierType
+                    > podcastSearchIdentifierOptNonEmptyFactory
     ) {
         super(dimDatabase);
 
@@ -156,19 +157,19 @@ final class PodcastSearchTable<
         );
     }
 
-    int deletePodcastSearchById(PodcastSearchIdentifier podcastSearchIdentifier) {
+    int deletePodcastSearchById(PodcastSearchIdentifierType podcastSearchIdentifier) {
         return dimDatabase.delete(
                 TABLE_PODCAST_SEARCH,
                 ID + " = ?",
-                Long.toString(podcastSearchIdentifier.id)
+                Long.toString(podcastSearchIdentifier.getId())
         );
     }
 
-    int deletePodcastSearchesByIds(Collection<PodcastSearchIdentifier> podcastSearchIdentifiers) {
+    int deletePodcastSearchesByIds(Collection<PodcastSearchIdentifierType> podcastSearchIdentifiers) {
         final String[] idStrings = new String[podcastSearchIdentifiers.size()];
         int i = 0;
-        for (PodcastSearchIdentifier podcastSearchIdentifier : podcastSearchIdentifiers) {
-            idStrings[i] = Long.toString(podcastSearchIdentifier.id);
+        for (PodcastSearchIdentifierType podcastSearchIdentifier : podcastSearchIdentifiers) {
+            idStrings[i] = Long.toString(podcastSearchIdentifier.getId());
             i++;
         }
         return dimDatabase.delete(
@@ -179,14 +180,14 @@ final class PodcastSearchTable<
     }
 
     @Nullable
-    Long sortForPodcastSearch(PodcastSearchIdentifier podcastSearchIdentifier) {
+    Long sortForPodcastSearch(PodcastSearchIdentifierType podcastSearchIdentifier) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_PODCAST_SEARCH)
                         .columns(COLUMNS_SORT)
                         .selection(
                                 ID + " = ?",
-                                new Object[]{podcastSearchIdentifier.id})
+                                new Object[]{podcastSearchIdentifier.getId()})
                         .create();
         try (final Cursor sortCursor = dimDatabase.query(query)) {
             if (sortCursor.moveToNext()) {
@@ -218,7 +219,7 @@ final class PodcastSearchTable<
     }
 
     Observable<Optional<PodcastSearchIdentifiedType>> observeQueryForPodcastSearchIdentified(
-            PodcastSearchIdentifier podcastSearchIdentifier
+            PodcastSearchIdentifierType podcastSearchIdentifier
     ) {
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
@@ -226,7 +227,7 @@ final class PodcastSearchTable<
                         .columns(COLUMNS_ALL_BUT_SORT)
                         .selection(
                                 ID + "= ?",
-                                new Object[]{podcastSearchIdentifier.id}
+                                new Object[]{podcastSearchIdentifier.getId()}
                         ).create();
 
         return dimDatabase

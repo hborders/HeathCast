@@ -76,16 +76,13 @@ public interface Episode2 {
 
     interface EpisodeIdentifier2 extends Identifier2 {
         interface EpisodeIdentifierOpt2<
-                EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-                EpisodeType extends Episode2
+                EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2
                 > extends Opt2<EpisodeIdentifierType> {
             interface EpisodeIdentifierOptList2<
                     EpisodeIdentifierOptType extends EpisodeIdentifierOpt2<
-                            EpisodeIdentifierType,
-                            EpisodeType
+                            EpisodeIdentifierType
                             >,
-                    EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-                    EpisodeType extends Episode2
+                    EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2
                     > extends List<EpisodeIdentifierOptType> {
             }
         }

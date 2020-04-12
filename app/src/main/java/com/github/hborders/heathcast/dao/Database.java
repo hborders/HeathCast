@@ -11,30 +11,13 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import com.github.hborders.heathcast.core.ListUtil;
 import com.github.hborders.heathcast.core.Result;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.EpisodeList;
-import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.PodcastList;
-import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentified;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifiedOpt;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifier;
-import com.github.hborders.heathcast.models.Subscription;
-import com.github.hborders.heathcast.models.SubscriptionIdentified;
-import com.github.hborders.heathcast.models.SubscriptionIdentifiedList;
-import com.github.hborders.heathcast.models.SubscriptionIdentifiedOpt;
-import com.github.hborders.heathcast.models.SubscriptionIdentifier;
-import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
 import com.stealthmountain.sqldim.DimDatabase;
 import com.stealthmountain.sqldim.SqlDim;
 import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -42,13 +25,136 @@ import javax.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 
-public final class Database<MarkerType> {
+public final class Database<
+        MarkerType,
+        PodcastSearchType extends PodcastSearch2,
+        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
+        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
+                PodcastSearchIdentifiedType,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
+                PodcastSearchIdentifierType
+                >,
+        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastType extends Podcast2,
+        PodcastIdentifiedListType extends Podcast2.PodcastIdentified2.PodcastIdentifiedList2<
+                        PodcastIdentifiedType,
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+                PodcastIdentifierOptType,
+                PodcastIdentifierType
+                >,
+        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
+        EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
+        EpisodeType extends Episode2,
+        EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifiedSetType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedSet2<
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+                EpisodeIdentifierOptType,
+                EpisodeIdentifierType
+                >,
+        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<EpisodeIdentifierType>,
+        EpisodeListType extends EpisodeList2<
+                EpisodeType
+                >,
+        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
+        SubscriptionType extends Subscription2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifiedListType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedList2<
+                SubscriptionIdentifiedType,
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifierOptType extends Subscription2.SubscriptionIdentifier2.SubscriptionIdentifierOpt2<SubscriptionIdentifierType>
+        > {
     private final DimDatabase<MarkerType> dimDatabase;
-    final PodcastSearchTable<MarkerType> podcastSearchTable;
-    final PodcastTable<MarkerType> podcastTable;
-    final EpisodeTable<MarkerType> episodeTable;
-    private final PodcastSearchResultTable<MarkerType> podcastSearchResultTable;
-    final SubscriptionTable<MarkerType> subscriptionTable;
+    final PodcastSearchTable<
+            MarkerType,
+            PodcastSearchType,
+            PodcastSearchIdentifiedType,
+            PodcastSearchIdentifierType,
+            PodcastSearchIdentifiedListType,
+            PodcastSearchIdentifierOptType
+            > podcastSearchTable;
+    final PodcastTable<
+            MarkerType,
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType,
+            PodcastIdentifiedSetType,
+            PodcastIdentifierOptListType,
+            PodcastIdentifierOptType
+            > podcastTable;
+    final EpisodeTable<
+            MarkerType,
+            EpisodeIdentifiedType,
+            EpisodeIdentifierType,
+            EpisodeType,
+            EpisodeIdentifiedListType,
+            EpisodeIdentifiedSetType,
+            EpisodeIdentifierOptListType,
+            EpisodeIdentifierOptType,
+            EpisodeListType,
+            PodcastIdentifierType
+            > episodeTable;
+    private final PodcastSearchResultTable<
+            MarkerType,
+            PodcastIdentifierType,
+            PodcastSearchIdentifierType
+            > podcastSearchResultTable;
+    final SubscriptionTable<
+            MarkerType,
+            SubscriptionIdentifiedType,
+            SubscriptionIdentifierType,
+            SubscriptionType,
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType,
+            SubscriptionIdentifiedListType,
+            SubscriptionIdentifierOptType
+            > subscriptionTable;
 
     public Database(
             Context context,
@@ -74,7 +180,7 @@ public final class Database<MarkerType> {
         subscriptionTable = new SubscriptionTable<>(dimDatabase);
     }
 
-    public PodcastSearchIdentifiedOpt upsertPodcastSearch(PodcastSearch podcastSearch) {
+    public PodcastSearchIdentifiedOptType upsertPodcastSearch(PodcastSearchType podcastSearch) {
         return podcastSearchTable
                 .upsertPodcastSearch(podcastSearch)
                 .map(
@@ -88,8 +194,8 @@ public final class Database<MarkerType> {
 
     public void replacePodcastSearchPodcasts(
             MarkerType marker,
-            PodcastSearchIdentified podcastSearchIdentified,
-            PodcastList podcasts
+            PodcastSearchIdentifiedType podcastSearchIdentified,
+            List<PodcastType> podcasts
     ) {
         try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
             podcastSearchResultTable.deletePodcastSearchResultsByPodcastSearchIdentifier(podcastSearchIdentified.identifier);
@@ -115,7 +221,7 @@ public final class Database<MarkerType> {
         podcastTable.triggerMarked(marker);
     }
 
-    public PodcastIdentifiedOpt upsertPodcast(Podcast podcast) {
+    public PodcastIdentifiedOptType upsertPodcast(PodcastType podcast) {
         return podcastTable
                 .upsertPodcast(podcast)
                 .map(
@@ -128,8 +234,8 @@ public final class Database<MarkerType> {
     }
 
     public void upsertEpisodesForPodcast(
-            PodcastIdentifier podcastIdentifier,
-            EpisodeList episodes
+            PodcastIdentifierType podcastIdentifier,
+            EpisodeListType episodes
     ) {
         episodeTable.upsertEpisodes(
                 podcastIdentifier,
@@ -137,7 +243,7 @@ public final class Database<MarkerType> {
         );
     }
 
-    public SubscriptionIdentifiedOpt subscribe(PodcastIdentified podcastIdentified) {
+    public SubscriptionIdentifiedOptType subscribe(PodcastIdentifiedType podcastIdentified) {
         return subscribe(podcastIdentified.identifier)
                 .map(
                         SubscriptionIdentifiedOpt.FACTORY,
@@ -148,21 +254,21 @@ public final class Database<MarkerType> {
                 );
     }
 
-    public SubscriptionIdentifierOpt subscribe(PodcastIdentifier podcastIdentifier) {
+    public SubscriptionIdentifierOptType subscribe(PodcastIdentifierType podcastIdentifier) {
         return subscriptionTable.insertSubscription(podcastIdentifier);
     }
 
-    public Result unsubscribe(SubscriptionIdentifier subscriptionIdentifier) {
+    public Result unsubscribe(SubscriptionIdentifierType subscriptionIdentifier) {
         final int deleteCount = subscriptionTable.deleteSubscription(subscriptionIdentifier);
         return deleteCount > 0 ? Result.SUCCESS : Result.FAILURE;
     }
 
-    public Observable<PodcastSearchIdentifiedList> observeQueryForAllPodcastSearchIdentifieds() {
+    public Observable<PodcastSearchIdentifiedListType> observeQueryForAllPodcastSearchIdentifieds() {
         return podcastSearchTable.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-    public Observable<PodcastIdentifiedList> observeQueryForPodcastIdentifieds(
-            PodcastSearchIdentifier podcastSearchIdentifier
+    public Observable<PodcastIdentifiedListType> observeQueryForPodcastIdentifieds(
+            PodcastSearchIdentifierType podcastSearchIdentifier
     ) {
         return dimDatabase.createQuery(
                 Arrays.asList(
@@ -188,8 +294,13 @@ public final class Database<MarkerType> {
         );
     }
 
-    public Observable<MarkedValue<MarkerType, PodcastIdentifiedList>> observeMarkedQueryForPodcastIdentifieds(
-            PodcastSearchIdentifier podcastSearchIdentifier
+    public Observable<
+            MarkedValue<
+                    MarkerType,
+                    PodcastIdentifiedListType
+                    >
+            > observeMarkedQueryForPodcastIdentifieds(
+            PodcastSearchIdentifierType podcastSearchIdentifier
     ) {
         return dimDatabase.createMarkedQuery(
                 Arrays.asList(
@@ -208,7 +319,7 @@ public final class Database<MarkerType> {
                         + "  ON " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_ID + " "
                         + "    = " + PodcastTable.TABLE_PODCAST + "." + PodcastTable.ID + " "
                         + "WHERE " + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "." + PodcastSearchResultTable.PODCAST_SEARCH_ID + " = ?",
-                podcastSearchIdentifier.id
+                podcastSearchIdentifier.getId()
         )
                 .mapToSpecificList(
                         (cursor, ns) -> PodcastTable.getPodcastIdentified(cursor),
@@ -216,34 +327,34 @@ public final class Database<MarkerType> {
                 );
     }
 
-    public Observable<PodcastIdentifiedOpt> observeQueryForPodcastIdentified(
-            PodcastIdentifier podcastIdentifier
+    public Observable<Optional<PodcastIdentifiedType>> observeQueryForPodcastIdentified(
+            PodcastIdentifierType podcastIdentifier
     ) {
         return podcastTable.observeQueryForPodcastIdentified(podcastIdentifier);
     }
 
-    public Observable<SubscriptionIdentifiedList> observeQueryForSubscriptions() {
+    public Observable<SubscriptionIdentifiedListType> observeQueryForSubscriptions() {
         return subscriptionTable.observeQueryForSubscriptions();
     }
 
-    public Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(
-            PodcastIdentifier podcastIdentifier
+    public Observable<Optional<SubscriptionIdentifierType>> observeQueryForSubscriptionIdentifier(
+            PodcastIdentifierType podcastIdentifier
     ) {
         return subscriptionTable.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Observable<EpisodeIdentifiedList> observeQueryForEpisodeIdentifiedsForPodcast(
-            PodcastIdentifier podcastIdentifier
+    public Observable<EpisodeIdentifiedListType> observeQueryForEpisodeIdentifiedsForPodcast(
+            PodcastIdentifierType podcastIdentifier
     ) {
         return episodeTable.observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier);
     }
 
-    public boolean deletePodcast(PodcastIdentifier podcastIdentifier) {
+    public boolean deletePodcast(PodcastIdentifierType podcastIdentifier) {
         final int deleteCount = podcastTable.deletePodcast(podcastIdentifier);
         return deleteCount > 0;
     }
 
-    public boolean deletePodcastSearch(PodcastSearchIdentifier podcastSearchIdentifier) {
+    public boolean deletePodcastSearch(PodcastSearchIdentifierType podcastSearchIdentifier) {
         final int deleteCount = podcastSearchTable.deletePodcastSearchById(podcastSearchIdentifier);
         return deleteCount > 0;
     }

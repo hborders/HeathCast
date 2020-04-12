@@ -55,12 +55,10 @@ final class EpisodeTable<
                 >,
         EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
                 EpisodeIdentifierOptType,
-                EpisodeIdentifierType,
-                EpisodeType
+                EpisodeIdentifierType
                 >,
         EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<
-                EpisodeIdentifierType,
-                EpisodeType
+                EpisodeIdentifierType
                 >,
         EpisodeListType extends EpisodeList2<EpisodeType>,
         PodcastIdentifierType extends Podcast2.PodcastIdentifier2

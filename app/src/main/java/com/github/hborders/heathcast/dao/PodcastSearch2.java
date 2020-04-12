@@ -38,9 +38,9 @@ public interface PodcastSearch2 {
     }
 
     interface PodcastSearchIdentifier2 extends Identifier2 {
-        interface PodcastSearchidentifierOpt2<
-                PodcastSearchType extends PodcastSearch2
-                > extends Opt2<PodcastSearchType> {
+        interface PodcastSearchIdentifierOpt2<
+                PodcastSearchIdentifierType extends PodcastSearchIdentifier2
+                > extends Opt2<PodcastSearchIdentifierType> {
         }
     }
 
