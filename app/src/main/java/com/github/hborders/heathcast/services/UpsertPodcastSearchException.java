@@ -1,15 +1,15 @@
 package com.github.hborders.heathcast.services;
 
-import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.dao.PodcastSearch2;
 
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
 public final class UpsertPodcastSearchException extends Exception {
-    public final PodcastSearch podcastSearch;
+    public final PodcastSearch2 podcastSearch;
 
-    public UpsertPodcastSearchException(PodcastSearch podcastSearch) {
+    public UpsertPodcastSearchException(PodcastSearch2 podcastSearch) {
         super("Failed to upsert PodcastSearch: " + podcastSearch);
         this.podcastSearch = podcastSearch;
     }

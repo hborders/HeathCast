@@ -1,27 +1,19 @@
 package com.github.hborders.heathcast.services;
 
-import android.content.Context;
+import androidx.annotation.Nullable;
 
+import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.core.Tuple;
+import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.dao.Database;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.PodcastList;
-import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifiedOpt;
-import com.github.hborders.heathcast.models.SubscriptionIdentifier;
-import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
+import com.github.hborders.heathcast.dao.Episode2;
+import com.github.hborders.heathcast.dao.EpisodeList2;
+import com.github.hborders.heathcast.dao.Podcast2;
+import com.github.hborders.heathcast.dao.PodcastSearch2;
+import com.github.hborders.heathcast.dao.Subscription2;
+import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete.PodcastIdentifiedListServiceResponseCompleteFactory;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed.PodcastIdentifiedListServiceResponseFailedFactory;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseLoading;
 import com.google.gson.Gson;
 
 import java.net.URL;
@@ -31,8 +23,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
@@ -45,11 +35,112 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public abstract class PodcastService {
-    private static class PodcastSearchResponse {
-        private final PodcastList podcasts;
+public abstract class PodcastService<
+        EpisodeType extends Episode2,
+        EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifiedSetType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedSet2<
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
+        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<EpisodeIdentifierType>,
+        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+                EpisodeIdentifierOptType,
+                EpisodeIdentifierType
+                >,
+        EpisodeListType extends EpisodeList2<
+                EpisodeType
+                >,
+        PodcastType extends Podcast2,
+        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifiedListType extends Podcast2.PodcastIdentified2.PodcastIdentifiedList2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifiedOptType extends Podcast2.PodcastIdentified2.PodcastIdentifiedOpt2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+                PodcastIdentifierOptType,
+                PodcastIdentifierType
+                >,
+        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
+        PodcastListType extends Podcast2.PodcastList2<PodcastType>,
+        PodcastSearchType extends PodcastSearch2,
+        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
+                PodcastSearchIdentifiedType,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifiedOptType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedOpt2<
+                PodcastSearchIdentifiedType,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
+        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
+        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
+                PodcastSearchIdentifierType
+                >,
+        SubscriptionType extends Subscription2<
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifiedListType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedList2<
+                SubscriptionIdentifiedType,
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifiedOptType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedOpt2<
+                SubscriptionIdentifiedType,
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
+        SubscriptionIdentifierOptType extends Subscription2.SubscriptionIdentifier2.SubscriptionIdentifierOpt2<SubscriptionIdentifierType>
+        > {
+    private static class PodcastSearchResponse<PodcastListType> {
+        private final PodcastListType podcasts;
 
-        private PodcastSearchResponse(PodcastList podcasts) {
+        private PodcastSearchResponse(PodcastListType podcasts) {
             this.podcasts = podcasts;
         }
 
@@ -57,7 +148,7 @@ public abstract class PodcastService {
         public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            PodcastSearchResponse that = (PodcastSearchResponse) o;
+            PodcastSearchResponse<?> that = (PodcastSearchResponse<?>) o;
             return podcasts.equals(that.podcasts);
         }
 
@@ -74,38 +165,115 @@ public abstract class PodcastService {
         }
     }
 
-    private final Database<Object> database;
+    private final Podcast2.PodcastFactory2<PodcastType> podcastFactory;
+    private final CollectionFactory.Empty<
+            PodcastIdentifiedListType,
+            PodcastIdentifiedType
+            > podcastIdentifiedListEmptyFactory;
+    private final CollectionFactory.Empty<
+            PodcastListType,
+            PodcastType
+            > podcastListEmptyFactory;
+    private final XmlParser<
+            EpisodeListType,
+            EpisodeType
+            > xmlParser;
+
+    private final Database<
+            Object,
+            EpisodeType,
+            EpisodeIdentifiedType,
+            EpisodeIdentifiedListType,
+            EpisodeIdentifiedSetType,
+            EpisodeIdentifierType,
+            EpisodeIdentifierOptType,
+            EpisodeIdentifierOptListType,
+            EpisodeListType,
+            PodcastType,
+            PodcastIdentifiedType,
+            PodcastIdentifiedListType,
+            PodcastIdentifiedOptType,
+            PodcastIdentifiedSetType,
+            PodcastIdentifierType,
+            PodcastIdentifierOptListType,
+            PodcastIdentifierOptType,
+            PodcastSearchType,
+            PodcastSearchIdentifiedType,
+            PodcastSearchIdentifiedListType,
+            PodcastSearchIdentifiedOptType,
+            PodcastSearchIdentifierType,
+            PodcastSearchIdentifierOptType,
+            SubscriptionType,
+            SubscriptionIdentifiedType,
+            SubscriptionIdentifiedListType,
+            SubscriptionIdentifiedOptType,
+            SubscriptionIdentifierType,
+            SubscriptionIdentifierOptType
+            > database;
     private final Scheduler scheduler;
     private final OkHttpClient okHttpClient;
     private final Gson gson;
     private final ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter;
 
-    public PodcastService(Context context) {
-        this(
-                context,
-                Schedulers.io()
-        );
-    }
-
-    private PodcastService(
-            Context context,
-            Scheduler scheduler
-    ) {
-        this(
-                new Database<>(
-                        context,
-                        null,
-                        scheduler
-                ),
-                scheduler
-        );
-    }
-
     public PodcastService(
-            Database<Object> database,
-            Scheduler scheduler
+            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
+            CollectionFactory.Capacity<
+                    EpisodeListType,
+                    EpisodeType
+                    > episodeListCapacityFactory,
+            CollectionFactory.Empty<
+                    EpisodeListType,
+                    EpisodeType
+                    > episodeListEmptyFactory,
+            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            CollectionFactory.Empty<
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedListEmptyFactory,
+            CollectionFactory.Empty<
+                    PodcastListType,
+                    PodcastType
+                    > podcastListEmptyFactory,
+            Database<
+                    Object,
+                    EpisodeType,
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedSetType,
+                    EpisodeIdentifierType,
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierOptListType,
+                    EpisodeListType,
+                    PodcastType,
+                    PodcastIdentifiedType,
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedOptType,
+                    PodcastIdentifiedSetType,
+                    PodcastIdentifierType,
+                    PodcastIdentifierOptListType,
+                    PodcastIdentifierOptType,
+                    PodcastSearchType,
+                    PodcastSearchIdentifiedType,
+                    PodcastSearchIdentifiedListType,
+                    PodcastSearchIdentifiedOptType,
+                    PodcastSearchIdentifierType,
+                    PodcastSearchIdentifierOptType,
+                    SubscriptionType,
+                    SubscriptionIdentifiedType,
+                    SubscriptionIdentifiedListType,
+                    SubscriptionIdentifiedOptType,
+                    SubscriptionIdentifierType,
+                    SubscriptionIdentifierOptType
+                    > database,
+            Scheduler scheduler // Schedulers.io()
     ) {
         this(
+                episodeFactory,
+                episodeListCapacityFactory,
+                episodeListEmptyFactory,
+                podcastFactory,
+                podcastIdentifiedListEmptyFactory,
+                podcastListEmptyFactory,
                 database,
                 scheduler,
                 new OkHttpClient()
@@ -113,58 +281,161 @@ public abstract class PodcastService {
     }
 
     public PodcastService(
-            Database<Object> database,
+            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
+            CollectionFactory.Capacity<
+                    EpisodeListType,
+                    EpisodeType
+                    > episodeListCapacityFactory,
+            CollectionFactory.Empty<
+                    EpisodeListType,
+                    EpisodeType
+                    > episodeListEmptyFactory,
+            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            CollectionFactory.Empty<
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedListEmptyFactory,
+            CollectionFactory.Empty<
+                    PodcastListType,
+                    PodcastType
+                    > podcastListEmptyFactory,
+            Database<
+                    Object,
+                    EpisodeType,
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedSetType,
+                    EpisodeIdentifierType,
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierOptListType,
+                    EpisodeListType,
+                    PodcastType,
+                    PodcastIdentifiedType,
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedOptType,
+                    PodcastIdentifiedSetType,
+                    PodcastIdentifierType,
+                    PodcastIdentifierOptListType,
+                    PodcastIdentifierOptType,
+                    PodcastSearchType,
+                    PodcastSearchIdentifiedType,
+                    PodcastSearchIdentifiedListType,
+                    PodcastSearchIdentifiedOptType,
+                    PodcastSearchIdentifierType,
+                    PodcastSearchIdentifierOptType,
+                    SubscriptionType,
+                    SubscriptionIdentifiedType,
+                    SubscriptionIdentifiedListType,
+                    SubscriptionIdentifiedOptType,
+                    SubscriptionIdentifierType,
+                    SubscriptionIdentifierOptType
+                    > database,
             Scheduler scheduler,
             OkHttpClient okHttpClient
     ) {
         this(
+                podcastFactory,
+                podcastIdentifiedListEmptyFactory,
+                podcastListEmptyFactory,
                 database,
                 scheduler,
                 okHttpClient,
                 new Gson(),
-                ReactivexOkHttpCallAdapter.createWithScheduler(scheduler)
+                ReactivexOkHttpCallAdapter.createWithScheduler(scheduler),
+                new XmlParser<>(
+                        episodeListCapacityFactory,
+                        episodeListEmptyFactory,
+                        episodeFactory
+                )
         );
     }
 
     public PodcastService(
-            Database<Object> database,
+            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            CollectionFactory.Empty<
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedType
+                    > podcastIdentifiedListEmptyFactory,
+            CollectionFactory.Empty<
+                    PodcastListType,
+                    PodcastType
+                    > podcastListEmptyFactory,
+            Database<
+                    Object,
+                    EpisodeType,
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedSetType,
+                    EpisodeIdentifierType,
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierOptListType,
+                    EpisodeListType,
+                    PodcastType,
+                    PodcastIdentifiedType,
+                    PodcastIdentifiedListType,
+                    PodcastIdentifiedOptType,
+                    PodcastIdentifiedSetType,
+                    PodcastIdentifierType,
+                    PodcastIdentifierOptListType,
+                    PodcastIdentifierOptType,
+                    PodcastSearchType,
+                    PodcastSearchIdentifiedType,
+                    PodcastSearchIdentifiedListType,
+                    PodcastSearchIdentifiedOptType,
+                    PodcastSearchIdentifierType,
+                    PodcastSearchIdentifierOptType,
+                    SubscriptionType,
+                    SubscriptionIdentifiedType,
+                    SubscriptionIdentifiedListType,
+                    SubscriptionIdentifiedOptType,
+                    SubscriptionIdentifierType,
+                    SubscriptionIdentifierOptType
+                    > database,
             Scheduler scheduler,
             OkHttpClient okHttpClient,
             Gson gson,
-            ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter
+            ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter,
+            XmlParser<
+                    EpisodeListType,
+                    EpisodeType
+                    > xmlParser
     ) {
+        this.podcastFactory = podcastFactory;
+        this.podcastIdentifiedListEmptyFactory = podcastIdentifiedListEmptyFactory;
+        this.podcastListEmptyFactory = podcastListEmptyFactory;
         this.database = database;
         this.scheduler = scheduler;
         this.okHttpClient = okHttpClient;
         this.gson = gson;
         this.reactivexOkHttpCallAdapter = reactivexOkHttpCallAdapter;
+        this.xmlParser = xmlParser;
     }
 
-    public Observable<PodcastSearchIdentifiedList> observeQueryForAllPodcastSearchIdentifieds() {
+    public Observable<PodcastSearchIdentifiedListType> observeQueryForAllPodcastSearchIdentifieds() {
         return database.observeQueryForAllPodcastSearchIdentifieds();
     }
 
-    public Observable<PodcastIdentifiedOpt> observeQueryForPodcastIdentified(
-            PodcastIdentifier podcastIdentifier
+    public Observable<Optional<PodcastIdentifiedType>> observeQueryForPodcastIdentified(
+            PodcastIdentifierType podcastIdentifier
     ) {
         return database.observeQueryForPodcastIdentified(podcastIdentifier);
     }
 
-    public Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(
-            PodcastIdentifier podcastIdentifier
+    public Observable<Optional<SubscriptionIdentifierType>> observeQueryForSubscriptionIdentifier(
+            PodcastIdentifierType podcastIdentifier
     ) {
         return database.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Single<SubscriptionIdentifierOpt> subscribe(PodcastIdentifier podcastIdentifier) {
-        return Single.<SubscriptionIdentifierOpt>create(source ->
+    public Single<SubscriptionIdentifierOptType> subscribe(PodcastIdentifierType podcastIdentifier) {
+        return Single.<SubscriptionIdentifierOptType>create(source ->
                 source.onSuccess(
                         database.subscribe(podcastIdentifier)
                 )
         ).subscribeOn(scheduler);
     }
 
-    public Single<Result> unsubscribe(SubscriptionIdentifier subscriptionIdentifier) {
+    public Single<Result> unsubscribe(SubscriptionIdentifierType subscriptionIdentifier) {
         return Single.<Result>create(source ->
                 source.onSuccess(
                         database.unsubscribe(subscriptionIdentifier)
@@ -225,21 +496,26 @@ public abstract class PodcastService {
                     PodcastListType,
                     PodcastItemType
                     >,
-            PodcastListType extends List<PodcastItemType>,
             PodcastItemType
             > Observable<PodcastListServiceResponseType> searchForPodcasts2(
             PodcastListServiceResponseFactoryLoadingType loadingFactory,
             PodcastListServiceResponseFactoryCompleteType completeFactory,
             PodcastListServiceResponseFactoryFailedType failedFactory,
             @Nullable NetworkPauser networkPauser,
-            PodcastSearch podcastSearch
+            PodcastSearchType podcastSearch
     ) {
-        final PodcastSearchIdentifiedOpt podcastSearchIdentifiedOpt =
+        final PodcastSearchIdentifiedOptType podcastSearchIdentifiedOpt =
                 database.upsertPodcastSearch(podcastSearch);
 
-        final class SawMarkerAndPodcastIdentifiedList extends Tuple<Boolean, PodcastIdentifiedList> {
-            public SawMarkerAndPodcastIdentifiedList(Boolean sawMarker, PodcastIdentifiedList podcastIdentifiedList) {
-                super(sawMarker, podcastIdentifiedList);
+        final class SawMarkerAndPodcastIdentifiedList extends Tuple<Boolean, PodcastIdentifiedListType> {
+            public SawMarkerAndPodcastIdentifiedList(
+                    Boolean sawMarker,
+                    PodcastIdentifiedListType podcastIdentifiedList
+            ) {
+                super(
+                        sawMarker,
+                        podcastIdentifiedList
+                );
             }
         }
 
@@ -248,11 +524,11 @@ public abstract class PodcastService {
                     final Object marker = new Object();
                     final Observable<SawMarkerAndPodcastIdentifiedList> sawMarkerAndPodcastIdentifiedListObservable =
                             database
-                                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.identifier)
+                                    .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.getIdentifier())
                                     .scan(
                                             new SawMarkerAndPodcastIdentifiedList(
                                                     false,
-                                                    new PodcastIdentifiedList()
+                                                    podcastIdentifiedListEmptyFactory.newCollection()
                                             ),
                                             (sawMarkerAndPodcastIdentifiedList, podcastIdentifiedListMarkedValue) -> {
                                                 final boolean oldSawMarker = sawMarkerAndPodcastIdentifiedList.first;
@@ -269,7 +545,7 @@ public abstract class PodcastService {
                     final Observable<EmptyServiceResponse> podcastSearchServiceResponseObservable =
                             searchForPodcasts(
                                     networkPauser,
-                                    podcastSearch.search
+                                    podcastSearch.getSearch()
                             )
                                     .subscribeOn(scheduler)
                                     .observeOn(scheduler)
@@ -294,7 +570,7 @@ public abstract class PodcastService {
                             sawMarkerAndPodcastIdentifiedListObservable,
                             (podcastSearchServiceResponse, sawMarkerAndPodcastIdentifiedList) -> {
                                 final boolean sawMarker = sawMarkerAndPodcastIdentifiedList.first;
-                                final PodcastIdentifiedList podcastIdentifiedList = sawMarkerAndPodcastIdentifiedList.second;
+                                final PodcastIdentifiedListType podcastIdentifiedList = sawMarkerAndPodcastIdentifiedList.second;
                                 return podcastSearchServiceResponse.reduce(
                                         loading -> {
                                             // we don't care if we saw the marker because we don't know if
@@ -337,7 +613,7 @@ public abstract class PodcastService {
         ).orElse(Observable.error(new UpsertPodcastSearchException(podcastSearch)));
     }
 
-    private Single<PodcastSearchResponse> searchForPodcasts(
+    private Single<PodcastSearchResponse<PodcastListType>> searchForPodcasts(
             @Nullable NetworkPauser networkPauser,
             String query
     ) {
@@ -390,22 +666,63 @@ public abstract class PodcastService {
                                         response.close();
                                     }
 
-                                    final PodcastList podcasts =
+                                    final PodcastListType podcasts =
                                             Optional
                                                     .ofNullable(podcastSearchResultsJson.results)
                                                     .filter(Objects::nonNull)
                                                     .map(List::stream)
                                                     .orElseGet(Stream::empty)
-                                                    .map(PodcastJson::toPodcast)
+                                                    .map(this::toPodcast)
                                                     .filter(Objects::nonNull)
-                                                    .collect(Collectors.toCollection(PodcastList::new));
-                                    return Single.just(new PodcastSearchResponse(podcasts));
+                                                    .collect(Collectors.toCollection(podcastListEmptyFactory::newCollection));
+                                    return Single.just(new PodcastSearchResponse<>(podcasts));
                                 }
                             } else {
                                 return Single.error(new Exception("HTTP Error: " + responseCode));
                             }
                         }
                 );
+    }
+
+    @Nullable
+    private PodcastType toPodcast(PodcastJson podcastJson) {
+        @Nullable final String artistName = podcastJson.artistName;
+        @Nullable final String artwork30URLString = podcastJson.artworkUrl30;
+        @Nullable final String artwork60URLString = podcastJson.artworkUrl60;
+        @Nullable final String artwork100URLString = podcastJson.artworkUrl100;
+        @Nullable final String artwork600URLString = podcastJson.artworkUrl600;
+        @Nullable final String collectionName = podcastJson.collectionName;
+        @Nullable final String feedURLString = podcastJson.feedUrl;
+
+        if (
+                artistName == null ||
+                        collectionName == null ||
+                        feedURLString == null
+        ) {
+            return null;
+        } else {
+            final Optional<URL> artworkURLOptional =
+                    Stream.of(
+                            artwork600URLString,
+                            artwork100URLString,
+                            artwork60URLString,
+                            artwork30URLString
+                    )
+                            .map(URLUtil::fromString)
+                            .filter(Objects::nonNull)
+                            .findFirst();
+            final @javax.annotation.Nullable URL feedURL = URLUtil.fromString(feedURLString);
+            if (feedURL == null) {
+                return null;
+            } else {
+                return podcastFactory.newPodcast(
+                        artworkURLOptional.orElse(null),
+                        artistName,
+                        feedURL,
+                        collectionName
+                );
+            }
+        }
     }
 
 //    public Observable<ServiceResponse<PodcastIdentifiedList>> fetchEpisodes2(
@@ -417,7 +734,7 @@ public abstract class PodcastService {
 //        // so I can reuse all the code in searchForPodcasts2
 //    }
 
-    public Single<EpisodeIdentifiedList> fetchEpisodes(URL url) {
+    public Single<EpisodeListType> fetchEpisodes(URL url) {
         final Request request = new Request.Builder().url(url).build();
         final Call call = okHttpClient.newCall(request);
 
@@ -434,8 +751,8 @@ public abstract class PodcastService {
                                         return Single.error(new Exception("No responseBody"));
                                     } else {
                                         try {
-                                            final List<EpisodeIdentified> identifiedEpisodes =
-                                                    XmlParser.parseEpisodeList(responseBody.byteStream());
+                                            final EpisodeListType identifiedEpisodes =
+                                                    xmlParser.parseEpisodeList(responseBody.byteStream());
                                             return Single.just(identifiedEpisodes);
                                         } finally {
                                             responseBody.close();
@@ -448,6 +765,6 @@ public abstract class PodcastService {
                                 response.close();
                             }
                         }
-                ).map(EpisodeIdentifiedList::new);
+                );
     }
 }

@@ -1,11 +1,10 @@
 package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.android.DurationUtil;
+import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.URLUtil;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.EpisodeIdentifier;
+import com.github.hborders.heathcast.dao.Episode2;
+import com.github.hborders.heathcast.dao.EpisodeList2;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -27,14 +26,80 @@ import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.core.StringUtil.isEmpty;
 
-final class XmlParser {
+final class XmlParser<
+        EpisodeListType extends EpisodeList2<EpisodeType>,
+        EpisodeType extends Episode2
+        > {
+    private static final class Enclosure {
+        @Nullable
+        final Duration duration;
+        @Nullable
+        final URL url;
+
+        public Enclosure(
+                @Nullable Duration duration,
+                @Nullable URL url
+        ) {
+            this.duration = duration;
+            this.url = url;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Enclosure enclosure = (Enclosure) o;
+            return Objects.equals(duration, enclosure.duration) &&
+                    Objects.equals(url, enclosure.url);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(duration, url);
+        }
+
+        @Override
+        public String toString() {
+            return "Enclosure{" +
+                    "duration=" + duration +
+                    ", url=" + url +
+                    '}';
+        }
+    }
+
     private static final String ITUNES_NAMESPACE = "http://www.itunes.com/dtds/podcast-1.0.dtd";
     private static final DateFormat PUB_DATE_DATE_FORMAT = new SimpleDateFormat(
             "EEE, dd MMM yyyy HH:mm:ss zzz",
             Locale.US
     );
 
-    static EpisodeIdentifiedList parseEpisodeList(InputStream in) throws XmlPullParserException, IOException {
+    private final CollectionFactory.Capacity<
+            EpisodeListType,
+            EpisodeType
+            > episodeListCapacityFactory;
+    private final CollectionFactory.Empty<
+            EpisodeListType,
+            EpisodeType
+            > episodeListEmptyFactory;
+    private final Episode2.EpisodeFactory2<EpisodeType> episodeFactory;
+
+    XmlParser(
+            CollectionFactory.Capacity<
+                    EpisodeListType,
+                    EpisodeType
+                    > episodeListCapacityFactory,
+            CollectionFactory.Empty<
+                    EpisodeListType,
+                    EpisodeType
+                    > episodeListEmptyFactory,
+            Episode2.EpisodeFactory2<EpisodeType> episodeFactory
+    ) {
+        this.episodeListCapacityFactory = episodeListCapacityFactory;
+        this.episodeListEmptyFactory = episodeListEmptyFactory;
+        this.episodeFactory = episodeFactory;
+    }
+
+    EpisodeListType parseEpisodeList(InputStream in) throws XmlPullParserException, IOException {
         try {
             XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
             xmlPullParserFactory.setNamespaceAware(true);
@@ -48,7 +113,7 @@ final class XmlParser {
         }
     }
 
-    private static EpisodeIdentifiedList readEpisodesFromRss(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private EpisodeListType readEpisodesFromRss(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(
                 XmlPullParser.START_TAG,
                 "",
@@ -67,17 +132,18 @@ final class XmlParser {
             }
         }
 
-        return new EpisodeIdentifiedList();
+        return episodeListEmptyFactory.newCollection();
     }
 
-    private static EpisodeIdentifiedList readEpisodesFromChannel(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private EpisodeListType readEpisodesFromChannel(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(
                 XmlPullParser.START_TAG,
                 "",
                 "channel"
         );
 
-        final EpisodeIdentifiedList episodeIdentifieds = new EpisodeIdentifiedList();
+        final EpisodeListType episodes =
+                episodeListCapacityFactory.newCollection(0);
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -86,23 +152,20 @@ final class XmlParser {
 
             @Nullable final String tagName = parser.getName();
             if ("item".equals(tagName)) {
-                @Nullable final Episode episode = readEpisode(parser);
+                @Nullable final EpisodeType episode = readEpisode(parser);
                 if (episode != null) {
-                    episodeIdentifieds.add(new EpisodeIdentified(
-                            new EpisodeIdentifier(0),
-                            episode
-                    ));
+                    episodes.add(episode);
                 }
             } else {
                 skip(parser);
             }
         }
 
-        return episodeIdentifieds;
+        return episodes;
     }
 
     @Nullable
-    private static Episode readEpisode(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private EpisodeType readEpisode(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(
                 XmlPullParser.START_TAG,
                 "",
@@ -154,7 +217,7 @@ final class XmlParser {
 
         if (!isEmpty(title) &&
                 url != null) {
-            return new Episode(
+            return episodeFactory.newEpisode(
                     artworkURL,
                     duration,
                     publishDate,
@@ -268,43 +331,6 @@ final class XmlParser {
                     depth++;
                     break;
             }
-        }
-    }
-
-    private static final class Enclosure {
-        @Nullable
-        final Duration duration;
-        @Nullable
-        final URL url;
-
-        public Enclosure(
-                @Nullable Duration duration,
-                @Nullable URL url
-        ) {
-            this.duration = duration;
-            this.url = url;
-        }
-
-        @Override
-        public boolean equals(@Nullable Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Enclosure enclosure = (Enclosure) o;
-            return Objects.equals(duration, enclosure.duration) &&
-                    Objects.equals(url, enclosure.url);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(duration, url);
-        }
-
-        @Override
-        public String toString() {
-            return "Enclosure{" +
-                    "duration=" + duration +
-                    ", url=" + url +
-                    '}';
         }
     }
 }

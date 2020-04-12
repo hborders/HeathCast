@@ -68,6 +68,9 @@ public interface Podcast2 {
         }
     }
 
+    interface PodcastList2<PodcastType extends Podcast2> extends List<PodcastType> {
+    }
+
     @Nullable
     URL getArtworkURL();
 
