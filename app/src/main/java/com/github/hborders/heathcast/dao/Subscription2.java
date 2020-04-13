@@ -44,6 +44,10 @@ public interface Subscription2<
             > extends Identified2<
             SubscriptionIdentifierType,
             SubscriptionType
+            >, Subscription2<
+            PodcastIdentifiedType,
+            PodcastIdentifierType,
+            PodcastType
             > {
         interface SubscriptionIdentifiedList2<
                 SubscriptionIdentifiedType extends SubscriptionIdentified2<

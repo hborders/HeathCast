@@ -1,5 +1,7 @@
 package com.github.hborders.heathcast.models;
 
+import com.github.hborders.heathcast.core.ClassUtil;
+
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -32,13 +34,10 @@ public abstract class Identified<I extends Identifier<M>, M> {
 
     @Override
     public final String toString() {
-        @SuppressWarnings("rawtypes") final Class<? extends Identified> clazz = getClass();
-        final String simpleName;
-        if (clazz.isAnonymousClass()) {
-            simpleName = "Identified$";
-        } else {
-            simpleName = clazz.getSimpleName();
-        }
+        final String simpleName = ClassUtil.getSpecificSimpleName(
+                Identified.class,
+                getClass()
+        );
 
         return simpleName + "{" +
                 "identifier=" + identifier +

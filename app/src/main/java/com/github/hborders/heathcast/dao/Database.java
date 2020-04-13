@@ -48,9 +48,9 @@ public final class Database<
                 EpisodeIdentifierOptType,
                 EpisodeIdentifierType
                 >,
-        EpisodeListType extends EpisodeList2<
-                EpisodeType
-                >,
+        EpisodeListType extends Episode2.EpisodeList2<
+                        EpisodeType
+                        >,
         PodcastType extends Podcast2,
         PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
                 PodcastIdentifierType,

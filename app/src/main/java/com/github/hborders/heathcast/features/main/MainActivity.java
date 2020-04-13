@@ -15,19 +15,9 @@ import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.core.Result;
-import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory;
-import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory;
-import com.github.hborders.heathcast.features.search.PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.SubscriptionIdentifier;
-import com.github.hborders.heathcast.models.SubscriptionIdentifierOpt;
+import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
@@ -61,8 +51,6 @@ public final class MainActivity extends AppCompatActivity
         searchForPodcasts2NetworkPausers.clear();
     }
 
-    private final PodcastService podcastService = new PodcastService(this);
-
     private final DelegatingIdlingResource podcastSearchResultPodcastListLoadingDelegatingIdlingResource =
             new DelegatingIdlingResource(
                     "PodcastSearchResultPodcastListLoading"
@@ -71,6 +59,16 @@ public final class MainActivity extends AppCompatActivity
             new DelegatingIdlingResource(
                     "PodcastSearchResultPodcastListCompleteOrError"
             );
+
+    private final PodcastService<
+
+            > podcastService;
+
+    public MainActivity() {
+        podcastService = new PodcastService(
+
+        );
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

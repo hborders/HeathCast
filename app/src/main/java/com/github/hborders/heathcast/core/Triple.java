@@ -36,13 +36,11 @@ public class Triple<A, B, C> {
 
     @Override
     public final String toString() {
-        @SuppressWarnings("rawtypes") final Class<? extends Triple> clazz = getClass();
-        final String simpleName;
-        if (clazz.isAnonymousClass()) {
-            simpleName = "Triple$";
-        } else {
-            simpleName = clazz.getSimpleName();
-        }
+        final String simpleName = ClassUtil.getSpecificSimpleName(
+                Triple.class,
+                getClass()
+        );
+
         return simpleName + "{" +
                 "first=" + first +
                 ", second=" + second +

@@ -1,9 +1,9 @@
 package com.github.hborders.heathcast.core;
 
+import androidx.annotation.Nullable;
+
 import java.util.Optional;
 import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
 
 public interface Opt2<ValueType> {
     interface OptEmptyFactory<

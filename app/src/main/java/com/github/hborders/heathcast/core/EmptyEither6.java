@@ -227,13 +227,11 @@ public interface EmptyEither6<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends LeftLeftLeftImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "LeftLeftLeft$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    LeftLeftLeftImpl.class,
+                    getClass()
+            );
+
             return simpleName + "{" +
                     '}';
         }
@@ -422,13 +420,11 @@ public interface EmptyEither6<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends LeftLeftImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "LeftLeft$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    LeftLeftImpl.class,
+                    getClass()
+            );
+
             return simpleName + "{" +
                     '}';
         }
@@ -617,13 +613,11 @@ public interface EmptyEither6<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Left$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    LeftImpl.class,
+                    getClass()
+            );
+
             return simpleName + "{" +
                     '}';
         }
@@ -813,13 +807,11 @@ public interface EmptyEither6<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Right$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    RightImpl.class,
+                    getClass()
+            );
+
             return simpleName + "{" +
                     '}';
         }
@@ -1008,13 +1000,11 @@ public interface EmptyEither6<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends RightRightImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "RightRight$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    RightRightImpl.class,
+                    getClass()
+            );
+
             return simpleName + "{" +
                     '}';
         }
@@ -1203,13 +1193,11 @@ public interface EmptyEither6<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends RightRightRightImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "RightRightRight$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    RightRightRightImpl.class,
+                    getClass()
+            );
+
             return simpleName + "{" +
                     '}';
         }

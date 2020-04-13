@@ -2,11 +2,14 @@ package com.github.hborders.heathcast.features.search;
 
 import android.content.Context;
 
+import com.github.hborders.heathcast.core.Either;
+import com.github.hborders.heathcast.core.Either31;
+import com.github.hborders.heathcast.core.Nothing;
+import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListAttachment;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListFragmentListener;
 import com.github.hborders.heathcast.fragments.PodcastListFragment;
 import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.services.PodcastListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete;
 import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed;
@@ -65,86 +68,112 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
 //            > {
 //    }
 
-    public interface PodcastSearchPodcastListState extends AsyncValueState<
-            PodcastSearchPodcastListStateLoading,
-            PodcastSearchPodcastListStateComplete,
-            PodcastSearchPodcastListStateFailed,
+    public interface PodcastSearchPodcastListAsyncValueState extends AsyncValueState<
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
             PodcastIdentifiedPodcastListState
             >, PodcastListServiceResponse<
-                        PodcastSearchPodcastListStateLoading,
-                        PodcastSearchPodcastListStateComplete,
-                        PodcastSearchPodcastListStateFailed
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed
                         > {
     }
 
-    public interface PodcastSearchPodcastListStateLoading extends
-            PodcastListServiceResponseLoading<
-                                PodcastSearchPodcastListStateLoading,
-                                PodcastSearchPodcastListStateComplete,
-                                PodcastSearchPodcastListStateFailed
+    public static final class PodcastSearchPodcastListAsyncValueStateLoading
+        extends Either31.LeftImpl<
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastIdentifiedPodcastListState
+            > implements PodcastListServiceResponseLoading<
+                    PodcastSearchPodcastListAsyncValueStateLoading,
+                    PodcastSearchPodcastListAsyncValueStateComplete,
+                    PodcastSearchPodcastListAsyncValueStateFailed,
+                    PodcastIdentifiedPodcastListState
                                 >,
             AsyncValueState.AsyncValueLoading<
-                    PodcastSearchPodcastListStateLoading,
-                    PodcastSearchPodcastListStateComplete,
-                    PodcastSearchPodcastListStateFailed
+                    PodcastSearchPodcastListAsyncValueStateLoading,
+                    PodcastSearchPodcastListAsyncValueStateComplete,
+                    PodcastSearchPodcastListAsyncValueStateFailed
                     >,
-            PodcastSearchPodcastListState {
+            PodcastSearchPodcastListAsyncValueState {
     }
 
-    public interface PodcastSearchPodcastListStateComplete extends
-            PodcastListServiceResponseComplete<
-                                PodcastSearchPodcastListStateLoading,
-                                PodcastSearchPodcastListStateComplete,
-                                PodcastSearchPodcastListStateFailed
+    public static final class PodcastSearchPodcastListAsyncValueStateComplete
+            extends Either31.MiddleImpl<
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastIdentifiedPodcastListState
+            > implements PodcastListServiceResponseComplete<
+                    PodcastSearchPodcastListAsyncValueStateLoading,
+                    PodcastSearchPodcastListAsyncValueStateComplete,
+                    PodcastSearchPodcastListAsyncValueStateFailed
                                 >,
             AsyncValueState.AsyncValueComplete<
-                    PodcastSearchPodcastListStateLoading,
-                    PodcastSearchPodcastListStateComplete,
-                    PodcastSearchPodcastListStateFailed
+                    PodcastSearchPodcastListAsyncValueStateLoading,
+                    PodcastSearchPodcastListAsyncValueStateComplete,
+                    PodcastSearchPodcastListAsyncValueStateFailed
                     >,
-            PodcastSearchPodcastListState {
+            PodcastSearchPodcastListAsyncValueState {
     }
 
-    public interface PodcastSearchPodcastListStateFailed extends
-            PodcastListServiceResponseFailed<
-                                PodcastSearchPodcastListStateLoading,
-                                PodcastSearchPodcastListStateComplete,
-                                PodcastSearchPodcastListStateFailed
+    public static final class PodcastSearchPodcastListAsyncValueStateFailed
+            extends Either31.RightImpl<
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastIdentifiedPodcastListState
+            > implements PodcastListServiceResponseFailed<
+                    PodcastSearchPodcastListAsyncValueStateLoading,
+                    PodcastSearchPodcastListAsyncValueStateComplete,
+                    PodcastSearchPodcastListAsyncValueStateFailed
                                 >,
             AsyncValueState.AsyncValueFailed<
-                    PodcastSearchPodcastListStateLoading,
-                    PodcastSearchPodcastListStateComplete,
-                    PodcastSearchPodcastListStateFailed,
+                    PodcastSearchPodcastListAsyncValueStateLoading,
+                    PodcastSearchPodcastListAsyncValueStateComplete,
+                    PodcastSearchPodcastListAsyncValueStateFailed,
                     PodcastIdentified
                     >,
-            PodcastSearchPodcastListState {
+            PodcastSearchPodcastListAsyncValueState {
     }
 
     public interface PodcastIdentifiedPodcastListValueState extends PodcastListValueState<
-            PodcastIdentifiedPodcastListValueEmpty,
-            PodcastIdentifiedPodcastListValueNonEmpty,
-            PodcastIdentifiedList,
-            PodcastIdentified
+            PodcastIdentifiedPodcastListValueState.PodcastIdentifiedPodcastListValueEmpty,
+            PodcastIdentifiedPodcastListValueState.PodcastIdentifiedPodcastListValueNonEmpty,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl
             > {
+        final class PodcastIdentifiedPodcastListValueEmpty
+                extends Either.LeftImpl<
+                PodcastIdentifiedPodcastListValueEmpty,
+                PodcastIdentifiedPodcastListValueNonEmpty,
+                Nothing,
+                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                > implements PodcastListValueState.PodcastListValueEmpty<
+                PodcastIdentifiedPodcastListValueEmpty,
+                PodcastIdentifiedPodcastListValueNonEmpty,
+                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+                PodcastImpl.PodcastIdentifiedImpl
+                >, PodcastIdentifiedPodcastListValueState {
 
-    }
+        }
 
-    public interface PodcastIdentifiedPodcastListValueEmpty extends PodcastListValueState.PodcastListValueEmpty<
-            PodcastIdentifiedPodcastListValueEmpty,
-            PodcastIdentifiedPodcastListValueNonEmpty,
-            PodcastIdentifiedList,
-            PodcastIdentified
-            >, PodcastIdentifiedPodcastListValueState {
+        final class PodcastIdentifiedPodcastListValueNonEmpty
+                extends Either.RightImpl<
+                PodcastIdentifiedPodcastListValueEmpty,
+                PodcastIdentifiedPodcastListValueNonEmpty,
+                Nothing,
+                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                > implements PodcastListValueState.PodcastListValueNonEmpty<
+                PodcastIdentifiedPodcastListValueEmpty,
+                PodcastIdentifiedPodcastListValueNonEmpty,
+                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+                PodcastImpl.PodcastIdentifiedImpl
+                >, PodcastIdentifiedPodcastListValueState {
 
-    }
-
-    public interface PodcastIdentifiedPodcastListValueNonEmpty extends PodcastListValueState.PodcastListValueNonEmpty<
-            PodcastIdentifiedPodcastListValueEmpty,
-            PodcastIdentifiedPodcastListValueNonEmpty,
-            PodcastIdentifiedList,
-            PodcastIdentified
-            >, PodcastIdentifiedPodcastListValueState {
-
+        }
     }
 
     public PodcastSearchPodcastListFragment() {

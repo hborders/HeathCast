@@ -114,8 +114,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastListServiceResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastListServiceResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/ClassUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EitherNonEmptyList.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/EpisodeImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/IdentifiedImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/IdentifierImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/ModelListImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/OptImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastSearchImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/package-info.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/model/package-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either3.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Either3.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither3.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither3.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither6.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither6.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither7.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/EmptyEither7.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Opt.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Opt.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Opt2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Opt2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Triple.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/core/Triple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Episode2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Episode2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeList2.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Podcast2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Podcast2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearch2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearch2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Subscription2.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Subscription2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchPodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchPodcastListFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Identified.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Identified.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Identifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Identifier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListAsyncValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxListAsyncValueFragment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/XmlParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/XmlParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/ListRecyclerViewAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/ListRecyclerViewAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/PodcastRecyclerViewAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/views/recyclerviews/PodcastRecyclerViewAdapter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -232,7 +269,7 @@
     <property name="device.picker.selection" value="Pixel_API_28" />
     <property name="extract.method.default.visibility" value="private" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/idlingresource" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/async" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model" />
     <property name="multi-representation-preview/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.appcompat/appcompat/1.1.0/9865019bbd2d95e41dede3d8ebf964aa93f97766/appcompat-1.1.0-sources.jar!/androidx/appcompat/widget/SearchView.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.recyclerview/recyclerview/1.1.0/f2bdf79e1977939817f54a9d3e2f6bc52b63bdd0/recyclerview-1.1.0-sources.jar!/androidx/recyclerview/widget/RecyclerView.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/hborders/Library/Android/sdk/sources/android-29/android/view/View.java_selected" value="Custom views" />
@@ -276,11 +313,11 @@
       <recent name="com.github.hborders.heathcast.services" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model" />
+      <recent name="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/model" />
       <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/mvp/async" />
       <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/vmc" />
       <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search" />
-      <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main" />
-      <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/idlingresource" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.github.hborders.heathcast.vcm" />
@@ -657,10 +694,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="755" y="409" key="#com.intellij.ide.actions.DebugLogConfigureAction/0.23.1920.1100@0.23.1920.1100" timestamp="1583602217176" />
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586580780919">
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586755327808">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586580780919" />
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586755327808" />
     <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585108867255">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -669,10 +706,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="668" y="505" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586661613334" />
-    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1586661740661">
+    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1586748066275">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.1920.1100@0.23.1920.1100" timestamp="1586661740661" />
+    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.1920.1100@0.23.1920.1100" timestamp="1586748066275" />
     <state x="721" y="414" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog" timestamp="1586661614745">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -681,10 +718,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585458275115" />
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1586670957222">
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1586751513085">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586670957222" />
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586751513085" />
     <state x="698" y="326" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1585803783950">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -769,22 +806,22 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="198" y="316" width="1572" height="562" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.23.1920.1100@0.23.1920.1100" timestamp="1585801505323" />
-    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1586720301692">
+    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1586750422888">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586720301692" />
-    <state width="709" height="83" key="javadoc.popup.new" timestamp="1586726304129">
+    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586750422888" />
+    <state width="708" height="83" key="javadoc.popup.new" timestamp="1586755800669">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="709" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586726304129" />
+    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586755800669" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586401059744">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586401059744" />
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586720741822">
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586755010955">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586720741822" />
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586755010955" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

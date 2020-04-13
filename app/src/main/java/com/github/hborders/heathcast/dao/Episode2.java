@@ -88,6 +88,11 @@ public interface Episode2 {
         }
     }
 
+    interface EpisodeList2<
+            EpisodeType extends Episode2
+            > extends List<EpisodeType> {
+    }
+
     @Nullable
     URL getArtworkURL();
 

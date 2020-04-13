@@ -4,7 +4,6 @@ import com.github.hborders.heathcast.android.DurationUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.dao.Episode2;
-import com.github.hborders.heathcast.dao.EpisodeList2;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -27,7 +26,7 @@ import javax.annotation.Nullable;
 import static com.github.hborders.heathcast.core.StringUtil.isEmpty;
 
 final class XmlParser<
-        EpisodeListType extends EpisodeList2<EpisodeType>,
+        EpisodeListType extends Episode2.EpisodeList2<EpisodeType>,
         EpisodeType extends Episode2
         > {
     private static final class Enclosure {

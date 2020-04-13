@@ -11,23 +11,13 @@ public abstract class ListRecyclerViewAdapter<
         ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
                 ListRecyclerViewAdapterType,
                 ViewHolderType,
-                ListType,
                 ItemType
                 >,
         ViewHolderType extends RecyclerView.ViewHolder,
-        ListType extends List<ItemType>,
         ItemType
         > extends RecyclerView.Adapter<ViewHolderType> {
     protected interface OnCreateViewHolder<
-            ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
-                    ListRecyclerViewAdapterType,
-                    ViewHolderType,
-                    ListType,
-                    ItemType
-                    >,
-            ViewHolderType extends RecyclerView.ViewHolder,
-            ListType extends List<ItemType>,
-            ItemType
+            ViewHolderType extends RecyclerView.ViewHolder
             > {
         ViewHolderType onCreateViewHolder(
                 ViewGroup parent,
@@ -39,11 +29,9 @@ public abstract class ListRecyclerViewAdapter<
             ListRecyclerViewAdapterType extends ListRecyclerViewAdapter<
                     ListRecyclerViewAdapterType,
                     ViewHolderType,
-                    ListType,
                     ItemType
                     >,
             ViewHolderType extends RecyclerView.ViewHolder,
-            ListType extends List<ItemType>,
             ItemType
             > {
         void onBindViewHolder(
@@ -54,35 +42,23 @@ public abstract class ListRecyclerViewAdapter<
     }
 
     private final Class<ListRecyclerViewAdapterType> selfClass;
-    private final OnCreateViewHolder<
-            ListRecyclerViewAdapterType,
-            ViewHolderType,
-            ListType,
-            ItemType
-            > onCreateViewHolder;
+    private final OnCreateViewHolder<ViewHolderType> onCreateViewHolder;
     private final OnBindViewHolder<
             ListRecyclerViewAdapterType,
             ViewHolderType,
-            ListType,
             ItemType
             > onBindViewHolder;
-    private ListType items;
+    private List<ItemType> items;
 
     protected ListRecyclerViewAdapter(
             Class<ListRecyclerViewAdapterType> selfClass,
-            OnCreateViewHolder<
-                    ListRecyclerViewAdapterType,
-                    ViewHolderType,
-                    ListType,
-                    ItemType
-                    > onCreateViewHolder,
+            OnCreateViewHolder<ViewHolderType> onCreateViewHolder,
             OnBindViewHolder<
                     ListRecyclerViewAdapterType,
                     ViewHolderType,
-                    ListType,
                     ItemType
                     > onBindViewHolder,
-            ListType items
+            List<ItemType> items
     ) {
         this.selfClass = selfClass;
         this.onCreateViewHolder = onCreateViewHolder;
@@ -114,7 +90,7 @@ public abstract class ListRecyclerViewAdapter<
         return items.size();
     }
 
-    public final void setItems(ListType items) {
+    public final void setItems(List<ItemType> items) {
         this.items = items;
         notifyDataSetChanged();
     }

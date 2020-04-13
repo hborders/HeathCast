@@ -20,22 +20,6 @@ public interface Either<
         LeftValueType,
         RightValueType
         > {
-    <T> T reduce(
-            Function<
-                    ? super LeftType,
-                    ? extends T
-                    > leftReducer,
-            Function<
-                    ? super RightType,
-                    ? extends T
-                    > rightReducer
-    );
-
-    void act(
-            VoidFunction<? super LeftType> leftAction,
-            VoidFunction<? super RightType> rightAction
-    );
-
     interface Left<
             LeftType extends Left<
                     LeftType,
@@ -93,6 +77,8 @@ public interface Either<
             this.value = value;
         }
 
+        // Object
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -108,18 +94,17 @@ public interface Either<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Left$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    LeftImpl.class,
+                    getClass()
+            );
 
             return simpleName + "{" +
                     "value=" + value +
                     '}';
         }
+
+        // Either
 
         @Override
         public final <T> T reduce(
@@ -210,6 +195,8 @@ public interface Either<
             this.value = value;
         }
 
+        // Object
+
         @Override
         public final boolean equals(@Nullable Object o) {
             if (this == o) return true;
@@ -225,18 +212,17 @@ public interface Either<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Right$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    RightImpl.class,
+                    getClass()
+            );
 
             return simpleName + "{" +
                     "value=" + value +
                     '}';
         }
+
+        // Either
 
         @Override
         public final <T> T reduce(
@@ -269,6 +255,22 @@ public interface Either<
             return Objects.requireNonNull(selfClass.cast(this));
         }
     }
+
+    <T> T reduce(
+            Function<
+                    ? super LeftType,
+                    ? extends T
+                    > leftReducer,
+            Function<
+                    ? super RightType,
+                    ? extends T
+                    > rightReducer
+    );
+
+    void act(
+            VoidFunction<? super LeftType> leftAction,
+            VoidFunction<? super RightType> rightAction
+    );
 }
 
 

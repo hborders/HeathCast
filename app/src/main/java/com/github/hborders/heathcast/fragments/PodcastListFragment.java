@@ -12,6 +12,7 @@ import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.github.hborders.heathcast.reactivexandroid.RxListAsyncValueFragment;
 import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,84 +37,6 @@ public abstract class PodcastListFragment<
         ListenerType,
         AttachmentType
         > {
-    public interface PodcastListValueState<
-            PodcastListValueEmptyType extends PodcastListValueState.PodcastListValueEmpty<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
-                    >,
-            PodcastListValueNonEmptyType extends PodcastListValueState.PodcastListValueNonEmpty<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
-                    >,
-            PodcastListType extends List<PodcastItemType>,
-            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem
-            > extends ListValueState<
-            PodcastListValueEmptyType,
-            PodcastListValueNonEmptyType,
-            PodcastListType,
-            PodcastItemType
-            > {
-        interface PodcastListValueEmpty<
-                PodcastListValueEmptyType extends PodcastListValueEmpty<
-                        PodcastListValueEmptyType,
-                        PodcastListValueNonEmptyType,
-                        PodcastListType,
-                        PodcastItemType
-                        >,
-                PodcastListValueNonEmptyType extends PodcastListValueNonEmpty<
-                        PodcastListValueEmptyType,
-                        PodcastListValueNonEmptyType,
-                        PodcastListType,
-                        PodcastItemType
-                        >,
-                PodcastListType extends List<PodcastItemType>,
-                PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem
-                > extends ListValueState.ListValueEmpty<
-                PodcastListValueEmptyType,
-                PodcastListValueNonEmptyType,
-                PodcastListType,
-                PodcastItemType
-                >, PodcastListValueState<
-                PodcastListValueEmptyType,
-                PodcastListValueNonEmptyType,
-                PodcastListType,
-                PodcastItemType
-                > {
-        }
-
-        interface PodcastListValueNonEmpty<
-                PodcastListValueEmptyType extends PodcastListValueEmpty<
-                        PodcastListValueEmptyType,
-                        PodcastListValueNonEmptyType,
-                        PodcastListType,
-                        PodcastItemType
-                        >,
-                PodcastListValueNonEmptyType extends PodcastListValueNonEmpty<
-                        PodcastListValueEmptyType,
-                        PodcastListValueNonEmptyType,
-                        PodcastListType,
-                        PodcastItemType
-                        >,
-                PodcastListType extends List<PodcastItemType>,
-                PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem
-                > extends ListValueState.ListValueNonEmpty<
-                PodcastListValueEmptyType,
-                PodcastListValueNonEmptyType,
-                PodcastListType,
-                PodcastItemType
-                >, PodcastListValueState<
-                PodcastListValueEmptyType,
-                PodcastListValueNonEmptyType,
-                PodcastListType,
-                PodcastItemType
-                > {
-        }
-    }
-
     private static final class PodcastListAsyncValueViewFacade<
             PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
                     PodcastRecyclerViewAdapterType,
@@ -212,43 +135,25 @@ public abstract class PodcastListFragment<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
+                    PodcastListType
                     >,
             AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
+                    PodcastListType
                     >,
             AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
+                    PodcastListType
                     >,
             AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
-                    >,
-            PodcastListValueStateType extends PodcastListValueState<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
-                    >,
-            PodcastListValueEmptyType extends PodcastListValueState.PodcastListValueEmpty<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
-                    >,
-            PodcastListValueNonEmptyType extends PodcastListValueState.PodcastListValueNonEmpty<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastListType
                     >
             > implements ValueViewFacadeTransaction {
         private final PodcastListAsyncValueViewFacade<
@@ -283,63 +188,64 @@ public abstract class PodcastListFragment<
             complete = true;
 
             state.act(
-                    loading ->
-                            loading.getValue().act(
-                                    empty -> {
-                                        viewFacade.emptyItemsLoadingView.setVisibility(View.VISIBLE);
-                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
-                                        viewFacade.recyclerView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
-                                    },
-                                    nonEmpty -> {
-                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.VISIBLE);
-                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
-                                        viewFacade.recyclerView.setVisibility(View.VISIBLE);
-                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
-                                    }
-                            ),
-                    complete ->
-                            complete.getValue().act(
-                                    empty -> {
-                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsCompleteView.setVisibility(View.VISIBLE);
-                                        viewFacade.recyclerView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
-                                    },
-                                    nonEmpty -> {
-                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
-                                        viewFacade.recyclerView.setVisibility(View.VISIBLE);
-                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
-                                    }
-                            ),
-                    failed ->
-                            failed.getValue().act(
-                                    empty -> {
-                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
-                                        viewFacade.recyclerView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsFailedView.setVisibility(View.VISIBLE);
-                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
-                                    },
-                                    nonEmpty -> {
-                                        viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
-                                        viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
-                                        viewFacade.recyclerView.setVisibility(View.VISIBLE);
-                                        viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
-                                        viewFacade.nonEmptyItemsFailedView.setVisibility(View.VISIBLE);
-                                    }
-                            )
+                    loading -> {
+                        final PodcastListType podcasts = loading.getValue();
+                        if (podcasts.isEmpty()) {
+                            viewFacade.emptyItemsLoadingView.setVisibility(View.VISIBLE);
+                            viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                            viewFacade.recyclerView.setVisibility(View.GONE);
+                            viewFacade.podcastRecyclerViewAdapter.setItems(Collections.emptyList());
+                            viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                        } else {
+                            viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsLoadingView.setVisibility(View.VISIBLE);
+                            viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                            viewFacade.recyclerView.setVisibility(View.VISIBLE);
+                            viewFacade.podcastRecyclerViewAdapter.setItems(podcasts);
+                            viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                        }
+                    },
+                    complete -> {
+                        final PodcastListType podcasts = complete.getValue();
+                        if (podcasts.isEmpty()) {
+                            viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.emptyItemsCompleteView.setVisibility(View.VISIBLE);
+                            viewFacade.recyclerView.setVisibility(View.GONE);
+                            viewFacade.podcastRecyclerViewAdapter.setItems(Collections.emptyList());
+                            viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                        } else {
+                            viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                            viewFacade.recyclerView.setVisibility(View.VISIBLE);
+                            viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                        }
+                    },
+                    failed -> {
+                        final PodcastListType podcasts = failed.getValue();
+                        if (podcasts.isEmpty()) {
+                            viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                            viewFacade.recyclerView.setVisibility(View.GONE);
+                            viewFacade.podcastRecyclerViewAdapter.setItems(Collections.emptyList());
+                            viewFacade.emptyItemsFailedView.setVisibility(View.VISIBLE);
+                            viewFacade.nonEmptyItemsFailedView.setVisibility(View.GONE);
+                        } else {
+                            viewFacade.emptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsLoadingView.setVisibility(View.GONE);
+                            viewFacade.emptyItemsCompleteView.setVisibility(View.GONE);
+                            viewFacade.recyclerView.setVisibility(View.VISIBLE);
+                            viewFacade.emptyItemsFailedView.setVisibility(View.GONE);
+                            viewFacade.nonEmptyItemsFailedView.setVisibility(View.VISIBLE);
+                        }
+                    }
             );
 
             final CompletableSubject completableSubject = CompletableSubject.create();
@@ -514,43 +420,25 @@ public abstract class PodcastListFragment<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
+                    PodcastListType
                     >,
             AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
+                    PodcastListType
                     >,
             AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
+                    PodcastListType
                     >,
             AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    PodcastListValueStateType
-                    >,
-            PodcastListValueStateType extends PodcastListValueState<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
-                    >,
-            PodcastListValueEmptyType extends PodcastListValueState.PodcastListValueEmpty<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
-                    >,
-            PodcastListValueNonEmptyType extends PodcastListValueState.PodcastListValueNonEmpty<
-                    PodcastListValueEmptyType,
-                    PodcastListValueNonEmptyType,
-                    PodcastListType,
-                    PodcastItemType
+                    PodcastListType
                     >
             > PodcastListFragment(
             Class<PodcastListFragmentType> selfClass,
@@ -591,10 +479,7 @@ public abstract class PodcastListFragment<
                                 AsyncValueStateType,
                                 AsyncValueLoadingType,
                                 AsyncValueCompleteType,
-                                AsyncValueFailedType,
-                                PodcastListValueStateType,
-                                PodcastListValueEmptyType,
-                                PodcastListValueNonEmptyType
+                                AsyncValueFailedType
                                 >
                         >) PodcastListAsyncValueViewFacadeTransaction::new
         );

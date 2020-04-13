@@ -24,7 +24,7 @@ public interface Podcast2 {
             > extends Identified2<
             PodcastIdentifierType,
             PodcastType
-            > {
+            >, Podcast2 {
         interface PodcastIdentifiedList2<
                 PodcastIdentifiedType extends PodcastIdentified2<
                         PodcastIdentifierType,

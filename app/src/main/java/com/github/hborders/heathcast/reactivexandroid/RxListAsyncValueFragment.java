@@ -1,10 +1,5 @@
 package com.github.hborders.heathcast.reactivexandroid;
 
-import com.github.hborders.heathcast.core.Either;
-import com.github.hborders.heathcast.core.Function;
-import com.github.hborders.heathcast.core.Nothing;
-import com.github.hborders.heathcast.core.VoidFunction;
-
 import java.util.List;
 
 // Extract EmptyLoading, NonEmptyLoading, EmptyComplete, NonEmptyComplete,
@@ -28,108 +23,6 @@ public abstract class RxListAsyncValueFragment<
         ListenerType,
         AttachmentType
         > {
-    // even though ListAsyncState could be protected for us, we should make it public
-    // so that subclasses can use it in public generic boundaries
-    // Java bugs: 9064231, 9064232
-    // https://github.com/hborders/HeathCast/tree/jdk_8_bug
-    public interface ListValueState<
-            ListValueEmptyType extends ListValueState.ListValueEmpty<
-                    ListValueEmptyType,
-                    ListValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType
-                    >,
-            ListValueNonEmptyType extends ListValueState.ListValueNonEmpty<
-                    ListValueEmptyType,
-                    ListValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType
-                    >,
-            ListAsyncValueListType extends List<ListAsyncValueItemType>,
-            ListAsyncValueItemType
-            > extends Either<
-            ListValueEmptyType,
-            ListValueNonEmptyType,
-            Nothing,
-            ListAsyncValueListType
-            > {
-        interface ListValueEmpty<
-                ListValueEmptyType extends ListValueEmpty<
-                        ListValueEmptyType,
-                        ListValueNonEmptyType,
-                        ListAsyncValueListType,
-                        ListAsyncValueItemType
-                        >,
-                ListValueNonEmptyType extends ListValueNonEmpty<
-                        ListValueEmptyType,
-                        ListValueNonEmptyType,
-                        ListAsyncValueListType,
-                        ListAsyncValueItemType
-                        >,
-                ListAsyncValueListType extends List<ListAsyncValueItemType>,
-                ListAsyncValueItemType
-                > extends ListValueState<
-                ListValueEmptyType,
-                ListValueNonEmptyType,
-                ListAsyncValueListType,
-                ListAsyncValueItemType
-                >, Either.Left<
-                ListValueEmptyType,
-                ListValueNonEmptyType,
-                Nothing,
-                ListAsyncValueListType
-                > {
-        }
-
-        interface ListValueNonEmpty<
-                ListValueEmptyType extends ListValueEmpty<
-                        ListValueEmptyType,
-                        ListValueNonEmptyType,
-                        ListAsyncValueListType,
-                        ListAsyncValueItemType
-                        >,
-                ListValueNonEmptyType extends ListValueNonEmpty<
-                        ListValueEmptyType,
-                        ListValueNonEmptyType,
-                        ListAsyncValueListType,
-                        ListAsyncValueItemType
-                        >,
-                ListAsyncValueListType extends List<ListAsyncValueItemType>,
-                ListAsyncValueItemType
-                > extends ListValueState<
-                ListValueEmptyType,
-                ListValueNonEmptyType,
-                ListAsyncValueListType,
-                ListAsyncValueItemType
-                >, Either.Right<
-                ListValueEmptyType,
-                ListValueNonEmptyType,
-                Nothing,
-                ListAsyncValueListType
-                > {
-        }
-
-        // Either
-
-        @Override
-        <T> T reduce(
-                Function<
-                        ? super ListValueEmptyType,
-                        ? extends T
-                        > emptyReducer,
-                Function<
-                        ? super ListValueNonEmptyType,
-                        ? extends T
-                        > nonEmptyReducer
-        );
-
-        @Override
-        void act(
-                VoidFunction<? super ListValueEmptyType> emptyAction,
-                VoidFunction<? super ListValueNonEmptyType> nonEmptyAction
-        );
-    }
-
     protected <
             AttachmentFactoryType extends Attachment.AttachmentFactory<
                     FragmentType,
@@ -163,43 +56,25 @@ public abstract class RxListAsyncValueFragment<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    ListValueStateType
+                    ListAsyncValueListType
                     >,
             AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    ListValueStateType
+                    ListAsyncValueListType
                     >,
             AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    ListValueStateType
+                    ListAsyncValueListType
                     >,
             AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
                     AsyncValueLoadingType,
                     AsyncValueCompleteType,
                     AsyncValueFailedType,
-                    ListValueStateType
-                    >,
-            ListValueStateType extends ListValueState<
-                    ListValueEmptyType,
-                    ListValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType
-                    >,
-            ListValueEmptyType extends ListValueState.ListValueEmpty<
-                    ListValueEmptyType,
-                    ListValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType
-                    >,
-            ListValueNonEmptyType extends ListValueState.ListValueNonEmpty<
-                    ListValueEmptyType,
-                    ListValueNonEmptyType,
-                    ListAsyncValueListType,
-                    ListAsyncValueItemType
+                    ListAsyncValueListType
                     >,
             ListAsyncValueListType extends List<ListAsyncValueItemType>,
             ListAsyncValueItemType,

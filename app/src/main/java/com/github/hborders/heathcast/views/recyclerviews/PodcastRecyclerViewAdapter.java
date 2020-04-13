@@ -37,7 +37,6 @@ public abstract class PodcastRecyclerViewAdapter<
         > extends ListRecyclerViewAdapter<
         PodcastRecyclerViewAdapterType,
         PodcastViewHolderType,
-        PodcastListType,
         PodcastItemType
         > {
     public interface PodcastRecyclerViewAdapterFactory<
@@ -87,12 +86,7 @@ public abstract class PodcastRecyclerViewAdapter<
 
     protected PodcastRecyclerViewAdapter(
             Class<PodcastRecyclerViewAdapterType> selfClass,
-            OnCreateViewHolder<
-                    PodcastRecyclerViewAdapterType,
-                    PodcastViewHolderType,
-                    PodcastListType,
-                    PodcastItemType
-                    > onCreateViewHolder,
+            OnCreateViewHolder<PodcastViewHolderType> onCreateViewHolder,
             PodcastListType podcastItems,
             ListenerType listener,
             OnClick<

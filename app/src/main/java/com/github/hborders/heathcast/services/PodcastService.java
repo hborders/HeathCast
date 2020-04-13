@@ -8,7 +8,6 @@ import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.dao.Episode2;
-import com.github.hborders.heathcast.dao.EpisodeList2;
 import com.github.hborders.heathcast.dao.Podcast2;
 import com.github.hborders.heathcast.dao.PodcastSearch2;
 import com.github.hborders.heathcast.dao.Subscription2;
@@ -34,7 +33,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public abstract class PodcastService<
+public final class PodcastService<
         EpisodeType extends Episode2,
         EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
                 EpisodeIdentifierType,
@@ -56,9 +55,9 @@ public abstract class PodcastService<
                 EpisodeIdentifierOptType,
                 EpisodeIdentifierType
                 >,
-        EpisodeListType extends EpisodeList2<
-                EpisodeType
-                >,
+        EpisodeListType extends Episode2.EpisodeList2<
+                        EpisodeType
+                        >,
         PodcastType extends Podcast2,
         PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
                 PodcastIdentifierType,

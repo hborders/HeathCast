@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.android.FragmentUtil;
+import com.github.hborders.heathcast.core.ClassUtil;
 import com.github.hborders.heathcast.core.Function5;
 import com.github.hborders.heathcast.core.Triple;
 import com.github.hborders.heathcast.core.Tuple;
@@ -104,13 +105,10 @@ public abstract class RxFragment<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends Attachment> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Attachment$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    Attachment.class,
+                    getClass()
+            );
 
             return simpleName + "{" +
                     "fragment=" + fragment +

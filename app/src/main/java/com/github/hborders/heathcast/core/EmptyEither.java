@@ -63,13 +63,10 @@ public interface EmptyEither<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends LeftImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Left$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    LeftImpl.class,
+                    getClass()
+            );
 
             return simpleName + "{" +
                     '}';
@@ -151,13 +148,10 @@ public interface EmptyEither<
 
         @Override
         public final String toString() {
-            @SuppressWarnings("rawtypes") final Class<? extends RightImpl> clazz = getClass();
-            final String simpleName;
-            if (clazz.isAnonymousClass()) {
-                simpleName = "Right$";
-            } else {
-                simpleName = clazz.getSimpleName();
-            }
+            final String simpleName = ClassUtil.getSpecificSimpleName(
+                    RightImpl.class,
+                    getClass()
+            );
 
             return simpleName + "{" +
                     '}';

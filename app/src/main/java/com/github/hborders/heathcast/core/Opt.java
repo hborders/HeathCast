@@ -56,13 +56,11 @@ public abstract class Opt<V> {
 
     @Override
     public final String toString() {
-        @SuppressWarnings("rawtypes") final Class<? extends Opt> clazz = getClass();
-        final String simpleName;
-        if (clazz.isAnonymousClass()) {
-            simpleName = "Opt$";
-        } else {
-            simpleName = clazz.getSimpleName();
-        }
+        final String simpleName = ClassUtil.getSpecificSimpleName(
+                Opt.class,
+                getClass()
+        );
+
         return simpleName + "{" +
                 "value=" + value +
                 '}';

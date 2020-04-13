@@ -60,7 +60,7 @@ final class EpisodeTable<
         EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<
                 EpisodeIdentifierType
                 >,
-        EpisodeListType extends EpisodeList2<EpisodeType>,
+        EpisodeListType extends Episode2.EpisodeList2<EpisodeType>,
         PodcastIdentifierType extends Podcast2.PodcastIdentifier2
         > extends Table<MarkerType> {
     static final String TABLE_EPISODE = "episode";

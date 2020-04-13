@@ -15,7 +15,7 @@ public interface PodcastSearch2 {
             > extends Identified2<
             PodcastSearchIdentifierType,
             PodcastSearchType
-            > {
+            >, PodcastSearch2 {
         interface PodcastSearchIdentifiedList2<
                 PodcastSearchIdentifiedType extends PodcastSearchIdentified2<
                         PodcastSearchIdentifierType,
