@@ -15,18 +15,10 @@ import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastIdentifiedListState;
+import com.github.hborders.heathcast.features.model.PodcastImpl;
+import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete.PodcastIdentifiedListServiceResponseCompleteFactory;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed.PodcastIdentifiedListServiceResponseFailedFactory;
-import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseLoading.PodcastIdentifiedListServiceResponseLoadingFactory;
+import com.github.hborders.heathcast.services.PodcastListServiceResponse;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -62,9 +54,9 @@ public abstract class PodcastSearchFragment<
             > {
         void onPodcastSearchFragmentAttached(PodcastSearchFragmentType podcastSearchFragment);
 
-        Observable<PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse> searchForPodcasts2(
+        Observable<PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState> searchForPodcasts2(
                 PodcastSearchFragmentType podcastSearchFragment,
-                PodcastSearch podcastSearch,
+                PodcastSearchImpl podcastSearch,
                 PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory,
                 PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory,
                 PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory failedFactory
@@ -72,44 +64,43 @@ public abstract class PodcastSearchFragment<
 
         void onClickPodcastIdentified(
                 PodcastSearchFragmentType podcastSearchFragment,
-                PodcastIdentified podcastIdentified
+                PodcastImpl.PodcastIdentifiedImpl podcastIdentified
         );
 
         void onPodcastSearchFragmentWillDetach(PodcastSearchFragmentType podcastSearchFragment);
     }
 
     public interface PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory
-            extends PodcastIdentifiedListServiceResponseLoadingFactory<
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
-            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+            extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl
             > {
     }
 
     public interface PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory
-            extends PodcastIdentifiedListServiceResponseCompleteFactory<
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
-            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+            extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl
             > {
     }
 
     public interface PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory
-            extends PodcastIdentifiedListServiceResponseFailedFactory<
-            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
-            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
+            extends PodcastListServiceResponse.PodcastListServiceResponseFactory<
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl
             > {
-    }
-
-    protected interface PodcastSearchPodcastListStateFactory {
-        PodcastSearchPodcastIdentifiedListState newPodcastSearchPodcastListState(
-                boolean enabled,
-                PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse value
-        );
     }
 
     private static final String TAG = "PodcastSearch";
@@ -118,9 +109,6 @@ public abstract class PodcastSearchFragment<
 
     private final Class<PodcastSearchFragmentType> selfClass;
     private final Class<PodcastSearchFragmentListenerType> listenerClass;
-    private final PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory;
-    private final PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory;
-    private final PodcastSearchPodcastListStateFactory podcastSearchPodcastListStateFactory;
 
     @Nullable
     private PodcastSearchFragmentListenerType listener;
@@ -146,39 +134,33 @@ public abstract class PodcastSearchFragment<
     // See com.github.hborders.heathcast.reactivexdemo.ConnectableObservableTest
     // Also, we need to reset this every time we create a view so that we can throw away
     // past PodcastIdentifiedLists. All that data is saved in the PodcastListFragment.
-    private final Observable<Optional<PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse>> podcastSearchPodcastIdentifiedListServiceResponseOptionalObservable;
-    private final BehaviorSubject<PodcastSearchPodcastIdentifiedListState> podcastIdentifiedListStateBehaviorSubject =
+    private final Observable<Optional<PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState>> podcastSearchSearchPodcastListAsyncValueStateOptionalObservable;
+    private final BehaviorSubject<PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState> podcastSearchSearchPodcastListAsyncValueStateBehaviorSubject =
             BehaviorSubject.create();
     @Nullable
-    private Disposable podcastIdentifiedListServiceResponseOptionalDisposable;
+    private Disposable podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable;
 
     protected PodcastSearchFragment(
             Class<PodcastSearchFragmentType> selfClass,
-            Class<PodcastSearchFragmentListenerType> listenerClass,
-            PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory,
-            PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory,
-            PodcastSearchPodcastIdentifiedListServiceResponseFailedFactory failedFactory,
-            PodcastSearchPodcastListStateFactory podcastSearchPodcastListStateFactory
+            Class<PodcastSearchFragmentListenerType> listenerClass
     ) {
         this.selfClass = selfClass;
         this.listenerClass = listenerClass;
-        this.loadingFactory = loadingFactory;
-        this.completeFactory = completeFactory;
-        this.podcastSearchPodcastListStateFactory = podcastSearchPodcastListStateFactory;
 
-        podcastSearchPodcastIdentifiedListServiceResponseOptionalObservable =
+        podcastSearchSearchPodcastListAsyncValueStateOptionalObservable =
                 queryOptionalPublishSubject.switchMap(
                         queryOptional -> queryOptional.map(
-                                query -> Objects.requireNonNull(listener)
-                                        .searchForPodcasts2(
-                                                Objects.requireNonNull(selfClass.cast(this)),
-                                                new PodcastSearch(query),
-                                                loadingFactory,
-                                                completeFactory,
-                                                failedFactory
-                                        )
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .map(Optional::of)
+                                query ->
+                                        Objects.requireNonNull(listener)
+                                                .searchForPodcasts2(
+                                                        Objects.requireNonNull(selfClass.cast(this)),
+                                                        new PodcastSearchImpl(query),
+                                                        PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateLoading::new,
+                                                        PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateComplete::new,
+                                                        PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateFailed::new
+                                                )
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .map(Optional::of)
                         ).orElse(Observable.just(Optional.empty()))
                 );
     }
@@ -223,19 +205,16 @@ public abstract class PodcastSearchFragment<
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                handler.post(() ->{
+                handler.post(() -> {
                     System.out.println("Immediately after getting event");
                 });
                 searchView.clearFocus();
                 // since the queryOptionalPublishSubject chain is asynchronous,
                 // we must disable the podcast list until we get a response back
                 // otherwise, we won't have a new state, and the IdlingResources won't update properly
-                podcastIdentifiedListStateBehaviorSubject.onNext(
-                        podcastSearchPodcastListStateFactory.newPodcastSearchPodcastListState(
-                                false,
-                                loadingFactory.newPodcastIdentifiedListServiceResponseLoading(
-                                        new PodcastIdentifiedList()
-                                )
+                podcastSearchSearchPodcastListAsyncValueStateBehaviorSubject.onNext(
+                        new PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateLoading(
+                                new PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl()
                         )
                 );
                 queryOptionalPublishSubject.onNext(Optional.of(query));
@@ -257,35 +236,23 @@ public abstract class PodcastSearchFragment<
             );
         }
 
-        podcastIdentifiedListServiceResponseOptionalDisposable =
-                podcastSearchPodcastIdentifiedListServiceResponseOptionalObservable
+        podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable =
+                podcastSearchSearchPodcastListAsyncValueStateOptionalObservable
                         .map(
-                                podcastSearchPodcastIdentifiedListServiceResponseOptional ->
-                                        podcastSearchPodcastIdentifiedListServiceResponseOptional.map(
-                                                podcastSearchPodcastIdentifiedListServiceResponse ->
-                                                        podcastSearchPodcastListStateFactory.newPodcastSearchPodcastListState(
-                                                                true,
-                                                                podcastSearchPodcastIdentifiedListServiceResponse
-                                                        )
-                                        ).orElseGet(
+                                podcastSearchSearchPodcastListAsyncValueStateOptional ->
+                                        podcastSearchSearchPodcastListAsyncValueStateOptional.orElseGet(
                                                 () ->
-                                                        podcastSearchPodcastListStateFactory.newPodcastSearchPodcastListState(
-                                                                false,
-                                                                completeFactory.newPodcastIdentifiedListServiceResponseComplete(
-                                                                        new PodcastIdentifiedList()
-                                                                )
+                                                        new PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateComplete(
+                                                                new PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl()
                                                         )
                                         )
                         )
                         .subscribe(
-                                podcastIdentifiedListStateBehaviorSubject::onNext
+                                podcastSearchSearchPodcastListAsyncValueStateBehaviorSubject::onNext
                         );
-        podcastIdentifiedListStateBehaviorSubject.onNext(
-                podcastSearchPodcastListStateFactory.newPodcastSearchPodcastListState(
-                        true,
-                        completeFactory.newPodcastIdentifiedListServiceResponseComplete(
-                                new PodcastIdentifiedList()
-                        )
+        podcastSearchSearchPodcastListAsyncValueStateBehaviorSubject.onNext(
+                new PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateComplete(
+                        new PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl()
                 )
         );
     }
@@ -323,11 +290,11 @@ public abstract class PodcastSearchFragment<
     public void onDestroyView() {
         super.onDestroyView();
 
-        @Nullable final Disposable podcastIdentifiedListServiceResponseOptionalDisposable =
-                this.podcastIdentifiedListServiceResponseOptionalDisposable;
-        this.podcastIdentifiedListServiceResponseOptionalDisposable = null;
-        if (podcastIdentifiedListServiceResponseOptionalDisposable != null) {
-            podcastIdentifiedListServiceResponseOptionalDisposable.dispose();
+        @Nullable final Disposable podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable =
+                this.podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable;
+        this.podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable = null;
+        if (podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable != null) {
+            podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable.dispose();
         }
     }
 
@@ -345,10 +312,10 @@ public abstract class PodcastSearchFragment<
         super.onDetach();
     }
 
-    // PodcastListFragmentListener
+    // PodcastSearchPodcastListFragmentListener
 
     @Override
-    public void onPodcastListFragmentAttached(PodcastSearchPodcastListFragment podcastListFragment) {
+    public void onPodcastSearchPodcastListFragmentAttached(PodcastSearchPodcastListFragment podcastListFragment) {
         searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(
                 podcastListFragment.getLoadingIdlingResource()
         );
@@ -358,16 +325,16 @@ public abstract class PodcastSearchFragment<
     }
 
     @Override
-    public Observable<PodcastSearchPodcastIdentifiedListState> podcastIdentifiedListStateObservable(
+    public Observable<PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState> podcastSearchPodcastListAsyncValueStateObservable(
             PodcastSearchPodcastListFragment podcastListValueFragment
     ) {
-        return podcastIdentifiedListStateBehaviorSubject;
+        return podcastSearchSearchPodcastListAsyncValueStateBehaviorSubject;
     }
 
     @Override
-    public void onClickPodcastIdentified(
+    public void onPodcastSearchPodcastListFragmentClickedPodcastIdentified(
             PodcastSearchPodcastListFragment podcastListFragment,
-            PodcastIdentified podcastIdentified
+            PodcastImpl.PodcastIdentifiedImpl podcastIdentified
     ) {
         Objects.requireNonNull(listener).onClickPodcastIdentified(
                 Objects.requireNonNull(selfClass.cast(this)),
@@ -376,10 +343,12 @@ public abstract class PodcastSearchFragment<
     }
 
     @Override
-    public void onPodcastListFragmentWillDetach(PodcastSearchPodcastListFragment podcastListFragment) {
+    public void onPodcastSearchPodcastListFragmentWillDetach(PodcastSearchPodcastListFragment podcastListFragment) {
         searchResultPodcastListLoadingDelegatingIdlingResource.setDelegateIdlingResource(null);
         searchResultPodcastListCompleteOrErrorDelegatingIdlingResource.setDelegateIdlingResource(null);
     }
+
+    // Public API
 
     public IdlingResource getSearchResultPodcastListLoadingIdlingResource() {
         return searchResultPodcastListLoadingDelegatingIdlingResource;
