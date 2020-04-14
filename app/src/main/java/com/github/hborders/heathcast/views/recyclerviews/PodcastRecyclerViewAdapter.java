@@ -39,28 +39,6 @@ public abstract class PodcastRecyclerViewAdapter<
         PodcastViewHolderType,
         PodcastItemType
         > {
-    public interface PodcastRecyclerViewAdapterFactory<
-            PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
-                    PodcastRecyclerViewAdapterType,
-                    PodcastViewHolderType,
-                    PodcastListType,
-                    PodcastItemType,
-                    ListenerType
-                    >,
-            PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
-                    PodcastRecyclerViewAdapterType,
-                    PodcastViewHolderType,
-                    PodcastListType,
-                    PodcastItemType,
-                    ListenerType
-                    >,
-            PodcastListType extends List<PodcastItemType>,
-            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
-            ListenerType
-            > {
-        PodcastRecyclerViewAdapterType newPodcastRecyclerViewAdapter();
-    }
-
     public interface PodcastItem {
         String getName();
 

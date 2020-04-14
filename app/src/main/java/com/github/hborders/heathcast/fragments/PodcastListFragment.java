@@ -37,24 +37,60 @@ public abstract class PodcastListFragment<
         ListenerType,
         AttachmentType
         > {
-    private static final class PodcastListAsyncValueViewFacade<
+    public interface PodcastRecyclerViewAdapterFactory<
+            PodcastListFragmentType extends PodcastListFragment<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
+            ListenerType,
+            AttachmentType extends RxFragment.Attachment<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    >,
             PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastListType extends List<PodcastItemType>,
             PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
-            ListenerType
+            PodcastRecyclerViewAdapterListenerType
+            > {
+        PodcastRecyclerViewAdapterType newPodcastRecyclerViewAdapter(
+                PodcastListFragmentType fragment,
+                ListenerType listener
+        );
+    }
+
+    private static final class PodcastListAsyncValueViewFacade<
+            PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastListType extends List<PodcastItemType>,
+            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+            PodcastRecyclerViewAdapterListenerType
             > implements ValueViewFacade {
         final AtomicBoolean disposed = new AtomicBoolean();
         final View view;
@@ -64,7 +100,7 @@ public abstract class PodcastListFragment<
                 PodcastViewHolderType,
                 PodcastListType,
                 PodcastItemType,
-                ListenerType
+                PodcastRecyclerViewAdapterListenerType
                 > podcastRecyclerViewAdapter;
         final View emptyItemsLoadingView;
         final View nonEmptyItemsLoadingView;
@@ -80,7 +116,7 @@ public abstract class PodcastListFragment<
                         PodcastViewHolderType,
                         PodcastListType,
                         PodcastItemType,
-                        ListenerType
+                        PodcastRecyclerViewAdapterListenerType
                         > podcastRecyclerViewAdapter,
                 View emptyItemsLoadingView,
                 View nonEmptyItemsLoadingView,
@@ -270,29 +306,33 @@ public abstract class PodcastListFragment<
                     ListenerType,
                     AttachmentType
                     >,
-            PodcastRecyclerViewAdapterFactoryType extends PodcastRecyclerViewAdapter.PodcastRecyclerViewAdapterFactory<
+            PodcastRecyclerViewAdapterFactoryType extends PodcastRecyclerViewAdapterFactory<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType,
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastListType extends List<PodcastItemType>,
-            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem
+            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+            PodcastRecyclerViewAdapterListenerType
             > implements
             ValueViewFacade.ValueViewFacadeFactory<
                     PodcastListFragmentType,
@@ -303,7 +343,7 @@ public abstract class PodcastListFragment<
                             PodcastViewHolderType,
                             PodcastListType,
                             PodcastItemType,
-                            ListenerType
+                            PodcastRecyclerViewAdapterListenerType
                             >
                     > {
         private final PodcastRecyclerViewAdapterFactoryType podcastRecyclerViewAdapterFactory;
@@ -320,7 +360,7 @@ public abstract class PodcastListFragment<
                 PodcastViewHolderType,
                 PodcastListType,
                 PodcastItemType,
-                ListenerType
+                PodcastRecyclerViewAdapterListenerType
                 > newViewFacade(
                 PodcastListFragmentType fragment,
                 ListenerType listener,
@@ -332,7 +372,10 @@ public abstract class PodcastListFragment<
                             R.id.fragment_podcast_list_podcasts_recycler_view
                     );
             final PodcastRecyclerViewAdapterType podcastRecyclerViewAdapter =
-                    podcastRecyclerViewAdapterFactory.newPodcastRecyclerViewAdapter();
+                    podcastRecyclerViewAdapterFactory.newPodcastRecyclerViewAdapter(
+                            fragment,
+                            listener
+                    );
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
             recyclerView.setAdapter(podcastRecyclerViewAdapter);
             final View emptyItemsLoadingView =
@@ -372,44 +415,33 @@ public abstract class PodcastListFragment<
     private static final String TAG = "PodcastList";
 
     protected <
-            AttachmentFactoryType extends Attachment.AttachmentFactory<
+            PodcastRecyclerViewAdapterFactoryType extends PodcastRecyclerViewAdapterFactory<
                     PodcastListFragmentType,
                     ListenerType,
-                    AttachmentType
-                    >,
-            OnAttachedType extends OnAttached<
-                    PodcastListFragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            WillDetachType extends WillDetach<
-                    PodcastListFragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            PodcastRecyclerViewAdapterFactoryType extends PodcastRecyclerViewAdapter.PodcastRecyclerViewAdapterFactory<
+                    AttachmentType,
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
                     PodcastRecyclerViewAdapterType,
                     PodcastViewHolderType,
                     PodcastListType,
                     PodcastItemType,
-                    ListenerType
+                    PodcastRecyclerViewAdapterListenerType
                     >,
             PodcastListType extends List<PodcastItemType>,
             PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+            PodcastRecyclerViewAdapterListenerType,
             ValueStateObservableProviderType extends ValueStateObservableProvider<
                     PodcastListFragmentType,
                     ListenerType,
@@ -443,11 +475,136 @@ public abstract class PodcastListFragment<
             > PodcastListFragment(
             Class<PodcastListFragmentType> selfClass,
             Class<ListenerType> listenerClass,
-            AttachmentFactoryType attachmentFactory,
-            OnAttachedType onAttached,
-            WillDetachType willDetach,
+            Attachment.AttachmentFactory<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > attachmentFactory,
+            OnAttached<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > onAttached,
+            WillDetach<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > willDetach,
             PodcastRecyclerViewAdapterFactoryType podcastRecyclerViewAdapterFactory,
             ValueStateObservableProviderType valueStateObservableProvider
+    ) {
+        this(
+                selfClass,
+                listenerClass,
+                attachmentFactory,
+                onAttached,
+                willDetach,
+                podcastRecyclerViewAdapterFactory,
+                valueStateObservableProvider,
+                PodcastListAsyncValueViewFacadeTransaction::new
+        );
+    }
+
+    // avoids an explicit ValueRenderer method downcast
+    private <
+            PodcastRecyclerViewAdapterFactoryType extends PodcastRecyclerViewAdapterFactory<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastViewHolderType extends PodcastRecyclerViewAdapter.PodcastViewHolder<
+                    PodcastRecyclerViewAdapterType,
+                    PodcastViewHolderType,
+                    PodcastListType,
+                    PodcastItemType,
+                    PodcastRecyclerViewAdapterListenerType
+                    >,
+            PodcastListType extends List<PodcastItemType>,
+            PodcastItemType extends PodcastRecyclerViewAdapter.PodcastItem,
+            PodcastRecyclerViewAdapterListenerType,
+            ValueStateObservableProviderType extends ValueStateObservableProvider<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType,
+                    AsyncValueStateType
+                    >,
+            AsyncValueStateType extends AsyncValueState<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    PodcastListType
+                    >,
+            AsyncValueLoadingType extends AsyncValueState.AsyncValueLoading<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    PodcastListType
+                    >,
+            AsyncValueCompleteType extends AsyncValueState.AsyncValueComplete<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    PodcastListType
+                    >,
+            AsyncValueFailedType extends AsyncValueState.AsyncValueFailed<
+                    AsyncValueLoadingType,
+                    AsyncValueCompleteType,
+                    AsyncValueFailedType,
+                    PodcastListType
+                    >
+            > PodcastListFragment(
+            Class<PodcastListFragmentType> selfClass,
+            Class<ListenerType> listenerClass,
+            Attachment.AttachmentFactory<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > attachmentFactory,
+            OnAttached<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > onAttached,
+            WillDetach<
+                    PodcastListFragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > willDetach,
+            PodcastRecyclerViewAdapterFactoryType podcastRecyclerViewAdapterFactory,
+            ValueStateObservableProviderType valueStateObservableProvider,
+            ValueRenderer<
+                    PodcastListAsyncValueViewFacade<
+                            PodcastRecyclerViewAdapterType,
+                            PodcastViewHolderType,
+                            PodcastListType,
+                            PodcastItemType,
+                            PodcastRecyclerViewAdapterListenerType
+                            >,
+                    AsyncValueStateType,
+                    PodcastListAsyncValueViewFacadeTransaction<
+                            PodcastRecyclerViewAdapterType,
+                            PodcastViewHolderType,
+                            PodcastListType,
+                            PodcastItemType,
+                            PodcastRecyclerViewAdapterListenerType,
+                            AsyncValueStateType,
+                            AsyncValueLoadingType,
+                            AsyncValueCompleteType,
+                            AsyncValueFailedType
+                            >
+                    > valueRenderer
     ) {
         super(
                 selfClass,
@@ -461,27 +618,7 @@ public abstract class PodcastListFragment<
                         podcastRecyclerViewAdapterFactory
                 ),
                 valueStateObservableProvider,
-                (ValueRenderer<
-                        PodcastListAsyncValueViewFacade<
-                                PodcastRecyclerViewAdapterType,
-                                PodcastViewHolderType,
-                                PodcastListType,
-                                PodcastItemType,
-                                ListenerType
-                                >,
-                        AsyncValueStateType,
-                        PodcastListAsyncValueViewFacadeTransaction<
-                                PodcastRecyclerViewAdapterType,
-                                PodcastViewHolderType,
-                                PodcastListType,
-                                PodcastItemType,
-                                ListenerType,
-                                AsyncValueStateType,
-                                AsyncValueLoadingType,
-                                AsyncValueCompleteType,
-                                AsyncValueFailedType
-                                >
-                        >) PodcastListAsyncValueViewFacadeTransaction::new
+                valueRenderer
         );
     }
 }

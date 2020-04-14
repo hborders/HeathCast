@@ -1,19 +1,18 @@
 package com.github.hborders.heathcast.features.search;
 
 import android.content.Context;
+import android.view.ViewGroup;
 
-import com.github.hborders.heathcast.core.Either;
 import com.github.hborders.heathcast.core.Either31;
-import com.github.hborders.heathcast.core.Nothing;
 import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListAttachment;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment.PodcastSearchPodcastListFragmentListener;
 import com.github.hborders.heathcast.fragments.PodcastListFragment;
-import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.services.PodcastListServiceResponse;
 import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseComplete;
 import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseFailed;
 import com.github.hborders.heathcast.services.PodcastListServiceResponse.PodcastListServiceResponseLoading;
+import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -28,8 +27,13 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
                 PodcastSearchPodcastListFragment fragment
         );
 
+        Observable<PodcastSearchPodcastListAsyncValueState> podcastSearchPodcastListAsyncValueStateObservable(
+                PodcastSearchPodcastListFragment fragment
+        );
+
         void onPodcastSearchPodcastListFragmentClickedPodcastIdentified(
-                PodcastIdentified podcastIdentified
+                PodcastSearchPodcastListFragment fragment,
+                PodcastImpl.PodcastIdentifiedImpl podcastIdentified
         );
 
         void onPodcastSearchPodcastListFragmentWillDetach(
@@ -60,44 +64,44 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
         }
     }
 
-//    public interface PodcastSearchPodcastIdentifiedListState extends PodcastIdentifiedListState<
-//            PodcastSearchPodcastIdentifiedListAsyncStateJoinPodcastIdentifiedListServiceResponse,
-//            PodcastSearchPodcastIdentifiedListAsyncStateLoadingJoinPodcastIdentifiedListServiceResponseLoading,
-//            PodcastSearchPodcastIdentifiedListAsyncStateCompleteJoinPodcastIdentifiedListServiceResponseComplete,
-//            PodcastSearchPodcastIdentifiedListAsyncStateFailedJoinPodcastIdentifiedListServiceResponseFailed
-//            > {
-//    }
-
     public interface PodcastSearchPodcastListAsyncValueState extends AsyncValueState<
             PodcastSearchPodcastListAsyncValueStateLoading,
             PodcastSearchPodcastListAsyncValueStateComplete,
             PodcastSearchPodcastListAsyncValueStateFailed,
-            PodcastIdentifiedPodcastListState
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
             >, PodcastListServiceResponse<
             PodcastSearchPodcastListAsyncValueStateLoading,
             PodcastSearchPodcastListAsyncValueStateComplete,
-            PodcastSearchPodcastListAsyncValueStateFailed
-                        > {
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl
+            > {
     }
 
     public static final class PodcastSearchPodcastListAsyncValueStateLoading
-        extends Either31.LeftImpl<
+            extends Either31.LeftImpl<
             PodcastSearchPodcastListAsyncValueStateLoading,
             PodcastSearchPodcastListAsyncValueStateComplete,
             PodcastSearchPodcastListAsyncValueStateFailed,
-            PodcastIdentifiedPodcastListState
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
             > implements PodcastListServiceResponseLoading<
-                    PodcastSearchPodcastListAsyncValueStateLoading,
-                    PodcastSearchPodcastListAsyncValueStateComplete,
-                    PodcastSearchPodcastListAsyncValueStateFailed,
-                    PodcastIdentifiedPodcastListState
-                                >,
-            AsyncValueState.AsyncValueLoading<
-                    PodcastSearchPodcastListAsyncValueStateLoading,
-                    PodcastSearchPodcastListAsyncValueStateComplete,
-                    PodcastSearchPodcastListAsyncValueStateFailed
-                    >,
-            PodcastSearchPodcastListAsyncValueState {
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl
+            >, AsyncValueState.AsyncValueLoading<
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+            >, PodcastSearchPodcastListAsyncValueState {
+        public PodcastSearchPodcastListAsyncValueStateLoading(PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl value) {
+            super(
+                    PodcastSearchPodcastListAsyncValueStateLoading.class,
+                    value
+            );
+        }
     }
 
     public static final class PodcastSearchPodcastListAsyncValueStateComplete
@@ -105,18 +109,25 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
             PodcastSearchPodcastListAsyncValueStateLoading,
             PodcastSearchPodcastListAsyncValueStateComplete,
             PodcastSearchPodcastListAsyncValueStateFailed,
-            PodcastIdentifiedPodcastListState
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
             > implements PodcastListServiceResponseComplete<
-                    PodcastSearchPodcastListAsyncValueStateLoading,
-                    PodcastSearchPodcastListAsyncValueStateComplete,
-                    PodcastSearchPodcastListAsyncValueStateFailed
-                                >,
-            AsyncValueState.AsyncValueComplete<
-                    PodcastSearchPodcastListAsyncValueStateLoading,
-                    PodcastSearchPodcastListAsyncValueStateComplete,
-                    PodcastSearchPodcastListAsyncValueStateFailed
-                    >,
-            PodcastSearchPodcastListAsyncValueState {
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl
+            >, AsyncValueState.AsyncValueComplete<
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+            >, PodcastSearchPodcastListAsyncValueState {
+        public PodcastSearchPodcastListAsyncValueStateComplete(PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl value) {
+            super(
+                    PodcastSearchPodcastListAsyncValueStateComplete.class,
+                    value
+            );
+        }
     }
 
     public static final class PodcastSearchPodcastListAsyncValueStateFailed
@@ -124,66 +135,110 @@ public final class PodcastSearchPodcastListFragment extends PodcastListFragment<
             PodcastSearchPodcastListAsyncValueStateLoading,
             PodcastSearchPodcastListAsyncValueStateComplete,
             PodcastSearchPodcastListAsyncValueStateFailed,
-            PodcastIdentifiedPodcastListState
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
             > implements PodcastListServiceResponseFailed<
-                    PodcastSearchPodcastListAsyncValueStateLoading,
-                    PodcastSearchPodcastListAsyncValueStateComplete,
-                    PodcastSearchPodcastListAsyncValueStateFailed
-                                >,
-            AsyncValueState.AsyncValueFailed<
-                    PodcastSearchPodcastListAsyncValueStateLoading,
-                    PodcastSearchPodcastListAsyncValueStateComplete,
-                    PodcastSearchPodcastListAsyncValueStateFailed,
-                    PodcastIdentified
-                    >,
-            PodcastSearchPodcastListAsyncValueState {
-    }
-
-    public interface PodcastIdentifiedPodcastListValueState extends PodcastListValueState<
-            PodcastIdentifiedPodcastListValueState.PodcastIdentifiedPodcastListValueEmpty,
-            PodcastIdentifiedPodcastListValueState.PodcastIdentifiedPodcastListValueNonEmpty,
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
             PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
             PodcastImpl.PodcastIdentifiedImpl
-            > {
-        final class PodcastIdentifiedPodcastListValueEmpty
-                extends Either.LeftImpl<
-                PodcastIdentifiedPodcastListValueEmpty,
-                PodcastIdentifiedPodcastListValueNonEmpty,
-                Nothing,
-                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
-                > implements PodcastListValueState.PodcastListValueEmpty<
-                PodcastIdentifiedPodcastListValueEmpty,
-                PodcastIdentifiedPodcastListValueNonEmpty,
-                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
-                PodcastImpl.PodcastIdentifiedImpl
-                >, PodcastIdentifiedPodcastListValueState {
+            >, AsyncValueState.AsyncValueFailed<
+            PodcastSearchPodcastListAsyncValueStateLoading,
+            PodcastSearchPodcastListAsyncValueStateComplete,
+            PodcastSearchPodcastListAsyncValueStateFailed,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+            >, PodcastSearchPodcastListAsyncValueState {
+        public PodcastSearchPodcastListAsyncValueStateFailed(PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl value) {
+            super(
+                    PodcastSearchPodcastListAsyncValueStateFailed.class,
+                    value
+            );
+        }
+    }
 
+    private static final class PodcastSearchPodcastRecyclerViewAdapter
+            extends PodcastRecyclerViewAdapter<
+            PodcastSearchPodcastRecyclerViewAdapter,
+            PodcastSearchPodcastRecyclerViewAdapter.PodcastSearchPodcastViewHolder,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl,
+            PodcastSearchPodcastRecyclerViewAdapter.PodcastSearchPodcastRecyclerViewAdapterListener
+            > {
+        static final class PodcastSearchPodcastViewHolder extends PodcastRecyclerViewAdapter.PodcastViewHolder<
+                PodcastSearchPodcastRecyclerViewAdapter,
+                PodcastSearchPodcastRecyclerViewAdapter.PodcastSearchPodcastViewHolder,
+                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+                PodcastImpl.PodcastIdentifiedImpl,
+                PodcastSearchPodcastRecyclerViewAdapterListener
+                > {
+
+            PodcastSearchPodcastViewHolder(
+                    ViewGroup parent,
+                    int viewType
+            ) {
+                super(
+                        parent,
+                        viewType
+                );
+            }
         }
 
-        final class PodcastIdentifiedPodcastListValueNonEmpty
-                extends Either.RightImpl<
-                PodcastIdentifiedPodcastListValueEmpty,
-                PodcastIdentifiedPodcastListValueNonEmpty,
-                Nothing,
-                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
-                > implements PodcastListValueState.PodcastListValueNonEmpty<
-                PodcastIdentifiedPodcastListValueEmpty,
-                PodcastIdentifiedPodcastListValueNonEmpty,
-                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
-                PodcastImpl.PodcastIdentifiedImpl
-                >, PodcastIdentifiedPodcastListValueState {
+        static final class PodcastSearchPodcastRecyclerViewAdapterListener {
+            private final PodcastSearchPodcastListFragment fragment;
+            private final PodcastSearchPodcastListFragmentListener listener;
 
+            PodcastSearchPodcastRecyclerViewAdapterListener(
+                    PodcastSearchPodcastListFragment fragment,
+                    PodcastSearchPodcastListFragmentListener listener
+            ) {
+                this.fragment = fragment;
+                this.listener = listener;
+            }
+
+            void onClick(PodcastImpl.PodcastIdentifiedImpl podcastIdentified) {
+                this.listener.onPodcastSearchPodcastListFragmentClickedPodcastIdentified(
+                        fragment,
+                        podcastIdentified
+                );
+            }
+        }
+
+        PodcastSearchPodcastRecyclerViewAdapter(
+                PodcastSearchPodcastListFragment fragment,
+                PodcastSearchPodcastListFragmentListener listener
+        ) {
+            super(
+                    PodcastSearchPodcastRecyclerViewAdapter.class,
+                    PodcastSearchPodcastViewHolder::new,
+                    new PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl(),
+                    new PodcastSearchPodcastRecyclerViewAdapterListener(
+                            fragment,
+                            listener
+                    ),
+                    PodcastSearchPodcastRecyclerViewAdapterListener::onClick
+            );
         }
     }
 
     public PodcastSearchPodcastListFragment() {
+        this(PodcastSearchPodcastListFragmentListener::podcastSearchPodcastListAsyncValueStateObservable);
+    }
+
+    // Chain constructors to avoid a method reference downcast
+    private PodcastSearchPodcastListFragment(ValueStateObservableProvider<
+            PodcastSearchPodcastListFragment,
+            PodcastSearchPodcastListFragmentListener,
+            PodcastSearchPodcastListAttachment,
+            PodcastSearchPodcastListAsyncValueState
+            > podcastSearchPodcastListAsyncValueStateProvider) {
         super(
                 PodcastSearchPodcastListFragment.class,
                 PodcastSearchPodcastListFragmentListener.class,
                 PodcastSearchPodcastListAttachment::new,
                 PodcastSearchPodcastListFragmentListener::onPodcastSearchPodcastListFragmentAttached,
                 PodcastSearchPodcastListFragmentListener::onPodcastSearchPodcastListFragmentWillDetach,
-                PodcastSearchPodcastListFragmentListener::podcastIdentifiedListStateObservable
+                PodcastSearchPodcastRecyclerViewAdapter::new,
+                podcastSearchPodcastListAsyncValueStateProvider
         );
     }
 }

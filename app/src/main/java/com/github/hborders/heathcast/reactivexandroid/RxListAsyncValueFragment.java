@@ -24,21 +24,6 @@ public abstract class RxListAsyncValueFragment<
         AttachmentType
         > {
     protected <
-            AttachmentFactoryType extends Attachment.AttachmentFactory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            OnAttachedType extends OnAttached<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            WillDetachType extends WillDetach<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
             ValueViewFacadeFactoryType extends ValueViewFacade.ValueViewFacadeFactory<
                     FragmentType,
                     ListenerType,
@@ -87,9 +72,21 @@ public abstract class RxListAsyncValueFragment<
             > RxListAsyncValueFragment(
             Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
-            AttachmentFactoryType attachmentFactory,
-            OnAttachedType onAttached,
-            WillDetachType willDetach,
+            Attachment.AttachmentFactory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > attachmentFactory,
+            OnAttached<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > onAttached,
+            WillDetach<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > willDetach,
             int layoutResource,
             String idlingResourceNamePrefix,
             ValueViewFacadeFactoryType valueViewFacadeFactory,

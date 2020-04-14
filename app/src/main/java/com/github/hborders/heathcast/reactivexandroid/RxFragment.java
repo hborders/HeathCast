@@ -466,28 +466,24 @@ public abstract class RxFragment<
     private PublishSubject<Resume> resumePublishSubject = PublishSubject.create();
     private CompletableSubject onPauseCompletableSubject = CompletableSubject.create();
 
-    protected <
-            AttachmentFactoryType extends Attachment.AttachmentFactory<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            OnAttachedType extends OnAttached<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >,
-            WillDetachType extends WillDetach<
-                    FragmentType,
-                    ListenerType,
-                    AttachmentType
-                    >
-            > RxFragment(
+    protected RxFragment(
             Class<FragmentType> selfClass,
             Class<ListenerType> listenerClass,
-            AttachmentFactoryType attachmentFactory,
-            OnAttachedType onAttached,
-            WillDetachType willDetach,
+            Attachment.AttachmentFactory<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > attachmentFactory,
+            OnAttached<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > onAttached,
+            WillDetach<
+                    FragmentType,
+                    ListenerType,
+                    AttachmentType
+                    > willDetach,
             @LayoutRes int layoutResource
     ) {
         this.selfClass = selfClass;
