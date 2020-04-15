@@ -15,6 +15,7 @@ import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.core.Result;
+import com.github.hborders.heathcast.features.model.EpisodeImpl;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
 import com.github.hborders.heathcast.models.Podcast;
@@ -61,7 +62,7 @@ public final class MainActivity extends AppCompatActivity
             );
 
     private final PodcastService<
-
+            EpisodeImpl
             > podcastService;
 
     public MainActivity() {

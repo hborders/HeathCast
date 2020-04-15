@@ -1,13 +1,32 @@
 package com.github.hborders.heathcast.features.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
 import com.github.hborders.heathcast.core.Opt2;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 public abstract class OptImpl<ValueType> implements Opt2<ValueType> {
+    public abstract static class OptListImpl<
+            OptItemType extends Opt2<ValueType>,
+            ValueType
+            > extends ArrayList<OptItemType> {
+        protected OptListImpl() {
+        }
+
+        protected OptListImpl(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        protected OptListImpl(@NonNull Collection<? extends OptItemType> c) {
+            super(c);
+        }
+    }
+
     @Nullable
     public final ValueType value;
 

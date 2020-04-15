@@ -114,9 +114,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/SubscriptionImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/EpisodeImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/EpisodeImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/IdentifiedImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/IdentifiedImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/IdentifierImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/IdentifierImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/OptImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/OptImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastSearchImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastSearchImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/search/PodcastSearchFragment.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -191,8 +197,8 @@
         <option value="layoutResourceFile" />
         <option value="layoutResourceFile_vertical" />
         <option value="Kotlin File" />
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -658,10 +664,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="755" y="409" key="#com.intellij.ide.actions.DebugLogConfigureAction/0.23.1920.1100@0.23.1920.1100" timestamp="1583602217176" />
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586840129742">
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1586923643446">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586840129742" />
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1586923643446" />
     <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585108867255">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -670,10 +676,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="668" y="505" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586661613334" />
-    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1586748066275">
+    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1586920875178">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.1920.1100@0.23.1920.1100" timestamp="1586748066275" />
+    <state x="711" y="438" width="672" height="278" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.23.1920.1100@0.23.1920.1100" timestamp="1586920875178" />
     <state x="721" y="414" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog" timestamp="1586661614745">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -758,10 +764,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="com.android.tools.idea.avdmanager.AvdListDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585894616159" />
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1586832297430">
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1586918857151">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586832297430" />
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586918857151" />
     <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579558329648">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -770,14 +776,14 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="198" y="316" width="1572" height="562" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.23.1920.1100@0.23.1920.1100" timestamp="1585801505323" />
-    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1586838507382">
+    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1586920706546">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586838507382" />
-    <state width="708" height="83" key="javadoc.popup.new" timestamp="1586841726645">
+    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586920706546" />
+    <state width="708" height="83" key="javadoc.popup.new" timestamp="1586923122484">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586841726645" />
+    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1586923122484" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586839829465">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>

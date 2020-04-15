@@ -42,7 +42,11 @@ public final class PodcastImpl implements Podcast2, PodcastRecyclerViewAdapter.P
         }
 
         public static final class PodcastIdentifiedOptImpl
-                extends OptImpl<PodcastIdentifiedImpl>
+                extends IdentifiedOptImpl<
+                PodcastIdentifiedImpl,
+                PodcastIdentifierImpl,
+                PodcastImpl
+                >
                 implements PodcastIdentifiedOpt2<
                 PodcastIdentifiedImpl,
                 PodcastIdentifierImpl,
@@ -66,6 +70,16 @@ public final class PodcastImpl implements Podcast2, PodcastRecyclerViewAdapter.P
                 PodcastIdentifierImpl,
                 PodcastImpl
                 > {
+            public PodcastIdentifiedSetImpl() {
+            }
+
+            public PodcastIdentifiedSetImpl(int initialCapacity) {
+                super(initialCapacity);
+            }
+
+            public PodcastIdentifiedSetImpl(Collection<? extends PodcastIdentifiedImpl> c) {
+                super(c);
+            }
         }
 
         public PodcastIdentifiedImpl(

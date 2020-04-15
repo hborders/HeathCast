@@ -1,8 +1,10 @@
 package com.github.hborders.heathcast.features.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
+import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.dao.Identified2;
 import com.github.hborders.heathcast.dao.Identifier2;
 
@@ -38,6 +40,46 @@ public abstract class IdentifiedImpl<
         }
     }
 
+    public static abstract class IdentifiedOptImpl<
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier2,
+            ModelType
+            > extends OptImpl<IdentifiedType> {
+        public static abstract class IdentifiedOptListImpl<
+                IdentifiedOptType extends Opt2<IdentifiedType>,
+                IdentifiedType extends Identified2<
+                        IdentifierType,
+                        ModelType
+                        >,
+                IdentifierType extends Identifier2,
+                ModelType
+                > extends OptListImpl<
+                IdentifiedOptType,
+                IdentifiedType
+                > {
+            protected IdentifiedOptListImpl() {
+            }
+
+            protected IdentifiedOptListImpl(int initialCapacity) {
+                super(initialCapacity);
+            }
+
+            protected IdentifiedOptListImpl(@NonNull Collection<? extends IdentifiedOptType> c) {
+                super(c);
+            }
+        }
+
+        protected IdentifiedOptImpl() {
+        }
+
+        protected IdentifiedOptImpl(IdentifiedType value) {
+            super(value);
+        }
+    }
+
     public static abstract class IdentifiedSetImpl<
             IdentifiedType extends Identified2<
                     IdentifierType,
@@ -49,12 +91,12 @@ public abstract class IdentifiedImpl<
         protected IdentifiedSetImpl() {
         }
 
-        protected IdentifiedSetImpl(Collection<? extends IdentifiedType> c) {
-            super(c);
-        }
-
         protected IdentifiedSetImpl(int initialCapacity) {
             super(initialCapacity);
+        }
+
+        protected IdentifiedSetImpl(Collection<? extends IdentifiedType> c) {
+            super(c);
         }
     }
 
