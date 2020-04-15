@@ -2,6 +2,8 @@ package com.github.hborders.heathcast.features.model;
 
 import com.github.hborders.heathcast.dao.PodcastSearch2;
 
+import java.util.Collection;
+
 public final class PodcastSearchImpl implements PodcastSearch2 {
     public static final class PodcastSearchIdentifiedImpl
             extends IdentifiedImpl<
@@ -23,6 +25,16 @@ public final class PodcastSearchImpl implements PodcastSearch2 {
                 PodcastSearchIdentifierImpl,
                 PodcastSearchImpl
                 > {
+            public PodcastSearchIdentifiedListImpl() {
+            }
+
+            public PodcastSearchIdentifiedListImpl(int capacity) {
+                super(capacity);
+            }
+
+            public PodcastSearchIdentifiedListImpl(Collection<? extends PodcastSearchIdentifiedImpl> identifieds) {
+                super(identifieds);
+            }
         }
 
         public static final class PodcastSearchIdentifiedOptImpl
@@ -63,6 +75,19 @@ public final class PodcastSearchImpl implements PodcastSearch2 {
     public static final class PodcastSearchIdentifierImpl
             extends IdentifierImpl
             implements PodcastSearchIdentifier2 {
+        public static final class PodcastSearchIdentifierOptImpl
+                extends IdentifierOptImpl<PodcastSearchIdentifierImpl>
+                implements PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
+                PodcastSearchIdentifierImpl
+                > {
+            public PodcastSearchIdentifierOptImpl() {
+            }
+
+            public PodcastSearchIdentifierOptImpl(PodcastSearchIdentifierImpl identifier) {
+                super(identifier);
+            }
+        }
+
         public PodcastSearchIdentifierImpl(long id) {
             super(id);
         }

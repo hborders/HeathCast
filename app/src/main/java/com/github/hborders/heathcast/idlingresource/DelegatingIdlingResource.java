@@ -1,8 +1,7 @@
 package com.github.hborders.heathcast.idlingresource;
 
+import androidx.annotation.Nullable;
 import androidx.test.espresso.IdlingResource;
-
-import javax.annotation.Nullable;
 
 public final class DelegatingIdlingResource implements NullabilitiedIdlingResource {
     private final String name;

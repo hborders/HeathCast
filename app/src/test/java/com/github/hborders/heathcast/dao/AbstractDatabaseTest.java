@@ -1,8 +1,7 @@
 package com.github.hborders.heathcast.dao;
 
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.schedulers.Schedulers;
 

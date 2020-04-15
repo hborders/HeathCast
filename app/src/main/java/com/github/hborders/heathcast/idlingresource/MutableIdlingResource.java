@@ -1,11 +1,10 @@
 package com.github.hborders.heathcast.idlingresource;
 
 import androidx.annotation.CheckResult;
+import androidx.annotation.Nullable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Nullable;
 
 /**
  * A thread-safe IdlingResource that supports mutation and staged idling.

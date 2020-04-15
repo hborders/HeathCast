@@ -1,10 +1,10 @@
 package com.github.hborders.heathcast.models;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.core.ClassUtil;
 
 import java.util.Objects;
-
-import javax.annotation.Nullable;
 
 public abstract class Identified<I extends Identifier<M>, M> {
     public final I identifier;

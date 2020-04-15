@@ -16,13 +16,12 @@
 
 package com.github.hborders.heathcast.dao;
 
+import androidx.annotation.Nullable;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import java.util.regex.Pattern;
-
-import javax.annotation.Nullable;
 
 /**
  * A simple query builder to create SQL SELECT queries.

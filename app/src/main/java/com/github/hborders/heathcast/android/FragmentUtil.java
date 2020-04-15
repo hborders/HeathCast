@@ -2,6 +2,7 @@ package com.github.hborders.heathcast.android;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.core.CollectionFactory;
@@ -11,8 +12,6 @@ import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 public final class FragmentUtil {
     private FragmentUtil() {

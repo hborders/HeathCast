@@ -1,6 +1,5 @@
 package com.github.hborders.heathcast.core;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Collection;
@@ -110,7 +109,6 @@ public interface EitherNonEmptyList<
             return false;
         }
 
-        @NonNull
         @Override
         public Iterator<ItemType> iterator() {
             return new Iterator<ItemType>() {
@@ -126,15 +124,13 @@ public interface EitherNonEmptyList<
             };
         }
 
-        @NonNull
         @Override
         public Object[] toArray() {
             return new Object[0];
         }
 
-        @NonNull
         @Override
-        public <T> T[] toArray(@NonNull T[] a) {
+        public <T> T[] toArray(T[] a) {
             if (a.length > 0) {
                 a[0] = null;
             }
@@ -152,22 +148,22 @@ public interface EitherNonEmptyList<
         }
 
         @Override
-        public boolean containsAll(@NonNull Collection<?> c) {
+        public boolean containsAll(Collection<?> c) {
             return false;
         }
 
         @Override
-        public boolean addAll(@NonNull Collection<? extends ItemType> c) {
+        public boolean addAll(Collection<? extends ItemType> c) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean removeAll(@NonNull Collection<?> c) {
+        public boolean removeAll(Collection<?> c) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean retainAll(@NonNull Collection<?> c) {
+        public boolean retainAll(Collection<?> c) {
             throw new UnsupportedOperationException();
         }
 

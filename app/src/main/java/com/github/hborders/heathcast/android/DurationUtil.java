@@ -1,8 +1,8 @@
 package com.github.hborders.heathcast.android;
 
-import java.time.Duration;
+import androidx.annotation.Nullable;
 
-import javax.annotation.Nullable;
+import java.time.Duration;
 
 public final class DurationUtil {
     private DurationUtil() {

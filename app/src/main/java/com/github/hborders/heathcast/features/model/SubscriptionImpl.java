@@ -85,6 +85,17 @@ public final class SubscriptionImpl implements Subscription2<
     public static final class SubscriptionIdentifierImpl
             extends IdentifierImpl
             implements SubscriptionIdentifier2 {
+        public static final class SubscriptionIdentifierOptImpl
+                extends IdentifierOptImpl<SubscriptionIdentifierImpl>
+                implements SubscriptionIdentifier2.SubscriptionIdentifierOpt2<SubscriptionIdentifierImpl> {
+            public SubscriptionIdentifierOptImpl() {
+            }
+
+            public SubscriptionIdentifierOptImpl(SubscriptionIdentifierImpl identifier) {
+                super(identifier);
+            }
+        }
+
         public SubscriptionIdentifierImpl(long id) {
             super(id);
         }

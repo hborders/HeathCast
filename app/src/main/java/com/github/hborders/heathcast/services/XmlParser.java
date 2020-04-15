@@ -1,5 +1,7 @@
 package com.github.hborders.heathcast.services;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.android.DurationUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.URLUtil;
@@ -19,9 +21,6 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.core.StringUtil.isEmpty;
 
@@ -190,7 +189,7 @@ final class XmlParser<
                 artworkURL = readITunesImageURL(parser);
             } else if ("enclosure".equals(tagName) &&
                     "".equals(tagNamespace)) {
-                @Nonnull final Enclosure enclosure = readEnclosure(parser);
+                final Enclosure enclosure = readEnclosure(parser);
                 duration = enclosure.duration;
                 url = enclosure.url;
             } else if ("description".equals(tagName) &&
@@ -245,7 +244,6 @@ final class XmlParser<
         return URLUtil.fromString(href);
     }
 
-    @Nonnull
     private static Enclosure readEnclosure(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(
                 XmlPullParser.START_TAG,

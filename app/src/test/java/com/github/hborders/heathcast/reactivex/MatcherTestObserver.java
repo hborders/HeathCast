@@ -1,10 +1,10 @@
 package com.github.hborders.heathcast.reactivex;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil;
 
 import org.hamcrest.Matcher;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 

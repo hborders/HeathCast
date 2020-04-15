@@ -1,6 +1,6 @@
 package com.github.hborders.heathcast.core;
 
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public final class StringUtil {
     private StringUtil() {

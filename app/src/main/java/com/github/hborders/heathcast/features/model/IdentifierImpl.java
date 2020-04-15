@@ -1,6 +1,5 @@
 package com.github.hborders.heathcast.features.model;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
@@ -29,7 +28,7 @@ public abstract class IdentifierImpl
                 super(initialCapacity);
             }
 
-            public IdentifierOptListImpl(@NonNull Collection<? extends IdentifierOptType> c) {
+            public IdentifierOptListImpl(Collection<? extends IdentifierOptType> c) {
                 super(c);
             }
         }

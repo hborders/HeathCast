@@ -2,7 +2,7 @@ package com.github.hborders.heathcast.parcelables;
 
 import android.os.Parcelable;
 
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public interface UnparcelableHolder<U> extends Parcelable {
     interface Factory<
@@ -18,5 +18,6 @@ public interface UnparcelableHolder<U> extends Parcelable {
         H[] newUnparcelableHolderArray(int size);
     }
 
-    @Nullable U getUnparcelable();
+    @Nullable
+    U getUnparcelable();
 }

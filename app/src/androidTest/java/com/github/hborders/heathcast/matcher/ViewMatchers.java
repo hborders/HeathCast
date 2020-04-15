@@ -3,13 +3,12 @@ package com.github.hborders.heathcast.matcher;
 import android.view.View;
 import android.view.ViewParent;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-
-import javax.annotation.Nullable;
 
 public final class ViewMatchers {
     public static Matcher<View> withAncestor(Matcher<View> ancestorMatcher) {

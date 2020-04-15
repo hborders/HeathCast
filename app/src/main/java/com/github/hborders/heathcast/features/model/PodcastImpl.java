@@ -120,6 +120,40 @@ public final class PodcastImpl implements Podcast2, PodcastRecyclerViewAdapter.P
     public static final class PodcastIdentifierImpl
             extends IdentifierImpl
             implements PodcastIdentifier2 {
+        public static final class PodcastIdentifierOptImpl
+                extends IdentifierImpl.IdentifierOptImpl<
+                PodcastIdentifierImpl
+                > implements PodcastIdentifierOpt2<
+                PodcastIdentifierImpl
+                > {
+            public static final class PodcastIdentifierOptListImpl
+                    extends IdentifierImpl.IdentifierOptImpl.IdentifierOptListImpl<
+                    PodcastIdentifierOptImpl,
+                    PodcastIdentifierImpl
+                    > implements PodcastIdentifierOptList2<
+                    PodcastIdentifierOptImpl,
+                    PodcastIdentifierImpl
+                    > {
+                public PodcastIdentifierOptListImpl() {
+                }
+
+                public PodcastIdentifierOptListImpl(int initialCapacity) {
+                    super(initialCapacity);
+                }
+
+                public PodcastIdentifierOptListImpl(Collection<? extends PodcastIdentifierOptImpl> c) {
+                    super(c);
+                }
+            }
+
+            public PodcastIdentifierOptImpl() {
+            }
+
+            public PodcastIdentifierOptImpl(PodcastIdentifierImpl identifier) {
+                super(identifier);
+            }
+        }
+
         public PodcastIdentifierImpl(long id) {
             super(id);
         }

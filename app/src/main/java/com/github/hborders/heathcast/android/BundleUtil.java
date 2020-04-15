@@ -3,6 +3,8 @@ package com.github.hborders.heathcast.android;
 import android.os.Bundle;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
@@ -12,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
 
 public final class BundleUtil {
     private BundleUtil() {

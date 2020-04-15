@@ -2,13 +2,13 @@ package com.github.hborders.heathcast.android;
 
 import android.database.Cursor;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.core.URLUtil;
 
 import java.net.URL;
 import java.time.Duration;
 import java.util.Date;
-
-import javax.annotation.Nullable;
 
 public final class CursorUtil {
     private CursorUtil() {

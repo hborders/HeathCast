@@ -3,6 +3,7 @@ package com.github.hborders.heathcast.dao;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import androidx.annotation.Nullable;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
@@ -30,8 +31,6 @@ import java.util.SortedSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 import static com.github.hborders.heathcast.core.ListUtil.indexedStream;

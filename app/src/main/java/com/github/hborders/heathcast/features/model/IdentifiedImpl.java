@@ -1,6 +1,5 @@
 package com.github.hborders.heathcast.features.model;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
@@ -67,7 +66,7 @@ public abstract class IdentifiedImpl<
                 super(initialCapacity);
             }
 
-            protected IdentifiedOptListImpl(@NonNull Collection<? extends IdentifiedOptType> c) {
+            protected IdentifiedOptListImpl(Collection<? extends IdentifiedOptType> c) {
                 super(c);
             }
         }

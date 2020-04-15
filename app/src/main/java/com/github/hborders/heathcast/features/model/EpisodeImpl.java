@@ -1,9 +1,7 @@
 package com.github.hborders.heathcast.features.model;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.dao.Episode2;
 
 import java.net.URL;
@@ -56,7 +54,7 @@ public final class EpisodeImpl implements Episode2 {
                 EpisodeImpl
                 > {
             public static final class EpisodeIdentifiedOptListImpl
-            extends IdentifiedOptListImpl<
+                    extends IdentifiedOptListImpl<
                     EpisodeIdentifiedOptImpl,
                     EpisodeIdentifiedImpl,
                     EpisodeIdentifierImpl,
@@ -74,7 +72,7 @@ public final class EpisodeImpl implements Episode2 {
                     super(initialCapacity);
                 }
 
-                public EpisodeIdentifiedOptListImpl(@NonNull Collection<? extends EpisodeIdentifiedOptImpl> c) {
+                public EpisodeIdentifiedOptListImpl(Collection<? extends EpisodeIdentifiedOptImpl> c) {
                     super(c);
                 }
             }
@@ -158,10 +156,13 @@ public final class EpisodeImpl implements Episode2 {
             extends IdentifierImpl
             implements EpisodeIdentifier2 {
         public static final class EpisodeIdentifierOptImpl
-                extends OptImpl<EpisodeIdentifierImpl>
-                implements Opt2<EpisodeIdentifierImpl> {
+                extends IdentifierOptImpl<EpisodeIdentifierImpl>
+                implements EpisodeIdentifierOpt2<EpisodeIdentifierImpl> {
             public static final class EpisodeIdentifierOptListImpl
                     extends IdentifierOptImpl.IdentifierOptListImpl<
+                    EpisodeIdentifierOptImpl,
+                    EpisodeIdentifierImpl
+                    > implements EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
                     EpisodeIdentifierOptImpl,
                     EpisodeIdentifierImpl
                     > {
@@ -172,7 +173,7 @@ public final class EpisodeImpl implements Episode2 {
                     super(initialCapacity);
                 }
 
-                public EpisodeIdentifierOptListImpl(@NonNull Collection<? extends EpisodeIdentifierOptImpl> c) {
+                public EpisodeIdentifierOptListImpl(Collection<? extends EpisodeIdentifierOptImpl> c) {
                     super(c);
                 }
             }

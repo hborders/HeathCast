@@ -1,5 +1,6 @@
 package com.github.hborders.heathcast;
 
+import androidx.annotation.Nullable;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -15,8 +16,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Nullable;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest

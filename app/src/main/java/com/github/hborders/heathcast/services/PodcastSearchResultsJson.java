@@ -1,8 +1,8 @@
 package com.github.hborders.heathcast.services;
 
-import java.util.List;
+import androidx.annotation.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.List;
 
 final class PodcastSearchResultsJson {
     @Nullable

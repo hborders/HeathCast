@@ -3,6 +3,8 @@ package com.github.hborders.heathcast.parcelables;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
@@ -11,8 +13,6 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Objects;
-
-import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.android.ParcelUtil.readDate;
 import static com.github.hborders.heathcast.android.ParcelUtil.readDuration;

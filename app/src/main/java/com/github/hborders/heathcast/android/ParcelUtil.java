@@ -2,11 +2,11 @@ package com.github.hborders.heathcast.android;
 
 import android.os.Parcel;
 
+import androidx.annotation.Nullable;
+
 import java.net.URL;
 import java.time.Duration;
 import java.util.Date;
-
-import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.core.URLUtil.fromString;
 

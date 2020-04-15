@@ -1,6 +1,5 @@
 package com.github.hborders.heathcast.features.model;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
@@ -22,7 +21,7 @@ public abstract class OptImpl<ValueType> implements Opt2<ValueType> {
             super(initialCapacity);
         }
 
-        protected OptListImpl(@NonNull Collection<? extends OptItemType> c) {
+        protected OptListImpl(Collection<? extends OptItemType> c) {
             super(c);
         }
     }

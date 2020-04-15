@@ -1,5 +1,7 @@
 package com.github.hborders.heathcast.dao;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
@@ -15,8 +17,6 @@ import org.robolectric.RobolectricTestRunner;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 

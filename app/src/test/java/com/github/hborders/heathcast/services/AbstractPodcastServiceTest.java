@@ -1,5 +1,6 @@
 package com.github.hborders.heathcast.services;
 
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.github.hborders.heathcast.dao.Database;
@@ -9,8 +10,6 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.schedulers.Schedulers;
 

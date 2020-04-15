@@ -1,5 +1,7 @@
 package com.github.hborders.heathcast.dao;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
@@ -26,8 +28,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 import io.reactivex.observers.TestObserver;
 

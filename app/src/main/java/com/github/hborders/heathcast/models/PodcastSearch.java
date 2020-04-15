@@ -1,8 +1,8 @@
 package com.github.hborders.heathcast.models;
 
-import java.util.Objects;
+import androidx.annotation.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.Objects;
 
 public final class PodcastSearch {
     public final String search;

@@ -1,8 +1,8 @@
 package com.github.hborders.heathcast.core;
 
-import java.util.Objects;
+import androidx.annotation.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.Objects;
 
 public abstract class Ranged<E extends Comparable<E>> {
     private Ranged() {

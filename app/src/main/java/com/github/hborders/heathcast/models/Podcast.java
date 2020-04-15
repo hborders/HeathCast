@@ -1,9 +1,9 @@
 package com.github.hborders.heathcast.models;
 
+import androidx.annotation.Nullable;
+
 import java.net.URL;
 import java.util.Objects;
-
-import javax.annotation.Nullable;
 
 public final class Podcast {
     @Nullable

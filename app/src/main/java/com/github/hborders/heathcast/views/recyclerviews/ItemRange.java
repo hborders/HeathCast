@@ -1,10 +1,10 @@
 package com.github.hborders.heathcast.views.recyclerviews;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.core.Ranged;
 
 import java.util.Objects;
-
-import javax.annotation.Nullable;
 
 public final class ItemRange {
     public static ItemRange visible(

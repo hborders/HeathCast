@@ -1,9 +1,9 @@
 package com.github.hborders.heathcast.core;
 
+import androidx.annotation.Nullable;
+
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import javax.annotation.Nullable;
 
 public final class URLUtil {
     private URLUtil() {

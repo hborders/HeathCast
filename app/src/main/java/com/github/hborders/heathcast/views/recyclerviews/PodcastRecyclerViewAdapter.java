@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
@@ -13,8 +14,6 @@ import com.squareup.picasso.Picasso;
 
 import java.net.URL;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 public abstract class PodcastRecyclerViewAdapter<
         PodcastRecyclerViewAdapterType extends PodcastRecyclerViewAdapter<

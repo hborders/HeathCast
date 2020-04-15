@@ -14,11 +14,15 @@ import androidx.navigation.Navigation;
 import androidx.test.espresso.IdlingResource;
 
 import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Result;
+import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.features.model.EpisodeImpl;
+import com.github.hborders.heathcast.features.model.PodcastImpl;
+import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
+import com.github.hborders.heathcast.features.model.SubscriptionImpl;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
-import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
@@ -33,6 +37,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public final class MainActivity extends AppCompatActivity
         implements
@@ -62,12 +67,85 @@ public final class MainActivity extends AppCompatActivity
             );
 
     private final PodcastService<
-            EpisodeImpl
+            EpisodeImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
+            EpisodeImpl.EpisodeIdentifierImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl,
+            EpisodeImpl.EpisodeListImpl,
+            PodcastImpl,
+            PodcastImpl.PodcastIdentifiedImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedOptImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedSetImpl,
+            PodcastImpl.PodcastIdentifierImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl.PodcastIdentifierOptListImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl,
+            PodcastImpl.PodcastListImpl,
+            PodcastSearchImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedOptImpl,
+            PodcastSearchImpl.PodcastSearchIdentifierImpl,
+            PodcastSearchImpl.PodcastSearchIdentifierImpl.PodcastSearchIdentifierOptImpl,
+            SubscriptionImpl,
+            SubscriptionImpl.SubscriptionIdentifiedImpl,
+            SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl,
+            SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedOptImpl,
+            SubscriptionImpl.SubscriptionIdentifierImpl,
+            SubscriptionImpl.SubscriptionIdentifierImpl.SubscriptionIdentifierOptImpl
             > podcastService;
 
     public MainActivity() {
-        podcastService = new PodcastService(
-
+        podcastService = new PodcastService<>(
+                EpisodeImpl::new,
+                EpisodeImpl.EpisodeListImpl::new,
+                EpisodeImpl.EpisodeListImpl::new,
+                PodcastImpl::new,
+                PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl::new,
+                PodcastImpl.PodcastListImpl::new,
+                new Database<>(
+                        this,
+                        null,
+                        Schedulers.io(),
+                        EpisodeImpl::new,
+                        EpisodeImpl.EpisodeIdentifierImpl::new,
+                        EpisodeImpl.EpisodeIdentifiedImpl::new,
+                        EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl::new,
+                        EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl::new,
+                        EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl::new,
+                        EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl::new,
+                        EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl::new,
+                        PodcastImpl::new,
+                        PodcastImpl.PodcastIdentifierImpl::new,
+                        PodcastImpl.PodcastIdentifiedImpl::new,
+                        PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl::new,
+                        PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedOptImpl::new,
+                        PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedOptImpl::new,
+                        PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl::new,
+                        PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl::new,
+                        PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedSetImpl::new,
+                        PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl.PodcastIdentifierOptListImpl::new,
+                        PodcastSearchImpl::new,
+                        PodcastSearchImpl.PodcastSearchIdentifierImpl::new,
+                        PodcastSearchImpl.PodcastSearchIdentifiedImpl::new,
+                        PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl::new,
+                        PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedOptImpl::new,
+                        PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedOptImpl::new,
+                        PodcastSearchImpl.PodcastSearchIdentifierImpl.PodcastSearchIdentifierOptImpl::new,
+                        PodcastSearchImpl.PodcastSearchIdentifierImpl.PodcastSearchIdentifierOptImpl::new,
+                        SubscriptionImpl::new,
+                        SubscriptionImpl.SubscriptionIdentifierImpl::new,
+                        SubscriptionImpl.SubscriptionIdentifiedImpl::new,
+                        SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedOptImpl::new,
+                        SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedOptImpl::new,
+                        SubscriptionImpl.SubscriptionIdentifierImpl.SubscriptionIdentifierOptImpl::new,
+                        SubscriptionImpl.SubscriptionIdentifierImpl.SubscriptionIdentifierOptImpl::new,
+                        SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl::new
+                ),
+                Schedulers.io()
         );
     }
 

@@ -2,14 +2,14 @@ package com.github.hborders.heathcast.parcelables;
 
 import android.os.Parcel;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentified;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 
 import java.net.URL;
 import java.util.Objects;
-
-import javax.annotation.Nullable;
 
 import static com.github.hborders.heathcast.android.ParcelUtil.readURL;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
