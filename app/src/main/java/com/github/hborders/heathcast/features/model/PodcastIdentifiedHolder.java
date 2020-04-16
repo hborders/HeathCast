@@ -1,12 +1,10 @@
-package com.github.hborders.heathcast.parcelables;
+package com.github.hborders.heathcast.features.model;
 
 import android.os.Parcel;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
+import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 
 import java.net.URL;
 import java.util.Objects;
@@ -14,22 +12,38 @@ import java.util.Objects;
 import static com.github.hborders.heathcast.android.ParcelUtil.readURL;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
-public final class PodcastIdentifiedHolder implements UnparcelableHolder<PodcastIdentified> {
-    public interface Factory extends UnparcelableHolder.Factory<
-            PodcastIdentified,
-            PodcastIdentifiedHolder
+public final class PodcastIdentifiedHolder
+        implements UnparcelableHolder<PodcastImpl.PodcastIdentifiedImpl> {
+    public interface PodcastIdentifiedHolderFactory
+            extends UnparcelableHolder.UnparcelableHolderFactory<
+            PodcastIdentifiedHolder,
+            PodcastImpl.PodcastIdentifiedImpl
             > {
     }
-    public interface ArrayFactory extends UnparcelableHolder.ArrayFactory<
-            PodcastIdentified,
-            PodcastIdentifiedHolder
+
+    public interface PodcastIdentifiedHolderArrayFactory
+            extends UnparcelableHolder.UnparcelableHolderArrayFactory<
+            PodcastIdentifiedHolder,
+            PodcastImpl.PodcastIdentifiedImpl
             > {
     }
+
+    public static final Creator<PodcastIdentifiedHolder> CREATOR = new Creator<PodcastIdentifiedHolder>() {
+        @Override
+        public PodcastIdentifiedHolder createFromParcel(Parcel in) {
+            return new PodcastIdentifiedHolder(in);
+        }
+
+        @Override
+        public PodcastIdentifiedHolder[] newArray(int size) {
+            return new PodcastIdentifiedHolder[size];
+        }
+    };
 
     @Nullable
-    public final PodcastIdentified podcastIdentified;
+    public final PodcastImpl.PodcastIdentifiedImpl podcastIdentified;
 
-    public PodcastIdentifiedHolder(PodcastIdentified podcastIdentified) {
+    public PodcastIdentifiedHolder(PodcastImpl.PodcastIdentifiedImpl podcastIdentified) {
         this.podcastIdentified = podcastIdentified;
     }
 
@@ -45,9 +59,9 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Podcast
             @Nullable final String name = in.readString();
 
             if (feedURL != null && name != null) {
-                podcastIdentified = new PodcastIdentified(
-                        new PodcastIdentifier(id),
-                        new Podcast(
+                podcastIdentified = new PodcastImpl.PodcastIdentifiedImpl(
+                        new PodcastImpl.PodcastIdentifierImpl(id),
+                        new PodcastImpl(
                                 artworkURL,
                                 author,
                                 feedURL,
@@ -59,6 +73,8 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Podcast
             }
         }
     }
+
+    // Object
 
     @Override
     public boolean equals(@Nullable Object o) {
@@ -79,6 +95,8 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Podcast
                 "podcastIdentified=" + podcastIdentified +
                 '}';
     }
+
+    // Parcelable
 
     @Override
     public int describeContents() {
@@ -102,19 +120,7 @@ public final class PodcastIdentifiedHolder implements UnparcelableHolder<Podcast
 
     @Nullable
     @Override
-    public PodcastIdentified getUnparcelable() {
+    public PodcastImpl.PodcastIdentifiedImpl getUnparcelable() {
         return podcastIdentified;
     }
-
-    public static final Creator<PodcastIdentifiedHolder> CREATOR = new Creator<PodcastIdentifiedHolder>() {
-        @Override
-        public PodcastIdentifiedHolder createFromParcel(Parcel in) {
-            return new PodcastIdentifiedHolder(in);
-        }
-
-        @Override
-        public PodcastIdentifiedHolder[] newArray(int size) {
-            return new PodcastIdentifiedHolder[size];
-        }
-    };
 }

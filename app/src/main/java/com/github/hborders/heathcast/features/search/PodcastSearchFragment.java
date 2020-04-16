@@ -29,33 +29,14 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
-public abstract class PodcastSearchFragment<
-        PodcastSearchFragmentType extends PodcastSearchFragment<
-                PodcastSearchFragmentType,
-                PodcastSearchFragmentListenerType
-                >,
-        PodcastSearchFragmentListenerType extends PodcastSearchFragment.PodcastSearchFragmentListener<
-                PodcastSearchFragmentType,
-                PodcastSearchFragmentListenerType
-                >
-        > extends Fragment
-        implements
-        PodcastSearchPodcastListFragment.PodcastSearchPodcastListFragmentListener {
+public final class PodcastSearchFragment extends Fragment
+        implements PodcastSearchPodcastListFragment.PodcastSearchPodcastListFragmentListener {
 
-    public interface PodcastSearchFragmentListener<
-            PodcastSearchFragmentType extends PodcastSearchFragment<
-                    PodcastSearchFragmentType,
-                    PodcastSearchFragmentListenerType
-                    >,
-            PodcastSearchFragmentListenerType extends PodcastSearchFragment.PodcastSearchFragmentListener<
-                    PodcastSearchFragmentType,
-                    PodcastSearchFragmentListenerType
-                    >
-            > {
-        void onPodcastSearchFragmentAttached(PodcastSearchFragmentType podcastSearchFragment);
+    public interface PodcastSearchFragmentListener  {
+        void onPodcastSearchFragmentAttached(PodcastSearchFragment podcastSearchFragment);
 
         Observable<PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState> searchForPodcasts2(
-                PodcastSearchFragmentType podcastSearchFragment,
+                PodcastSearchFragment podcastSearchFragment,
                 PodcastSearchImpl podcastSearch,
                 PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory,
                 PodcastSearchPodcastIdentifiedListServiceResponseCompleteFactory completeFactory,
@@ -63,11 +44,11 @@ public abstract class PodcastSearchFragment<
         );
 
         void onClickPodcastIdentified(
-                PodcastSearchFragmentType podcastSearchFragment,
+                PodcastSearchFragment podcastSearchFragment,
                 PodcastImpl.PodcastIdentifiedImpl podcastIdentified
         );
 
-        void onPodcastSearchFragmentWillDetach(PodcastSearchFragmentType podcastSearchFragment);
+        void onPodcastSearchFragmentWillDetach(PodcastSearchFragment podcastSearchFragment);
     }
 
     public interface PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory
@@ -107,11 +88,8 @@ public abstract class PodcastSearchFragment<
     private static final String QUERY_KEY = "query";
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    private final Class<PodcastSearchFragmentType> selfClass;
-    private final Class<PodcastSearchFragmentListenerType> listenerClass;
-
     @Nullable
-    private PodcastSearchFragmentListenerType listener;
+    private PodcastSearchFragmentListener listener;
 
     private final DelegatingIdlingResource searchResultPodcastListLoadingDelegatingIdlingResource =
             new DelegatingIdlingResource(
@@ -140,20 +118,14 @@ public abstract class PodcastSearchFragment<
     @Nullable
     private Disposable podcastSearchSearchPodcastListAsyncValueStateOptionalDisposable;
 
-    protected PodcastSearchFragment(
-            Class<PodcastSearchFragmentType> selfClass,
-            Class<PodcastSearchFragmentListenerType> listenerClass
-    ) {
-        this.selfClass = selfClass;
-        this.listenerClass = listenerClass;
-
+    public PodcastSearchFragment() {
         podcastSearchSearchPodcastListAsyncValueStateOptionalObservable =
                 queryOptionalPublishSubject.switchMap(
                         queryOptional -> queryOptional.map(
                                 query ->
                                         Objects.requireNonNull(listener)
                                                 .searchForPodcasts2(
-                                                        Objects.requireNonNull(selfClass.cast(this)),
+                                                        this,
                                                         new PodcastSearchImpl(query),
                                                         PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateLoading::new,
                                                         PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueStateComplete::new,
@@ -169,12 +141,12 @@ public abstract class PodcastSearchFragment<
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        final PodcastSearchFragmentListenerType listener = FragmentUtil.requireContextFragmentListener(
+        final PodcastSearchFragmentListener listener = FragmentUtil.requireContextFragmentListener(
                 context,
-                listenerClass
+                PodcastSearchFragmentListener.class
         );
         this.listener = listener;
-        listener.onPodcastSearchFragmentAttached(Objects.requireNonNull(selfClass.cast(this)));
+        listener.onPodcastSearchFragmentAttached(this);
     }
 
     @Override
@@ -305,9 +277,9 @@ public abstract class PodcastSearchFragment<
 
     @Override
     public void onDetach() {
-        final PodcastSearchFragmentListenerType listener = Objects.requireNonNull(this.listener);
+        final PodcastSearchFragmentListener listener = Objects.requireNonNull(this.listener);
         this.listener = null;
-        listener.onPodcastSearchFragmentWillDetach(Objects.requireNonNull(selfClass.cast(this)));
+        listener.onPodcastSearchFragmentWillDetach(this);
 
         super.onDetach();
     }
@@ -337,7 +309,7 @@ public abstract class PodcastSearchFragment<
             PodcastImpl.PodcastIdentifiedImpl podcastIdentified
     ) {
         Objects.requireNonNull(listener).onClickPodcastIdentified(
-                Objects.requireNonNull(selfClass.cast(this)),
+                this,
                 podcastIdentified
         );
     }

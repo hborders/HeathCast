@@ -14,13 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.android.FragmentUtil;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.parcelables.EpisodeIdentifiedHolder;
+import com.github.hborders.heathcast.features.model.EpisodeIdentifiedHolder;
+import com.github.hborders.heathcast.features.model.EpisodeImpl;
 import com.github.hborders.heathcast.views.recyclerviews.EpisodeRecyclerViewAdapter;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,7 +30,7 @@ public final class EpisodeListFragment extends Fragment {
     public interface EpisodeListFragmentListener {
         void onEpisodeListFragmentAttached(EpisodeListFragment episodeListFragment);
 
-        Observable<Optional<List<EpisodeIdentified>>> episodeIdentifiedsOptionalObservable(
+        Observable<Optional<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl>> episodeIdentifiedsOptionalObservable(
                 EpisodeListFragment episodeListFragment
         );
 
@@ -44,7 +41,7 @@ public final class EpisodeListFragment extends Fragment {
 
         void onClick(
                 EpisodeListFragment episodeListFragment,
-                EpisodeIdentified episodeIdentified
+                EpisodeImpl.EpisodeIdentifiedImpl episodeIdentified
         );
 
         void onEpisodeListFragmentWillDetach(EpisodeListFragment episodeListFragment);
@@ -106,15 +103,15 @@ public final class EpisodeListFragment extends Fragment {
         final RecyclerView episodesRecyclerView =
                 view.requireViewById(R.id.fragment_episode_list_episodes_recycler_view);
         episodesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        @Nullable final List<EpisodeIdentified> episodeIdentifieds =
+        @Nullable final EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl episodeIdentifieds =
                 FragmentUtil.getUnparcelableListArgument(
                         this,
                         EpisodeIdentifiedHolder.class,
-                        EpisodeIdentifiedList::new,
+                        EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl::new,
                         EPISODE_PARCELABLES_KEY
                 );
         final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(
-                episodeIdentifieds == null ? Collections.emptyList() : episodeIdentifieds,
+                episodeIdentifieds == null ? new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl() : episodeIdentifieds,
                 episodeIdentified ->
                         Objects.requireNonNull(this.listener).onClick(
                                 this,
@@ -148,7 +145,9 @@ public final class EpisodeListFragment extends Fragment {
                             );
                             setArguments(args);
                             Objects.requireNonNull(this.adapter).setEpisodeIdentifieds(
-                                    episodeIdentifiedsOptional.orElse(Collections.emptyList())
+                                    episodeIdentifiedsOptional.orElse(
+                                            new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl()
+                                    )
                             );
                         },
                         throwable -> {

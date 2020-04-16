@@ -9,19 +9,32 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.hborders.heathcast.R;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.features.model.EpisodeImpl;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
+public final class EpisodeRecyclerViewAdapter
+        extends RecyclerView.Adapter<EpisodeRecyclerViewAdapter.EpisodeViewHolder> {
+    public interface EpisodeRecyclerViewAdapterListener {
+        void onClick(EpisodeImpl.EpisodeIdentifiedImpl episodeIdentified);
+    }
 
-public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<EpisodeRecyclerViewAdapter.EpisodeViewHolder> {
+    static final class EpisodeViewHolder extends RecyclerView.ViewHolder {
+        final ImageView artworkImageView;
+        final TextView titleTextView;
 
-    private List<EpisodeIdentified> episodeIdentifieds;
+        EpisodeViewHolder(View itemView) {
+            super(itemView);
+
+            this.artworkImageView = itemView.requireViewById(R.id.item_episode_artwork_image_view);
+            this.titleTextView = itemView.requireViewById(R.id.item_episode_title_text_view);
+        }
+    }
+
+    private EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl episodeIdentifieds;
     private final EpisodeRecyclerViewAdapterListener listener;
 
     public EpisodeRecyclerViewAdapter(
-            List<EpisodeIdentified> episodeIdentifieds,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl episodeIdentifieds,
             EpisodeRecyclerViewAdapterListener listener
     ) {
         this.episodeIdentifieds = episodeIdentifieds;
@@ -40,8 +53,8 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
 
     @Override
     public void onBindViewHolder(EpisodeViewHolder holder, int position) {
-        EpisodeIdentified episodeIdentified = episodeIdentifieds.get(position);
-        final Episode episode = episodeIdentified.model;
+        EpisodeImpl.EpisodeIdentifiedImpl episodeIdentified = episodeIdentifieds.get(position);
+        final EpisodeImpl episode = episodeIdentified.model;
         holder.titleTextView.setText(episode.title);
         holder.itemView.setOnClickListener(itemView -> listener.onClick(episodeIdentified));
         Picasso.get().cancelRequest(holder.artworkImageView);
@@ -56,24 +69,8 @@ public final class EpisodeRecyclerViewAdapter extends RecyclerView.Adapter<Episo
         return episodeIdentifieds.size();
     }
 
-    public void setEpisodeIdentifieds(List<EpisodeIdentified> episodeIdentifieds) {
+    public void setEpisodeIdentifieds(EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl episodeIdentifieds) {
         this.episodeIdentifieds = episodeIdentifieds;
         notifyDataSetChanged();
-    }
-
-    static final class EpisodeViewHolder extends RecyclerView.ViewHolder {
-        final ImageView artworkImageView;
-        final TextView titleTextView;
-
-        EpisodeViewHolder(View itemView) {
-            super(itemView);
-
-            this.artworkImageView = itemView.requireViewById(R.id.item_episode_artwork_image_view);
-            this.titleTextView = itemView.requireViewById(R.id.item_episode_title_text_view);
-        }
-    }
-
-    public interface EpisodeRecyclerViewAdapterListener {
-        void onClick(EpisodeIdentified episodeIdentified);
     }
 }

@@ -4,20 +4,21 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-public interface UnparcelableHolder<U> extends Parcelable {
-    interface Factory<
-            U,
-            H extends UnparcelableHolder<U>
+public interface UnparcelableHolder<UnparcelableType> extends Parcelable {
+    interface UnparcelableHolderFactory<
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType
             > {
-        H newUnparcelableHolder(U unparcelable);
+        UnparcelableHolderType newUnparcelableHolder(UnparcelableType unparcelable);
     }
-    interface ArrayFactory<
-            U,
-            H extends UnparcelableHolder<U>
+
+    interface UnparcelableHolderArrayFactory<
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType
             > {
-        H[] newUnparcelableHolderArray(int size);
+        UnparcelableHolderType[] newUnparcelableHolderArray(int size);
     }
 
     @Nullable
-    U getUnparcelable();
+    UnparcelableType getUnparcelable();
 }

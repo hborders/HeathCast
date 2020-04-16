@@ -1,13 +1,11 @@
-package com.github.hborders.heathcast.parcelables;
+package com.github.hborders.heathcast.features.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifier;
+import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 
 import java.net.URL;
 import java.time.Duration;
@@ -21,11 +19,26 @@ import static com.github.hborders.heathcast.android.ParcelUtil.writeDate;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeDuration;
 import static com.github.hborders.heathcast.android.ParcelUtil.writeURL;
 
-public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHolder<EpisodeIdentified> {
-    @Nullable
-    public final EpisodeIdentified episodeIdentified;
+public final class EpisodeIdentifiedHolder
+        implements
+        Parcelable,
+        UnparcelableHolder<EpisodeImpl.EpisodeIdentifiedImpl> {
+    public static final Creator<EpisodeIdentifiedHolder> CREATOR = new Creator<EpisodeIdentifiedHolder>() {
+        @Override
+        public EpisodeIdentifiedHolder createFromParcel(Parcel in) {
+            return new EpisodeIdentifiedHolder(in);
+        }
 
-    public EpisodeIdentifiedHolder(EpisodeIdentified episodeIdentified) {
+        @Override
+        public EpisodeIdentifiedHolder[] newArray(int size) {
+            return new EpisodeIdentifiedHolder[size];
+        }
+    };
+
+    @Nullable
+    public final EpisodeImpl.EpisodeIdentifiedImpl episodeIdentified;
+
+    public EpisodeIdentifiedHolder(EpisodeImpl.EpisodeIdentifiedImpl episodeIdentified) {
         this.episodeIdentified = episodeIdentified;
     }
 
@@ -42,9 +55,9 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
             @Nullable final String title = in.readString();
             @Nullable final URL url = readURL(in);
             if (title != null && url != null) {
-                episodeIdentified = new EpisodeIdentified(
-                        new EpisodeIdentifier(id),
-                        new Episode(
+                episodeIdentified = new EpisodeImpl.EpisodeIdentifiedImpl(
+                        new EpisodeImpl.EpisodeIdentifierImpl(id),
+                        new EpisodeImpl(
                                 artworkURL,
                                 duration,
                                 pubishDate,
@@ -58,6 +71,8 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
             }
         }
     }
+
+    // Object
 
     @Override
     public boolean equals(@Nullable Object o) {
@@ -78,6 +93,8 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
                 "episodeIdentified=" + episodeIdentified +
                 '}';
     }
+
+    // Parcelable
 
     @Override
     public int describeContents() {
@@ -103,19 +120,7 @@ public final class EpisodeIdentifiedHolder implements Parcelable, UnparcelableHo
 
     @Nullable
     @Override
-    public EpisodeIdentified getUnparcelable() {
+    public EpisodeImpl.EpisodeIdentifiedImpl getUnparcelable() {
         return episodeIdentified;
     }
-
-    public static final Creator<EpisodeIdentifiedHolder> CREATOR = new Creator<EpisodeIdentifiedHolder>() {
-        @Override
-        public EpisodeIdentifiedHolder createFromParcel(Parcel in) {
-            return new EpisodeIdentifiedHolder(in);
-        }
-
-        @Override
-        public EpisodeIdentifiedHolder[] newArray(int size) {
-            return new EpisodeIdentifiedHolder[size];
-        }
-    };
 }

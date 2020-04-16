@@ -1,12 +1,11 @@
 package com.github.hborders.heathcast.annotations;
 
-import androidx.annotation.NonNull;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import javax.annotation.Nonnull;
 import javax.annotation.meta.TypeQualifierDefault;
 
 /**
@@ -15,7 +14,7 @@ import javax.annotation.meta.TypeQualifierDefault;
  * @see javax.annotation.ParametersAreNonnullByDefault
  */
 @Documented
-@NonNull
+@Nonnull
 @TypeQualifierDefault({
         ElementType.FIELD,
         ElementType.METHOD,
