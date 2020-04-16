@@ -22,10 +22,18 @@ import com.github.hborders.heathcast.features.model.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.model.SubscriptionImpl;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
+import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
+import com.github.hborders.heathcast.models.PodcastIdentifier;
+import com.github.hborders.heathcast.models.SubscriptionIdentifier;
+import com.github.hborders.heathcast.models.URLOpt;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 

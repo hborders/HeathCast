@@ -24,7 +24,6 @@ import com.github.hborders.heathcast.features.search.PodcastSearchFragment;
 import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
-import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastService;
