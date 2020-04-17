@@ -83,7 +83,7 @@ public abstract class RxFragment<
         public final ListenerType listener;
         public final Observable<FragmentCreation> fragmenCreationObservable;
         public final Completable onDetachCompletable;
-        private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+        final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         protected Attachment(
                 Class<AttachmentType> selfClass,
@@ -98,9 +98,7 @@ public abstract class RxFragment<
             this.context = context;
             this.listener = listener;
             this.fragmenCreationObservable = fragmenCreationObservable;
-            this.onDetachCompletable = onDetachCompletable.doOnComplete(
-                    compositeDisposable::dispose
-            );
+            this.onDetachCompletable = onDetachCompletable;
         }
 
         @Override
@@ -183,7 +181,7 @@ public abstract class RxFragment<
         public final Observable<SaveInstanceState> saveInstanceStateObservable;
         public final Observable<Observable<ViewCreation>> viewCreationObservableObservable;
         public final Completable onDestroyCompletable;
-        private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+        final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         private FragmentCreation(
                 @Nullable Bundle savedInstanceState,
@@ -194,9 +192,7 @@ public abstract class RxFragment<
             this.savedInstanceState = savedInstanceState;
             this.saveInstanceStateObservable = saveInstanceStateObservable;
             this.viewCreationObservableObservable = viewCreationObservableObservable;
-            this.onDestroyCompletable = onDestroyCompletable.doOnComplete(
-                    compositeDisposable::dispose
-            );
+            this.onDestroyCompletable = onDestroyCompletable;
         }
 
         @Override
@@ -220,7 +216,7 @@ public abstract class RxFragment<
         public final Bundle savedInstanceState;
         public final Observable<ActivityCreation> activityCreationObservable;
         public final Completable onDestroyViewCompletable;
-        private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+        final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         private ViewCreation(
                 View view,
@@ -231,9 +227,7 @@ public abstract class RxFragment<
             this.view = view;
             this.savedInstanceState = savedInstanceState;
             this.activityCreationObservable = activityCreationObservable;
-            this.onDestroyViewCompletable = onDestroyViewCompletable.doOnComplete(
-                    compositeDisposable::dispose
-            );
+            this.onDestroyViewCompletable = onDestroyViewCompletable;
         }
 
         @Override
@@ -270,7 +264,7 @@ public abstract class RxFragment<
         public final Bundle savedInstanceState;
         public final Observable<Start> startObservable;
         public final Completable onDestroyViewCompletable;
-        private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+        final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         private ActivityCreation(
                 @Nullable Bundle savedInstanceState,
@@ -279,9 +273,7 @@ public abstract class RxFragment<
         ) {
             this.savedInstanceState = savedInstanceState;
             this.startObservable = startObservable;
-            this.onDestroyViewCompletable = onDestroyViewCompletable.doOnComplete(
-                    compositeDisposable::dispose
-            );
+            this.onDestroyViewCompletable = onDestroyViewCompletable;
         }
 
         @Override
@@ -302,7 +294,7 @@ public abstract class RxFragment<
         private final RxFragment<?, ?, ?> fragment;
         public final Observable<Resume> resumeObservable;
         public final Completable onStopCompletable;
-        private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+        final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         private Start(
                 RxFragment<?, ?, ?> fragment,
@@ -311,9 +303,7 @@ public abstract class RxFragment<
         ) {
             this.fragment = fragment;
             this.resumeObservable = resumeObservable;
-            this.onStopCompletable = onStopCompletable.doOnComplete(
-                    compositeDisposable::dispose
-            );
+            this.onStopCompletable = onStopCompletable;
         }
 
         @Override
@@ -350,12 +340,10 @@ public abstract class RxFragment<
     // so that clients can emit events through a single observable.
     public static final class Resume {
         public final Completable onPauseCompletable;
-        private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+        final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         private Resume(Completable onPauseCompletable) {
-            this.onPauseCompletable = onPauseCompletable.doOnComplete(
-                    compositeDisposable::dispose
-            );
+            this.onPauseCompletable = onPauseCompletable;
         }
 
         @Override
@@ -412,6 +400,31 @@ public abstract class RxFragment<
         );
     }
 
+    protected interface Subscriber<T> {
+        Disposable doSubscribe(Observable<T> attachmentObservable);
+    }
+
+    protected static <
+            SubscribeType extends Subscriber<T>,
+            T
+            > Disposable checkSubscribe(
+            SubscribeType subscribe,
+            Observable<T> observable
+    ) {
+        final AtomicBoolean subscribed = new AtomicBoolean();
+        final Disposable disposable = subscribe.doSubscribe(
+                observable.doOnSubscribe(
+                        ignored -> {
+                            subscribed.set(true);
+                        }
+                )
+        );
+        if (false == subscribed.get()) {
+            throw new IllegalStateException("You must subscribe within subscribe");
+        }
+        return disposable;
+    }
+
     private final Class<FragmentType> selfClass;
     private final Class<ListenerType> listenerClass;
     private final OnAttached<
@@ -437,8 +450,9 @@ public abstract class RxFragment<
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    // Don't use a BehaviorSubject here. Even though we need to store the attachment,
-    // it's better to store it outside to force Publish semantics on the Observable.
+    // Don't use a BehaviorSubjects here. Even though we need to store the attachment,
+    // fragmentCreation, viewCreation, activityCreation, start, and resume,
+    // it's better to store them outside to force Publish semantics on the Observable.
     private PublishSubject<AttachmentType> attachmentPublishSubject = PublishSubject.create();
     private CompletableSubject onDetachCompletableSubject = CompletableSubject.create();
     @Nullable
@@ -450,21 +464,31 @@ public abstract class RxFragment<
     private PublishSubject<FragmentCreation.SaveInstanceState> saveInstanceStatePublishSubject =
             PublishSubject.create();
     private CompletableSubject onDestroyCompletableSubject = CompletableSubject.create();
+    @Nullable
+    private FragmentCreation fragmentCreation;
 
     private PublishSubject<Observable<ViewCreation>> viewCreationObservablePublishSubject =
             PublishSubject.create();
 
     private PublishSubject<ViewCreation> viewCreationPublishSubject = PublishSubject.create();
     private CompletableSubject viewCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
+    @Nullable
+    private ViewCreation viewCreation;
 
     private PublishSubject<ActivityCreation> activityCreationPublishSubject = PublishSubject.create();
     private CompletableSubject activityCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
+    @Nullable
+    private ActivityCreation activityCreation;
 
     private PublishSubject<Start> startPublishSubject = PublishSubject.create();
     private CompletableSubject onStopCompletableSubject = CompletableSubject.create();
+    @Nullable
+    private Start start;
 
     private PublishSubject<Resume> resumePublishSubject = PublishSubject.create();
     private CompletableSubject onPauseCompletableSubject = CompletableSubject.create();
+    @Nullable
+    private Resume resume;
 
     protected RxFragment(
             Class<FragmentType> selfClass,
@@ -494,17 +518,7 @@ public abstract class RxFragment<
         this.layoutResource = layoutResource;
     }
 
-    public final void setInitialArguments(@Nullable Bundle args) {
-        if (setInitialArgumentsLegal) {
-            super.setArguments(args);
-        } else {
-            throw new IllegalStateException();
-        }
-    }
-
-    private void superSetArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-    }
+    // Fragment
 
     @Deprecated
     @Override
@@ -547,13 +561,15 @@ public abstract class RxFragment<
         super.onCreate(savedInstanceState);
 
         setInitialArgumentsLegal = false;
+        final FragmentCreation fragmentCreation = new FragmentCreation(
+                savedInstanceState,
+                saveInstanceStatePublishSubject,
+                viewCreationObservablePublishSubject,
+                onDestroyCompletableSubject
+        );
+        this.fragmentCreation = fragmentCreation;
         fragmentCreationPublishSubject.onNext(
-                new FragmentCreation(
-                        savedInstanceState,
-                        saveInstanceStatePublishSubject,
-                        viewCreationObservablePublishSubject,
-                        onDestroyCompletableSubject
-                )
+                fragmentCreation
         );
     }
 
@@ -579,13 +595,15 @@ public abstract class RxFragment<
         super.onViewCreated(view, savedInstanceState);
 
         viewCreationObservablePublishSubject.onNext(viewCreationPublishSubject);
+        final ViewCreation viewCreation = new ViewCreation(
+                view,
+                savedInstanceState,
+                activityCreationPublishSubject,
+                viewCreationOnDestroyViewCompletableSubject
+        );
+        this.viewCreation = viewCreation;
         viewCreationPublishSubject.onNext(
-                new ViewCreation(
-                        view,
-                        savedInstanceState,
-                        activityCreationPublishSubject,
-                        viewCreationOnDestroyViewCompletableSubject
-                )
+                viewCreation
         );
     }
 
@@ -593,12 +611,14 @@ public abstract class RxFragment<
     public final void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        final ActivityCreation activityCreation = new ActivityCreation(
+                savedInstanceState,
+                startPublishSubject,
+                activityCreationOnDestroyViewCompletableSubject
+        );
+        this.activityCreation = activityCreation;
         activityCreationPublishSubject.onNext(
-                new ActivityCreation(
-                        savedInstanceState,
-                        startPublishSubject,
-                        activityCreationOnDestroyViewCompletableSubject
-                )
+                activityCreation
         );
     }
 
@@ -606,13 +626,14 @@ public abstract class RxFragment<
     public final void onStart() {
         super.onStart();
 
-
+        final Start start = new Start(
+                this,
+                resumePublishSubject,
+                onStopCompletableSubject
+        );
+        this.start = start;
         startPublishSubject.onNext(
-                new Start(
-                        this,
-                        resumePublishSubject,
-                        onStopCompletableSubject
-                )
+                start
         );
     }
 
@@ -620,8 +641,10 @@ public abstract class RxFragment<
     public final void onResume() {
         super.onResume();
 
+        final Resume resume = new Resume(onPauseCompletableSubject);
+        this.resume = resume;
         resumePublishSubject.onNext(
-                new Resume(onPauseCompletableSubject)
+                resume
         );
     }
 
@@ -629,8 +652,11 @@ public abstract class RxFragment<
     public final void onPause() {
         super.onPause();
 
+        final Resume resume = Objects.requireNonNull(this.resume);
+        this.resume = null;
         onPauseCompletableSubject.onComplete();
         resumePublishSubject.onComplete();
+        resume.compositeDisposable.dispose();
 
         onPauseCompletableSubject = CompletableSubject.create();
         resumePublishSubject = PublishSubject.create();
@@ -646,8 +672,11 @@ public abstract class RxFragment<
     public final void onStop() {
         super.onStop();
 
+        final Start start = Objects.requireNonNull(this.start);
+        this.start = null;
         onStopCompletableSubject.onComplete();
         startPublishSubject.onComplete();
+        start.compositeDisposable.dispose();
 
         onStopCompletableSubject = CompletableSubject.create();
         startPublishSubject = PublishSubject.create();
@@ -657,14 +686,20 @@ public abstract class RxFragment<
     public final void onDestroyView() {
         super.onDestroyView();
 
+        final ActivityCreation activityCreation = Objects.requireNonNull(this.activityCreation);
+        this.activityCreation = null;
         activityCreationOnDestroyViewCompletableSubject.onComplete();
         activityCreationPublishSubject.onComplete();
-
-        viewCreationOnDestroyViewCompletableSubject.onComplete();
-        viewCreationPublishSubject.onComplete();
+        activityCreation.compositeDisposable.dispose();
 
         activityCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
         activityCreationPublishSubject = PublishSubject.create();
+
+        final ViewCreation viewCreation = Objects.requireNonNull(this.viewCreation);
+        this.viewCreation = null;
+        viewCreationOnDestroyViewCompletableSubject.onComplete();
+        viewCreationPublishSubject.onComplete();
+        viewCreation.compositeDisposable.dispose();
 
         viewCreationOnDestroyViewCompletableSubject = CompletableSubject.create();
         viewCreationPublishSubject = PublishSubject.create();
@@ -683,10 +718,13 @@ public abstract class RxFragment<
     public final void onDestroy() {
         super.onDestroy();
 
+        final FragmentCreation fragmentCreation = Objects.requireNonNull(this.fragmentCreation);
+        this.fragmentCreation = null;
         onDestroyCompletableSubject.onComplete();
         viewCreationObservablePublishSubject.onComplete();
         fragmentCreationPublishSubject.onComplete();
         saveInstanceStatePublishSubject.onComplete();
+        fragmentCreation.compositeDisposable.dispose();
 
         onDestroyCompletableSubject = CompletableSubject.create();
         viewCreationObservablePublishSubject = PublishSubject.create();
@@ -706,6 +744,7 @@ public abstract class RxFragment<
         );
         onDetachCompletableSubject.onComplete();
         attachmentPublishSubject.onComplete();
+        attachment.compositeDisposable.dispose();
 
         // this isn't really necessary because we complete the attachmentBehaviorSubject,
         // but I think people will feel better knowing
@@ -716,6 +755,18 @@ public abstract class RxFragment<
         attachmentPublishSubject = PublishSubject.create();
     }
 
+    // Public API
+
+    public final void setInitialArguments(@Nullable Bundle args) {
+        if (setInitialArgumentsLegal) {
+            super.setArguments(args);
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    // Protected API
+
     /**
      * Use instead of <code>this</code> when you want to refer to the subclass type.
      */
@@ -723,33 +774,14 @@ public abstract class RxFragment<
         return Objects.requireNonNull(selfClass.cast(this));
     }
 
-    interface Subscriber<T> {
-        Disposable doSubscribe(Observable<T> attachmentObservable);
-    }
-
-    protected static <
-            SubscribeType extends Subscriber<T>,
-            T
-            > Disposable checkSubscribe(
-            SubscribeType subscribe,
-            Observable<T> observable
-    ) {
-        final AtomicBoolean subscribed = new AtomicBoolean();
-        final Disposable disposable = subscribe.doSubscribe(
-                observable.doOnSubscribe(
-                        ignored -> {
-                            subscribed.set(true);
-                        }
-                )
-        );
-        if (false == subscribed.get()) {
-            throw new IllegalStateException("You must subscribe within subscribe");
-        }
-        return disposable;
-    }
-
     /**
      * The beginning of the Rx graph.
      */
     protected abstract Disposable subscribe(Observable<AttachmentType> attachmentObservable);
+
+    // Private API
+
+    private void superSetArguments(@Nullable Bundle args) {
+        super.setArguments(args);
+    }
 }

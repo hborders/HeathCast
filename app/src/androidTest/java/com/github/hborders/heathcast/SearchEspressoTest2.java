@@ -271,6 +271,8 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
         planetMoneySearchForPodcasts2NetworkPauser.resume();
         IdlingRegistry.getInstance().register(podcastSearchCompleteOrErrorLoadingIdlingResource);
 
+        // this test is supposed to fail here because I didn't implement proper state restoration
+        // in PodcastSearchFragment
         onView(withId(R.id.fragment_podcast_list_podcasts_recycler_view)).perform(
                 actionOnItem(
                         withChild(withText(planetMoney)),

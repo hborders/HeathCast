@@ -342,7 +342,8 @@ public abstract class RxValueFragment<
                                         prerender.prez.valueViewFacade,
                                         valueState
                                 );
-                        final Completable ignored = valueViewFacadeTransaction.complete();
+                        final Completable completable = valueViewFacadeTransaction.complete();
+                        prerender.prez.addCompletable(completable);
                     }
             );
         };
