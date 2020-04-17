@@ -21,10 +21,9 @@ import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
 import com.github.hborders.heathcast.features.model.SubscriptionImpl;
 import com.github.hborders.heathcast.features.search.PodcastSearchFragment;
-import com.github.hborders.heathcast.features.search.PodcastSearchPodcastListFragment;
 import com.github.hborders.heathcast.fragments.PodcastFragment;
+import com.github.hborders.heathcast.fragments.PodcastListFragment;
 import com.github.hborders.heathcast.idlingresource.DelegatingIdlingResource;
-import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.services.NetworkPauser;
 import com.github.hborders.heathcast.services.PodcastService;
 import com.google.android.material.snackbar.Snackbar;
@@ -36,9 +35,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public final class MainActivity extends AppCompatActivity
@@ -95,20 +91,50 @@ public final class MainActivity extends AppCompatActivity
             SubscriptionImpl,
             SubscriptionImpl.SubscriptionIdentifiedImpl,
             SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl,
-            SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedOptImpl,
-            SubscriptionImpl.SubscriptionIdentifierImpl,
-            SubscriptionImpl.SubscriptionIdentifierImpl.SubscriptionIdentifierOptImpl
+            SubscriptionImpl.SubscriptionIdentifierImpl
             > podcastService;
 
     public MainActivity() {
         podcastService = new PodcastService<>(
                 EpisodeImpl::new,
+                EpisodeImpl.EpisodeIdentifiedImpl::new,
+                EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl::new,
+                EpisodeImpl.EpisodeIdentifierImpl::new,
                 EpisodeImpl.EpisodeListImpl::new,
                 EpisodeImpl.EpisodeListImpl::new,
                 PodcastImpl::new,
                 PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl::new,
                 PodcastImpl.PodcastListImpl::new,
-                new Database<>(
+                // Have to explicitly provide type arguments. Seems like a javac bug
+                new Database<
+                        Object,
+                        EpisodeImpl,
+                        EpisodeImpl.EpisodeIdentifiedImpl,
+                        EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
+                        EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
+                        EpisodeImpl.EpisodeIdentifierImpl,
+                        EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
+                        EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl,
+                        EpisodeImpl.EpisodeListImpl,
+                        PodcastImpl,
+                        PodcastImpl.PodcastIdentifiedImpl,
+                        PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+                        PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedOptImpl,
+                        PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedSetImpl,
+                        PodcastImpl.PodcastIdentifierImpl,
+                        PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl.PodcastIdentifierOptListImpl,
+                        PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl,
+                        PodcastSearchImpl,
+                        PodcastSearchImpl.PodcastSearchIdentifiedImpl,
+                        PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl,
+                        PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedOptImpl,
+                        PodcastSearchImpl.PodcastSearchIdentifierImpl,
+                        PodcastSearchImpl.PodcastSearchIdentifierImpl.PodcastSearchIdentifierOptImpl,
+                        SubscriptionImpl,
+                        SubscriptionImpl.SubscriptionIdentifiedImpl,
+                        SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl,
+                        SubscriptionImpl.SubscriptionIdentifierImpl
+                        >(
                         this,
                         null,
                         Schedulers.io(),
@@ -141,10 +167,6 @@ public final class MainActivity extends AppCompatActivity
                         SubscriptionImpl::new,
                         SubscriptionImpl.SubscriptionIdentifierImpl::new,
                         SubscriptionImpl.SubscriptionIdentifiedImpl::new,
-                        SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedOptImpl::new,
-                        SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedOptImpl::new,
-                        SubscriptionImpl.SubscriptionIdentifierImpl.SubscriptionIdentifierOptImpl::new,
-                        SubscriptionImpl.SubscriptionIdentifierImpl.SubscriptionIdentifierOptImpl::new,
                         SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl::new
                 ),
                 Schedulers.io()
@@ -223,7 +245,7 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Observable<PodcastSearchPodcastListFragment.PodcastSearchPodcastListAsyncValueState> searchForPodcasts2(
+    public Observable<PodcastListFragment.PodcastSearchPodcastListAsyncValueState> searchForPodcasts2(
             PodcastSearchFragment podcastSearchFragment,
             PodcastSearchImpl podcastSearch,
             PodcastSearchFragment.PodcastSearchPodcastIdentifiedListServiceResponseLoadingFactory loadingFactory,
@@ -268,11 +290,11 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Single<EpisodeImpl.EpisodeListImpl> fetchEpisodes(
+    public Single<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> fetchEpisodeIdentifieds(
             PodcastFragment podcastFragment,
             URL url
     ) {
-        return podcastService.fetchEpisodes(url);
+        return podcastService.fetchEpisodeIdentifieds(url);
     }
 
     @Override
@@ -284,9 +306,9 @@ public final class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Observable<Optional<SubscriptionIdentifier>> observeQueryForSubscriptionIdentifier(
+    public Observable<Optional<SubscriptionImpl.SubscriptionIdentifierImpl>> observeQueryForSubscriptionIdentifier(
             PodcastFragment podcastFragment,
-            PodcastIdentifier podcastIdentifier
+            PodcastImpl.PodcastIdentifierImpl podcastIdentifier
     ) {
         return podcastService.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
@@ -294,88 +316,64 @@ public final class MainActivity extends AppCompatActivity
     @Override
     public void requestedSubscribe(
             PodcastFragment podcastFragment,
-            PodcastIdentifier podcastIdentifier
+            PodcastImpl.PodcastIdentifierImpl podcastIdentifier
     ) {
-        podcastService
-                .subscribe(podcastIdentifier)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<SubscriptionIdentifierOpt>() {
-                               @Override
-                               public void onSubscribe(Disposable d) {
-                                   // don't dispose this should be fast, and disposal is pointless anyway
-                               }
-
-                               @Override
-                               public void onSuccess(SubscriptionIdentifierOpt subscriptionIdentifierOptional) {
-                                   @Nullable final View contentView = findContentView();
-                                   if (contentView != null) {
-                                       Snackbar.make(
-                                               contentView,
-                                               subscriptionIdentifierOptional.isPresent() ?
-                                                       R.string.fragment_podcast_subscribe_success :
-                                                       R.string.fragment_podcast_subscribe_failure,
-                                               Snackbar.LENGTH_LONG
-                                       ).show();
-                                   }
-                               }
-
-                               @Override
-                               public void onError(Throwable e) {
-                                   @Nullable final View contentView = findContentView();
-                                   if (contentView != null) {
-                                       Snackbar.make(
-                                               contentView,
-                                               R.string.fragment_podcast_subscribe_failure,
-                                               Snackbar.LENGTH_LONG
-                                       ).show();
-                                   }
-                               }
-                           }
-                );
+        final Single<Optional<SubscriptionImpl.SubscriptionIdentifierImpl>> subscribeSingle =
+                podcastService.subscribe(podcastIdentifier);
+        try {
+            final Optional<SubscriptionImpl.SubscriptionIdentifierImpl> subscriptionIdentifierOptional =
+                    subscribeSingle.blockingGet();
+            @Nullable final View contentView = findContentView();
+            if (contentView != null) {
+                Snackbar.make(
+                        contentView,
+                        subscriptionIdentifierOptional.isPresent() ?
+                                R.string.fragment_podcast_subscribe_success :
+                                R.string.fragment_podcast_subscribe_failure,
+                        Snackbar.LENGTH_LONG
+                ).show();
+            }
+        } catch (Throwable ignored) {
+            @Nullable final View contentView = findContentView();
+            if (contentView != null) {
+                Snackbar.make(
+                        contentView,
+                        R.string.fragment_podcast_subscribe_failure,
+                        Snackbar.LENGTH_LONG
+                ).show();
+            }
+        }
     }
 
     @Override
     public void requestedUnsubscribe(
             PodcastFragment podcastFragment,
-            SubscriptionIdentifier subscriptionIdentifier
+            SubscriptionImpl.SubscriptionIdentifierImpl subscriptionIdentifier
     ) {
-        podcastService
-                .unsubscribe(subscriptionIdentifier)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<Result>() {
-                               @Override
-                               public void onSubscribe(Disposable d) {
-                                   // don't dispose this should be fast, and disposal is pointless anyway
-                               }
-
-                               @Override
-                               public void onSuccess(Result result) {
-                                   @Nullable final View contentView = findContentView();
-                                   if (contentView != null) {
-                                       Snackbar.make(
-                                               contentView,
-                                               result.<Integer>reduce(
-                                                       success -> R.string.fragment_podcast_unsubscribe_success,
-                                                       failure -> R.string.fragment_podcast_unsubscribe_failure
-                                               ),
-                                               Snackbar.LENGTH_LONG
-                                       ).show();
-                                   }
-                               }
-
-                               @Override
-                               public void onError(Throwable e) {
-                                   @Nullable final View contentView = findContentView();
-                                   if (contentView != null) {
-                                       Snackbar.make(
-                                               contentView,
-                                               R.string.fragment_podcast_unsubscribe_failure,
-                                               Snackbar.LENGTH_LONG
-                                       ).show();
-                                   }
-                               }
-                           }
-                );
+        final Single<Result> unsubscribeSingle = podcastService.unsubscribe(subscriptionIdentifier);
+        try {
+            final Result result = unsubscribeSingle.blockingGet();
+            @Nullable final View contentView = findContentView();
+            if (contentView != null) {
+                Snackbar.make(
+                        contentView,
+                        result.<Integer>reduce(
+                                success -> R.string.fragment_podcast_unsubscribe_success,
+                                failure -> R.string.fragment_podcast_unsubscribe_failure
+                        ),
+                        Snackbar.LENGTH_LONG
+                ).show();
+            }
+        } catch (Throwable ignored) {
+            @Nullable final View contentView = findContentView();
+            if (contentView != null) {
+                Snackbar.make(
+                        contentView,
+                        R.string.fragment_podcast_unsubscribe_failure,
+                        Snackbar.LENGTH_LONG
+                ).show();
+            }
+        }
     }
 
     @Override

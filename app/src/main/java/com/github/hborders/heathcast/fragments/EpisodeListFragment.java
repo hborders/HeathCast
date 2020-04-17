@@ -39,7 +39,7 @@ public final class EpisodeListFragment extends Fragment {
                 Throwable throwable
         );
 
-        void onClick(
+        void onEpisodeFragmentClickedEpisodeIdentified(
                 EpisodeListFragment episodeListFragment,
                 EpisodeImpl.EpisodeIdentifiedImpl episodeIdentified
         );
@@ -113,7 +113,7 @@ public final class EpisodeListFragment extends Fragment {
         final EpisodeRecyclerViewAdapter adapter = new EpisodeRecyclerViewAdapter(
                 episodeIdentifieds == null ? new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl() : episodeIdentifieds,
                 episodeIdentified ->
-                        Objects.requireNonNull(this.listener).onClick(
+                        Objects.requireNonNull(this.listener).onEpisodeFragmentClickedEpisodeIdentified(
                                 this,
                                 episodeIdentified
                         )

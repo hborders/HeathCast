@@ -1,14 +1,20 @@
 package com.github.hborders.heathcast.reactivexandroid;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.Function;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 public abstract class RxValueFragment<
@@ -98,6 +104,24 @@ public abstract class RxValueFragment<
         );
     }
 
+    private static final class TombestoneDisposable implements Disposable {
+        // don't use Disposables.disposed() because maybe a Completable would use
+        // Disposables.disposed(), and then our tombstone wouldn't work.
+        static final TombestoneDisposable INSTANCE = new TombestoneDisposable();
+
+        private TombestoneDisposable() {
+        }
+
+        @Override
+        public void dispose() {
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return true;
+        }
+    }
+
     private final Function<Observable<AttachmentType>, Disposable> subscribeFunction;
 
     protected <
@@ -154,12 +178,15 @@ public abstract class RxValueFragment<
                 layoutResource
         );
         subscribeFunction = attachmentObservable -> {
-            final class Prez {
+            final class Prez implements Disposable {
                 final Context context;
                 final ListenerType listener;
                 final ViewCreation viewCreation;
                 final View view;
                 final ValueViewFacadeType valueViewFacade;
+
+                private final AtomicBoolean disposed = new AtomicBoolean();
+                private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
                 Prez(
                         Context context,
@@ -173,6 +200,70 @@ public abstract class RxValueFragment<
                     this.viewCreation = viewCreation;
                     this.view = view;
                     this.valueViewFacade = valueViewFacade;
+                }
+
+                // Disposable
+
+                @Override
+                public void dispose() {
+                    if (disposed.compareAndSet(false, true)) {
+                        if (Looper.myLooper() == Looper.getMainLooper()) {
+                            disposeOnce();
+                        } else {
+                            new Handler(Looper.getMainLooper()).post(
+                                    // we must dispose on the main thread
+                                    // because disposables isn't thread-safe,
+                                    // and it assumes access only on the main thread
+                                    this::disposeOnce
+                            );
+                        }
+                    }
+                }
+
+                @Override
+                public boolean isDisposed() {
+                    return disposed.get();
+                }
+
+                // Public API
+
+                void addCompletable(Completable completable) {
+                    // disposablePointer starts out null
+                    // if completable is already disposed, subscribe will immediately be called
+                    // and we won't be able to set disposablePointer. We will set disposablePointer
+                    // to tombstoneDisposable to signal this case to addCompletable.
+                    // Thus, if we finish the completable.subscribe call, and
+                    // disposablePointer is tombstoneDisposable, then we already disposed,
+                    // and we don't need to track disposable, possibly introducing a memory leak.
+                    final Disposable[] disposablePointer = new Disposable[1];
+                    final Disposable tombstoneDisposable = TombestoneDisposable.INSTANCE;
+                    final Disposable disposable = completable.subscribe(
+                            () -> {
+                                if (Looper.getMainLooper() != Looper.myLooper()) {
+                                    throw new IllegalStateException("ValueViewFacadeTransaction Completable completed on a non-main thread");
+                                }
+                                @Nullable final Disposable disposable_ = disposablePointer[0];
+                                if (disposable_ == null) {
+                                    // we're being called from within the addCompletable stack
+                                    // so we haven't assigned disposablePointer yet
+                                    disposablePointer[0] = tombstoneDisposable;
+                                } else {
+                                    compositeDisposable.remove(disposable_);
+                                }
+                            }
+                    );
+                    if (disposablePointer[0] == tombstoneDisposable) {
+                        // the completable was already disposed
+                    } else {
+                        disposablePointer[0] = disposable;
+                        compositeDisposable.add(disposable);
+                    }
+                }
+
+                // Private API
+
+                void disposeOnce() {
+                    compositeDisposable.dispose();
                 }
             }
 
@@ -197,13 +288,15 @@ public abstract class RxValueFragment<
                                                 view
                                         );
                                 viewCreation.addDisposable(viewFacade);
-                                return new Prez(
+                                final Prez prez = new Prez(
                                         context,
                                         listener,
                                         viewCreation,
                                         view,
                                         viewFacade
                                 );
+                                viewCreation.addDisposable(prez);
+                                return prez;
                             }
                     );
 

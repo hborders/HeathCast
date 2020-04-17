@@ -8,6 +8,8 @@ import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.dao.Database;
 import com.github.hborders.heathcast.dao.Episode2;
+import com.github.hborders.heathcast.dao.Identified2;
+import com.github.hborders.heathcast.dao.Identifier2;
 import com.github.hborders.heathcast.dao.Podcast2;
 import com.github.hborders.heathcast.dao.PodcastSearch2;
 import com.github.hborders.heathcast.dao.Subscription2;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,8 +59,8 @@ public final class PodcastService<
                 EpisodeIdentifierType
                 >,
         EpisodeListType extends Episode2.EpisodeList2<
-                        EpisodeType
-                        >,
+                EpisodeType
+                >,
         PodcastType extends Podcast2,
         PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
                 PodcastIdentifierType,
@@ -124,16 +127,7 @@ public final class PodcastService<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        SubscriptionIdentifiedOptType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedOpt2<
-                SubscriptionIdentifiedType,
-                SubscriptionIdentifierType,
-                SubscriptionType,
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
-        SubscriptionIdentifierOptType extends Subscription2.SubscriptionIdentifier2.SubscriptionIdentifierOpt2<SubscriptionIdentifierType>
+        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2
         > {
     private static class PodcastSearchResponse<PodcastListType> {
         private final PodcastListType podcasts;
@@ -163,6 +157,16 @@ public final class PodcastService<
         }
     }
 
+    private final Identified2.IdentifiedFactory2<
+            EpisodeIdentifiedType,
+            EpisodeIdentifierType,
+            EpisodeType
+            > episodeIdentifiedFactory;
+    private final CollectionFactory.Empty<
+            EpisodeIdentifiedListType,
+            EpisodeIdentifiedType
+            > episodeIdentifiedListEmptyFactory;
+    private final Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory;
     private final Podcast2.PodcastFactory2<PodcastType> podcastFactory;
     private final CollectionFactory.Empty<
             PodcastIdentifiedListType,
@@ -204,9 +208,7 @@ public final class PodcastService<
             SubscriptionType,
             SubscriptionIdentifiedType,
             SubscriptionIdentifiedListType,
-            SubscriptionIdentifiedOptType,
-            SubscriptionIdentifierType,
-            SubscriptionIdentifierOptType
+            SubscriptionIdentifierType
             > database;
     private final Scheduler scheduler;
     private final OkHttpClient okHttpClient;
@@ -215,6 +217,16 @@ public final class PodcastService<
 
     public PodcastService(
             Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
+            Identified2.IdentifiedFactory2<
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    > episodeIdentifiedFactory,
+            CollectionFactory.Empty<
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedType
+                    > episodeIdentifiedListEmptyFactory,
+            Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
             CollectionFactory.Capacity<
                     EpisodeListType,
                     EpisodeType
@@ -259,14 +271,15 @@ public final class PodcastService<
                     SubscriptionType,
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifiedListType,
-                    SubscriptionIdentifiedOptType,
-                    SubscriptionIdentifierType,
-                    SubscriptionIdentifierOptType
+                    SubscriptionIdentifierType
                     > database,
             Scheduler scheduler // Schedulers.io()
     ) {
         this(
                 episodeFactory,
+                episodeIdentifiedFactory,
+                episodeIdentifiedListEmptyFactory,
+                episodeIdentifierFactory,
                 episodeListCapacityFactory,
                 episodeListEmptyFactory,
                 podcastFactory,
@@ -280,6 +293,16 @@ public final class PodcastService<
 
     public PodcastService(
             Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
+            Identified2.IdentifiedFactory2<
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    > episodeIdentifiedFactory,
+            CollectionFactory.Empty<
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedType
+                    > episodeIdentifiedListEmptyFactory,
+            Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
             CollectionFactory.Capacity<
                     EpisodeListType,
                     EpisodeType
@@ -324,14 +347,15 @@ public final class PodcastService<
                     SubscriptionType,
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifiedListType,
-                    SubscriptionIdentifiedOptType,
-                    SubscriptionIdentifierType,
-                    SubscriptionIdentifierOptType
+                    SubscriptionIdentifierType
                     > database,
             Scheduler scheduler,
             OkHttpClient okHttpClient
     ) {
         this(
+                episodeIdentifiedFactory,
+                episodeIdentifiedListEmptyFactory,
+                episodeIdentifierFactory,
                 podcastFactory,
                 podcastIdentifiedListEmptyFactory,
                 podcastListEmptyFactory,
@@ -349,6 +373,16 @@ public final class PodcastService<
     }
 
     public PodcastService(
+            Identified2.IdentifiedFactory2<
+                    EpisodeIdentifiedType,
+                    EpisodeIdentifierType,
+                    EpisodeType
+                    > episodeIdentifiedFactory,
+            CollectionFactory.Empty<
+                    EpisodeIdentifiedListType,
+                    EpisodeIdentifiedType
+                    > episodeIdentifiedListEmptyFactory,
+            Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
             Podcast2.PodcastFactory2<PodcastType> podcastFactory,
             CollectionFactory.Empty<
                     PodcastIdentifiedListType,
@@ -385,9 +419,7 @@ public final class PodcastService<
                     SubscriptionType,
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifiedListType,
-                    SubscriptionIdentifiedOptType,
-                    SubscriptionIdentifierType,
-                    SubscriptionIdentifierOptType
+                    SubscriptionIdentifierType
                     > database,
             Scheduler scheduler,
             OkHttpClient okHttpClient,
@@ -398,6 +430,9 @@ public final class PodcastService<
                     EpisodeType
                     > xmlParser
     ) {
+        this.episodeIdentifiedFactory = episodeIdentifiedFactory;
+        this.episodeIdentifiedListEmptyFactory = episodeIdentifiedListEmptyFactory;
+        this.episodeIdentifierFactory = episodeIdentifierFactory;
         this.podcastFactory = podcastFactory;
         this.podcastIdentifiedListEmptyFactory = podcastIdentifiedListEmptyFactory;
         this.podcastListEmptyFactory = podcastListEmptyFactory;
@@ -425,8 +460,8 @@ public final class PodcastService<
         return database.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Single<SubscriptionIdentifierOptType> subscribe(PodcastIdentifierType podcastIdentifier) {
-        return Single.<SubscriptionIdentifierOptType>create(source ->
+    public Single<Optional<SubscriptionIdentifierType>> subscribe(PodcastIdentifierType podcastIdentifier) {
+        return Single.<Optional<SubscriptionIdentifierType>>create(source ->
                 source.onSuccess(
                         database.subscribe(podcastIdentifier)
                 )
@@ -731,7 +766,7 @@ public final class PodcastService<
 //        // so I can reuse all the code in searchForPodcasts2
 //    }
 
-    public Single<EpisodeListType> fetchEpisodes(URL url) {
+    public Single<EpisodeIdentifiedListType> fetchEpisodeIdentifieds(URL url) {
         final Request request = new Request.Builder().url(url).build();
         final Call call = okHttpClient.newCall(request);
 
@@ -748,9 +783,25 @@ public final class PodcastService<
                                         return Single.error(new Exception("No responseBody"));
                                     } else {
                                         try {
-                                            final EpisodeListType identifiedEpisodes =
-                                                    xmlParser.parseEpisodeList(responseBody.byteStream());
-                                            return Single.just(identifiedEpisodes);
+                                            final AtomicInteger fakeIdAtomicInteger = new AtomicInteger(-1);
+                                            final EpisodeIdentifiedListType episodes =
+                                                    xmlParser
+                                                            .parseEpisodeList(responseBody.byteStream())
+                                                            .stream()
+                                                            .map(episode ->
+                                                                    episodeIdentifiedFactory.newIdentified(
+                                                                            episodeIdentifierFactory.newIdentifier(
+                                                                                    fakeIdAtomicInteger.getAndDecrement()
+                                                                            ),
+                                                                            episode
+                                                                    )
+                                                            )
+                                                            .collect(
+                                                                    Collectors.toCollection(
+                                                                            episodeIdentifiedListEmptyFactory::newCollection
+                                                                    )
+                                                            );
+                                            return Single.just(episodes);
                                         } finally {
                                             responseBody.close();
                                         }

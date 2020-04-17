@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/fragment_podcast_constraint_layout"
         android:layout_width="match_parent"
@@ -67,9 +68,9 @@
             app:layout_constraintWidth_percent=".8"
             tools:text="Subscribed" />
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_podcast_episode_list_fragment"
-            class="com.github.hborders.heathcast.fragments.EpisodeListFragment"
+            android:name="com.github.hborders.heathcast.fragments.EpisodeListFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="10dp"

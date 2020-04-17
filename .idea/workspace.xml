@@ -113,7 +113,21 @@
     <last-search-timestamp>1549086246295</last-search-timestamp>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="" />
+    <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/PodcastImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/EpisodeListFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/EpisodeListFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxAsyncValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxAsyncValueFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/reactivexandroid/RxValueFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_search.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_podcast_search.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -205,7 +219,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="DEBUGGABLE_DEVICE" value="emulator-5554" />
+    <property name="DEBUGGABLE_DEVICE" value="Espresso_Pixel_3a_API_29 [emulator-5554]" />
     <property name="DEBUGGABLE_PROCESS" value="com.github.hborders.heathcast" />
     <property name="DEBUGGER_ID" value="Java" />
     <property name="DeviceAndSnapshotComboBoxAction.selectedDevice" value="Espresso_Pixel_3a_API_29" />
@@ -214,6 +228,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SHOW_ALL_PROCESSES" value="false" />
     <property name="android-custom-view/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.appcompat/appcompat/1.1.0/9865019bbd2d95e41dede3d8ebf964aa93f97766/appcompat-1.1.0-sources.jar!/androidx/appcompat/widget/SearchView.java_SELECTED" value="SearchView" />
+    <property name="android-custom-view/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.fragment/fragment/1.2.1/9060d692fda44da7a134d1e05d62fe02629f461a/fragment-1.2.1-sources.jar!/androidx/fragment/app/FragmentContainerView.java_SELECTED" value="FragmentContainerView" />
     <property name="android-custom-view/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.recyclerview/recyclerview/1.1.0/f2bdf79e1977939817f54a9d3e2f6bc52b63bdd0/recyclerview-1.1.0-sources.jar!/androidx/recyclerview/widget/RecyclerView.java_SELECTED" value="RecyclerView" />
     <property name="android-custom-view/Users/hborders/Library/Android/sdk/sources/android-29/android/view/View.java_SELECTED" value="View" />
     <property name="android-custom-view/Users/hborders/Library/Android/sdk/sources/android-29/android/view/ViewGroup.java_SELECTED" value="ViewGroup" />
@@ -231,6 +246,7 @@
     <property name="last_directory_selection" value="$PROJECT_DIR$/app/src/androidTest/java/com/github/hborders/heathcast/idlingresource" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model" />
     <property name="multi-representation-preview/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.appcompat/appcompat/1.1.0/9865019bbd2d95e41dede3d8ebf964aa93f97766/appcompat-1.1.0-sources.jar!/androidx/appcompat/widget/SearchView.java_selected" value="Custom views" />
+    <property name="multi-representation-preview/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.fragment/fragment/1.2.1/9060d692fda44da7a134d1e05d62fe02629f461a/fragment-1.2.1-sources.jar!/androidx/fragment/app/FragmentContainerView.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/hborders/.gradle/caches/modules-2/files-2.1/androidx.recyclerview/recyclerview/1.1.0/f2bdf79e1977939817f54a9d3e2f6bc52b63bdd0/recyclerview-1.1.0-sources.jar!/androidx/recyclerview/widget/RecyclerView.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/hborders/Library/Android/sdk/sources/android-29/android/view/View.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/hborders/Library/Android/sdk/sources/android-29/android/view/ViewGroup.java_selected" value="Custom views" />
@@ -654,14 +670,14 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="755" y="409" key="#com.intellij.ide.actions.DebugLogConfigureAction/0.23.1920.1100@0.23.1920.1100" timestamp="1583602217176" />
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1587012573954">
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1587099460437">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1587012573954" />
-    <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585108867255">
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1587099460437" />
+    <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1587094823090">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585108867255" />
+    <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587094823090" />
     <state x="476" y="332" key="#com.intellij.refactoring.memberPullUp.PullUpDialog" timestamp="1587010771136">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -682,10 +698,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585458275115" />
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1587012449674">
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1587091903423">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587012449674" />
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587091903423" />
     <state x="698" y="326" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1585803783950">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -694,46 +710,46 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="53" y="269" width="1775" height="579" key="#xdebugger.evaluate/0.23.1920.1100@0.23.1920.1100" timestamp="1585634964133" />
-    <state x="823" y="345" key="AndroidProcessChooserDialog" timestamp="1584462307109">
+    <state x="823" y="345" key="AndroidProcessChooserDialog" timestamp="1587094617269">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="823" y="345" key="AndroidProcessChooserDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1584462307109" />
+    <state x="823" y="345" key="AndroidProcessChooserDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587094617269" />
     <state x="100" y="123" width="1720" height="900" key="DiffContextDialog" timestamp="1585626710364">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="DiffContextDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585626710364" />
-    <state width="1878" height="299" key="GridCell.Tab.0.bottom" timestamp="1585975188885">
+    <state width="1878" height="372" key="GridCell.Tab.0.bottom" timestamp="1587094747935">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1585975188885" />
-    <state width="1878" height="299" key="GridCell.Tab.0.center" timestamp="1585975188884">
+    <state width="1878" height="372" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747935" />
+    <state width="1878" height="372" key="GridCell.Tab.0.center" timestamp="1587094747934">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1585975188884" />
-    <state width="1878" height="299" key="GridCell.Tab.0.left" timestamp="1585975188884">
+    <state width="1878" height="372" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747934" />
+    <state width="1878" height="372" key="GridCell.Tab.0.left" timestamp="1587094747934">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1585975188884" />
-    <state width="1878" height="299" key="GridCell.Tab.0.right" timestamp="1585975188885">
+    <state width="1878" height="372" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747934" />
+    <state width="1878" height="372" key="GridCell.Tab.0.right" timestamp="1587094747934">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1585975188885" />
-    <state width="1878" height="372" key="GridCell.Tab.1.bottom" timestamp="1585801797509">
+    <state width="1878" height="372" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747934" />
+    <state width="1878" height="372" key="GridCell.Tab.1.bottom" timestamp="1587094747936">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1585801797509" />
-    <state width="1878" height="372" key="GridCell.Tab.1.center" timestamp="1585801797509">
+    <state width="1878" height="372" key="GridCell.Tab.1.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747936" />
+    <state width="1878" height="372" key="GridCell.Tab.1.center" timestamp="1587094747935">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.center/0.23.1920.1100@0.23.1920.1100" timestamp="1585801797509" />
-    <state width="1878" height="372" key="GridCell.Tab.1.left" timestamp="1585801797508">
+    <state width="1878" height="372" key="GridCell.Tab.1.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747935" />
+    <state width="1878" height="372" key="GridCell.Tab.1.left" timestamp="1587094747935">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.left/0.23.1920.1100@0.23.1920.1100" timestamp="1585801797508" />
-    <state width="1878" height="372" key="GridCell.Tab.1.right" timestamp="1585801797509">
+    <state width="1878" height="372" key="GridCell.Tab.1.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747935" />
+    <state width="1878" height="372" key="GridCell.Tab.1.right" timestamp="1587094747935">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.right/0.23.1920.1100@0.23.1920.1100" timestamp="1585801797509" />
+    <state width="1878" height="372" key="GridCell.Tab.1.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587094747935" />
     <state x="533" y="274" width="854" height="592" key="RefactorJ.ExtractClass" timestamp="1584905476413">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -758,10 +774,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="com.android.tools.idea.avdmanager.AvdListDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585894616159" />
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1587008261929">
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1587088571728">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587008261929" />
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587088571728" />
     <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579558329648">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -770,22 +786,22 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="198" y="316" width="1572" height="562" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.23.1920.1100@0.23.1920.1100" timestamp="1585801505323" />
-    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1587008545524">
+    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1587099703051">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587008545524" />
-    <state width="708" height="83" key="javadoc.popup.new" timestamp="1587013004474">
+    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587099703051" />
+    <state width="708" height="83" key="javadoc.popup.new" timestamp="1587099479430">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1587013004474" />
+    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1587099479430" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586839829465">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586839829465" />
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1586839634267">
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1587096669973">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1586839634267" />
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587096669973" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -795,6 +811,11 @@
           <line>709</line>
           <properties class="androidx.test.espresso.base.UiControllerImpl.SignalingTask" method="done" />
           <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/fragments/PodcastListFragment.java</url>
+          <line>277</line>
+          <option name="timeStamp" value="37" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -3,13 +3,12 @@ package com.github.hborders.heathcast.features.model;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.dao.Podcast2;
-import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdapter;
 
 import java.net.URL;
 import java.util.Collection;
 import java.util.Objects;
 
-public final class PodcastImpl implements Podcast2, PodcastRecyclerViewAdapter.PodcastItem {
+public final class PodcastImpl implements Podcast2 {
     public static final class PodcastIdentifiedImpl
             extends IdentifiedImpl<
             PodcastIdentifierImpl,
@@ -18,7 +17,7 @@ public final class PodcastImpl implements Podcast2, PodcastRecyclerViewAdapter.P
             implements PodcastIdentified2<
             PodcastIdentifierImpl,
             PodcastImpl
-            >, PodcastRecyclerViewAdapter.PodcastItem {
+            > {
         public static final class PodcastIdentifiedListImpl
                 extends IdentifiedListImpl<
                 PodcastIdentifiedImpl,

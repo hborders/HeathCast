@@ -10,7 +10,6 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
@@ -51,9 +50,6 @@ public final class SubscriptionTable<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
-                >,
-        SubscriptionIdentifierOptType extends Subscription2.SubscriptionIdentifier2.SubscriptionIdentifierOpt2<
-                SubscriptionIdentifierType
                 >
         > extends Table<MarkerType> {
     static final String TABLE_SUBSCRIPTION = "subscription";
@@ -87,14 +83,6 @@ public final class SubscriptionTable<
             PodcastIdentifierType,
             PodcastType
             > podcastIdentifiedFactory;
-    private final Opt2.OptEmptyFactory<
-            SubscriptionIdentifierOptType,
-            SubscriptionIdentifierType
-            > subscriptionIdentifierOptEmptyFactory;
-    private final Opt2.OptNonEmptyFactory<
-            SubscriptionIdentifierOptType,
-            SubscriptionIdentifierType
-            > subscriptionIdentifierOptNonEmptyFactory;
     private final CollectionFactory.Capacity<
             SubscriptionIdentifiedListType,
             SubscriptionIdentifiedType
@@ -125,14 +113,6 @@ public final class SubscriptionTable<
                     PodcastIdentifierType,
                     PodcastType
                     > podcastIdentifiedFactory,
-            Opt2.OptEmptyFactory<
-                    SubscriptionIdentifierOptType,
-                    SubscriptionIdentifierType
-                    > subscriptionIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
-                    SubscriptionIdentifierOptType,
-                    SubscriptionIdentifierType
-                    > subscriptionIdentifierOptNonEmptyFactory,
             CollectionFactory.Capacity<
                     SubscriptionIdentifiedListType,
                     SubscriptionIdentifiedType
@@ -146,12 +126,10 @@ public final class SubscriptionTable<
         this.podcastFactory = podcastFactory;
         this.podcastIdentifierFactory = podcastIdentifierFactory;
         this.podcastIdentifiedFactory = podcastIdentifiedFactory;
-        this.subscriptionIdentifierOptEmptyFactory = subscriptionIdentifierOptEmptyFactory;
-        this.subscriptionIdentifierOptNonEmptyFactory = subscriptionIdentifierOptNonEmptyFactory;
         this.subscriptionIdentifiedListCapacityFactory = subscriptionIdentifiedListCapacityFactory;
     }
 
-    SubscriptionIdentifierOptType insertSubscription(PodcastIdentifierType podcastIdentifier) {
+    Optional<SubscriptionIdentifierType> insertSubscription(PodcastIdentifierType podcastIdentifier) {
         final long id = dimDatabase.insert(
                 TABLE_SUBSCRIPTION,
                 CONFLICT_ABORT,
@@ -159,9 +137,9 @@ public final class SubscriptionTable<
         );
 
         if (id == -1) {
-            return subscriptionIdentifierOptEmptyFactory.newOpt();
+            return Optional.empty();
         } else {
-            return subscriptionIdentifierOptNonEmptyFactory.newOpt(
+            return Optional.of(
                     subscriptionIdentifierFactory.newIdentifier(id)
             );
         }

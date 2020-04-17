@@ -239,6 +239,8 @@ public abstract class RxAsyncValueFragment<
                 this.asyncValueViewFacadeTransaction = asyncValueViewFacadeTransaction;
             }
 
+            // ValueViewFacadeTransaction
+
             @Override
             public Completable complete() {
                 final Completable completable = asyncValueViewFacadeTransaction.complete();

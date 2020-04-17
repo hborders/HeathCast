@@ -49,8 +49,8 @@ public final class Database<
                 EpisodeIdentifierType
                 >,
         EpisodeListType extends Episode2.EpisodeList2<
-                        EpisodeType
-                        >,
+                EpisodeType
+                >,
         PodcastType extends Podcast2,
         PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
                 PodcastIdentifierType,
@@ -116,16 +116,7 @@ public final class Database<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        SubscriptionIdentifiedOptType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedOpt2<
-                SubscriptionIdentifiedType,
-                SubscriptionIdentifierType,
-                SubscriptionType,
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
-        SubscriptionIdentifierOptType extends Subscription2.SubscriptionIdentifier2.SubscriptionIdentifierOpt2<SubscriptionIdentifierType>
+        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2
         > {
 
     private final Identified2.IdentifiedFactory2<
@@ -169,14 +160,6 @@ public final class Database<
             SubscriptionIdentifierType,
             SubscriptionType
             > subscriptionIdentifiedFactory;
-    private final Opt2.OptEmptyFactory<
-            SubscriptionIdentifiedOptType,
-            SubscriptionIdentifiedType
-            > subscriptionIdentifiedOptEmptyFactory;
-    private final Opt2.OptNonEmptyFactory<
-            SubscriptionIdentifiedOptType,
-            SubscriptionIdentifiedType
-            > subscriptionIdentifiedOptNonEmptyFactory;
 
     private final DimDatabase<MarkerType> dimDatabase;
     final EpisodeTable<
@@ -221,8 +204,7 @@ public final class Database<
             PodcastIdentifiedType,
             PodcastIdentifierType,
             PodcastType,
-            SubscriptionIdentifiedListType,
-            SubscriptionIdentifierOptType
+            SubscriptionIdentifiedListType
             > subscriptionTable;
 
     public Database(
@@ -336,22 +318,6 @@ public final class Database<
                     SubscriptionIdentifierType,
                     SubscriptionType
                     > subscriptionIdentifiedFactory,
-            Opt2.OptEmptyFactory<
-                    SubscriptionIdentifiedOptType,
-                    SubscriptionIdentifiedType
-                    > subscriptionIdentifiedOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
-                    SubscriptionIdentifiedOptType,
-                    SubscriptionIdentifiedType
-                    > subscriptionIdentifiedOptNonEmptyFactory,
-            Opt2.OptEmptyFactory<
-                    SubscriptionIdentifierOptType,
-                    SubscriptionIdentifierType
-                    > subscriptionIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
-                    SubscriptionIdentifierOptType,
-                    SubscriptionIdentifierType
-                    > subscriptionIdentifierOptNonEmptyFactory,
             CollectionFactory.Capacity<
                     SubscriptionIdentifiedListType,
                     SubscriptionIdentifiedType
@@ -366,8 +332,6 @@ public final class Database<
         this.podcastSearchIdentifiedOptNonEmptyFactory = podcastSearchIdentifiedOptNonEmptyFactory;
         this.subscriptionFactory = subscriptionFactory;
         this.subscriptionIdentifiedFactory = subscriptionIdentifiedFactory;
-        this.subscriptionIdentifiedOptEmptyFactory = subscriptionIdentifiedOptEmptyFactory;
-        this.subscriptionIdentifiedOptNonEmptyFactory = subscriptionIdentifiedOptNonEmptyFactory;
 
         final Configuration configuration = Configuration
                 .builder(context)
@@ -422,8 +386,6 @@ public final class Database<
                 podcastFactory,
                 podcastIdentifierFactory,
                 podcastIdentifiedFactory,
-                subscriptionIdentifierOptEmptyFactory,
-                subscriptionIdentifierOptNonEmptyFactory,
                 subscriptionIdentifiedListCapacityFactory
         );
     }
@@ -493,11 +455,9 @@ public final class Database<
         );
     }
 
-    public SubscriptionIdentifiedOptType subscribe(PodcastIdentifiedType podcastIdentified) {
+    public Optional<SubscriptionIdentifiedType> subscribe(PodcastIdentifiedType podcastIdentified) {
         return subscribe(podcastIdentified.getIdentifier())
                 .map(
-                        subscriptionIdentifiedOptEmptyFactory,
-                        subscriptionIdentifiedOptNonEmptyFactory,
                         subscriptionIdentifier -> subscriptionIdentifiedFactory.newIdentified(
                                 subscriptionIdentifier,
                                 subscriptionFactory.newSubscription(podcastIdentified)
@@ -505,7 +465,7 @@ public final class Database<
                 );
     }
 
-    public SubscriptionIdentifierOptType subscribe(PodcastIdentifierType podcastIdentifier) {
+    public Optional<SubscriptionIdentifierType> subscribe(PodcastIdentifierType podcastIdentifier) {
         return subscriptionTable.insertSubscription(podcastIdentifier);
     }
 

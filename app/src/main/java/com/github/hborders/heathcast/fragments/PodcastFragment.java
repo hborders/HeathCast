@@ -21,19 +21,10 @@ import com.github.hborders.heathcast.features.model.EpisodeImpl;
 import com.github.hborders.heathcast.features.model.PodcastIdentifiedHolder;
 import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.model.SubscriptionImpl;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedOpt;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
-import com.github.hborders.heathcast.models.SubscriptionIdentifier;
-import com.github.hborders.heathcast.models.URLOpt;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -48,7 +39,7 @@ public final class PodcastFragment extends Fragment
     public interface PodcastFragmentListener {
         void onPodcastFragmentAttached(PodcastFragment podcastFragment);
 
-        Single<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> fetchEpisodes(
+        Single<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> fetchEpisodeIdentifieds(
                 PodcastFragment podcastFragment,
                 URL url
         );
@@ -287,7 +278,7 @@ public final class PodcastFragment extends Fragment
                     if (feedURL == null) {
                         episodeIdentifiedsOptionalSingle = Single.just(Optional.empty());
                     } else {
-                        episodeIdentifiedsOptionalSingle = Objects.requireNonNull(listener).fetchEpisodes(
+                        episodeIdentifiedsOptionalSingle = Objects.requireNonNull(listener).fetchEpisodeIdentifieds(
                                 this,
                                 feedURL
                         ).map(Optional::of);
@@ -309,9 +300,9 @@ public final class PodcastFragment extends Fragment
     }
 
     @Override
-    public void onClick(
+    public void onEpisodeFragmentClickedEpisodeIdentified(
             EpisodeListFragment episodeListFragment,
-            EpisodeIdentified episodeIdentified
+            EpisodeImpl.EpisodeIdentifiedImpl episodeIdentified
     ) {
     }
 
