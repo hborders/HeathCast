@@ -3,17 +3,10 @@ package com.github.hborders.heathcast.dao;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.Result;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.EpisodeList;
-import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastList;
-import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.PodcastSearchIdentified;
-import com.github.hborders.heathcast.models.SubscriptionIdentified;
-import com.github.hborders.heathcast.models.SubscriptionIdentifiedList;
+import com.github.hborders.heathcast.features.model.EpisodeImpl;
+import com.github.hborders.heathcast.features.model.PodcastImpl;
+import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
+import com.github.hborders.heathcast.features.model.SubscriptionImpl;
 import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 import com.github.hborders.heathcast.util.DateUtil;
@@ -43,66 +36,66 @@ import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
 public class DatabaseTest extends AbstractDatabaseTest<Object> {
-    private final Podcast podcast1;
-    private final Podcast podcast11;
-    private final Podcast podcast12;
-    private final Podcast podcast2;
-    private final Podcast podcast3;
-    private final Podcast podcast4;
-    private final Podcast podcast5;
+    private final PodcastImpl podcast1;
+    private final PodcastImpl podcast11;
+    private final PodcastImpl podcast12;
+    private final PodcastImpl podcast2;
+    private final PodcastImpl podcast3;
+    private final PodcastImpl podcast4;
+    private final PodcastImpl podcast5;
 
-    private final Episode episode11;
-    private final Episode episode12;
-    private final Episode episode13;
-    private final Episode episode21;
-    private final Episode episode22;
-    private final Episode episode23;
+    private final EpisodeImpl episode11;
+    private final EpisodeImpl episode12;
+    private final EpisodeImpl episode13;
+    private final EpisodeImpl episode21;
+    private final EpisodeImpl episode22;
+    private final EpisodeImpl episode23;
 
     public DatabaseTest() throws Exception {
-        podcast1 = new Podcast(
+        podcast1 = new PodcastImpl(
                 new URL("http://example.com/podcast1/artwork"),
                 "author1",
                 new URL("http://example.com/feed1"),
                 "Podcast1"
         );
-        podcast11 = new Podcast(
+        podcast11 = new PodcastImpl(
                 new URL("http://example.com/podcast11/artwork"),
                 "author11",
                 new URL("http://example.com/feed1"),
                 "Podcast11"
         );
-        podcast12 = new Podcast(
+        podcast12 = new PodcastImpl(
                 new URL("http://example.com/podcast12/artwork"),
                 "author12",
                 new URL("http://example.com/feed1"),
                 "Podcast12"
         );
-        podcast2 = new Podcast(
+        podcast2 = new PodcastImpl(
                 new URL("http://example.com/podcast2/artwork"),
                 "author2",
                 new URL("http://example.com/feed2"),
                 "Podcast2"
         );
-        podcast3 = new Podcast(
+        podcast3 = new PodcastImpl(
                 new URL("http://example.com/podcast3/artwork"),
                 "author3",
                 new URL("http://example.com/feed3"),
                 "Podcast3"
         );
-        podcast4 = new Podcast(
+        podcast4 = new PodcastImpl(
                 new URL("http://example.com/podcast4/artwork"),
                 "author4",
                 new URL("http://example.com/feed4"),
                 "Podcast4"
         );
-        podcast5 = new Podcast(
+        podcast5 = new PodcastImpl(
                 new URL("http://example.com/podcast5/artwork"),
                 "author5",
                 new URL("http://example.com/feed5"),
                 "Podcast5"
         );
 
-        episode11 = new Episode(
+        episode11 = new EpisodeImpl(
                 new URL("http://example.com/podcast1/episode1/artwork"),
                 Duration.ofSeconds(11),
                 DateUtil.from(
@@ -114,7 +107,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                 "title11",
                 new URL("http://example.com/podcast1/episode1")
         );
-        episode12 = new Episode(
+        episode12 = new EpisodeImpl(
                 new URL("http://example.com/podcast1/episode2/artwork"),
                 Duration.ofSeconds(12),
                 DateUtil.from(
@@ -126,7 +119,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                 "title12",
                 new URL("http://example.com/podcast1/episode2")
         );
-        episode13 = new Episode(
+        episode13 = new EpisodeImpl(
                 new URL("http://example.com/podcast1/episode3/artwork"),
                 Duration.ofSeconds(13),
                 DateUtil.from(
@@ -139,7 +132,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                 new URL("http://example.com/podcast1/episode3")
         );
 
-        episode21 = new Episode(
+        episode21 = new EpisodeImpl(
                 new URL("http://example.com/podcast2/episode1/artwork"),
                 Duration.ofSeconds(21),
                 DateUtil.from(
@@ -151,7 +144,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                 "title21",
                 new URL("http://example.com/podcast2/episode1")
         );
-        episode22 = new Episode(
+        episode22 = new EpisodeImpl(
                 new URL("http://example.com/podcast2/episode2/artwork"),
                 Duration.ofSeconds(22),
                 DateUtil.from(
@@ -163,7 +156,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                 "title22",
                 new URL("http://example.com/podcast2/episode2")
         );
-        episode23 = new Episode(
+        episode23 = new EpisodeImpl(
                 new URL("http://example.com/podcast2/episode3/artwork"),
                 Duration.ofSeconds(23),
                 DateUtil.from(
@@ -177,18 +170,50 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         );
     }
 
-    private Database<Object> getTestObject() {
+    private Database<
+            Object,
+            EpisodeImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
+            EpisodeImpl.EpisodeIdentifierImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl,
+            EpisodeImpl.EpisodeListImpl,
+            PodcastImpl,
+            PodcastImpl.PodcastIdentifiedImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedSetImpl,
+            PodcastImpl.PodcastIdentifierImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl.PodcastIdentifierOptListImpl,
+            PodcastSearchImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedOptImpl,
+            PodcastSearchImpl.PodcastSearchIdentifierImpl,
+            PodcastSearchImpl.PodcastSearchIdentifierImpl.PodcastSearchIdentifierOptImpl,
+            SubscriptionImpl,
+            SubscriptionImpl.SubscriptionIdentifiedImpl,
+            SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl,
+            SubscriptionImpl.SubscriptionIdentifierImpl
+            > getTestObject() {
         return getDatabase();
     }
 
     @Test
     public void testEmptyReplacePodcastSearchResultsForNewPodcastSearch() {
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search")).orNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search")).orElseNull();
         if (podcastSearchIdentified == null) {
             fail();
         } else {
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsTestObserver =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsTestObserver =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.identifier)
@@ -204,7 +229,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker1,
                     podcastSearchIdentified,
-                    new PodcastList()
+                    new PodcastImpl.PodcastListImpl()
             );
 
             podcastIdentifiedsTestObserver.assertValueSequenceThat(
@@ -223,8 +248,8 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testEmptyReplacePodcastSearchResultsForExistingPodcastSearch() {
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search")).orNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search")).orElseNull();
         if (podcastSearchIdentified == null) {
             fail();
         } else {
@@ -232,14 +257,19 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker1,
                     podcastSearchIdentified,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast1,
                             podcast2,
                             podcast3
                     )
             );
 
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsTestObserver =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsTestObserver =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified.identifier)
@@ -261,7 +291,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker2,
                     podcastSearchIdentified,
-                    new PodcastList()
+                    new PodcastImpl.PodcastListImpl()
             );
 
             podcastIdentifiedsTestObserver.assertValueSequenceThat(
@@ -286,21 +316,21 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testOuterReplacePodcastSearchResultsForFirstPodcastSearch() {
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
             fail();
         } else {
-            final MatcherTestObserver<PodcastIdentifiedList> podcastIdentifiedsTestObserver1 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastIdentifiedsTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
                     .subscribe(podcastIdentifiedsTestObserver1);
-            final MatcherTestObserver<PodcastIdentifiedList> podcastIdentifiedsTestObserver2 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastIdentifiedsTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
@@ -314,7 +344,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker,
                     podcastSearchIdentified1,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast1,
                             podcast2,
                             podcast3
@@ -342,10 +372,10 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testOuterReplacePodcastSearchResultsUpdatesExistingPodcastSearchResults() {
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
@@ -355,7 +385,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker1,
                     podcastSearchIdentified1,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast11,
                             podcast2,
                             podcast3
@@ -365,19 +395,19 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker2,
                     podcastSearchIdentified1,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast12,
                             podcast2,
                             podcast4
                     )
             );
 
-            final MatcherTestObserver<PodcastIdentifiedList> podcastIdentifiedsTestObserver1 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastIdentifiedsTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
                     .subscribe(podcastIdentifiedsTestObserver1);
-            final MatcherTestObserver<PodcastIdentifiedList> podcastIdentifiedsTestObserver2 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastIdentifiedsTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
@@ -394,12 +424,22 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             );
             podcastIdentifiedsTestObserver2.assertValueThat(empty());
 
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver1 =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsMarkedValueTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
                     .subscribe(podcastIdentifiedsMarkedValueTestObserver1);
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver2 =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsMarkedValueTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
@@ -422,10 +462,10 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testOuterReplacePodcastSearchResultsCanIncludePodcastsFromOtherSearchResults() {
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
@@ -435,7 +475,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker1,
                     podcastSearchIdentified1,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast1,
                             podcast2,
                             podcast3,
@@ -446,7 +486,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker2,
                     podcastSearchIdentified2,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast5,
                             podcast4,
                             podcast3,
@@ -454,13 +494,13 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            final MatcherTestObserver<PodcastIdentifiedList> podcastTestObserver1 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
                     .subscribe(podcastTestObserver1);
 
-            final MatcherTestObserver<PodcastIdentifiedList> podcastTestObserver2 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
@@ -487,12 +527,22 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver1 =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsMarkedValueTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
                     .subscribe(podcastIdentifiedsMarkedValueTestObserver1);
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver2 =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsMarkedValueTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
@@ -528,10 +578,10 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeletePodcastSearchKeepsOtherSearchResultsWithSamePodcasts() {
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search1")).orNull();
-        @Nullable final PodcastSearchIdentified podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearch("Search2")).orNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+        @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
         if (podcastSearchIdentified1 == null) {
             fail();
         } else if (podcastSearchIdentified2 == null) {
@@ -541,7 +591,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker1,
                     podcastSearchIdentified1,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast1,
                             podcast2,
                             podcast3,
@@ -552,7 +602,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             getTestObject().replacePodcastSearchPodcasts(
                     marker2,
                     podcastSearchIdentified2,
-                    new PodcastList(
+                    new PodcastImpl.PodcastListImpl(
                             podcast5,
                             podcast4,
                             podcast3,
@@ -560,13 +610,13 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            final MatcherTestObserver<PodcastIdentifiedList> podcastTestObserver1 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
                     .subscribe(podcastTestObserver1);
 
-            final MatcherTestObserver<PodcastIdentifiedList> podcastTestObserver2 =
+            final MatcherTestObserver<PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl> podcastTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
@@ -594,12 +644,22 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver1 =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsMarkedValueTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified1.identifier)
                     .subscribe(podcastIdentifiedsMarkedValueTestObserver1);
-            final MatcherTestObserver<MarkedValue<Object, PodcastIdentifiedList>> podcastIdentifiedsMarkedValueTestObserver2 =
+            final MatcherTestObserver<
+                    MarkedValue<
+                            Object,
+                            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl
+                            >
+                    > podcastIdentifiedsMarkedValueTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeMarkedQueryForPodcastIdentifieds(podcastSearchIdentified2.identifier)
@@ -707,10 +767,10 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeletePodcastDeletesEpisodes() {
-        @Nullable final PodcastIdentified podcastIdentified1 =
-                getTestObject().upsertPodcast(podcast1).orNull();
-        @Nullable final PodcastIdentified podcastIdentified2 =
-                getTestObject().upsertPodcast(podcast2).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifiedImpl podcastIdentified1 =
+                getTestObject().upsertPodcast(podcast1).orElse(null);
+        @Nullable final PodcastImpl.PodcastIdentifiedImpl podcastIdentified2 =
+                getTestObject().upsertPodcast(podcast2).orElse(null);
         if (podcastIdentified1 == null) {
             fail();
         } else if (podcastIdentified2 == null) {
@@ -718,7 +778,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         } else {
             getTestObject().upsertEpisodesForPodcast(
                     podcastIdentified1.identifier,
-                    new EpisodeList(
+                    new EpisodeImpl.EpisodeListImpl(
                             episode11,
                             episode12,
                             episode13
@@ -726,20 +786,20 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             );
             getTestObject().upsertEpisodesForPodcast(
                     podcastIdentified2.identifier,
-                    new EpisodeList(
+                    new EpisodeImpl.EpisodeListImpl(
                             episode21,
                             episode22,
                             episode23
                     )
             );
 
-            final MatcherTestObserver<EpisodeIdentifiedList> episodeTestObserver1 =
+            final MatcherTestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> episodeTestObserver1 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentified1.identifier)
                     .subscribe(episodeTestObserver1);
 
-            final MatcherTestObserver<EpisodeIdentifiedList> episodeTestObserver2 =
+            final MatcherTestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> episodeTestObserver2 =
                     new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentified2.identifier)
@@ -801,12 +861,12 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeletePodcastDeletesSubscription() {
-        @Nullable final PodcastIdentified podcastIdentified1 =
-                getTestObject().upsertPodcast(podcast1).orNull();
-        @Nullable final PodcastIdentified podcastIdentified2 =
-                getTestObject().upsertPodcast(podcast2).orNull();
-        @Nullable final PodcastIdentified podcastIdentified3 =
-                getTestObject().upsertPodcast(podcast3).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifiedImpl podcastIdentified1 =
+                getTestObject().upsertPodcast(podcast1).orElse(null);
+        @Nullable final PodcastImpl.PodcastIdentifiedImpl podcastIdentified2 =
+                getTestObject().upsertPodcast(podcast2).orElse(null);
+        @Nullable final PodcastImpl.PodcastIdentifiedImpl podcastIdentified3 =
+                getTestObject().upsertPodcast(podcast3).orElse(null);
         if (podcastIdentified1 == null) {
             fail();
         } else if (podcastIdentified2 == null) {
@@ -814,12 +874,12 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         } else if (podcastIdentified3 == null) {
             fail();
         } else {
-            @Nullable final SubscriptionIdentified subscriptionIdentified1 =
-                    getTestObject().subscribe(podcastIdentified1).orNull();
-            @Nullable final SubscriptionIdentified subscriptionIdentified2 =
-                    getTestObject().subscribe(podcastIdentified2).orNull();
-            @Nullable final SubscriptionIdentified subscriptionIdentified3 =
-                    getTestObject().subscribe(podcastIdentified3).orNull();
+            @Nullable final SubscriptionImpl.SubscriptionIdentifiedImpl subscriptionIdentified1 =
+                    getTestObject().subscribe(podcastIdentified1).orElse(null);
+            @Nullable final SubscriptionImpl.SubscriptionIdentifiedImpl subscriptionIdentified2 =
+                    getTestObject().subscribe(podcastIdentified2).orElse(null);
+            @Nullable final SubscriptionImpl.SubscriptionIdentifiedImpl subscriptionIdentified3 =
+                    getTestObject().subscribe(podcastIdentified3).orElse(null);
             if (subscriptionIdentified1 == null) {
                 fail();
             } else if (subscriptionIdentified2 == null) {
@@ -827,7 +887,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             } else if (subscriptionIdentified3 == null) {
                 fail();
             } else {
-                final TestObserver<SubscriptionIdentifiedList> subscriptionTestObserver =
+                final TestObserver<SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl> subscriptionTestObserver =
                         new TestObserver<>();
                 getTestObject()
                         .observeQueryForSubscriptions()
@@ -835,7 +895,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
                 subscriptionTestObserver.assertValueSequence(
                         Collections.singletonList(
-                                new SubscriptionIdentifiedList(
+                                new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
                                         subscriptionIdentified1,
                                         subscriptionIdentified2,
                                         subscriptionIdentified3
@@ -847,12 +907,12 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
                 subscriptionTestObserver.assertValueSequence(
                         Arrays.asList(
-                                new SubscriptionIdentifiedList(
+                                new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
                                         subscriptionIdentified1,
                                         subscriptionIdentified2,
                                         subscriptionIdentified3
                                 ),
-                                new SubscriptionIdentifiedList(
+                                new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
                                         subscriptionIdentified2,
                                         subscriptionIdentified3
                                 )
@@ -864,18 +924,22 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testSubscribeUnsubscribeSubscribeUnsubscribeUpdatesSubscriptionIdentifierQuery() {
-        @Nullable final PodcastIdentified podcastIdentified =
+        @Nullable final PodcastImpl.PodcastIdentifiedImpl podcastIdentified =
                 getTestObject().upsertPodcast(podcast1).orElse(null);
         if (podcastIdentified == null) {
             fail();
         } else {
-            final TestObserver<Optional<SubscriptionIdentifier>> subscriptionIdentifierTestObserver =
+            final TestObserver<
+                    Optional<
+                            SubscriptionImpl.SubscriptionIdentifierImpl
+                            >
+                    > subscriptionIdentifierTestObserver =
                     new TestObserver<>();
             getTestObject()
                     .observeQueryForSubscriptionIdentifier(podcastIdentified.identifier)
                     .subscribe(subscriptionIdentifierTestObserver);
 
-            @Nullable final SubscriptionIdentifier subscriptionIdentifier1 =
+            @Nullable final SubscriptionImpl.SubscriptionIdentifierImpl subscriptionIdentifier1 =
                     getTestObject().subscribe(podcastIdentified.identifier).orElse(null);
             if (subscriptionIdentifier1 == null) {
                 fail();
@@ -888,7 +952,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                 )) {
                     fail();
                 } else {
-                    @Nullable final SubscriptionIdentifier subscriptionIdentifier2 =
+                    @Nullable final SubscriptionImpl.SubscriptionIdentifierImpl subscriptionIdentifier2 =
                             getTestObject().subscribe(podcastIdentified.identifier).orElse(null);
                     if (subscriptionIdentifier2 == null) {
                         fail();

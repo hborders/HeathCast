@@ -6,6 +6,7 @@ import com.github.hborders.heathcast.dao.Episode2;
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
@@ -41,6 +42,10 @@ public final class EpisodeImpl implements Episode2 {
             public EpisodeIdentifiedListImpl(Collection<? extends EpisodeIdentifiedImpl> identifieds) {
                 super(identifieds);
             }
+
+            public EpisodeIdentifiedListImpl(EpisodeIdentifiedImpl... episodeIdentifieds) {
+                this(Arrays.asList(episodeIdentifieds));
+            }
         }
 
         public static final class EpisodeIdentifiedOptImpl
@@ -75,6 +80,10 @@ public final class EpisodeImpl implements Episode2 {
                 public EpisodeIdentifiedOptListImpl(Collection<? extends EpisodeIdentifiedOptImpl> c) {
                     super(c);
                 }
+
+                public EpisodeIdentifiedOptListImpl(EpisodeIdentifiedOptImpl... episodeIdentifiedOpts) {
+                    this(Arrays.asList(episodeIdentifiedOpts));
+                }
             }
 
             public EpisodeIdentifiedOptImpl() {
@@ -104,6 +113,10 @@ public final class EpisodeImpl implements Episode2 {
 
             public EpisodeIdentifiedSetImpl(Collection<? extends EpisodeIdentifiedImpl> c) {
                 super(c);
+            }
+
+            public EpisodeIdentifiedSetImpl(EpisodeIdentifiedImpl... episodeIdentifieds) {
+                this(Arrays.asList(episodeIdentifieds));
             }
         }
 
@@ -203,6 +216,10 @@ public final class EpisodeImpl implements Episode2 {
 
         public EpisodeListImpl(Collection<? extends EpisodeImpl> c) {
             super(c);
+        }
+
+        public EpisodeListImpl(EpisodeImpl... episodes) {
+            this(Arrays.asList(episodes));
         }
     }
 

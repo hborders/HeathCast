@@ -71,7 +71,7 @@ public abstract class Opt<V> {
     }
 
     @Nullable
-    public final V orNull() {
+    public final V orElseNull() {
         return value;
     }
 

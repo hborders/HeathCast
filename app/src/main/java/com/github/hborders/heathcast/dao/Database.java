@@ -61,22 +61,17 @@ public final class Database<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifiedOptType extends Podcast2.PodcastIdentified2.PodcastIdentifiedOpt2<
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
         PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
         PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
         PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
                 PodcastIdentifierOptType,
                 PodcastIdentifierType
                 >,
-        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
         PodcastSearchType extends PodcastSearch2,
         PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
                 PodcastSearchIdentifierType,
@@ -128,14 +123,6 @@ public final class Database<
             PodcastIdentifiedListType,
             PodcastIdentifiedType
             > podcastIdentifiedListCapacityFactory;
-    private final Opt2.OptEmptyFactory<
-            PodcastIdentifiedOptType,
-            PodcastIdentifiedType
-            > podcastIdentifiedOptEmptyFactory;
-    private final Opt2.OptNonEmptyFactory<
-            PodcastIdentifiedOptType,
-            PodcastIdentifiedType
-            > podcastIdentifiedOptNonEmptyFactory;
     private final Identified2.IdentifiedFactory2<
             PodcastSearchIdentifiedType,
             PodcastSearchIdentifierType,
@@ -164,31 +151,31 @@ public final class Database<
     private final DimDatabase<MarkerType> dimDatabase;
     final EpisodeTable<
             MarkerType,
-            EpisodeIdentifiedType,
-            EpisodeIdentifierType,
             EpisodeType,
+            EpisodeIdentifiedType,
             EpisodeIdentifiedListType,
             EpisodeIdentifiedSetType,
-            EpisodeIdentifierOptListType,
+            EpisodeIdentifierType,
             EpisodeIdentifierOptType,
+            EpisodeIdentifierOptListType,
             EpisodeListType,
             PodcastIdentifierType
             > episodeTable;
     final PodcastTable<
             MarkerType,
-            PodcastIdentifiedType,
-            PodcastIdentifierType,
             PodcastType,
+            PodcastIdentifiedType,
             PodcastIdentifiedSetType,
-            PodcastIdentifierOptListType,
-            PodcastIdentifierOptType
+            PodcastIdentifierType,
+            PodcastIdentifierOptType,
+            PodcastIdentifierOptListType
             > podcastTable;
     final PodcastSearchTable<
             MarkerType,
             PodcastSearchType,
             PodcastSearchIdentifiedType,
-            PodcastSearchIdentifierType,
             PodcastSearchIdentifiedListType,
+            PodcastSearchIdentifierType,
             PodcastSearchIdentifierOptType
             > podcastSearchTable;
     private final PodcastSearchResultTable<
@@ -198,13 +185,13 @@ public final class Database<
             > podcastSearchResultTable;
     final SubscriptionTable<
             MarkerType,
-            SubscriptionIdentifiedType,
-            SubscriptionIdentifierType,
-            SubscriptionType,
+            PodcastType,
             PodcastIdentifiedType,
             PodcastIdentifierType,
-            PodcastType,
-            SubscriptionIdentifiedListType
+            SubscriptionType,
+            SubscriptionIdentifiedType,
+            SubscriptionIdentifiedListType,
+            SubscriptionIdentifierType
             > subscriptionTable;
 
     public Database(
@@ -253,14 +240,6 @@ public final class Database<
                     PodcastIdentifiedListType,
                     PodcastIdentifiedType
                     > podcastIdentifiedListCapacityFactory,
-            Opt2.OptEmptyFactory<
-                    PodcastIdentifiedOptType,
-                    PodcastIdentifiedType
-                    > podcastIdentifiedOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
-                    PodcastIdentifiedOptType,
-                    PodcastIdentifiedType
-                    > podcastIdentifiedOptNonEmptyFactory,
             Opt2.OptEmptyFactory<
                     PodcastIdentifierOptType,
                     PodcastIdentifierType
@@ -325,8 +304,6 @@ public final class Database<
     ) {
         this.podcastIdentifiedFactory = podcastIdentifiedFactory;
         this.podcastIdentifiedListCapacityFactory = podcastIdentifiedListCapacityFactory;
-        this.podcastIdentifiedOptEmptyFactory = podcastIdentifiedOptEmptyFactory;
-        this.podcastIdentifiedOptNonEmptyFactory = podcastIdentifiedOptNonEmptyFactory;
         this.podcastSearchIdentifiedFactory = podcastSearchIdentifiedFactory;
         this.podcastSearchIdentifiedOptEmptyFactory = podcastSearchIdentifiedOptEmptyFactory;
         this.podcastSearchIdentifiedOptNonEmptyFactory = podcastSearchIdentifiedOptNonEmptyFactory;
@@ -432,12 +409,11 @@ public final class Database<
         podcastTable.triggerMarked(marker);
     }
 
-    public PodcastIdentifiedOptType upsertPodcast(PodcastType podcast) {
+    public Optional<PodcastIdentifiedType> upsertPodcast(PodcastType podcast) {
         return podcastTable
                 .upsertPodcast(podcast)
+                .toOptional()
                 .map(
-                        podcastIdentifiedOptEmptyFactory,
-                        podcastIdentifiedOptNonEmptyFactory,
                         podcastIdentifier -> podcastIdentifiedFactory.newIdentified(
                                 podcastIdentifier,
                                 podcast

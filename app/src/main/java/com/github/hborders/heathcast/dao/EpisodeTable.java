@@ -37,12 +37,11 @@ import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 
 final class EpisodeTable<
         MarkerType,
+        EpisodeType extends Episode2,
         EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
-        EpisodeType extends Episode2,
         EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
@@ -53,11 +52,12 @@ final class EpisodeTable<
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
-                EpisodeIdentifierOptType,
+        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
+        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<
                 EpisodeIdentifierType
                 >,
-        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<
+        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+                EpisodeIdentifierOptType,
                 EpisodeIdentifierType
                 >,
         EpisodeListType extends Episode2.EpisodeList2<EpisodeType>,
@@ -100,13 +100,13 @@ final class EpisodeTable<
             EpisodeType
             > episodeIdentifiedFactory;
     private final Opt2.OptEmptyFactory<
-                EpisodeIdentifierOptType,
-                EpisodeIdentifierType
-                > episodeIdentifierOptEmptyFactory;
+            EpisodeIdentifierOptType,
+            EpisodeIdentifierType
+            > episodeIdentifierOptEmptyFactory;
     private final Opt2.OptNonEmptyFactory<
-                EpisodeIdentifierOptType,
-                EpisodeIdentifierType
-                > episodeIdentifierOptNonEmptyFactory;
+            EpisodeIdentifierOptType,
+            EpisodeIdentifierType
+            > episodeIdentifierOptNonEmptyFactory;
     private final CollectionFactory.Capacity<
             EpisodeIdentifiedListType,
             EpisodeIdentifiedType
@@ -132,13 +132,13 @@ final class EpisodeTable<
                     EpisodeType
                     > episodeIdentifiedFactory,
             Opt2.OptEmptyFactory<
-                                EpisodeIdentifierOptType,
-                                EpisodeIdentifierType
-                                > episodeIdentifierOptEmptyFactory,
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierOptEmptyFactory,
             Opt2.OptNonEmptyFactory<
-                                EpisodeIdentifierOptType,
-                                EpisodeIdentifierType
-                                > episodeIdentifierOptNonEmptyFactory,
+                    EpisodeIdentifierOptType,
+                    EpisodeIdentifierType
+                    > episodeIdentifierOptNonEmptyFactory,
             CollectionFactory.Capacity<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType

@@ -88,59 +88,6 @@ abstract class Table<MarkerType> {
     }
 
     protected final <
-            IdentifierType extends Identifier<ModelType>,
-            IdentifiedType extends Identified<IdentifierType, ModelType>,
-            ModelType,
-            IdentifierOptFactoryType extends Factory<IdentifierOptType, IdentifierType>,
-            IdentifierOptType extends Opt<IdentifierType>,
-            SecondaryKeyType
-            > IdentifierOptType upsertModel(
-            UpsertAdapter<SecondaryKeyType> upsertAdapter,
-            // secondaryKeyClass exists to force S not to be Serializable or some other
-            // unexpected superclass of unrelated Model and Cursor property classes.
-            // however, we don't actually need the parameter, so we suppress unused.
-            @SuppressWarnings("unused") Class<SecondaryKeyType> secondaryKeyClass,
-            ModelType model,
-            Function<ModelType, SecondaryKeyType> modelSecondaryKeyGetter,
-            Function<Long, IdentifierType> identifierFactory,
-            BiFunction<IdentifierType, ModelType, IdentifiedType> identifiedFactory,
-            Function<ModelType, IdentifierOptType> modelInserter,
-            Function<IdentifiedType, Integer> identifiedUpdater,
-            IdentifierOptFactoryType optFactory
-    ) {
-        try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
-            final SecondaryKeyType secondaryKey = modelSecondaryKeyGetter.apply(model);
-
-            final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
-                    upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
-            @Nullable final IdentifierOptType upsertedIdentifierOpt;
-            try (final Cursor primaryAndSecondaryKeyCursor = dimDatabase.query(primaryAndSecondaryKeyQuery)) {
-                if (primaryAndSecondaryKeyCursor.moveToNext()) {
-                    final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
-                    final IdentifierType upsertingIdentifier = identifierFactory.apply(primaryKey);
-                    final IdentifiedType updatingIdentified = identifiedFactory.apply(
-                            upsertingIdentifier,
-                            model
-                    );
-                    int rowCount = identifiedUpdater.apply(updatingIdentified);
-                    if (rowCount == 1) {
-                        upsertedIdentifierOpt = optFactory.of(upsertingIdentifier);
-                    } else {
-                        upsertedIdentifierOpt = optFactory.empty();
-                    }
-                } else {
-                    upsertedIdentifierOpt = modelInserter
-                            .apply(model);
-                }
-            }
-
-            transaction.markSuccessful();
-
-            return upsertedIdentifierOpt;
-        }
-    }
-
-    protected final <
             IdentifierType extends Identifier2,
             IdentifiedType extends Identified2<
                     IdentifierType,

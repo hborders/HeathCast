@@ -1,6 +1,12 @@
 package com.github.hborders.heathcast.services;
 
+import com.github.hborders.heathcast.features.model.EpisodeImpl;
+import com.github.hborders.heathcast.features.model.PodcastImpl;
+import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
+import com.github.hborders.heathcast.features.model.SubscriptionImpl;
 import com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder;
+import com.github.hborders.heathcast.models.PodcastIdentified;
+import com.github.hborders.heathcast.models.PodcastIdentifiedList;
 import com.github.hborders.heathcast.models.PodcastSearch;
 import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
@@ -8,6 +14,8 @@ import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 import org.junit.Test;
 
 import java.util.Objects;
+
+import io.reactivex.Observable;
 
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
 import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;
@@ -23,13 +31,41 @@ import static org.hamcrest.Matchers.empty;
 @org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner.class)
 //@org.junit.runner.RunWith(org.junit.runners.BlockJUnit4ClassRunner.class)
 public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
-    private PodcastService getTestObject() throws Throwable {
+    private PodcastService<
+            EpisodeImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
+            EpisodeImpl.EpisodeIdentifierImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl,
+            EpisodeImpl.EpisodeListImpl,
+            PodcastImpl,
+            PodcastImpl.PodcastIdentifiedImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedOptImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedSetImpl,
+            PodcastImpl.PodcastIdentifierImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl.PodcastIdentifierOptListImpl,
+            PodcastImpl.PodcastListImpl,
+            PodcastSearchImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl,
+            PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedOptImpl,
+            PodcastSearchImpl.PodcastSearchIdentifierImpl,
+            PodcastSearchImpl.PodcastSearchIdentifierImpl.PodcastSearchIdentifierOptImpl,
+            SubscriptionImpl,
+            SubscriptionImpl.SubscriptionIdentifiedImpl,
+            SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl,
+            SubscriptionImpl.SubscriptionIdentifierImpl
+            > getTestObject() throws Throwable {
         return getPodcastService();
     }
 
     @Test
     public void testSearchForPlanetMoneyThenTheIndicator() throws Throwable {
-        final MatcherTestObserver<PodcastSearchIdentifiedList> podcastSearchIdentifiedsMatcherTestObserver =
+        final MatcherTestObserver<PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl> podcastSearchIdentifiedsMatcherTestObserver =
                 new MatcherTestObserver<>();
         getTestObject()
                 .observeQueryForAllPodcastSearchIdentifieds()
@@ -39,15 +75,20 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                 specificallyEmpty()
         );
 
-        final MatcherTestObserver<PodcastListServiceResponse> planetMoneyMatcherTestObserver =
+        final MatcherTestObserver<TestPodcastListServiceResponse> planetMoneyMatcherTestObserver =
                 new MatcherTestObserver<>();
         final NetworkPauser planetMoneyNetworkPauser = new NetworkPauser();
-        final PodcastSearch planetMoneyPodcastSearch = new PodcastSearch("Planet Money");
-        getTestObject()
-                .searchForPodcasts2(
-                        planetMoneyNetworkPauser,
-                        planetMoneyPodcastSearch
-                )
+        final PodcastSearchImpl planetMoneyPodcastSearch = new PodcastSearchImpl("Planet Money");
+        final Observable<TestPodcastListServiceResponse> testPodcastListServiceResponseObservable =
+                getTestObject()
+                        .searchForPodcasts2(
+                                TestPodcastListServiceResponseLoading::new,
+                                TestPodcastListServiceResponseComplete::new,
+                                TestPodcastListServiceResponseFailed::new,
+                                planetMoneyNetworkPauser,
+                                planetMoneyPodcastSearch
+                        );
+        testPodcastListServiceResponseObservable
                 .subscribe(planetMoneyMatcherTestObserver);
 
         podcastSearchIdentifiedsMatcherTestObserver.assertValueSequenceThat(
@@ -90,18 +131,23 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                 )
         );
 
-        final PodcastListServiceResponse lastPlanetMoneyValue =
+        final TestPodcastListServiceResponse lastPlanetMoneyValue =
                 Objects.requireNonNull(planetMoneyMatcherTestObserver.lastValue());
 
-        final MatcherTestObserver<PodcastListServiceResponse> theIndicatorMatcherTestObserver =
+        final MatcherTestObserver<TestPodcastListServiceResponse> theIndicatorMatcherTestObserver =
                 new MatcherTestObserver<>();
         final NetworkPauser theIndicatorNetworkPauser = new NetworkPauser();
-        final PodcastSearch theIndicatorPodcastSearch = new PodcastSearch("The Indicator");
-        getTestObject()
-                .searchForPodcasts2(
-                        theIndicatorNetworkPauser,
-                        theIndicatorPodcastSearch
-                )
+        final PodcastSearchImpl theIndicatorPodcastSearch = new PodcastSearchImpl("The Indicator");
+        final Observable<TestPodcastListServiceResponse> podcastListServiceResponseObservable =
+                getTestObject()
+                        .searchForPodcasts2(
+                                TestPodcastListServiceResponseLoading::new,
+                                TestPodcastListServiceResponseComplete::new,
+                                TestPodcastListServiceResponseFailed::new,
+                                theIndicatorNetworkPauser,
+                                theIndicatorPodcastSearch
+                        );
+        podcastListServiceResponseObservable
                 .subscribe(theIndicatorMatcherTestObserver);
 
         // no changes to Planet Money
@@ -163,7 +209,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
 
     @Test
     public void testSearchForPlanetMoneyTwiceQuickly() throws Throwable {
-        final MatcherTestObserver<PodcastSearchIdentifiedList> podcastSearchIdentifiedsMatcherTestObserver =
+        final MatcherTestObserver<PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl> podcastSearchIdentifiedsMatcherTestObserver =
                 new MatcherTestObserver<>();
         getTestObject()
                 .observeQueryForAllPodcastSearchIdentifieds()
@@ -173,25 +219,33 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
                 empty()
         );
 
-        final MatcherTestObserver<PodcastListServiceResponse> planetMoneyMatcherTestObserver1 =
+        final MatcherTestObserver<TestPodcastListServiceResponse> planetMoneyMatcherTestObserver1 =
                 new MatcherTestObserver<>();
-        final MatcherTestObserver<PodcastListServiceResponse> planetMoneyMatcherTestObserver2 =
+        final MatcherTestObserver<TestPodcastListServiceResponse> planetMoneyMatcherTestObserver2 =
                 new MatcherTestObserver<>();
         final NetworkPauser planetMoneyNetworkPauser1 = new NetworkPauser();
-        final PodcastSearch planetMoneyPodcastSearch = new PodcastSearch("Planet Money");
-        getTestObject()
-                .searchForPodcasts2(
-                        planetMoneyNetworkPauser1,
-                        planetMoneyPodcastSearch
-                )
-                .subscribe(planetMoneyMatcherTestObserver1);
+        final PodcastSearchImpl planetMoneyPodcastSearch = new PodcastSearchImpl("Planet Money");
+        final Observable<TestPodcastListServiceResponse> testPodcastListServiceResponseObservable1 =
+                getTestObject()
+                        .searchForPodcasts2(
+                                TestPodcastListServiceResponseLoading::new,
+                                TestPodcastListServiceResponseComplete::new,
+                                TestPodcastListServiceResponseFailed::new,
+                                planetMoneyNetworkPauser1,
+                                planetMoneyPodcastSearch
+                        );
+        testPodcastListServiceResponseObservable1.subscribe(planetMoneyMatcherTestObserver1);
         final NetworkPauser planetMoneyNetworkPauser2 = new NetworkPauser();
-        getTestObject()
-                .searchForPodcasts2(
-                        planetMoneyNetworkPauser2,
-                        planetMoneyPodcastSearch
-                )
-                .subscribe(planetMoneyMatcherTestObserver2);
+        final Observable<TestPodcastListServiceResponse> testPodcastListServiceResponseObservable2 =
+                getTestObject()
+                        .searchForPodcasts2(
+                                TestPodcastListServiceResponseLoading::new,
+                                TestPodcastListServiceResponseComplete::new,
+                                TestPodcastListServiceResponseFailed::new,
+                                planetMoneyNetworkPauser2,
+                                planetMoneyPodcastSearch
+                        );
+        testPodcastListServiceResponseObservable2.subscribe(planetMoneyMatcherTestObserver2);
 
         podcastSearchIdentifiedsMatcherTestObserver.assertValueSequenceThat(
                 containsInOrder(

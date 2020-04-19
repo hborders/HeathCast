@@ -1,9 +1,9 @@
 package com.github.hborders.heathcast.services;
 
 import com.github.hborders.heathcast.core.URLUtil;
+import com.github.hborders.heathcast.features.model.EpisodeImpl;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
 
 import org.junit.Test;
@@ -120,7 +120,14 @@ public final class XmlParserTest {
                         "  </channel>" +
                         "</rss>";
         final InputStream xmlInputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        final EpisodeIdentifiedList actual = XmlParser.parseEpisodeList(xmlInputStream);
+        final EpisodeImpl.EpisodeListImpl actual = new XmlParser<
+                EpisodeImpl.EpisodeListImpl,
+                EpisodeImpl
+                >(
+                EpisodeImpl.EpisodeListImpl::new,
+                EpisodeImpl.EpisodeListImpl::new,
+                EpisodeImpl::new
+        ).parseEpisodeList(xmlInputStream);
 
         assertThat(
                 actual,

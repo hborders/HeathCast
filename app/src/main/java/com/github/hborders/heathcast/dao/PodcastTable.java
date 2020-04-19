@@ -33,22 +33,21 @@ import static com.github.hborders.heathcast.dao.EpisodeTable.TABLE_EPISODE;
 
 final class PodcastTable<
         MarkerType,
-        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastType extends Podcast2,
+        PodcastType extends Podcast2, PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+        PodcastIdentifierType,
+        PodcastType
+        >,
         PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
-                PodcastIdentifierOptType,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<
                 PodcastIdentifierType
                 >,
-        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<
+        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+                PodcastIdentifierOptType,
                 PodcastIdentifierType
                 >
         > extends Table<MarkerType> {
@@ -87,13 +86,13 @@ final class PodcastTable<
             PodcastType
             > podcastIdentifiedFactory;
     private final Opt2.OptEmptyFactory<
-                PodcastIdentifierOptType,
-                PodcastIdentifierType
-                > podcastIdentifierOptEmptyFactory;
+            PodcastIdentifierOptType,
+            PodcastIdentifierType
+            > podcastIdentifierOptEmptyFactory;
     private final Opt2.OptNonEmptyFactory<
-                PodcastIdentifierOptType,
-                PodcastIdentifierType
-                > podcastIdentifierOptNonEmptyFactory;
+            PodcastIdentifierOptType,
+            PodcastIdentifierType
+            > podcastIdentifierOptNonEmptyFactory;
     private final CollectionFactory.Collection<
             PodcastIdentifiedSetType,
             PodcastIdentifiedType
@@ -115,13 +114,13 @@ final class PodcastTable<
                     PodcastType
                     > podcastIdentifiedFactory,
             Opt2.OptEmptyFactory<
-                                PodcastIdentifierOptType,
-                                PodcastIdentifierType
-                                > podcastIdentifierOptEmptyFactory,
+                    PodcastIdentifierOptType,
+                    PodcastIdentifierType
+                    > podcastIdentifierOptEmptyFactory,
             Opt2.OptNonEmptyFactory<
-                                PodcastIdentifierOptType,
-                                PodcastIdentifierType
-                                > podcastIdentifierOptNonEmptyFactory,
+                    PodcastIdentifierOptType,
+                    PodcastIdentifierType
+                    > podcastIdentifierOptNonEmptyFactory,
             CollectionFactory.Collection<
                     PodcastIdentifiedSetType,
                     PodcastIdentifiedType

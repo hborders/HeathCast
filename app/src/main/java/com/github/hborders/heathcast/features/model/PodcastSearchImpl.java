@@ -2,6 +2,7 @@ package com.github.hborders.heathcast.features.model;
 
 import com.github.hborders.heathcast.dao.PodcastSearch2;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 public final class PodcastSearchImpl implements PodcastSearch2 {
@@ -34,6 +35,10 @@ public final class PodcastSearchImpl implements PodcastSearch2 {
 
             public PodcastSearchIdentifiedListImpl(Collection<? extends PodcastSearchIdentifiedImpl> identifieds) {
                 super(identifieds);
+            }
+
+            public PodcastSearchIdentifiedListImpl(PodcastSearchIdentifiedImpl... podcastSearchIdentifieds) {
+                this(Arrays.asList(podcastSearchIdentifieds));
             }
         }
 

@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import com.github.hborders.heathcast.dao.Podcast2;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -79,6 +80,10 @@ public final class PodcastImpl implements Podcast2 {
             public PodcastIdentifiedSetImpl(Collection<? extends PodcastIdentifiedImpl> c) {
                 super(c);
             }
+
+            public PodcastIdentifiedSetImpl(PodcastIdentifiedImpl... podcastIdentifieds) {
+                this(Arrays.asList(podcastIdentifieds));
+            }
         }
 
         public PodcastIdentifiedImpl(
@@ -143,6 +148,10 @@ public final class PodcastImpl implements Podcast2 {
                 public PodcastIdentifierOptListImpl(Collection<? extends PodcastIdentifierOptImpl> c) {
                     super(c);
                 }
+
+                public PodcastIdentifierOptListImpl(PodcastIdentifierOptImpl... podcastIdentifierOpts) {
+                    this(Arrays.asList(podcastIdentifierOpts));
+                }
             }
 
             public PodcastIdentifierOptImpl() {
@@ -163,6 +172,20 @@ public final class PodcastImpl implements Podcast2 {
             implements PodcastList2<
             PodcastImpl
             > {
+        public PodcastListImpl() {
+        }
+
+        public PodcastListImpl(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        public PodcastListImpl(Collection<? extends PodcastImpl> c) {
+            super(c);
+        }
+
+        public PodcastListImpl(PodcastImpl... podcasts) {
+            this(Arrays.asList(podcasts));
+        }
     }
 
     @Nullable

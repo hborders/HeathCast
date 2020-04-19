@@ -30,12 +30,12 @@ final class PodcastSearchTable<
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
-        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
         PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
                 PodcastSearchIdentifiedType,
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
+        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
         PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
                 PodcastSearchIdentifierType
                 >

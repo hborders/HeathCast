@@ -2,6 +2,7 @@ package com.github.hborders.heathcast.features.model;
 
 import com.github.hborders.heathcast.dao.Subscription2;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 public final class SubscriptionImpl implements Subscription2<
@@ -42,6 +43,10 @@ public final class SubscriptionImpl implements Subscription2<
 
             public SubscriptionIdentifiedListImpl(Collection<? extends SubscriptionIdentifiedImpl> identifieds) {
                 super(identifieds);
+            }
+
+            public SubscriptionIdentifiedListImpl(SubscriptionIdentifiedImpl... subscriptionIdentifieds) {
+                this(Arrays.asList(subscriptionIdentifieds));
             }
         }
 

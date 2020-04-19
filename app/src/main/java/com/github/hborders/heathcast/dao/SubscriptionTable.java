@@ -10,7 +10,6 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -24,6 +23,17 @@ import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST
 
 public final class SubscriptionTable<
         MarkerType,
+        PodcastType extends Podcast2,
+        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
+        SubscriptionType extends Subscription2<
+                        PodcastIdentifiedType,
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
         SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
                 SubscriptionIdentifierType,
                 SubscriptionType,
@@ -31,18 +41,6 @@ public final class SubscriptionTable<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2,
-        SubscriptionType extends Subscription2<
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastType extends Podcast2,
         SubscriptionIdentifiedListType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedList2<
                 SubscriptionIdentifiedType,
                 SubscriptionIdentifierType,
@@ -50,7 +48,8 @@ public final class SubscriptionTable<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
-                >
+                >,
+        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2
         > extends Table<MarkerType> {
     static final String TABLE_SUBSCRIPTION = "subscription";
 
@@ -146,8 +145,8 @@ public final class SubscriptionTable<
     }
 
     int moveSubscriptionIdentifiedBefore(
-            SubscriptionIdentifier movingSubscriptionIdentifier,
-            SubscriptionIdentifier referenceSubscriptionIdentifier
+            SubscriptionIdentifierType movingSubscriptionIdentifier,
+            SubscriptionIdentifierType referenceSubscriptionIdentifier
     ) {
         SupportSQLiteStatement statement =
                 dimDatabase.getWritableDatabase().compileStatement(
@@ -185,10 +184,10 @@ public final class SubscriptionTable<
                                 + "   ) END "
                                 + " ) WHERE " + ID + " = ?"
                 );
-        statement.bindLong(1, referenceSubscriptionIdentifier.id);
-        statement.bindLong(2, referenceSubscriptionIdentifier.id);
-        statement.bindLong(3, referenceSubscriptionIdentifier.id);
-        statement.bindLong(4, movingSubscriptionIdentifier.id);
+        statement.bindLong(1, referenceSubscriptionIdentifier.getId());
+        statement.bindLong(2, referenceSubscriptionIdentifier.getId());
+        statement.bindLong(3, referenceSubscriptionIdentifier.getId());
+        statement.bindLong(4, movingSubscriptionIdentifier.getId());
         return dimDatabase.executeUpdateDelete(
                 TABLE_SUBSCRIPTION,
                 statement
@@ -196,8 +195,8 @@ public final class SubscriptionTable<
     }
 
     int moveSubscriptionIdentifiedAfter(
-            SubscriptionIdentifier movingSubscriptionIdentifier,
-            SubscriptionIdentifier referenceSubscriptionIdentifier
+            SubscriptionIdentifierType movingSubscriptionIdentifier,
+            SubscriptionIdentifierType referenceSubscriptionIdentifier
     ) {
         SupportSQLiteStatement statement =
                 dimDatabase.getWritableDatabase().compileStatement(
@@ -235,10 +234,10 @@ public final class SubscriptionTable<
                                 + "   ) END "
                                 + " ) WHERE " + ID + " = ?"
                 );
-        statement.bindLong(1, referenceSubscriptionIdentifier.id);
-        statement.bindLong(2, referenceSubscriptionIdentifier.id);
-        statement.bindLong(3, referenceSubscriptionIdentifier.id);
-        statement.bindLong(4, movingSubscriptionIdentifier.id);
+        statement.bindLong(1, referenceSubscriptionIdentifier.getId());
+        statement.bindLong(2, referenceSubscriptionIdentifier.getId());
+        statement.bindLong(3, referenceSubscriptionIdentifier.getId());
+        statement.bindLong(4, movingSubscriptionIdentifier.getId());
         return dimDatabase.executeUpdateDelete(
                 TABLE_SUBSCRIPTION,
                 statement

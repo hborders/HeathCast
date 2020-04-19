@@ -2,16 +2,13 @@ package com.github.hborders.heathcast.dao;
 
 import androidx.annotation.Nullable;
 
+import com.github.hborders.heathcast.features.model.EpisodeImpl;
+import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.EpisodeIdentified;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedOpt;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedOptList;
 import com.github.hborders.heathcast.models.EpisodeIdentifiedSet;
 import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.EpisodeIdentifierOpt;
-import com.github.hborders.heathcast.models.EpisodeIdentifierOptList;
-import com.github.hborders.heathcast.models.EpisodeList;
 import com.github.hborders.heathcast.models.Podcast;
 import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
@@ -25,6 +22,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import io.reactivex.observers.TestObserver;
 
@@ -38,28 +36,47 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
-    private EpisodeTable<Object> getTestObject() {
+    private EpisodeTable<
+            Object,
+            EpisodeImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
+            EpisodeImpl.EpisodeIdentifierImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
+            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl,
+            EpisodeImpl.EpisodeListImpl,
+            PodcastImpl.PodcastIdentifierImpl
+            > getTestObject() {
         return getDatabase().episodeTable;
     }
 
-    private PodcastTable<Object> getPodcastTable() {
+    private PodcastTable<
+            Object,
+            PodcastImpl,
+            PodcastImpl.PodcastIdentifiedImpl,
+            PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedSetImpl,
+            PodcastImpl.PodcastIdentifierImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl,
+            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl.PodcastIdentifierOptListImpl
+            > getPodcastTable() {
         return getDatabase().podcastTable;
     }
 
     @Test
     public void testInsertEpisodeWithAllNonnulls() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode = new Episode(
+            final EpisodeImpl episode = new EpisodeImpl(
                     new URL("http://example.com/episode/artwork1"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
@@ -71,22 +88,22 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier == null) {
                 fail();
             } else {
-                final TestObserver<EpisodeIdentifiedSet> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForAllEpisodeIdentifieds()
                         .subscribe(episodeTestObserver);
 
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedSet(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier,
                                         episode
                                 )
@@ -98,18 +115,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testInsertEpisodeWithAllNullables() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode = new Episode(
+            final EpisodeImpl episode = new EpisodeImpl(
                     null,
                     null,
                     null,
@@ -117,22 +134,22 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier == null) {
                 fail();
             } else {
-                final TestObserver<EpisodeIdentifiedSet> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForAllEpisodeIdentifieds()
                         .subscribe(episodeTestObserver);
 
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedSet(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier,
                                         episode
                                 )
@@ -144,18 +161,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpdateEpisodeFromAllNonnullsToAllNullables() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode1 = new Episode(
+            final EpisodeImpl episode1 = new EpisodeImpl(
                     new URL("http://example.com/episode/artwork1"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
@@ -167,15 +184,15 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode1
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier == null) {
                 fail();
             } else {
-                final Episode episode2 = new Episode(
+                final EpisodeImpl episode2 = new EpisodeImpl(
                         null,
                         null,
                         null,
@@ -186,7 +203,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
                 final int updatedRowCount = getTestObject().updateEpisodeIdentified(
                         podcastIdentifier,
-                        new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                 episodeIdentifier,
                                 episode2
                         )
@@ -196,14 +213,14 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         equalTo(1)
                 );
 
-                final TestObserver<EpisodeIdentifiedSet> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForAllEpisodeIdentifieds()
                         .subscribe(episodeTestObserver);
 
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedSet(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier,
                                         episode2
                                 )
@@ -215,18 +232,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void updateEpisodeFromAllNullablesToNonnulls() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode1 = new Episode(
+            final EpisodeImpl episode1 = new EpisodeImpl(
                     null,
                     null,
                     null,
@@ -234,15 +251,15 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode1
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier == null) {
                 fail();
             } else {
-                final Episode episode2 = new Episode(
+                final EpisodeImpl episode2 = new EpisodeImpl(
                         new URL("http://example.com/episode/artwork2"),
                         Duration.ofSeconds(2),
                         DateUtil.from(
@@ -257,7 +274,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
                 final int updatedRowCount = getTestObject().updateEpisodeIdentified(
                         podcastIdentifier,
-                        new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                 episodeIdentifier,
                                 episode2
                         )
@@ -267,14 +284,14 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         equalTo(1)
                 );
 
-                final TestObserver<EpisodeIdentifiedSet> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForAllEpisodeIdentifieds()
                         .subscribe(episodeTestObserver);
 
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedSet(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier,
                                         episode2
                                 )
@@ -286,18 +303,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertThreeNewEpisodesInsertsThemInOrder() throws Exception {
-        final Podcast podcast1 = new Podcast(
+        final PodcastImpl podcast1 = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier1 =
-                getPodcastTable().insertPodcast(podcast1).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier1 =
+                getPodcastTable().insertPodcast(podcast1).orElseNull();
         if (podcastIdentifier1 == null) {
             fail();
         } else {
-            final Episode episode1 = new Episode(
+            final EpisodeImpl episode1 = new EpisodeImpl(
                     new URL("http://example.com/episode1/artwork"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
@@ -309,7 +326,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode1")
             );
-            final Episode episode2 = new Episode(
+            final EpisodeImpl episode2 = new EpisodeImpl(
                     new URL("http://example.com/episode2/artwork"),
                     Duration.ofSeconds(2),
                     DateUtil.from(
@@ -321,7 +338,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title12",
                     new URL("http://example.com/episode2")
             );
-            final Episode episode3 = new Episode(
+            final EpisodeImpl episode3 = new EpisodeImpl(
                     new URL("http://example.com/episode3/artwork"),
                     Duration.ofSeconds(3),
                     DateUtil.from(
@@ -333,7 +350,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title3",
                     new URL("http://example.com/episode3")
             );
-            final Episode episode4 = new Episode(
+            final EpisodeImpl episode4 = new EpisodeImpl(
                     new URL("http://example.com/episode4/artwork"),
                     Duration.ofSeconds(4),
                     DateUtil.from(
@@ -346,13 +363,13 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     new URL("http://example.com/episode4")
             );
 
-            final EpisodeList upsertingEpisodes = new EpisodeList(
+            final EpisodeImpl.EpisodeListImpl upsertingEpisodes = new EpisodeImpl.EpisodeListImpl(
                     episode1,
                     episode2,
                     episode3,
                     episode4
             );
-            final EpisodeIdentifierOptList episodeIdentifierOpts =
+            final EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl episodeIdentifierOpts =
                     getTestObject().upsertEpisodes(
                             podcastIdentifier1,
                             upsertingEpisodes
@@ -360,10 +377,10 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
             if (episodeIdentifierOpts.size() != upsertingEpisodes.size()) {
                 fail("Expected " + upsertingEpisodes.size() + ", got episodeIdentifiers: " + episodeIdentifierOpts);
             } else {
-                @Nullable final EpisodeIdentifier episodeIdentifier1 = episodeIdentifierOpts.get(0).orNull();
-                @Nullable final EpisodeIdentifier episodeIdentifier2 = episodeIdentifierOpts.get(1).orNull();
-                @Nullable final EpisodeIdentifier episodeIdentifier3 = episodeIdentifierOpts.get(2).orNull();
-                @Nullable final EpisodeIdentifier episodeIdentifier4 = episodeIdentifierOpts.get(3).orNull();
+                @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier1 = episodeIdentifierOpts.get(0).orElseNull();
+                @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier2 = episodeIdentifierOpts.get(1).orElseNull();
+                @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier3 = episodeIdentifierOpts.get(2).orElseNull();
+                @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier4 = episodeIdentifierOpts.get(3).orElseNull();
                 if (episodeIdentifier1 == null) {
                     fail();
                 } else if (episodeIdentifier2 == null) {
@@ -373,26 +390,26 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 } else if (episodeIdentifier4 == null) {
                     fail();
                 } else {
-                    final TestObserver<EpisodeIdentifiedList> episodeTestObserver = new TestObserver<>();
+                    final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> episodeTestObserver = new TestObserver<>();
                     getTestObject()
                             .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier1)
                             .subscribe(episodeTestObserver);
 
                     episodeTestObserver.assertValue(
-                            new EpisodeIdentifiedList(
-                                    new EpisodeIdentified(
+                            new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl(
+                                    new EpisodeImpl.EpisodeIdentifiedImpl(
                                             episodeIdentifier1,
                                             episode1
                                     ),
-                                    new EpisodeIdentified(
+                                    new EpisodeImpl.EpisodeIdentifiedImpl(
                                             episodeIdentifier2,
                                             episode2
                                     ),
-                                    new EpisodeIdentified(
+                                    new EpisodeImpl.EpisodeIdentifiedImpl(
                                             episodeIdentifier3,
                                             episode3
                                     ),
-                                    new EpisodeIdentified(
+                                    new EpisodeImpl.EpisodeIdentifiedImpl(
                                             episodeIdentifier4,
                                             episode4
                                     )
@@ -405,18 +422,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertNewEpisodeWithSameURLThriceTogetherInsertsFirstEpisodeAndOthers() throws Exception {
-        final Podcast podcast1 = new Podcast(
+        final PodcastImpl podcast1 = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier1 =
-                getPodcastTable().insertPodcast(podcast1).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier1 =
+                getPodcastTable().insertPodcast(podcast1).orElseNull();
         if (podcastIdentifier1 == null) {
             fail();
         } else {
-            final Episode episode1 = new Episode(
+            final EpisodeImpl episode1 = new EpisodeImpl(
                     new URL("http://example.com/episode1/artwork"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
@@ -428,7 +445,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode")
             );
-            final Episode episode2 = new Episode(
+            final EpisodeImpl episode2 = new EpisodeImpl(
                     new URL("http://example.com/episode2/artwork"),
                     Duration.ofSeconds(2),
                     DateUtil.from(
@@ -440,7 +457,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title12",
                     new URL("http://example.com/episode")
             );
-            final Episode episode3 = new Episode(
+            final EpisodeImpl episode3 = new EpisodeImpl(
                     new URL("http://example.com/episode3/artwork"),
                     Duration.ofSeconds(3),
                     DateUtil.from(
@@ -453,12 +470,12 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     new URL("http://example.com/episode")
             );
 
-            final EpisodeList upsertingEpisodes = new EpisodeList(
+            final EpisodeImpl.EpisodeListImpl upsertingEpisodes = new EpisodeImpl.EpisodeListImpl(
                     episode1,
                     episode2,
                     episode3
             );
-            final EpisodeIdentifierOptList episodeIdentifierOpts =
+            final EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl episodeIdentifierOpts =
                     getTestObject().upsertEpisodes(
                             podcastIdentifier1,
                             upsertingEpisodes
@@ -466,8 +483,8 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
             if (episodeIdentifierOpts.size() != upsertingEpisodes.size()) {
                 fail("Expected " + upsertingEpisodes.size() + ", got episodeIdentifiers: " + episodeIdentifierOpts);
             } else {
-                @Nullable final EpisodeIdentifier episodeIdentifier1 =
-                        episodeIdentifierOpts.get(0).orNull();
+                @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier1 =
+                        episodeIdentifierOpts.get(0).orElseNull();
                 if (episodeIdentifier1 == null) {
                     fail();
                 } else {
@@ -476,19 +493,19 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             equalTo(
                                     Collections.nCopies(
                                             upsertingEpisodes.size(),
-                                            new EpisodeIdentifierOpt(episodeIdentifier1)
+                                            new EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl(episodeIdentifier1)
                                     )
                             )
                     );
 
-                    final TestObserver<EpisodeIdentifiedSet> episodeTestObserver = new TestObserver<>();
+                    final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl> episodeTestObserver = new TestObserver<>();
                     getTestObject()
                             .observeQueryForAllEpisodeIdentifieds()
                             .subscribe(episodeTestObserver);
 
                     episodeTestObserver.assertValue(
-                            new EpisodeIdentifiedSet(
-                                    new EpisodeIdentified(
+                            new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl(
+                                    new EpisodeImpl.EpisodeIdentifiedImpl(
                                             episodeIdentifier1,
                                             episode1
                                     )
@@ -501,23 +518,23 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertNewEpisodeWithSameURLThriceTogetherAndExistingEpisodeWithSameURLThriceTogetherInsertsFirstOfNewAndUpdatesFirstOfExisting() throws Exception {
-        @Nullable final PodcastIdentifier existingPodcastIdentifier =
+        @Nullable final PodcastImpl.PodcastIdentifierImpl existingPodcastIdentifier =
                 getPodcastTable().insertPodcast(
-                        new Podcast(
+                        new PodcastImpl(
                                 new URL("http://example.com/artwork1"),
                                 "author1",
                                 new URL("http://example.com/feedB"),
                                 "name1"
                         )
-                ).orNull();
+                ).orElseNull();
         if (existingPodcastIdentifier == null) {
             fail();
         } else {
-            final EpisodeIdentifierOptList existingEpisodeIdentifierOpts =
+            final EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl existingEpisodeIdentifierOpts =
                     getTestObject().upsertEpisodes(
                             existingPodcastIdentifier,
-                            new EpisodeList(
-                                    new Episode(
+                            new EpisodeImpl.EpisodeListImpl(
+                                    new EpisodeImpl(
                                             new URL("http://example.com/episodeB/artwork1"),
                                             Duration.ofSeconds(1),
                                             DateUtil.from(
@@ -534,12 +551,12 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
             if (existingEpisodeIdentifierOpts.size() != 1) {
                 fail("Expected 1 identifier, but received: " + existingEpisodeIdentifierOpts);
             } else {
-                final @Nullable EpisodeIdentifier existingEpisodeIdentifier =
-                        existingEpisodeIdentifierOpts.get(0).orNull();
+                final @Nullable EpisodeImpl.EpisodeIdentifierImpl existingEpisodeIdentifier =
+                        existingEpisodeIdentifierOpts.get(0).orElseNull();
                 if (existingEpisodeIdentifier == null) {
                     fail();
                 } else {
-                    final Episode episode2 = new Episode(
+                    final EpisodeImpl episode2 = new EpisodeImpl(
                             new URL("http://example.com/episodeA/artwork2"),
                             Duration.ofSeconds(2),
                             DateUtil.from(
@@ -551,7 +568,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             "title2",
                             new URL("http://example.com/episodeA")
                     );
-                    final Episode episode3 = new Episode(
+                    final EpisodeImpl episode3 = new EpisodeImpl(
                             new URL("http://example.com/episodeA/artwork3"),
                             Duration.ofSeconds(3),
                             DateUtil.from(
@@ -563,7 +580,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             "title3",
                             new URL("http://example.com/episodeA")
                     );
-                    final Episode episode4 = new Episode(
+                    final EpisodeImpl episode4 = new EpisodeImpl(
                             new URL("http://example.com/episodeA/artwork4"),
                             Duration.ofSeconds(4),
                             DateUtil.from(
@@ -575,7 +592,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             "title4",
                             new URL("http://example.com/episodeA")
                     );
-                    final Episode episode5 = new Episode(
+                    final EpisodeImpl episode5 = new EpisodeImpl(
                             new URL("http://example.com/episodeB/artwork5"),
                             Duration.ofSeconds(5),
                             DateUtil.from(
@@ -587,7 +604,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             "title5",
                             new URL("http://example.com/episodeB")
                     );
-                    final Episode episode6 = new Episode(
+                    final EpisodeImpl episode6 = new EpisodeImpl(
                             new URL("http://example.com/episodeB/artwork6"),
                             Duration.ofSeconds(6),
                             DateUtil.from(
@@ -599,7 +616,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             "title6",
                             new URL("http://example.com/episodeB")
                     );
-                    final Episode episode7 = new Episode(
+                    final EpisodeImpl episode7 = new EpisodeImpl(
                             new URL("http://example.com/episodeB/artwork7"),
                             Duration.ofSeconds(7),
                             DateUtil.from(
@@ -611,7 +628,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             "title7",
                             new URL("http://example.com/episodeB")
                     );
-                    final EpisodeList upsertingEpisodes = new EpisodeList(
+                    final EpisodeImpl.EpisodeListImpl upsertingEpisodes = new EpisodeImpl.EpisodeListImpl(
                             episode2,
                             episode3,
                             episode4,
@@ -619,7 +636,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             episode6,
                             episode7
                     );
-                    final EpisodeIdentifierOptList upsertedEpisodeIdentifierOpts =
+                    final EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl upsertedEpisodeIdentifierOpts =
                             getTestObject().upsertEpisodes(
                                     existingPodcastIdentifier,
                                     upsertingEpisodes
@@ -627,8 +644,8 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     if (upsertedEpisodeIdentifierOpts.size() != upsertingEpisodes.size()) {
                         fail("Expected " + upsertingEpisodes.size() + " podcast identifiers, but got: " + upsertedEpisodeIdentifierOpts);
                     } else {
-                        @Nullable final EpisodeIdentifier insertedEpisodeIdentifier =
-                                upsertedEpisodeIdentifierOpts.get(0).orNull();
+                        @Nullable final EpisodeImpl.EpisodeIdentifierImpl insertedEpisodeIdentifier =
+                                upsertedEpisodeIdentifierOpts.get(0).orElseNull();
                         if (insertedEpisodeIdentifier == null) {
                             fail("Expected " + upsertingEpisodes.size() + " podcast identifiers, but got: " + upsertedEpisodeIdentifierOpts);
                         } else {
@@ -636,28 +653,28 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                                     upsertedEpisodeIdentifierOpts,
                                     equalTo(
                                             Arrays.asList(
-                                                    new EpisodeIdentifierOpt(insertedEpisodeIdentifier),
-                                                    new EpisodeIdentifierOpt(insertedEpisodeIdentifier),
-                                                    new EpisodeIdentifierOpt(insertedEpisodeIdentifier),
-                                                    new EpisodeIdentifierOpt(existingEpisodeIdentifier),
-                                                    new EpisodeIdentifierOpt(existingEpisodeIdentifier),
-                                                    new EpisodeIdentifierOpt(existingEpisodeIdentifier)
+                                                    new EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl(insertedEpisodeIdentifier),
+                                                    new EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl(insertedEpisodeIdentifier),
+                                                    new EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl(insertedEpisodeIdentifier),
+                                                    new EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl(existingEpisodeIdentifier),
+                                                    new EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl(existingEpisodeIdentifier),
+                                                    new EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl(existingEpisodeIdentifier)
                                             )
                                     )
                             );
 
-                            final TestObserver<EpisodeIdentifiedList> episodeTestObserver = new TestObserver<>();
+                            final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> episodeTestObserver = new TestObserver<>();
                             getTestObject()
                                     .observeQueryForEpisodeIdentifiedsForPodcast(existingPodcastIdentifier)
                                     .subscribe(episodeTestObserver);
 
                             episodeTestObserver.assertValue(
-                                    new EpisodeIdentifiedList(
-                                            new EpisodeIdentified(
+                                    new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl(
+                                            new EpisodeImpl.EpisodeIdentifiedImpl(
                                                     existingEpisodeIdentifier,
                                                     episode5
                                             ),
-                                            new EpisodeIdentified(
+                                            new EpisodeImpl.EpisodeIdentifiedImpl(
                                                     insertedEpisodeIdentifier,
                                                     episode2
                                             )
@@ -671,18 +688,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
     }
 
     public void testUpdateExistingEpisode() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode11 = new Episode(
+            final EpisodeImpl episode11 = new EpisodeImpl(
                     new URL("http://example.com/episode/artwork11"),
                     Duration.ofSeconds(11),
                     DateUtil.from(
@@ -694,15 +711,15 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title11",
                     new URL("http://example.com/episode")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode11
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier == null) {
                 fail();
             } else {
-                final Episode episode12 = new Episode(
+                final EpisodeImpl episode12 = new EpisodeImpl(
                         new URL("http://example.com/episode/artwork12"),
                         Duration.ofSeconds(12),
                         DateUtil.from(
@@ -717,7 +734,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
                 final int updatedRowCount = getTestObject().updateEpisodeIdentified(
                         podcastIdentifier,
-                        new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                 episodeIdentifier,
                                 episode12
                         )
@@ -727,14 +744,14 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         equalTo(1)
                 );
 
-                final TestObserver<EpisodeIdentifiedSet> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForAllEpisodeIdentifieds()
                         .subscribe(episodeTestObserver);
 
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedSet(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier,
                                         episode12
                                 )
@@ -745,18 +762,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
     }
 
     public void testUpdateMissingEpisode() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode11 = new Episode(
+            final EpisodeImpl episode11 = new EpisodeImpl(
                     new URL("http://example.com/episode/artwork11"),
                     Duration.ofSeconds(11),
                     DateUtil.from(
@@ -768,17 +785,17 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title11",
                     new URL("http://example.com/episode")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode11
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier == null) {
                 fail();
             } else {
                 getTestObject().deleteEpisode(episodeIdentifier);
 
-                final Episode episode12 = new Episode(
+                final EpisodeImpl episode12 = new EpisodeImpl(
                         new URL("http://example.com/episode/artwork12"),
                         Duration.ofSeconds(12),
                         DateUtil.from(
@@ -793,7 +810,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
                 final int updatedRowCount = getTestObject().updateEpisodeIdentified(
                         podcastIdentifier,
-                        new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                 episodeIdentifier,
                                 episode12
                         )
@@ -808,18 +825,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testObserveQueryForEpisodeIdentified() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode11 = new Episode(
+            final EpisodeImpl episode11 = new EpisodeImpl(
                     new URL("http://example.com/episode1/artwork11"),
                     Duration.ofSeconds(11),
                     DateUtil.from(
@@ -831,13 +848,13 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title11",
                     new URL("http://example.com/episode1")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier1 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier1 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode11
-                    ).orNull();
+                    ).orElseNull();
 
-            final Episode episode2 = new Episode(
+            final EpisodeImpl episode2 = new EpisodeImpl(
                     new URL("http://example.com/episode2/artwork"),
                     Duration.ofSeconds(2),
                     DateUtil.from(
@@ -849,25 +866,29 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title2",
                     new URL("http://example.com/episode2")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier2 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier2 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode2
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier1 == null) {
                 fail();
             } else if (episodeIdentifier2 == null) {
                 fail();
             } else {
-                final TestObserver<EpisodeIdentifiedOpt> episodeTestObserver = new TestObserver<>();
+                final TestObserver<
+                        Optional<
+                                EpisodeImpl.EpisodeIdentifiedImpl
+                                >
+                        > episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForEpisodeIdentified(episodeIdentifier1)
                         .subscribe(episodeTestObserver);
 
                 episodeTestObserver.assertValueSequence(
-                        new EpisodeIdentifiedOptList(
-                                new EpisodeIdentifiedOpt(
-                                        new EpisodeIdentified(
+                        Collections.singletonList(
+                                Optional.of(
+                                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                                 episodeIdentifier1,
                                                 episode11
                                         )
@@ -875,7 +896,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         )
                 );
 
-                final Episode episode12 = new Episode(
+                final EpisodeImpl episode12 = new EpisodeImpl(
                         new URL("http://example.com/episode/artwork12"),
                         Duration.ofSeconds(12),
                         DateUtil.from(
@@ -890,22 +911,22 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
                 getTestObject().updateEpisodeIdentified(
                         podcastIdentifier,
-                        new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                 episodeIdentifier1,
                                 episode12
                         )
                 );
 
                 episodeTestObserver.assertValueSequence(
-                        new EpisodeIdentifiedOptList(
-                                new EpisodeIdentifiedOpt(
-                                        new EpisodeIdentified(
+                        Arrays.asList(
+                                Optional.of(
+                                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                                 episodeIdentifier1,
                                                 episode11
                                         )
                                 ),
-                                new EpisodeIdentifiedOpt(
-                                        new EpisodeIdentified(
+                                Optional.of(
+                                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                                 episodeIdentifier1,
                                                 episode12
                                         )
@@ -916,20 +937,20 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 getTestObject().deleteEpisode(episodeIdentifier1);
 
                 episodeTestObserver.assertValueSequence(
-                        new EpisodeIdentifiedOptList(
-                                new EpisodeIdentifiedOpt(
-                                        new EpisodeIdentified(
+                        Arrays.asList(
+                                Optional.of(
+                                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                                 episodeIdentifier1,
                                                 episode11
                                         )
                                 ),
-                                new EpisodeIdentifiedOpt(
-                                        new EpisodeIdentified(
+                                Optional.of(
+                                        new EpisodeImpl.EpisodeIdentifiedImpl(
                                                 episodeIdentifier1,
                                                 episode12
                                         )
                                 ),
-                                EpisodeIdentifiedOpt.EMPTY
+                                Optional.empty()
                         )
                 );
             }
@@ -938,18 +959,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testObserveQueryForEpisodeIdentifiedsForPodcast() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final MatcherTestObserver<EpisodeIdentifiedList> episodeTestObserver = new MatcherTestObserver<>();
+            final MatcherTestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> episodeTestObserver = new MatcherTestObserver<>();
             getTestObject()
                     .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier)
                     .subscribe(episodeTestObserver);
@@ -960,7 +981,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     )
             );
 
-            final Episode episode11 = new Episode(
+            final EpisodeImpl episode11 = new EpisodeImpl(
                     new URL("http://example.com/episode1/artwork11"),
                     Duration.ofSeconds(11),
                     DateUtil.from(
@@ -972,11 +993,11 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title11",
                     new URL("http://example.com/episode1")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier1 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier1 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode11
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier1 == null) {
                 fail();
             } else {
@@ -989,7 +1010,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         )
                 );
 
-                final Episode episode2 = new Episode(
+                final EpisodeImpl episode2 = new EpisodeImpl(
                         new URL("http://example.com/episode2/artwork"),
                         Duration.ofSeconds(2),
                         DateUtil.from(
@@ -1001,11 +1022,11 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         "title2",
                         new URL("http://example.com/episode2")
                 );
-                @Nullable final EpisodeIdentifier episodeIdentifier2 =
+                @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier2 =
                         getTestObject().insertEpisode(
                                 podcastIdentifier,
                                 episode2
-                        ).orNull();
+                        ).orElseNull();
                 if (episodeIdentifier2 == null) {
                     fail();
                 } else {
@@ -1022,7 +1043,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             )
                     );
 
-                    final Episode episode3 = new Episode(
+                    final EpisodeImpl episode3 = new EpisodeImpl(
                             new URL("http://example.com/episode3/artwork"),
                             Duration.ofSeconds(3),
                             DateUtil.from(
@@ -1034,11 +1055,11 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                             "title3",
                             new URL("http://example.com/episode3")
                     );
-                    @Nullable final EpisodeIdentifier episodeIdentifier3 =
+                    @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier3 =
                             getTestObject().insertEpisode(
                                     podcastIdentifier,
                                     episode3
-                            ).orNull();
+                            ).orElseNull();
                     if (episodeIdentifier3 == null) {
                         fail();
                     } else {
@@ -1060,7 +1081,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                                 )
                         );
 
-                        final Episode episode12 = new Episode(
+                        final EpisodeImpl episode12 = new EpisodeImpl(
                                 new URL("http://example.com/episode/artwork12"),
                                 Duration.ofSeconds(12),
                                 DateUtil.from(
@@ -1075,7 +1096,7 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
                         getTestObject().updateEpisodeIdentified(
                                 podcastIdentifier,
-                                new EpisodeIdentified(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier1,
                                         episode12
                                 )
@@ -1140,18 +1161,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeleteEpisode() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode1 = new Episode(
+            final EpisodeImpl episode1 = new EpisodeImpl(
                     new URL("http://example.com/episode1/artwork"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
@@ -1163,13 +1184,13 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode1")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier1 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier1 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode1
-                    ).orNull();
+                    ).orElseNull();
 
-            final Episode episode2 = new Episode(
+            final EpisodeImpl episode2 = new EpisodeImpl(
                     new URL("http://example.com/episode2/artwork"),
                     Duration.ofSeconds(2),
                     DateUtil.from(
@@ -1181,11 +1202,11 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title2",
                     new URL("http://example.com/episode2")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier2 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier2 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode2
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier1 == null) {
                 fail();
             } else if (episodeIdentifier2 == null) {
@@ -1197,13 +1218,13 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         equalTo(1)
                 );
 
-                final TestObserver<EpisodeIdentifiedList> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier)
                         .subscribe(episodeTestObserver);
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedList(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier2,
                                         episode2
                                 )
@@ -1215,18 +1236,18 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testDeleteEpisodes() throws Exception {
-        final Podcast podcast = new Podcast(
+        final PodcastImpl podcast = new PodcastImpl(
                 new URL("http://example.com/artwork"),
                 "author",
                 new URL("http://example.com/feed"),
                 "name"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier =
-                getPodcastTable().upsertPodcast(podcast).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier =
+                getPodcastTable().upsertPodcast(podcast).orElseNull();
         if (podcastIdentifier == null) {
             fail();
         } else {
-            final Episode episode1 = new Episode(
+            final EpisodeImpl episode1 = new EpisodeImpl(
                     new URL("http://example.com/episode1/artwork"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
@@ -1238,13 +1259,13 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode1")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier1 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier1 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode1
-                    ).orNull();
+                    ).orElseNull();
 
-            final Episode episode2 = new Episode(
+            final EpisodeImpl episode2 = new EpisodeImpl(
                     new URL("http://example.com/episode2/artwork"),
                     Duration.ofSeconds(2),
                     DateUtil.from(
@@ -1256,13 +1277,13 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title2",
                     new URL("http://example.com/episode2")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier2 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier2 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode2
-                    ).orNull();
+                    ).orElseNull();
 
-            final Episode episode3 = new Episode(
+            final EpisodeImpl episode3 = new EpisodeImpl(
                     new URL("http://example.com/episode3/artwork"),
                     Duration.ofSeconds(3),
                     DateUtil.from(
@@ -1274,11 +1295,11 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title3",
                     new URL("http://example.com/episode3")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier3 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier3 =
                     getTestObject().insertEpisode(
                             podcastIdentifier,
                             episode3
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier1 == null) {
                 fail();
             } else if (episodeIdentifier2 == null) {
@@ -1297,13 +1318,13 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                         equalTo(2)
                 );
 
-                final TestObserver<EpisodeIdentifiedList> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier)
                         .subscribe(episodeTestObserver);
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedList(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier3,
                                         episode3
                                 )
@@ -1315,30 +1336,30 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
 
     @Test
     public void testUpsertTheSameEpisodesForMultiplePodcasts() throws Exception {
-        final Podcast podcast1 = new Podcast(
+        final PodcastImpl podcast1 = new PodcastImpl(
                 new URL("http://example.com/artwork1"),
                 "author1",
                 new URL("http://example.com/feed1"),
                 "name1"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier1 =
-                getPodcastTable().upsertPodcast(podcast1).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier1 =
+                getPodcastTable().upsertPodcast(podcast1).orElseNull();
 
-        final Podcast podcast2 = new Podcast(
+        final PodcastImpl podcast2 = new PodcastImpl(
                 new URL("http://example.com/artwork2"),
                 "author2",
                 new URL("http://example.com/feed2"),
                 "name2"
         );
-        @Nullable final PodcastIdentifier podcastIdentifier2 =
-                getPodcastTable().upsertPodcast(podcast2).orNull();
+        @Nullable final PodcastImpl.PodcastIdentifierImpl podcastIdentifier2 =
+                getPodcastTable().upsertPodcast(podcast2).orElseNull();
 
         if (podcastIdentifier1 == null) {
             fail();
         } else if (podcastIdentifier2 == null) {
             fail();
         } else {
-            final Episode episode1 = new Episode(
+            final EpisodeImpl episode1 = new EpisodeImpl(
                     new URL("http://example.com/episode1/artwork"),
                     Duration.ofSeconds(1),
                     DateUtil.from(
@@ -1350,32 +1371,32 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                     "title1",
                     new URL("http://example.com/episode1")
             );
-            @Nullable final EpisodeIdentifier episodeIdentifier11 =
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier11 =
                     getTestObject().insertEpisode(
                             podcastIdentifier1,
                             episode1
-                    ).orNull();
-            @Nullable final EpisodeIdentifier episodeIdentifier21 =
+                    ).orElseNull();
+            @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier21 =
                     getTestObject().insertEpisode(
                             podcastIdentifier2,
                             episode1
-                    ).orNull();
+                    ).orElseNull();
             if (episodeIdentifier11 == null) {
                 fail();
             } else if (episodeIdentifier21 == null) {
                 fail();
             } else {
-                final TestObserver<EpisodeIdentifiedSet> episodeTestObserver = new TestObserver<>();
+                final TestObserver<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl> episodeTestObserver = new TestObserver<>();
                 getTestObject()
                         .observeQueryForAllEpisodeIdentifieds()
                         .subscribe(episodeTestObserver);
                 episodeTestObserver.assertValue(
-                        new EpisodeIdentifiedSet(
-                                new EpisodeIdentified(
+                        new EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier11,
                                         episode1
                                 ),
-                                new EpisodeIdentified(
+                                new EpisodeImpl.EpisodeIdentifiedImpl(
                                         episodeIdentifier21,
                                         episode1
                                 )
