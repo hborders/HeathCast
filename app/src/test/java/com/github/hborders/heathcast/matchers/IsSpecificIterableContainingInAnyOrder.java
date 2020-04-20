@@ -11,71 +11,10 @@ import java.util.List;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class IsSpecificIterableContainingInAnyOrder<I extends Iterable<? extends E>, E> extends TypeSafeDiagnosingMatcher<I> {
-    private final Collection<Matcher<? super E>> matchers;
-
-    public IsSpecificIterableContainingInAnyOrder(Collection<Matcher<? super E>> matchers) {
-        this.matchers = matchers;
-    }
-
-    @Override
-    protected boolean matchesSafely(I items, Description mismatchDescription) {
-        final Matching<E> matching = new Matching<>(matchers, mismatchDescription);
-        for (E item : items) {
-            if (! matching.matches(item)) {
-                return false;
-            }
-        }
-
-        return matching.isFinished(items);
-    }
-
-    @Override
-    public void describeTo(Description description) {
-        description.appendText("iterable with items ")
-                .appendList("[", ", ", "]", matchers)
-                .appendText(" in any order");
-    }
-
-    private static final class Matching<S> {
-        private final Collection<Matcher<? super S>> matchers;
-        private final Description mismatchDescription;
-
-        public Matching(Collection<Matcher<? super S>> matchers, Description mismatchDescription) {
-            this.matchers = new ArrayList<>(matchers);
-            this.mismatchDescription = mismatchDescription;
-        }
-
-        public boolean matches(S item) {
-            if (matchers.isEmpty()) {
-                mismatchDescription.appendText("no match for: ").appendValue(item);
-                return false;
-            }
-            return isMatched(item);
-        }
-
-        public boolean isFinished(Iterable<? extends S> items) {
-            if (matchers.isEmpty()) {
-                return true;
-            }
-            mismatchDescription
-                    .appendText("no item matches: ").appendList("", ", ", "", matchers)
-                    .appendText(" in ").appendValueList("[", ", ", "]", items);
-            return false;
-        }
-
-        private boolean isMatched(S item) {
-            for (Matcher<? super S>  matcher : matchers) {
-                if (matcher.matches(item)) {
-                    matchers.remove(matcher);
-                    return true;
-                }
-            }
-            mismatchDescription.appendText("not matched: ").appendValue(item);
-            return false;
-        }
-    }
-
+public class IsSpecificIterableContainingInAnyOrder<
+        IterableType extends Iterable<? extends ItemType>,
+        ItemType
+        > extends TypeSafeDiagnosingMatcher<IterableType> {
     /**
      * <p>
      * Creates an order agnostic matcher for {@link Iterable}s that matches when a single pass over
@@ -93,11 +32,15 @@ public class IsSpecificIterableContainingInAnyOrder<I extends Iterable<? extends
      * </p>
      * <pre>assertThat(Arrays.asList("foo", "bar"), containsInAnyOrder(equalTo("bar"), equalTo("foo")))</pre>
      *
-     * @param itemMatchers
-     *     a list of matchers, each of which must be satisfied by an item provided by an examined {@link Iterable}
+     * @param itemMatchers a list of matchers, each of which must be satisfied by an item provided by an examined {@link Iterable}
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInAnyOrder(Matcher<? super E>... itemMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInAnyOrder(
+                    Matcher<? super ItemType>... itemMatchers
+    ) {
         return specificallyContainsInAnyOrder(Arrays.asList(itemMatchers));
     }
 
@@ -118,13 +61,17 @@ public class IsSpecificIterableContainingInAnyOrder<I extends Iterable<? extends
      * </p>
      * <pre>assertThat(Arrays.asList("foo", "bar"), containsInAnyOrder("bar", "foo"))</pre>
      *
-     * @param items
-     *     the items that must equal the items provided by an examined {@link Iterable} in any order
+     * @param items the items that must equal the items provided by an examined {@link Iterable} in any order
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInAnyOrder(E... items) {
-        final List<Matcher<? super E>> matchers = new ArrayList<>();
-        for (E item : items) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInAnyOrder(ItemType... items) {
+        final List<
+                Matcher<? super ItemType>
+                > matchers = new ArrayList<>();
+        for (ItemType item : items) {
             matchers.add(equalTo(item));
         }
 
@@ -146,10 +93,120 @@ public class IsSpecificIterableContainingInAnyOrder<I extends Iterable<? extends
      * <p>For example:</p>
      * <pre>assertThat(Arrays.asList("foo", "bar"), containsInAnyOrder(Arrays.asList(equalTo("bar"), equalTo("foo"))))</pre>
      *
-     * @param itemMatchers
-     *     a list of matchers, each of which must be satisfied by an item provided by an examined {@link Iterable}
+     * @param itemMatchers a list of matchers, each of which must be satisfied by an item provided by an examined {@link Iterable}
      */
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInAnyOrder(Collection<Matcher<? super E>> itemMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInAnyOrder(
+                    Collection<
+                            Matcher<? super ItemType>
+                            > itemMatchers
+    ) {
         return new IsSpecificIterableContainingInAnyOrder<>(itemMatchers);
+    }
+
+    private static final class Matching<ItemType> {
+        private final Collection<
+                Matcher<? super ItemType>
+                > matchers;
+        private final Description mismatchDescription;
+
+        public Matching(
+                Collection<
+                        Matcher<? super ItemType>
+                        > matchers,
+                Description mismatchDescription
+        ) {
+            this.matchers = new ArrayList<>(matchers);
+            this.mismatchDescription = mismatchDescription;
+        }
+
+        public boolean matches(ItemType item) {
+            if (matchers.isEmpty()) {
+                mismatchDescription
+                        .appendText("no match for: ")
+                        .appendValue(item);
+                return false;
+            }
+            return isMatched(item);
+        }
+
+        public boolean isFinished(Iterable<? extends ItemType> items) {
+            if (matchers.isEmpty()) {
+                return true;
+            }
+            mismatchDescription
+                    .appendText("no item matches: ")
+                    .appendList(
+                            "",
+                            ", ",
+                            "",
+                            matchers
+                    )
+                    .appendText(" in ")
+                    .appendValueList(
+                            "[",
+                            ", ",
+                            "]",
+                            items
+                    );
+            return false;
+        }
+
+        private boolean isMatched(ItemType item) {
+            for (Matcher<? super ItemType> matcher : matchers) {
+                if (matcher.matches(item)) {
+                    matchers.remove(matcher);
+                    return true;
+                }
+            }
+            mismatchDescription
+                    .appendText("not matched: ")
+                    .appendValue(item);
+            return false;
+        }
+    }
+
+    private final Collection<
+            Matcher<? super ItemType>
+            > matchers;
+
+    public IsSpecificIterableContainingInAnyOrder(
+            Collection<
+                    Matcher<? super ItemType>
+                    > matchers
+    ) {
+        this.matchers = matchers;
+    }
+
+    @Override
+    protected boolean matchesSafely(
+            IterableType items,
+            Description mismatchDescription
+    ) {
+        final Matching<ItemType> matching = new Matching<>(
+                matchers,
+                mismatchDescription
+        );
+        for (ItemType item : items) {
+            if (!matching.matches(item)) {
+                return false;
+            }
+        }
+
+        return matching.isFinished(items);
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("iterable with items ")
+                .appendList(
+                        "[",
+                        ", ",
+                        "]",
+                        matchers
+                )
+                .appendText(" in any order");
     }
 }

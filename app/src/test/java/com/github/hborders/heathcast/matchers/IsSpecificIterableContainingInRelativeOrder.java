@@ -12,64 +12,10 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class IsSpecificIterableContainingInRelativeOrder<I extends Iterable<? extends E>, E> extends TypeSafeDiagnosingMatcher<I> {
-    private final List<Matcher<? super E>> matchers;
-
-    public IsSpecificIterableContainingInRelativeOrder(List<Matcher<? super E>> matchers) {
-        this.matchers = matchers;
-    }
-
-    @Override
-    protected boolean matchesSafely(I iterable, Description mismatchDescription) {
-        MatchSeriesInRelativeOrder<E> matchSeriesInRelativeOrder = new MatchSeriesInRelativeOrder<>(matchers, mismatchDescription);
-        matchSeriesInRelativeOrder.processItems(iterable);
-        return matchSeriesInRelativeOrder.isFinished();
-    }
-
-    public void describeTo(Description description) {
-        description.appendText("iterable containing ").appendList("[", ", ", "]", matchers).appendText(" in relative order");
-    }
-
-    private static final class MatchSeriesInRelativeOrder<F> {
-        public final List<Matcher<? super F>> matchers;
-        private final Description mismatchDescription;
-        private int nextMatchIx = 0;
-        @Nullable
-        private F lastMatchedItem = null;
-
-        public MatchSeriesInRelativeOrder(List<Matcher<? super F>> matchers, Description mismatchDescription) {
-            this.mismatchDescription = mismatchDescription;
-            if (matchers.isEmpty()) {
-                throw new IllegalArgumentException("Should specify at least one expected element");
-            }
-            this.matchers = matchers;
-        }
-
-        public void processItems(Iterable<? extends F> iterable) {
-            for (F item : iterable) {
-                if (nextMatchIx < matchers.size()) {
-                    Matcher<? super F> matcher = matchers.get(nextMatchIx);
-                    if (matcher.matches(item)) {
-                        lastMatchedItem = item;
-                        nextMatchIx++;
-                    }
-                }
-            }
-        }
-
-        public boolean isFinished() {
-            if (nextMatchIx < matchers.size()) {
-                mismatchDescription.appendDescriptionOf(matchers.get(nextMatchIx)).appendText(" was not found");
-                if (lastMatchedItem != null) {
-                    mismatchDescription.appendText(" after ").appendValue(lastMatchedItem);
-                }
-                return false;
-            }
-            return true;
-        }
-
-    }
-
+public class IsSpecificIterableContainingInRelativeOrder<
+        IterableType extends Iterable<? extends ItemType>,
+        ItemType
+        > extends TypeSafeDiagnosingMatcher<IterableType> {
     /**
      * Creates a matcher for {@link Iterable}s that matches when a single pass over the
      * examined {@link Iterable} yields a series of items, that contains items logically equal to the
@@ -77,13 +23,17 @@ public class IsSpecificIterableContainingInRelativeOrder<I extends Iterable<? ex
      * For example:
      * <pre>assertThat(Arrays.asList("a", "b", "c", "d", "e"), containsInRelativeOrder("b", "d"))</pre>
      *
-     * @param items
-     *     the items that must be contained within items provided by an examined {@link Iterable} in the same relative order
+     * @param items the items that must be contained within items provided by an examined {@link Iterable} in the same relative order
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInRelativeOrder(E... items) {
-        List<Matcher<? super E>> matchers = new ArrayList<>();
-        for (E item : items) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInRelativeOrder(ItemType... items) {
+        List<
+                Matcher<? super ItemType>
+                > matchers = new ArrayList<>();
+        for (ItemType item : items) {
             matchers.add(equalTo(item));
         }
 
@@ -97,11 +47,15 @@ public class IsSpecificIterableContainingInRelativeOrder<I extends Iterable<? ex
      * For example:
      * <pre>assertThat(Arrays.asList("a", "b", "c", "d", "e"), containsInRelativeOrder(equalTo("b"), equalTo("d")))</pre>
      *
-     * @param itemMatchers
-     *     the matchers that must be satisfied by the items provided by an examined {@link Iterable} in the same relative order
+     * @param itemMatchers the matchers that must be satisfied by the items provided by an examined {@link Iterable} in the same relative order
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInRelativeOrder(Matcher<? super E>... itemMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInRelativeOrder(
+                    Matcher<? super ItemType>... itemMatchers
+    ) {
         return specificallyContainsInRelativeOrder(asList(itemMatchers));
     }
 
@@ -112,11 +66,105 @@ public class IsSpecificIterableContainingInRelativeOrder<I extends Iterable<? ex
      * For example:
      * <pre>assertThat(Arrays.asList("a", "b", "c", "d", "e"), contains(Arrays.asList(equalTo("b"), equalTo("d"))))</pre>
      *
-     * @param itemMatchers
-     *     a list of matchers, each of which must be satisfied by the items provided by
-     *     an examined {@link Iterable} in the same relative order
+     * @param itemMatchers a list of matchers, each of which must be satisfied by the items provided by
+     *                     an examined {@link Iterable} in the same relative order
      */
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInRelativeOrder(List<Matcher<? super E>> itemMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInRelativeOrder(
+                    List<
+                            Matcher<? super ItemType>
+                            > itemMatchers
+    ) {
         return new IsSpecificIterableContainingInRelativeOrder<>(itemMatchers);
+    }
+
+    private static final class MatchSeriesInRelativeOrder<ItemType> {
+        public final List<
+                Matcher<? super ItemType>
+                > matchers;
+        private final Description mismatchDescription;
+        private int nextMatchIx = 0;
+        @Nullable
+        private ItemType lastMatchedItem = null;
+
+        public MatchSeriesInRelativeOrder(
+                List<
+                        Matcher<? super ItemType>
+                        > matchers,
+                Description mismatchDescription
+        ) {
+            if (matchers.isEmpty()) {
+                throw new IllegalArgumentException("Should specify at least one expected element");
+            }
+            this.matchers = matchers;
+            this.mismatchDescription = mismatchDescription;
+        }
+
+        public void processItems(Iterable<? extends ItemType> iterable) {
+            for (ItemType item : iterable) {
+                if (nextMatchIx < matchers.size()) {
+                    Matcher<? super ItemType> matcher = matchers.get(nextMatchIx);
+                    if (matcher.matches(item)) {
+                        lastMatchedItem = item;
+                        nextMatchIx++;
+                    }
+                }
+            }
+        }
+
+        public boolean isFinished() {
+            if (nextMatchIx < matchers.size()) {
+                mismatchDescription
+                        .appendDescriptionOf(matchers.get(nextMatchIx))
+                        .appendText(" was not found");
+                if (lastMatchedItem != null) {
+                    mismatchDescription
+                            .appendText(" after ")
+                            .appendValue(lastMatchedItem);
+                }
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private final List<
+            Matcher<? super ItemType>
+            > matchers;
+
+    public IsSpecificIterableContainingInRelativeOrder(
+            List<
+                    Matcher<? super ItemType>
+                    > matchers
+    ) {
+        this.matchers = matchers;
+    }
+
+    @Override
+    protected boolean matchesSafely(
+            IterableType iterable,
+            Description mismatchDescription
+    ) {
+        MatchSeriesInRelativeOrder<ItemType> matchSeriesInRelativeOrder =
+                new MatchSeriesInRelativeOrder<>(
+                        matchers,
+                        mismatchDescription
+                );
+        matchSeriesInRelativeOrder.processItems(iterable);
+        return matchSeriesInRelativeOrder.isFinished();
+    }
+
+    public void describeTo(Description description) {
+        description
+                .appendText("iterable containing ")
+                .appendList(
+                        "[",
+                        ", ",
+                        "]",
+                        matchers
+                )
+                .appendText(" in relative order");
     }
 }

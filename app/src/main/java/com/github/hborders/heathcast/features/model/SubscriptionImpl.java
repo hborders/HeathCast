@@ -1,9 +1,12 @@
 package com.github.hborders.heathcast.features.model;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.dao.Subscription2;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 public final class SubscriptionImpl implements Subscription2<
         PodcastImpl.PodcastIdentifiedImpl,
@@ -111,6 +114,30 @@ public final class SubscriptionImpl implements Subscription2<
     public SubscriptionImpl(PodcastImpl.PodcastIdentifiedImpl podcastIdentified) {
         this.podcastIdentified = podcastIdentified;
     }
+
+    // Object
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SubscriptionImpl that = (SubscriptionImpl) o;
+        return podcastIdentified.equals(that.podcastIdentified);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(podcastIdentified);
+    }
+
+    @Override
+    public String toString() {
+        return "SubscriptionImpl{" +
+                "podcastIdentified=" + podcastIdentified +
+                '}';
+    }
+
+    // Podcast
 
     @Override
     public PodcastImpl.PodcastIdentifiedImpl getPodcastIdentified() {

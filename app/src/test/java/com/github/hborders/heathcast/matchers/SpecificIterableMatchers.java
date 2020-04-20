@@ -8,38 +8,74 @@ import java.util.List;
 import static org.hamcrest.Matchers.equalTo;
 
 public final class SpecificIterableMatchers {
-    private SpecificIterableMatchers() {
-    }
-
-    public static <I extends Iterable<? extends E>, E> Matcher<I> containsInAnyOrder(Matcher<? super E>... elementMatchers) {
+    @SafeVarargs
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> containsInAnyOrder(Matcher<? super ItemType>... elementMatchers) {
         return IsSpecificIterableContainingInAnyOrder.specificallyContainsInAnyOrder(elementMatchers);
     }
 
-    public static <I extends Iterable<? extends E>, E> Matcher<I> containsInAnyOrder(E... elements) {
+    @SafeVarargs
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> containsInAnyOrder(ItemType... elements) {
         return IsSpecificIterableContainingInAnyOrder.specificallyContainsInAnyOrder(elements);
     }
 
-    public static <I extends Iterable<? extends E>, E> Matcher<I> containsInAnyOrder(Collection<Matcher<? super E>> elementMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> containsInAnyOrder(
+            Collection<
+                    Matcher<? super ItemType>
+                    > elementMatchers
+    ) {
         return IsSpecificIterableContainingInAnyOrder.specificallyContainsInAnyOrder(elementMatchers);
     }
 
-    public static <I extends Iterable<? extends E>, E> Matcher<I> containsInRelativeOrder(E... elements) {
+    @SafeVarargs
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> containsInRelativeOrder(ItemType... elements) {
         return IsSpecificIterableContainingInRelativeOrder.specificallyContainsInRelativeOrder(elements);
     }
 
-    public static <I extends Iterable<? extends E>, E> Matcher<I> containsInRelativeOrder(Matcher<? super E>... elementMatchers) {
+    @SafeVarargs
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> containsInRelativeOrder(Matcher<? super ItemType>... elementMatchers) {
         return IsSpecificIterableContainingInRelativeOrder.specificallyContainsInRelativeOrder(elementMatchers);
     }
 
-    public static <I extends Iterable<? extends E>, E> Matcher<I> containsInRelativeOrder(List<Matcher<? super E>> elementMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> containsInRelativeOrder(
+            List<
+                    Matcher<? super ItemType>
+                    > elementMatchers
+    ) {
         return IsSpecificIterableContainingInRelativeOrder.specificallyContainsInRelativeOrder(elementMatchers);
     }
 
-    public static <I extends Iterable<? extends E>, E> Matcher<I> iterableWithSize(int size) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> iterableWithSize(int size) {
         return iterableWithSize(equalTo(size));
     }
 
-    public static <I extends Iterable<? extends E>, E> Matcher<I> iterableWithSize(Matcher<? super Integer> sizeMatcher) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> iterableWithSize(Matcher<? super Integer> sizeMatcher) {
         return IsSpecificIterableWithSize.specificIterableWithSize(sizeMatcher);
+    }
+
+    private SpecificIterableMatchers() {
     }
 }

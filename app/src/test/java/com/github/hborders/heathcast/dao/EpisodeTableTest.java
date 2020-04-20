@@ -4,13 +4,6 @@ import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.features.model.EpisodeImpl;
 import com.github.hborders.heathcast.features.model.PodcastImpl;
-import com.github.hborders.heathcast.models.Episode;
-import com.github.hborders.heathcast.models.EpisodeIdentified;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedList;
-import com.github.hborders.heathcast.models.EpisodeIdentifiedSet;
-import com.github.hborders.heathcast.models.EpisodeIdentifier;
-import com.github.hborders.heathcast.models.Podcast;
-import com.github.hborders.heathcast.models.PodcastIdentifier;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 import com.github.hborders.heathcast.util.DateUtil;
 

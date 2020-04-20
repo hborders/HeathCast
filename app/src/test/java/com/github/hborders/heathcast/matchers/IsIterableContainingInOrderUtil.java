@@ -9,36 +9,41 @@ import java.util.Collections;
 import static org.hamcrest.Matchers.equalTo;
 
 public final class IsIterableContainingInOrderUtil {
-    private IsIterableContainingInOrderUtil() {
-    }
-
-    public static <E> Matcher<Iterable<? extends E>> containsNothing() {
+    public static <ItemType> Matcher<
+            Iterable<? extends ItemType>
+            > containsNothing() {
         return equalTo(Collections.emptyList());
     }
 
-    public static <E> Matcher<Iterable<? extends E>> containsInOrder(Matcher<? super E> itemMatcher1) {
+    public static <ItemType> Matcher<
+            Iterable<? extends ItemType>
+            > containsInOrder(Matcher<? super ItemType> itemMatcher1) {
         return new IsIterableContainingInOrder<>(Collections.singletonList(itemMatcher1));
     }
 
-    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
-            Matcher<? super E> itemMatcher1,
-            Matcher<? super E> itemMatcher2
+    public static <ItemType> Matcher<
+            Iterable<? extends ItemType>
+            > containsInOrder(
+            Matcher<? super ItemType> itemMatcher1,
+            Matcher<? super ItemType> itemMatcher2
     ) {
         return new IsIterableContainingInOrder<>(
-                Arrays.<Matcher<? super E>>asList(
+                Arrays.<Matcher<? super ItemType>>asList(
                         itemMatcher1,
                         itemMatcher2
                 )
         );
     }
 
-    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
-            Matcher<? super E> itemMatcher1,
-            Matcher<? super E> itemMatcher2,
-            Matcher<? super E> itemMatcher3
+    public static <ItemType> Matcher<
+            Iterable<? extends ItemType>
+            > containsInOrder(
+            Matcher<? super ItemType> itemMatcher1,
+            Matcher<? super ItemType> itemMatcher2,
+            Matcher<? super ItemType> itemMatcher3
     ) {
         return new IsIterableContainingInOrder<>(
-                Arrays.<Matcher<? super E>>asList(
+                Arrays.<Matcher<? super ItemType>>asList(
                         itemMatcher1,
                         itemMatcher2,
                         itemMatcher3
@@ -46,14 +51,16 @@ public final class IsIterableContainingInOrderUtil {
         );
     }
 
-    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
-            Matcher<? super E> itemMatcher1,
-            Matcher<? super E> itemMatcher2,
-            Matcher<? super E> itemMatcher3,
-            Matcher<? super E> itemMatcher4
+    public static <ItemType> Matcher<
+            Iterable<? extends ItemType>
+            > containsInOrder(
+            Matcher<? super ItemType> itemMatcher1,
+            Matcher<? super ItemType> itemMatcher2,
+            Matcher<? super ItemType> itemMatcher3,
+            Matcher<? super ItemType> itemMatcher4
     ) {
         return new IsIterableContainingInOrder<>(
-                Arrays.<Matcher<? super E>>asList(
+                Arrays.<Matcher<? super ItemType>>asList(
                         itemMatcher1,
                         itemMatcher2,
                         itemMatcher3,
@@ -62,15 +69,17 @@ public final class IsIterableContainingInOrderUtil {
         );
     }
 
-    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
-            Matcher<? super E> itemMatcher1,
-            Matcher<? super E> itemMatcher2,
-            Matcher<? super E> itemMatcher3,
-            Matcher<? super E> itemMatcher4,
-            Matcher<? super E> itemMatcher5
+    public static <ItemType> Matcher<
+            Iterable<? extends ItemType>
+            > containsInOrder(
+            Matcher<? super ItemType> itemMatcher1,
+            Matcher<? super ItemType> itemMatcher2,
+            Matcher<? super ItemType> itemMatcher3,
+            Matcher<? super ItemType> itemMatcher4,
+            Matcher<? super ItemType> itemMatcher5
     ) {
         return new IsIterableContainingInOrder<>(
-                Arrays.<Matcher<? super E>>asList(
+                Arrays.<Matcher<? super ItemType>>asList(
                         itemMatcher1,
                         itemMatcher2,
                         itemMatcher3,
@@ -80,16 +89,18 @@ public final class IsIterableContainingInOrderUtil {
         );
     }
 
-    public static <E> Matcher<Iterable<? extends E>> containsInOrder(
-            Matcher<? super E> itemMatcher1,
-            Matcher<? super E> itemMatcher2,
-            Matcher<? super E> itemMatcher3,
-            Matcher<? super E> itemMatcher4,
-            Matcher<? super E> itemMatcher5,
-            Matcher<? super E> itemMatcher6
+    public static <ItemType> Matcher<
+            Iterable<? extends ItemType>
+            > containsInOrder(
+            Matcher<? super ItemType> itemMatcher1,
+            Matcher<? super ItemType> itemMatcher2,
+            Matcher<? super ItemType> itemMatcher3,
+            Matcher<? super ItemType> itemMatcher4,
+            Matcher<? super ItemType> itemMatcher5,
+            Matcher<? super ItemType> itemMatcher6
     ) {
         return new IsIterableContainingInOrder<>(
-                Arrays.<Matcher<? super E>>asList(
+                Arrays.<Matcher<? super ItemType>>asList(
                         itemMatcher1,
                         itemMatcher2,
                         itemMatcher3,
@@ -98,5 +109,8 @@ public final class IsIterableContainingInOrderUtil {
                         itemMatcher6
                 )
         );
+    }
+
+    private IsIterableContainingInOrderUtil() {
     }
 }

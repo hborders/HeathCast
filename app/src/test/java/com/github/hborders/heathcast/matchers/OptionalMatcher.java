@@ -10,31 +10,41 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.equalTo;
 
-public final class OptionalMatcher<T> extends TypeSafeMatcher<Optional<T>> {
-    public static <T> Matcher<Optional<T>> optionalIsNotPresent() {
+public final class OptionalMatcher<ValueType> extends TypeSafeMatcher<
+        Optional<ValueType>
+        > {
+    public static <ValueType> Matcher<
+            Optional<ValueType>
+            > optionalIsNotPresent() {
         return optionalValue(new IsNull<>());
     }
 
-    public static <T> Matcher<Optional<T>> optionalIsPresent() {
+    public static <ValueType> Matcher<
+            Optional<ValueType>
+            > optionalIsPresent() {
         return optionalValue(not(new IsNull<>()));
     }
 
-    public static <T> Matcher<Optional<T>> optionalValue(T value) {
+    public static <ValueType> Matcher<
+            Optional<ValueType>
+            > optionalValue(ValueType value) {
         return optionalValue(equalTo(value));
     }
 
-    public static <T> Matcher<Optional<T>> optionalValue(Matcher<T> valueMatcher) {
-        return new OptionalMatcher<T>(valueMatcher);
+    public static <ValueType> Matcher<
+            Optional<ValueType>
+            > optionalValue(Matcher<ValueType> valueMatcher) {
+        return new OptionalMatcher<ValueType>(valueMatcher);
     }
 
-    private final Matcher<T> valueMatcher;
+    private final Matcher<ValueType> valueMatcher;
 
-    public OptionalMatcher(Matcher<T> valueMatcher) {
+    public OptionalMatcher(Matcher<ValueType> valueMatcher) {
         this.valueMatcher = valueMatcher;
     }
 
     @Override
-    protected boolean matchesSafely(Optional<T> item) {
+    protected boolean matchesSafely(Optional<ValueType> item) {
         return valueMatcher.matches(item.orElse(null));
     }
 

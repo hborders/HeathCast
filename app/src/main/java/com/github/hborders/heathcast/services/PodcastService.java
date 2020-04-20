@@ -753,15 +753,6 @@ public final class PodcastService<
         }
     }
 
-//    public Observable<ServiceResponse<PodcastIdentifiedList>> fetchEpisodes2(
-//            @Nullable NetworkPauser networkPauser,
-//            URL url
-//    ) {
-//        // need to cache fetched episodes
-//        // need to build component for performing network fetches that supports client caching
-//        // so I can reuse all the code in searchForPodcasts2
-//    }
-
     public Single<EpisodeIdentifiedListType> fetchEpisodeIdentifieds(URL url) {
         final Request request = new Request.Builder().url(url).build();
         final Call call = okHttpClient.newCall(request);

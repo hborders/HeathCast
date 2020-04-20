@@ -13,76 +13,37 @@ import static java.util.Collections.emptySet;
 import static org.hamcrest.Matchers.equalTo;
 
 public final class MarkedValueMatchers {
-    private MarkedValueMatchers() {
-    }
-
-    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(V value) {
-        return markedValue(
-                emptySet(),
-                value
-        );
-    }
-
-    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(Matcher<V> valueMatcher) {
-        return markedValue(
-                equalTo(emptySet()),
-                valueMatcher
-        );
-    }
-
-    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(
-            M marker,
-            V value
-    ) {
-        return markedValue(
-                Collections.singleton(marker),
-                value
-        );
-    }
-
-    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(
-            M marker,
-            Matcher<V> valueMatcher) {
-        return markedValue(
-                equalTo(Collections.singleton(marker)),
-                valueMatcher
-        );
-    }
-
-    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(
-            Set<M> markers,
-            V value
-    ) {
-        return markedValue(
-                equalTo(markers),
-                equalTo(value)
-        );
-    }
-
-    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(
-            Matcher<Set<M>> markerMatcher,
-            Matcher<V> valueMatcher
-    ) {
-        return new MarkedValueMatcher<>(
-                markerMatcher,
-                valueMatcher
-        );
-    }
-
-    public static final class MarkedValueMatcher<M, V> extends TypeSafeMatcher<MarkedValue<M, V>> {
-        private final Matcher<Set<M>> markerMatcher;
-        private final Matcher<V> valueMatcher;
+    public static final class MarkedValueMatcher<
+            MarkerType,
+            ValueType
+            > extends TypeSafeMatcher<
+            MarkedValue<
+                    MarkerType,
+                    ValueType
+                    >
+            > {
+        private final Matcher<
+                Set<MarkerType>
+                > markerMatcher;
+        private final Matcher<ValueType> valueMatcher;
 
         public MarkedValueMatcher(
-                Matcher<Set<M>> markerMatcher,
-                Matcher<V> valueMatcher
+                Matcher<
+                        Set<MarkerType>
+                        > markerMatcher,
+                Matcher<ValueType> valueMatcher
         ) {
             this.markerMatcher = markerMatcher;
             this.valueMatcher = valueMatcher;
         }
 
         @Override
-        protected boolean matchesSafely(MarkedValue<M, V> item) {
+        protected boolean matchesSafely(
+                MarkedValue<
+                        MarkerType,
+                        ValueType
+                        > item
+        ) {
             return markerMatcher.matches(item.markers) && valueMatcher.matches(item.value);
         }
 
@@ -93,5 +54,101 @@ public final class MarkedValueMatchers {
                     .appendText(", ")
                     .appendDescriptionOf(valueMatcher);
         }
+    }
+
+    public static <M, V> Matcher<MarkedValue<M, V>> markedValue(V value) {
+        return markedValue(
+                emptySet(),
+                value
+        );
+    }
+
+    public static <
+            MarkerType,
+            ValueType
+            > Matcher<
+            MarkedValue<
+                    MarkerType,
+                    ValueType
+                    >
+            > markedValue(Matcher<ValueType> valueMatcher) {
+        return markedValue(
+                equalTo(emptySet()),
+                valueMatcher
+        );
+    }
+
+    public static <
+            MarkerType,
+            ValueType
+            > Matcher<
+            MarkedValue<
+                    MarkerType,
+                    ValueType
+                    >
+            > markedValue(
+            MarkerType marker,
+            ValueType value
+    ) {
+        return markedValue(
+                Collections.singleton(marker),
+                value
+        );
+    }
+
+    public static <
+            MarkerType,
+            ValueType
+            > Matcher<
+            MarkedValue<
+                    MarkerType,
+                    ValueType
+                    >
+            > markedValue(
+            MarkerType marker,
+            Matcher<ValueType> valueMatcher) {
+        return markedValue(
+                equalTo(Collections.singleton(marker)),
+                valueMatcher
+        );
+    }
+
+    public static <
+            MarkerType,
+            ValueType
+            > Matcher<
+            MarkedValue<
+                    MarkerType,
+                    ValueType
+                    >
+            > markedValue(
+            Set<MarkerType> markers,
+            ValueType value
+    ) {
+        return markedValue(
+                equalTo(markers),
+                equalTo(value)
+        );
+    }
+
+    public static <
+            MarkerType,
+            ValueType
+            > Matcher<
+            MarkedValue<
+                    MarkerType,
+                    ValueType
+                    >
+            > markedValue(
+            Matcher<Set<MarkerType>> markerMatcher,
+            Matcher<ValueType> valueMatcher
+    ) {
+        return new MarkedValueMatcher<>(
+                markerMatcher,
+                valueMatcher
+        );
+    }
+
+    private MarkedValueMatchers() {
     }
 }

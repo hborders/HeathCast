@@ -7,22 +7,13 @@ import java.util.Iterator;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class IsSpecificIterableWithSize<I extends Iterable<? extends E>, E> extends FeatureMatcher<I, Integer> {
-
-    public IsSpecificIterableWithSize(Matcher<? super Integer> sizeMatcher) {
-        super(sizeMatcher, "an iterable with size", "iterable size");
-    }
-
-
-    @Override
-    protected Integer featureValueOf(I actual) {
-        int size = 0;
-        for (Iterator<? extends E> iterator = actual.iterator(); iterator.hasNext(); iterator.next()) {
-            size++;
-        }
-        return size;
-    }
-
+public class IsSpecificIterableWithSize<
+        IterableType extends Iterable<? extends ItemType>,
+        ItemType
+        > extends FeatureMatcher<
+        IterableType,
+        Integer
+        > {
     /**
      * Creates a matcher for {@link Iterable}s that matches when a single pass over the
      * examined {@link Iterable} yields an item count that satisfies the specified
@@ -33,8 +24,11 @@ public class IsSpecificIterableWithSize<I extends Iterable<? extends E>, E> exte
      * @param sizeMatcher
      *     a matcher for the number of items that should be yielded by an examined {@link Iterable}
      */
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificIterableWithSize(Matcher<? super Integer> sizeMatcher) {
-        return new IsSpecificIterableWithSize<I, E>(sizeMatcher);
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificIterableWithSize(Matcher<? super Integer> sizeMatcher) {
+        return new IsSpecificIterableWithSize<IterableType, ItemType>(sizeMatcher);
     }
 
     /**
@@ -47,7 +41,24 @@ public class IsSpecificIterableWithSize<I extends Iterable<? extends E>, E> exte
      * @param size
      *     the number of items that should be yielded by an examined {@link Iterable}
      */
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificIterableWithSize(int size) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificIterableWithSize(int size) {
         return specificIterableWithSize(equalTo(size));
+    }
+
+    public IsSpecificIterableWithSize(Matcher<? super Integer> sizeMatcher) {
+        super(sizeMatcher, "an iterable with size", "iterable size");
+    }
+
+
+    @Override
+    protected Integer featureValueOf(IterableType actual) {
+        int size = 0;
+        for (Iterator<? extends ItemType> iterator = actual.iterator(); iterator.hasNext(); iterator.next()) {
+            size++;
+        }
+        return size;
     }
 }

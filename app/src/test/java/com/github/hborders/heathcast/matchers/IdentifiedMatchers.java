@@ -1,7 +1,7 @@
 package com.github.hborders.heathcast.matchers;
 
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.dao.Identified2;
+import com.github.hborders.heathcast.dao.Identifier2;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -10,35 +10,23 @@ import org.hamcrest.TypeSafeMatcher;
 import static org.hamcrest.Matchers.equalTo;
 
 public final class IdentifiedMatchers {
-    private IdentifiedMatchers() {
-    }
+    public static final class IdentifiedIdentifierMatcher<
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier2,
+            ModelType
+            > extends TypeSafeMatcher<IdentifiedType> {
+        private final Matcher<IdentifierType> identifierMatcher;
 
-    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedIdentifier(Matcher<I> identifierMatcher) {
-        return new IdentifiedIdentifierMatcher<>(identifierMatcher);
-    }
-
-    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedIdentifier(I identifier) {
-        return identifiedIdentifier(equalTo(identifier));
-    }
-
-    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedModel(Matcher<M> modelMatcher) {
-        return new IdentifiedModelMatcher<>(modelMatcher);
-    }
-
-    public static <I extends Identifier<M>, J extends Identified<I, M>, M> Matcher<J> identifiedModel(M model) {
-        return identifiedModel(equalTo(model));
-    }
-
-    public static final class IdentifiedIdentifierMatcher<I extends Identifier<M>, J extends Identified<I, M>, M> extends TypeSafeMatcher<J> {
-        private final Matcher<I> identifierMatcher;
-
-        public IdentifiedIdentifierMatcher(Matcher<I> identifierMatcher) {
+        public IdentifiedIdentifierMatcher(Matcher<IdentifierType> identifierMatcher) {
             this.identifierMatcher = identifierMatcher;
         }
 
         @Override
-        protected boolean matchesSafely(J item) {
-            return identifierMatcher.matches(item.identifier);
+        protected boolean matchesSafely(IdentifiedType item) {
+            return identifierMatcher.matches(item.getIdentifier());
         }
 
         @Override
@@ -49,16 +37,23 @@ public final class IdentifiedMatchers {
         }
     }
 
-    public static final class IdentifiedModelMatcher<I extends Identifier<M>, J extends Identified<I, M>, M> extends TypeSafeMatcher<J> {
-        private final Matcher<M> modelMatcher;
+    public static final class IdentifiedModelMatcher<
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier2,
+            ModelType
+            > extends TypeSafeMatcher<IdentifiedType> {
+        private final Matcher<ModelType> modelMatcher;
 
-        public IdentifiedModelMatcher(Matcher<M> modelMatcher) {
+        public IdentifiedModelMatcher(Matcher<ModelType> modelMatcher) {
             this.modelMatcher = modelMatcher;
         }
 
         @Override
-        protected boolean matchesSafely(J item) {
-            return modelMatcher.matches(item.model);
+        protected boolean matchesSafely(IdentifiedType item) {
+            return modelMatcher.matches(item.getModel());
         }
 
         @Override
@@ -67,5 +62,52 @@ public final class IdentifiedMatchers {
                     .appendText("Identified model matches ")
                     .appendDescriptionOf(modelMatcher);
         }
+    }
+
+    public static <
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier2,
+            ModelType
+            > Matcher<IdentifiedType> identifiedIdentifier(Matcher<IdentifierType> identifierMatcher) {
+        return new IdentifiedIdentifierMatcher<>(identifierMatcher);
+    }
+
+    public static <
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier2,
+            ModelType
+            > Matcher<IdentifiedType> identifiedIdentifier(IdentifierType identifier) {
+        return identifiedIdentifier(equalTo(identifier));
+    }
+
+    public static <
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier2,
+            ModelType
+            > Matcher<IdentifiedType> identifiedModel(Matcher<ModelType> modelMatcher) {
+        return new IdentifiedModelMatcher<>(modelMatcher);
+    }
+
+    public static <
+            IdentifiedType extends Identified2<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier2,
+            ModelType
+            > Matcher<IdentifiedType> identifiedModel(ModelType model) {
+        return identifiedModel(equalTo(model));
+    }
+
+    private IdentifiedMatchers() {
     }
 }

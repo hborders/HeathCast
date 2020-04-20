@@ -11,76 +11,10 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.ArrayMatching.asEqualMatchers;
 
-public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>, E> extends TypeSafeDiagnosingMatcher<I> {
-    private final List<Matcher<? super E>> matchers;
-
-    public IsSpecificIterableContainingInOrder(List<Matcher<? super E>> matchers) {
-        this.matchers = matchers;
-    }
-
-    @Override
-    protected boolean matchesSafely(I iterable, Description mismatchDescription) {
-        final MatchSeries<E> matchSeries = new MatchSeries<>(matchers, mismatchDescription);
-        for (E item : iterable) {
-            if (!matchSeries.matches(item)) {
-                return false;
-            }
-        }
-
-        return matchSeries.isFinished();
-    }
-
-    @Override
-    public void describeTo(Description description) {
-        description.appendText("iterable containing ").appendList("[", ", ", "]", matchers);
-    }
-
-    private final static class MatchSeries<F> {
-        private final List<Matcher<? super F>> matchers;
-        private final Description mismatchDescription;
-        private int nextMatchIx = 0;
-
-        public MatchSeries(List<Matcher<? super F>> matchers, Description mismatchDescription) {
-            this.mismatchDescription = mismatchDescription;
-            if (matchers.isEmpty()) {
-                throw new IllegalArgumentException("Should specify at least one expected element");
-            }
-            this.matchers = matchers;
-        }
-
-        public boolean matches(F item) {
-            if (matchers.size() <= nextMatchIx) {
-                mismatchDescription.appendText("not matched: ").appendValue(item);
-                return false;
-            }
-
-            return isMatched(item);
-        }
-
-        public boolean isFinished() {
-            if (nextMatchIx < matchers.size()) {
-                mismatchDescription.appendText("no item was ").appendDescriptionOf(matchers.get(nextMatchIx));
-                return false;
-            }
-            return true;
-        }
-
-        private boolean isMatched(F item) {
-            final Matcher<? super F> matcher = matchers.get(nextMatchIx);
-            if (!matcher.matches(item)) {
-                describeMismatch(matcher, item);
-                return false;
-            }
-            nextMatchIx++;
-            return true;
-        }
-
-        private void describeMismatch(Matcher<? super F> matcher, F item) {
-            mismatchDescription.appendText("item " + nextMatchIx + ": ");
-            matcher.describeMismatch(item, mismatchDescription);
-        }
-    }
-
+public class IsSpecificIterableContainingInOrder<
+        IterableType extends Iterable<? extends ItemType>,
+        ItemType
+        > extends TypeSafeDiagnosingMatcher<IterableType> {
     /**
      * Creates a matcher for {@link Iterable}s that matches when a single pass over the
      * examined {@link Iterable} yields a series of items, each logically equal to the
@@ -93,7 +27,9 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      *     the items that must equal the items provided by an examined {@link Iterable}
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInOrder(E... items) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType> Matcher<IterableType> specificallyContainsInOrder(ItemType... items) {
         return specificallyContainsInOrder(asEqualMatchers(items));
     }
 
@@ -109,7 +45,10 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      *     examined {@link Iterable}
      */
     @SuppressWarnings("unchecked")
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContains2(final Matcher<E> itemMatcher) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContains2(final Matcher<ItemType> itemMatcher) {
         return specificallyContainsInOrder(new ArrayList<>(singletonList(itemMatcher)));
     }
 
@@ -125,10 +64,13 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      *     the matchers that must be satisfied by the items provided by an examined {@link Iterable}
      */
     @SafeVarargs
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInOrder(Matcher<? super E>... itemMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInOrder(Matcher<? super ItemType>... itemMatchers) {
         // required for JDK 1.6
         //noinspection RedundantTypeArguments
-        final List<Matcher<? super E>> nullSafeWithExplicitTypeMatchers = NullSafety.<E>nullSafe(itemMatchers);
+        final List<Matcher<? super ItemType>> nullSafeWithExplicitTypeMatchers = NullSafety.<ItemType>nullSafe(itemMatchers);
         return specificallyContainsInOrder(nullSafeWithExplicitTypeMatchers);
     }
 
@@ -144,7 +86,105 @@ public class IsSpecificIterableContainingInOrder<I extends Iterable<? extends E>
      *     a list of matchers, each of which must be satisfied by the corresponding item provided by
      *     an examined {@link Iterable}
      */
-    public static <I extends Iterable<? extends E>, E> Matcher<I> specificallyContainsInOrder(List<Matcher<? super E>> itemMatchers) {
+    public static <
+            IterableType extends Iterable<? extends ItemType>,
+            ItemType
+            > Matcher<IterableType> specificallyContainsInOrder(List<Matcher<? super ItemType>> itemMatchers) {
         return new IsSpecificIterableContainingInOrder<>(itemMatchers);
+    }
+
+    private final static class MatchSeries<ItemType> {
+        private final List<Matcher<? super ItemType>> matchers;
+        private final Description mismatchDescription;
+        private int nextMatchIx = 0;
+
+        public MatchSeries(
+                List<Matcher<? super ItemType>> matchers,
+                Description mismatchDescription
+        ) {
+            if (matchers.isEmpty()) {
+                throw new IllegalArgumentException("Should specify at least one expected element");
+            }
+            this.matchers = matchers;
+            this.mismatchDescription = mismatchDescription;
+        }
+
+        public boolean matches(ItemType item) {
+            if (matchers.size() <= nextMatchIx) {
+                mismatchDescription
+                        .appendText("not matched: ")
+                        .appendValue(item);
+                return false;
+            }
+
+            return isMatched(item);
+        }
+
+        public boolean isFinished() {
+            if (nextMatchIx < matchers.size()) {
+                mismatchDescription
+                        .appendText("no item was ")
+                        .appendDescriptionOf(matchers.get(nextMatchIx));
+                return false;
+            }
+            return true;
+        }
+
+        private boolean isMatched(ItemType item) {
+            final Matcher<? super ItemType> matcher = matchers.get(nextMatchIx);
+            if (!matcher.matches(item)) {
+                describeMismatch(
+                        matcher,
+                        item
+                );
+                return false;
+            }
+            nextMatchIx++;
+            return true;
+        }
+
+        private void describeMismatch(Matcher<? super ItemType> matcher, ItemType item) {
+            mismatchDescription.appendText("item " + nextMatchIx + ": ");
+            matcher.describeMismatch(
+                    item,
+                    mismatchDescription
+            );
+        }
+    }
+
+    private final List<Matcher<? super ItemType>> matchers;
+
+    public IsSpecificIterableContainingInOrder(List<Matcher<? super ItemType>> matchers) {
+        this.matchers = matchers;
+    }
+
+    @Override
+    protected boolean matchesSafely(
+            IterableType iterable,
+            Description mismatchDescription
+    ) {
+        final MatchSeries<ItemType> matchSeries = new MatchSeries<>(
+                matchers,
+                mismatchDescription
+        );
+        for (ItemType item : iterable) {
+            if (!matchSeries.matches(item)) {
+                return false;
+            }
+        }
+
+        return matchSeries.isFinished();
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description
+                .appendText("iterable containing ")
+                .appendList(
+                        "[",
+                        ", ",
+                        "]",
+                        matchers
+                );
     }
 }

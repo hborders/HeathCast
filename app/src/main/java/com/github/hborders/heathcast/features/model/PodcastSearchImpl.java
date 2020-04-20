@@ -1,9 +1,12 @@
 package com.github.hborders.heathcast.features.model;
 
+import androidx.annotation.Nullable;
+
 import com.github.hborders.heathcast.dao.PodcastSearch2;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 public final class PodcastSearchImpl implements PodcastSearch2 {
     public static final class PodcastSearchIdentifiedImpl
@@ -103,6 +106,30 @@ public final class PodcastSearchImpl implements PodcastSearch2 {
     public PodcastSearchImpl(String search) {
         this.search = search;
     }
+
+    // Object
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PodcastSearchImpl that = (PodcastSearchImpl) o;
+        return search.equals(that.search);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(search);
+    }
+
+    @Override
+    public String toString() {
+        return "PodcastSearchImpl{" +
+                "search='" + search + '\'' +
+                '}';
+    }
+
+    // PodcastSearch
 
     @Override
     public String getSearch() {

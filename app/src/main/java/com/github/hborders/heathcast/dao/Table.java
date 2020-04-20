@@ -9,13 +9,9 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt;
-import com.github.hborders.heathcast.core.Opt.Factory;
 import com.github.hborders.heathcast.core.Opt2;
 import com.github.hborders.heathcast.core.SortedSetUtil;
 import com.github.hborders.heathcast.core.Tuple;
-import com.github.hborders.heathcast.models.Identified;
-import com.github.hborders.heathcast.models.Identifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.ArrayList;
@@ -28,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,22 +38,6 @@ abstract class Table<MarkerType> {
 
     protected Table(DimDatabase<MarkerType> dimDatabase) {
         this.dimDatabase = dimDatabase;
-    }
-
-    protected static void putIdentifier(
-            ContentValues contentValues,
-            String key,
-            Identified<?, ?> identified
-    ) {
-        putIdentifier(contentValues, key, identified.identifier);
-    }
-
-    protected static void putIdentifier(
-            ContentValues contentValues,
-            String key,
-            Identifier<?> identifier
-    ) {
-        contentValues.put(key, identifier.id);
     }
 
     protected static <
@@ -161,137 +140,6 @@ abstract class Table<MarkerType> {
             transaction.markSuccessful();
 
             return upsertedIdentifierOpt;
-        }
-    }
-
-    protected final <
-            IdentifierType extends Identifier<ModelType>,
-            IdentifiedType extends Identified<IdentifierType, ModelType>,
-            ModelListType extends List<ModelType>,
-            IdentifierOptListType extends List<IdentifierOptType>,
-            ModelType,
-            IdentifierOptFactoryType extends Factory<IdentifierOptType, IdentifierType>,
-            IdentifierOptType extends Opt<IdentifierType>,
-            SecondaryKeyType
-            > IdentifierOptListType upsertModels(
-            UpsertAdapter<SecondaryKeyType> upsertAdapter,
-            // secondaryKeyClass exists to force S not to be Serializable or some other
-            // unexpected superclass of unrelated Model and Cursor property classes.
-            // however, we don't actually need the parameter, so we suppress unused.
-            @SuppressWarnings("unused") Class<SecondaryKeyType> secondaryKeyClass,
-            ModelListType models,
-            Function<ModelType, SecondaryKeyType> modelSecondaryKeyGetter,
-            Function<Long, IdentifierType> identifierFactory,
-            BiFunction<IdentifierType, ModelType, IdentifiedType> identifiedFactory,
-            Function<ModelType, IdentifierOptType> modelInserter,
-            Function<IdentifiedType, Integer> identifiedUpdater,
-            IdentifierOptFactoryType optFactory,
-            CollectionFactory.Capacity<IdentifierOptListType, IdentifierOptType> capacityCollectionFactory
-    ) {
-        if (models.isEmpty()) {
-            return capacityCollectionFactory.newCollection(0);
-        } else {
-            try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
-                final SortedSetUtil<Tuple<Integer, ModelType>> indexedModelSortedSetUtil =
-                        new SortedSetUtil<>(
-                                Comparator.comparing(
-                                        indexedModel ->
-                                                indexedModel.first
-                                )
-                        );
-                final Map<SecondaryKeyType, SortedSet<Tuple<Integer, ModelType>>> indexedModelSetsBySecondaryKey =
-                        indexedStream(models)
-                                .collect(
-                                        Collectors.toMap(
-                                                modelSecondaryKeyGetter.compose(Tuple::getSecond),
-                                                indexedModelSortedSetUtil::singletonSortedSet,
-                                                indexedModelSortedSetUtil::union,
-                                                // LinkedHashMap is important here to ensure that
-                                                // we iterate through inserted elements in the same
-                                                // order as we receive them in the models List.
-                                                LinkedHashMap::new
-                                        )
-                                );
-
-                final SupportSQLiteQuery primaryKeyAndSecondaryKeyQuery =
-                        upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(indexedModelSetsBySecondaryKey.keySet());
-                // Again, LinkedHashSet is important here to ensure that we iterate through inserted
-                // elements in the same order as we receive them in the models list.
-                // the above LinkedHashMap preserves that order in its keySet, and LinkedHashSet
-                // preserves that order as well.
-                final LinkedHashSet<SecondaryKeyType> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
-                final List<IdentifiedType> updatingIdentifieds = new ArrayList<>(models.size());
-                try (final Cursor primaryKeyAndSecondaryKeyCursor = dimDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
-                    while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
-                        final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
-                        final SecondaryKeyType secondaryKey = upsertAdapter.getSecondaryKey(primaryKeyAndSecondaryKeyCursor);
-                        @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
-                                indexedModelSetsBySecondaryKey.get(secondaryKey);
-                        if (indexedModelSet == null) {
-                            throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
-                        } else {
-                            final ModelType model = indexedModelSet.iterator().next().second;
-                            insertingSecondaryKeys.remove(secondaryKey);
-
-                            final IdentifierType updatingIdentifier = identifierFactory.apply(primaryKey);
-                            final IdentifiedType updatingIdentified = identifiedFactory.apply(
-                                    updatingIdentifier,
-                                    model
-                            );
-                            updatingIdentifieds.add(updatingIdentified);
-                        }
-                    }
-                }
-
-                final int capacity = models.size();
-                final IdentifierOptListType upsertedIdentifierOpts = capacityCollectionFactory.newCollection(capacity);
-                for (int i = 0; i < capacity; i++) {
-                    upsertedIdentifierOpts.add(optFactory.empty());
-                }
-                for (final SecondaryKeyType secondaryKey : insertingSecondaryKeys) {
-                    @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
-                            indexedModelSetsBySecondaryKey.get(secondaryKey);
-                    if (indexedModelSet == null) {
-                        throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
-                    } else {
-                        final ModelType model = indexedModelSet.iterator().next().second;
-                        final IdentifierOptType identifierOpt =
-                                modelInserter.apply(model);
-                        if (identifierOpt.value != null) {
-                            for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
-                                upsertedIdentifierOpts.set(
-                                        indexedModel.first,
-                                        identifierOpt
-                                );
-                            }
-                        }
-                    }
-                }
-
-                for (final IdentifiedType updatingIdentified : updatingIdentifieds) {
-                    final int rowCount = identifiedUpdater.apply(updatingIdentified);
-                    if (rowCount == 1) {
-                        final SecondaryKeyType secondaryKey =
-                                modelSecondaryKeyGetter.apply(updatingIdentified.model);
-                        @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
-                                indexedModelSetsBySecondaryKey.get(secondaryKey);
-                        if (indexedModelSet == null) {
-                            throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
-                        } else {
-                            for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
-                                upsertedIdentifierOpts.set(
-                                        indexedModel.first,
-                                        optFactory.of(updatingIdentified.identifier)
-                                );
-                            }
-                        }
-                    }
-                }
-
-                transaction.markSuccessful();
-
-                return upsertedIdentifierOpts;
-            }
         }
     }
 
@@ -451,21 +299,6 @@ abstract class Table<MarkerType> {
                 return upsertedIdentifierOpts;
             }
         }
-    }
-
-    protected static <
-            IdentifierType extends Identifier<ModelType>,
-            ModelType,
-            IdentifierCollectionType extends Collection<IdentifierType>
-            > String[] idStrings(IdentifierCollectionType identifiers) {
-        final String[] idStrings = new String[identifiers.size()];
-        int i = 0;
-        for (Identifier<?> identifier : identifiers) {
-            idStrings[i] = Long.toString(identifier.id);
-            i++;
-        }
-
-        return idStrings;
     }
 
     protected static <

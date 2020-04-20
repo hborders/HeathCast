@@ -7,7 +7,6 @@ import com.github.hborders.heathcast.features.model.EpisodeImpl;
 import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
 import com.github.hborders.heathcast.features.model.SubscriptionImpl;
-import com.github.hborders.heathcast.models.SubscriptionIdentifier;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 import com.github.hborders.heathcast.util.DateUtil;
 import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;

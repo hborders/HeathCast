@@ -5,10 +5,6 @@ import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
 import com.github.hborders.heathcast.features.model.SubscriptionImpl;
 import com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder;
-import com.github.hborders.heathcast.models.PodcastIdentified;
-import com.github.hborders.heathcast.models.PodcastIdentifiedList;
-import com.github.hborders.heathcast.models.PodcastSearch;
-import com.github.hborders.heathcast.models.PodcastSearchIdentifiedList;
 import com.github.hborders.heathcast.reactivex.MatcherTestObserver;
 
 import org.junit.Test;
@@ -21,7 +17,6 @@ import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifi
 import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
-import static com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder.specificallyContainsInOrder;
 import static com.github.hborders.heathcast.matchers.ServiceResponseMatchers.serviceResponseComplete;
 import static com.github.hborders.heathcast.matchers.ServiceResponseMatchers.serviceResponseLoading;
 import static org.hamcrest.CoreMatchers.anything;
@@ -105,7 +100,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         planetMoneyMatcherTestObserver.assertValueSequenceThat(
                 IsSpecificIterableContainingInOrder.specificallyContainsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         )
                 )
@@ -118,14 +113,14 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         planetMoneyMatcherTestObserver.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 specificallyEmpty()
                         ),
                         // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponseComplete(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 not(empty())
                         )
                 )
@@ -176,7 +171,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         theIndicatorMatcherTestObserver.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         )
                 )
@@ -193,14 +188,14 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         theIndicatorMatcherTestObserver.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         ),
                         // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponseComplete(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 not(empty())
                         )
                 )
@@ -266,13 +261,13 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         planetMoneyMatcherTestObserver1.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         ),
                         // a second empty loading is expected because the new search
                         // causes an upsert, which will trigger a new fetch
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         )
                 )
@@ -285,18 +280,18 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         planetMoneyMatcherTestObserver1.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         ),
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         ),
                         // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponseComplete(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 not(empty())
                         )
                 )
@@ -307,14 +302,14 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         planetMoneyMatcherTestObserver2.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         ),
                         // the first request finished, so we should get results
                         // from it, but we're still loading because our request didn't
                         // finish
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 not(empty())
                         )
                 )
@@ -327,18 +322,18 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
         planetMoneyMatcherTestObserver2.assertValueSequenceThat(
                 containsInOrder(
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 empty()
                         ),
                         serviceResponseLoading(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 not(empty())
                         ),
                         // there is a race where List<PodcastIdentified> or ServiceRequestState
                         // could change first, so just ignore this value.
                         anything(),
                         serviceResponseComplete(
-                                PodcastListServiceResponse.class,
+                                TestPodcastListServiceResponse.class,
                                 not(empty())
                         )
                 )

@@ -8,14 +8,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public final class CollectionMatchers {
-    public static <T> Matcher<? extends Collection<T>> collectionHasDistinctElements() {
-        return new DistinctElementsMatcher<>();
-    }
-
-    public static final class DistinctElementsMatcher<T> extends TypeSafeMatcher<Collection<T>> {
+    public static final class DistinctElementsMatcher<ItemType> extends TypeSafeMatcher<Collection<ItemType>> {
         @Override
-        protected boolean matchesSafely(Collection<T> item) {
-            final HashSet<T> distinctElements = new HashSet<>(item);
+        protected boolean matchesSafely(Collection<ItemType> item) {
+            final HashSet<ItemType> distinctElements = new HashSet<>(item);
             return distinctElements.size() == item.size();
         }
 
@@ -23,5 +19,9 @@ public final class CollectionMatchers {
         public void describeTo(Description description) {
             description.appendText("has distinct elements");
         }
+    }
+
+    public static <ItemType> Matcher<? extends Collection<ItemType>> collectionHasDistinctElements() {
+        return new DistinctElementsMatcher<>();
     }
 }

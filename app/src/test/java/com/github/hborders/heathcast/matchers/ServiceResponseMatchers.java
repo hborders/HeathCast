@@ -7,9 +7,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 public final class ServiceResponseMatchers {
-    private ServiceResponseMatchers() {
-    }
-
     public static <
             ServiceResponseType extends ServiceResponse<
                     LoadingType,
@@ -341,5 +338,8 @@ public final class ServiceResponseMatchers {
                     .appendText("ServiceResponse is failed and value matches ")
                     .appendDescriptionOf(valueMatcher);
         }
+    }
+
+    private ServiceResponseMatchers() {
     }
 }

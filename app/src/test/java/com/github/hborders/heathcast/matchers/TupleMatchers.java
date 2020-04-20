@@ -9,47 +9,35 @@ import org.hamcrest.TypeSafeMatcher;
 import static org.hamcrest.Matchers.equalTo;
 
 public final class TupleMatchers {
-    public static <F, S> Matcher<Tuple<F, S>> tupleFirst(F first) {
-        return tupleFirst(equalTo(first));
-    }
-
-    public static <F, S> Matcher<Tuple<F, S>> tupleSecond(S second) {
-        return tupleSecond(equalTo(second));
-    }
-
-    public static <F, S> Matcher<Tuple<F, S>> tuple(
-            Matcher<? super F> firstMatcher,
-            Matcher<? super S> secondMatcher
-    ) {
-        return new TupleBothMatcher<>(
-                firstMatcher,
-                secondMatcher
-        );
-    }
-
-    public static <F, S> Matcher<Tuple<F, S>> tupleFirst(Matcher<? super F> firstMatcher) {
-        return new TupleFirstMatcher<>(firstMatcher);
-    }
-
-    public static <F, S> Matcher<Tuple<F, S>> tupleSecond(Matcher<? super S> secondMatcher) {
-        return new TupleSecondMatcher<>(secondMatcher);
-    }
-
-    public static final class TupleBothMatcher<F, S> extends TypeSafeMatcher<Tuple<F, S>> {
-        private final Matcher<? super F> firstMatcher;
-        private final Matcher<? super S> secondMatcher;
+    public static final class TupleBothMatcher<
+            FirstType,
+            SecondType
+            > extends TypeSafeMatcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > {
+        private final Matcher<? super FirstType> firstMatcher;
+        private final Matcher<? super SecondType> secondMatcher;
 
         public TupleBothMatcher(
-                Matcher<? super F> firstMatcher,
-                Matcher<? super S> secondMatcher
+                Matcher<? super FirstType> firstMatcher,
+                Matcher<? super SecondType> secondMatcher
         ) {
             this.firstMatcher = firstMatcher;
             this.secondMatcher = secondMatcher;
         }
 
         @Override
-        protected boolean matchesSafely(Tuple<F, S> item) {
-            return firstMatcher.matches(item.first) && secondMatcher.matches(item.second);
+        protected boolean matchesSafely(
+                Tuple<
+                        FirstType,
+                        SecondType
+                        > item
+        ) {
+            return firstMatcher.matches(item.first) &&
+                    secondMatcher.matches(item.second);
         }
 
         @Override
@@ -62,15 +50,28 @@ public final class TupleMatchers {
         }
     }
 
-    public static final class TupleFirstMatcher<F, S> extends TypeSafeMatcher<Tuple<F, S>> {
-        private final Matcher<? super F> firstMatcher;
+    public static final class TupleFirstMatcher<
+            FirstType,
+            SecondType
+            > extends TypeSafeMatcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > {
+        private final Matcher<? super FirstType> firstMatcher;
 
-        public TupleFirstMatcher(Matcher<? super F> firstMatcher) {
+        public TupleFirstMatcher(Matcher<? super FirstType> firstMatcher) {
             this.firstMatcher = firstMatcher;
         }
 
         @Override
-        protected boolean matchesSafely(Tuple<F, S> item) {
+        protected boolean matchesSafely(
+                Tuple<
+                        FirstType,
+                        SecondType
+                        > item
+        ) {
             return firstMatcher.matches(item.first);
         }
 
@@ -82,15 +83,23 @@ public final class TupleMatchers {
         }
     }
 
-    public static final class TupleSecondMatcher<F, S> extends TypeSafeMatcher<Tuple<F, S>> {
-        private final Matcher<? super S> secondMatcher;
+    public static final class TupleSecondMatcher<
+            FirstType,
+            SecondType
+            > extends TypeSafeMatcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > {
+        private final Matcher<? super SecondType> secondMatcher;
 
-        public TupleSecondMatcher(Matcher<? super S> secondMatcher) {
+        public TupleSecondMatcher(Matcher<? super SecondType> secondMatcher) {
             this.secondMatcher = secondMatcher;
         }
 
         @Override
-        protected boolean matchesSafely(Tuple<F, S> item) {
+        protected boolean matchesSafely(Tuple<FirstType, SecondType> item) {
             return secondMatcher.matches(item.second);
         }
 
@@ -100,5 +109,71 @@ public final class TupleMatchers {
                     .appendText("NonnullPair.second matches ")
                     .appendDescriptionOf(secondMatcher);
         }
+    }
+
+    public static <
+            FirstType,
+            SecondType
+            > Matcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > tupleFirst(FirstType first) {
+        return tupleFirst(equalTo(first));
+    }
+
+    public static <
+            FirstType,
+            SecondType
+            > Matcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > tupleSecond(SecondType second) {
+        return tupleSecond(equalTo(second));
+    }
+
+    public static <
+            FirstType,
+            SecondType
+            > Matcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > tuple(
+            Matcher<? super FirstType> firstMatcher,
+            Matcher<? super SecondType> secondMatcher
+    ) {
+        return new TupleBothMatcher<>(
+                firstMatcher,
+                secondMatcher
+        );
+    }
+
+    public static <
+            FirstType,
+            SecondType
+            > Matcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > tupleFirst(Matcher<? super FirstType> firstMatcher) {
+        return new TupleFirstMatcher<>(firstMatcher);
+    }
+
+    public static <
+            FirstType,
+            SecondType
+            > Matcher<
+            Tuple<
+                    FirstType,
+                    SecondType
+                    >
+            > tupleSecond(Matcher<? super SecondType> secondMatcher) {
+        return new TupleSecondMatcher<>(secondMatcher);
     }
 }
