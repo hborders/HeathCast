@@ -1,15 +1,15 @@
-package com.github.hborders.heathcast.dao;
+package com.github.hborders.heathcast.models;
 
-public interface Identified2<
-        IdentifierType extends Identifier2,
+public interface Identified<
+        IdentifierType extends Identifier,
         ModelType
         > {
     interface IdentifiedFactory2<
-            IdentifiedType extends Identified2<
+            IdentifiedType extends Identified<
                     IdentifierType,
                     ModelType
                     >,
-            IdentifierType extends Identifier2,
+            IdentifierType extends Identifier,
             ModelType
             > {
         IdentifiedType newIdentified(

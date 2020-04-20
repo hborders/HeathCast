@@ -1,105 +1,105 @@
-package com.github.hborders.heathcast.dao;
+package com.github.hborders.heathcast.models;
 
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
 
 import java.util.List;
 
-public interface Subscription2<
-        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+public interface Subscription<
+        PodcastIdentifiedType extends Podcast.PodcastIdentified<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastType extends Podcast2
+        PodcastIdentifierType extends Podcast.PodcastIdentifier,
+        PodcastType extends Podcast
         > {
     interface SubscriptionFactory2<
-            SubscriptionType extends Subscription2<
+            SubscriptionType extends Subscription<
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType
                     >,
-            PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+            PodcastIdentifiedType extends Podcast.PodcastIdentified<
                     PodcastIdentifierType,
                     PodcastType
                     >,
-            PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-            PodcastType extends Podcast2
+            PodcastIdentifierType extends Podcast.PodcastIdentifier,
+            PodcastType extends Podcast
             > {
         SubscriptionType newSubscription(PodcastIdentifiedType podcastIdentified);
     }
 
-    interface SubscriptionIdentified2<
-            SubscriptionIdentifierType extends SubscriptionIdentifier2,
-            SubscriptionType extends Subscription2<
+    interface SubscriptionIdentified<
+            SubscriptionIdentifierType extends SubscriptionIdentifier,
+            SubscriptionType extends Subscription<
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType
                     >,
-            PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+            PodcastIdentifiedType extends Podcast.PodcastIdentified<
                     PodcastIdentifierType,
                     PodcastType
                     >,
-            PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-            PodcastType extends Podcast2
-            > extends Identified2<
+            PodcastIdentifierType extends Podcast.PodcastIdentifier,
+            PodcastType extends Podcast
+            > extends Identified<
             SubscriptionIdentifierType,
             SubscriptionType
-            >, Subscription2<
+            >, Subscription<
             PodcastIdentifiedType,
             PodcastIdentifierType,
             PodcastType
             > {
         interface SubscriptionIdentifiedList2<
-                SubscriptionIdentifiedType extends SubscriptionIdentified2<
+                SubscriptionIdentifiedType extends SubscriptionIdentified<
                         SubscriptionIdentifierType,
                         SubscriptionType,
                         PodcastIdentifiedType,
                         PodcastIdentifierType,
                         PodcastType
                         >,
-                SubscriptionIdentifierType extends SubscriptionIdentifier2,
-                SubscriptionType extends Subscription2<
+                SubscriptionIdentifierType extends SubscriptionIdentifier,
+                SubscriptionType extends Subscription<
                         PodcastIdentifiedType,
                         PodcastIdentifierType,
                         PodcastType
                         >,
-                PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifiedType extends Podcast.PodcastIdentified<
                         PodcastIdentifierType,
                         PodcastType
                         >,
-                PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-                PodcastType extends Podcast2
+                PodcastIdentifierType extends Podcast.PodcastIdentifier,
+                PodcastType extends Podcast
                 > extends List<SubscriptionIdentifiedType> {
         }
 
-        interface SubscriptionIdentifiedOpt2<
-                SubscriptionIdentifiedType extends SubscriptionIdentified2<
+        interface SubscriptionIdentifiedOpt<
+                SubscriptionIdentifiedType extends SubscriptionIdentified<
                         SubscriptionIdentifierType,
                         SubscriptionType,
                         PodcastIdentifiedType,
                         PodcastIdentifierType,
                         PodcastType
                         >,
-                SubscriptionIdentifierType extends SubscriptionIdentifier2,
-                SubscriptionType extends Subscription2<
+                SubscriptionIdentifierType extends SubscriptionIdentifier,
+                SubscriptionType extends Subscription<
                         PodcastIdentifiedType,
                         PodcastIdentifierType,
                         PodcastType
                         >,
-                PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
+                PodcastIdentifiedType extends Podcast.PodcastIdentified<
                         PodcastIdentifierType,
                         PodcastType
                         >,
-                PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-                PodcastType extends Podcast2
-                > extends Opt2<SubscriptionIdentifiedType> {
+                PodcastIdentifierType extends Podcast.PodcastIdentifier,
+                PodcastType extends Podcast
+                > extends Opt<SubscriptionIdentifiedType> {
         }
     }
 
-    interface SubscriptionIdentifier2 extends Identifier2 {
-        interface SubscriptionIdentifierOpt2<
-                SubscriptionIdentifierType extends SubscriptionIdentifier2
-                > extends Opt2<SubscriptionIdentifierType> {
+    interface SubscriptionIdentifier extends Identifier {
+        interface SubscriptionIdentifierOpt<
+                SubscriptionIdentifierType extends SubscriptionIdentifier
+                > extends Opt<SubscriptionIdentifierType> {
         }
     }
 

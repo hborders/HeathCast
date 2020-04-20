@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 
 import java.util.Arrays;
@@ -16,13 +15,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class BundleUtil {
-    private BundleUtil() {
-    }
-
     @Nullable
     public static <
-            UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType
             > UnparcelableType getUnparcelable(
             @Nullable Bundle bundle,
             Class<UnparcelableHolderType> unparcelableHolderClass,
@@ -43,8 +39,8 @@ public final class BundleUtil {
     }
 
     public static <
-            UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType
             > Optional<UnparcelableType> getUnparcelableOptional(
             @Nullable Bundle bundle,
             Class<UnparcelableHolderType> unparcelableHolderClass,
@@ -60,32 +56,8 @@ public final class BundleUtil {
     }
 
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
-            UnparcelableOptType extends Opt<UnparcelableType>,
-            UnparcelableOptFactoryType extends Opt.Factory<
-                                UnparcelableOptType,
-                                UnparcelableType
-                                >
-            > UnparcelableOptType getUnparcelableOpt(
-            @Nullable Bundle bundle,
-            Class<UnparcelableHolderType> unparcelableHolderClass,
-            UnparcelableOptFactoryType unparcelableOptFactory,
-            String key
-    ) {
-        return unparcelableOptFactory.ofNullable(
-                getUnparcelable(
-                        bundle,
-                        unparcelableHolderClass,
-                        key
-                )
-        );
-    }
-
-
-    public static <
-            UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            UnparcelableType
             > UnparcelableType requireUnparcelableArgument(
             @Nullable Bundle bundle,
             Class<UnparcelableHolderType> unparcelableHolderClass,
@@ -102,13 +74,16 @@ public final class BundleUtil {
 
     @Nullable
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType,
             UnparcelableListType extends List<UnparcelableType>
             > UnparcelableListType getUnparcelableList(
             @Nullable Bundle bundle,
             Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparcelableListType, UnparcelableType> capacityCollectionFactory,
+            CollectionFactory.Capacity<
+                    UnparcelableListType,
+                    UnparcelableType
+                    > capacityCollectionFactory,
             String key
     ) {
         if (bundle == null) {
@@ -143,13 +118,16 @@ public final class BundleUtil {
     }
 
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType,
             UnparcelableListType extends List<UnparcelableType>
             > Optional<UnparcelableListType> getUnparcelableListOptional(
             @Nullable Bundle bundle,
             Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparcelableListType, UnparcelableType> capacityCollectionFactory,
+            CollectionFactory.Capacity<
+                    UnparcelableListType,
+                    UnparcelableType
+                    > capacityCollectionFactory,
             String key
     ) {
         return Optional.ofNullable(
@@ -163,36 +141,16 @@ public final class BundleUtil {
     }
 
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
-            UnparcelableListType extends List<UnparcelableType>,
-            UnparcelableListOptType extends Opt<UnparcelableListType>,
-            UnparcelableListOptFactoryType extends Opt.Factory<UnparcelableListOptType, UnparcelableListType>
-            > UnparcelableListOptType getUnparcelableListOpt(
-            @Nullable Bundle bundle,
-            Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparcelableListType, UnparcelableType> capacityCollectionFactory,
-            UnparcelableListOptFactoryType unparcelableListOptFactory,
-            String key
-    ) {
-        return unparcelableListOptFactory.ofNullable(
-                getUnparcelableList(
-                        bundle,
-                        unparcelableHolderClass,
-                        capacityCollectionFactory,
-                        key
-                )
-        );
-    }
-
-    public static <
             UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
             UnparcelableListType extends List<UnparcelableType>
             > UnparcelableListType requireUnparcelableList(
             @Nullable Bundle bundle,
             Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparcelableListType, UnparcelableType> capacityCollectionFactory,
+            CollectionFactory.Capacity<
+                    UnparcelableListType,
+                    UnparcelableType
+                    > capacityCollectionFactory,
             String key
     ) {
         return Objects.requireNonNull(
@@ -203,5 +161,8 @@ public final class BundleUtil {
                         key
                 )
         );
+    }
+
+    private BundleUtil() {
     }
 }

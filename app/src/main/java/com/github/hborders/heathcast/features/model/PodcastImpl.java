@@ -2,20 +2,20 @@ package com.github.hborders.heathcast.features.model;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.dao.Podcast2;
+import com.github.hborders.heathcast.models.Podcast;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
-public final class PodcastImpl implements Podcast2 {
+public final class PodcastImpl implements Podcast {
     public static final class PodcastIdentifiedImpl
             extends IdentifiedImpl<
             PodcastIdentifierImpl,
             PodcastImpl
             >
-            implements PodcastIdentified2<
+            implements PodcastIdentified<
             PodcastIdentifierImpl,
             PodcastImpl
             > {
@@ -47,7 +47,7 @@ public final class PodcastImpl implements Podcast2 {
                 PodcastIdentifierImpl,
                 PodcastImpl
                 >
-                implements PodcastIdentifiedOpt2<
+                implements PodcastIdentifiedOpt<
                 PodcastIdentifiedImpl,
                 PodcastIdentifierImpl,
                 PodcastImpl
@@ -123,11 +123,11 @@ public final class PodcastImpl implements Podcast2 {
 
     public static final class PodcastIdentifierImpl
             extends IdentifierImpl
-            implements PodcastIdentifier2 {
+            implements PodcastIdentifier {
         public static final class PodcastIdentifierOptImpl
                 extends IdentifierImpl.IdentifierOptImpl<
                 PodcastIdentifierImpl
-                > implements PodcastIdentifierOpt2<
+                > implements PodcastIdentifierOpt<
                 PodcastIdentifierImpl
                 > {
             public static final class PodcastIdentifierOptListImpl

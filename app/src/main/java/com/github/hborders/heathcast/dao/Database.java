@@ -12,8 +12,14 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.ListUtil;
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.core.Result;
+import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.Subscription;
 import com.stealthmountain.sqldim.DimDatabase;
 import com.stealthmountain.sqldim.SqlDim;
 import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
@@ -27,83 +33,83 @@ import io.reactivex.Scheduler;
 
 public final class Database<
         MarkerType,
-        EpisodeType extends Episode2,
-        EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
-                EpisodeIdentifierType,
-                EpisodeType
-                >,
-        EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
+        EpisodeType extends Episode,
+        EpisodeIdentifiedType extends Episode.EpisodeIdentified<
+                        EpisodeIdentifierType,
+                        EpisodeType
+                        >,
+        EpisodeIdentifiedListType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifiedSetType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedSet2<
+        EpisodeIdentifiedSetType extends Episode.EpisodeIdentified.EpisodeIdentifiedSet2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
-        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<EpisodeIdentifierType>,
-        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+        EpisodeIdentifierType extends Episode.EpisodeIdentifier,
+        EpisodeIdentifierOptType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt<EpisodeIdentifierType>,
+        EpisodeIdentifierOptListType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt.EpisodeIdentifierOptList2<
                 EpisodeIdentifierOptType,
                 EpisodeIdentifierType
                 >,
-        EpisodeListType extends Episode2.EpisodeList2<
+        EpisodeListType extends Episode.EpisodeList2<
                 EpisodeType
                 >,
-        PodcastType extends Podcast2,
-        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifiedListType extends Podcast2.PodcastIdentified2.PodcastIdentifiedList2<
+        PodcastType extends Podcast,
+        PodcastIdentifiedType extends Podcast.PodcastIdentified<
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        PodcastIdentifiedListType extends Podcast.PodcastIdentified.PodcastIdentifiedList2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
+        PodcastIdentifiedSetType extends Podcast.PodcastIdentified.PodcastIdentifiedSet2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
-        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+        PodcastIdentifierType extends Podcast.PodcastIdentifier,
+        PodcastIdentifierOptType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt<PodcastIdentifierType>,
+        PodcastIdentifierOptListType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt.PodcastIdentifierOptList2<
                 PodcastIdentifierOptType,
                 PodcastIdentifierType
                 >,
-        PodcastSearchType extends PodcastSearch2,
-        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
-                PodcastSearchIdentifierType,
-                PodcastSearchType
-                >,
-        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
+        PodcastSearchType extends PodcastSearch,
+        PodcastSearchIdentifiedType extends PodcastSearch.PodcastSearchIdentified<
+                        PodcastSearchIdentifierType,
+                        PodcastSearchType
+                        >,
+        PodcastSearchIdentifiedListType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedList2<
                 PodcastSearchIdentifiedType,
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
-        PodcastSearchIdentifiedOptType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedOpt2<
-                PodcastSearchIdentifiedType,
-                PodcastSearchIdentifierType,
-                PodcastSearchType
-                >,
-        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
-        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
-                PodcastSearchIdentifierType
-                >,
-        SubscriptionType extends Subscription2<
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
-                SubscriptionIdentifierType,
-                SubscriptionType,
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        SubscriptionIdentifiedListType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedList2<
+        PodcastSearchIdentifiedOptType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedOpt<
+                        PodcastSearchIdentifiedType,
+                        PodcastSearchIdentifierType,
+                        PodcastSearchType
+                        >,
+        PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier,
+        PodcastSearchIdentifierOptType extends PodcastSearch.PodcastSearchIdentifier.PodcastSearchIdentifierOpt<
+                        PodcastSearchIdentifierType
+                        >,
+        SubscriptionType extends Subscription<
+                                PodcastIdentifiedType,
+                                PodcastIdentifierType,
+                                PodcastType
+                                >,
+        SubscriptionIdentifiedType extends Subscription.SubscriptionIdentified<
+                        SubscriptionIdentifierType,
+                        SubscriptionType,
+                        PodcastIdentifiedType,
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        SubscriptionIdentifiedListType extends Subscription.SubscriptionIdentified.SubscriptionIdentifiedList2<
                 SubscriptionIdentifiedType,
                 SubscriptionIdentifierType,
                 SubscriptionType,
@@ -111,10 +117,10 @@ public final class Database<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2
+        SubscriptionIdentifierType extends Subscription.SubscriptionIdentifier
         > {
 
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             PodcastIdentifiedType,
             PodcastIdentifierType,
             PodcastType
@@ -123,26 +129,26 @@ public final class Database<
             PodcastIdentifiedListType,
             PodcastIdentifiedType
             > podcastIdentifiedListCapacityFactory;
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             PodcastSearchIdentifiedType,
             PodcastSearchIdentifierType,
             PodcastSearchType
             > podcastSearchIdentifiedFactory;
-    private final Opt2.OptEmptyFactory<
+    private final Opt.OptEmptyFactory<
             PodcastSearchIdentifiedOptType,
             PodcastSearchIdentifiedType
             > podcastSearchIdentifiedOptEmptyFactory;
-    private final Opt2.OptNonEmptyFactory<
+    private final Opt.OptNonEmptyFactory<
             PodcastSearchIdentifiedOptType,
             PodcastSearchIdentifiedType
             > podcastSearchIdentifiedOptNonEmptyFactory;
-    private final Subscription2.SubscriptionFactory2<
+    private final Subscription.SubscriptionFactory2<
             SubscriptionType,
             PodcastIdentifiedType,
             PodcastIdentifierType,
             PodcastType
             > subscriptionFactory;
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             SubscriptionIdentifiedType,
             SubscriptionIdentifierType,
             SubscriptionType
@@ -198,20 +204,20 @@ public final class Database<
             Context context,
             @Nullable String name,
             Scheduler scheduler,
-            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
-            Identifier2.IdentifierFactory2<
+            Episode.EpisodeFactory2<EpisodeType> episodeFactory,
+            Identifier.IdentifierFactory2<
                     EpisodeIdentifierType
                     > episodeIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     EpisodeIdentifiedType,
                     EpisodeIdentifierType,
                     EpisodeType
                     > episodeIdentifiedFactory,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                     EpisodeIdentifierOptType,
                     EpisodeIdentifierType
                     > episodeIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                     EpisodeIdentifierOptType,
                     EpisodeIdentifierType
                     > episodeIdentifierOptNonEmptyFactory,
@@ -227,11 +233,11 @@ public final class Database<
                     EpisodeIdentifierOptListType,
                     EpisodeIdentifierOptType
                     > episodeIdentifierOptListCapacityFactory,
-            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
-            Identifier2.IdentifierFactory2<
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier.IdentifierFactory2<
                     PodcastIdentifierType
                     > podcastIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType
@@ -240,11 +246,11 @@ public final class Database<
                     PodcastIdentifiedListType,
                     PodcastIdentifiedType
                     > podcastIdentifiedListCapacityFactory,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                     PodcastIdentifierOptType,
                     PodcastIdentifierType
                     > podcastIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                     PodcastIdentifierOptType,
                     PodcastIdentifierType
                     > podcastIdentifierOptNonEmptyFactory,
@@ -256,9 +262,9 @@ public final class Database<
                     PodcastIdentifierOptListType,
                     PodcastIdentifierOptType
                     > podcastIdentifierOptListCapacityFactory,
-            PodcastSearch2.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory,
-            Identifier2.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            PodcastSearch.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory,
+            Identifier.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory,
+            Identified.IdentifiedFactory2<
                     PodcastSearchIdentifiedType,
                     PodcastSearchIdentifierType,
                     PodcastSearchType
@@ -267,32 +273,32 @@ public final class Database<
                     PodcastSearchIdentifiedListType,
                     PodcastSearchIdentifiedType
                     > podcastSearchIdentifiedListCapacityFactory,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                     PodcastSearchIdentifiedOptType,
                     PodcastSearchIdentifiedType
                     > podcastSearchIdentifiedOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                     PodcastSearchIdentifiedOptType,
                     PodcastSearchIdentifiedType
                     > podcastSearchIdentifiedOptNonEmptyFactory,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                     PodcastSearchIdentifierOptType,
                     PodcastSearchIdentifierType
                     > podcastSearchIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                     PodcastSearchIdentifierOptType,
                     PodcastSearchIdentifierType
                     > podcastSearchIdentifierOptNonEmptyFactory,
-            Subscription2.SubscriptionFactory2<
+            Subscription.SubscriptionFactory2<
                     SubscriptionType,
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType
                     > subscriptionFactory,
-            Identifier2.IdentifierFactory2<
+            Identifier.IdentifierFactory2<
                     SubscriptionIdentifierType
                     > subscriptionIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifierType,
                     SubscriptionType

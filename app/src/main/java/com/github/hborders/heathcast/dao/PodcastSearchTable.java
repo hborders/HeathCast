@@ -10,7 +10,10 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.PodcastSearch;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Collection;
@@ -25,20 +28,20 @@ import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
 
 final class PodcastSearchTable<
         MarkerType,
-        PodcastSearchType extends PodcastSearch2,
-        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
-                PodcastSearchIdentifierType,
-                PodcastSearchType
-                >,
-        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
+        PodcastSearchType extends PodcastSearch,
+        PodcastSearchIdentifiedType extends PodcastSearch.PodcastSearchIdentified<
+                        PodcastSearchIdentifierType,
+                        PodcastSearchType
+                        >,
+        PodcastSearchIdentifiedListType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedList2<
                 PodcastSearchIdentifiedType,
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
-        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
-        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
-                PodcastSearchIdentifierType
-                >
+        PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier,
+        PodcastSearchIdentifierOptType extends PodcastSearch.PodcastSearchIdentifier.PodcastSearchIdentifierOpt<
+                        PodcastSearchIdentifierType
+                        >
         > extends Table<MarkerType> {
     static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
@@ -64,9 +67,9 @@ final class PodcastSearchTable<
             cursor -> CursorUtil.getNonnullString(cursor, SEARCH)
     );
 
-    private final PodcastSearch2.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory;
-    private final Identifier2.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory;
-    private final Identified2.IdentifiedFactory2<
+    private final PodcastSearch.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory;
+    private final Identifier.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory;
+    private final Identified.IdentifiedFactory2<
             PodcastSearchIdentifiedType,
             PodcastSearchIdentifierType,
             PodcastSearchType
@@ -75,20 +78,20 @@ final class PodcastSearchTable<
             PodcastSearchIdentifiedListType,
             PodcastSearchIdentifiedType
             > podcastSearchIdentifiedListCapacityFactory;
-    private final Opt2.OptEmptyFactory<
+    private final Opt.OptEmptyFactory<
             PodcastSearchIdentifierOptType,
             PodcastSearchIdentifierType
             > podcastSearchIdentifierOptEmptyFactory;
-    private final Opt2.OptNonEmptyFactory<
+    private final Opt.OptNonEmptyFactory<
             PodcastSearchIdentifierOptType,
             PodcastSearchIdentifierType
             > podcastSearchIdentifierOptNonEmptyFactory;
 
     PodcastSearchTable(
             DimDatabase<MarkerType> dimDatabase,
-            PodcastSearch2.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory,
-            Identifier2.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            PodcastSearch.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory,
+            Identifier.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory,
+            Identified.IdentifiedFactory2<
                     PodcastSearchIdentifiedType,
                     PodcastSearchIdentifierType,
                     PodcastSearchType
@@ -97,11 +100,11 @@ final class PodcastSearchTable<
                     PodcastSearchIdentifiedListType,
                     PodcastSearchIdentifiedType
                     > podcastSearchIdentifiedListCapacityFactory,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                     PodcastSearchIdentifierOptType,
                     PodcastSearchIdentifierType
                     > podcastSearchIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                     PodcastSearchIdentifierOptType,
                     PodcastSearchIdentifierType
                     > podcastSearchIdentifierOptNonEmptyFactory
@@ -121,7 +124,7 @@ final class PodcastSearchTable<
                 upsertAdapter,
                 String.class,
                 podcastSearch,
-                PodcastSearch2::getSearch,
+                PodcastSearch::getSearch,
                 podcastSearchIdentifierFactory,
                 podcastSearchIdentifiedFactory,
                 this::insertPodcastSearch,

@@ -4,6 +4,8 @@ import android.content.ContentValues;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastSearch;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
@@ -14,8 +16,8 @@ import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST
 
 final class PodcastSearchResultTable<
         MarkerType,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2
+        PodcastIdentifierType extends Podcast.PodcastIdentifier,
+        PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier
         > extends Table<MarkerType> {
     static final String TABLE_PODCAST_SEARCH_RESULT = "podcast_search_result";
 

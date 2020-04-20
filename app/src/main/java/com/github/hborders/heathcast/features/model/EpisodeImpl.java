@@ -2,7 +2,7 @@ package com.github.hborders.heathcast.features.model;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.dao.Episode2;
+import com.github.hborders.heathcast.models.Episode;
 
 import java.net.URL;
 import java.time.Duration;
@@ -11,13 +11,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
 
-public final class EpisodeImpl implements Episode2 {
+public final class EpisodeImpl implements Episode {
     public static final class EpisodeIdentifiedImpl
             extends IdentifiedImpl<
             EpisodeIdentifierImpl,
             EpisodeImpl
             >
-            implements EpisodeIdentified2<
+            implements EpisodeIdentified<
             EpisodeIdentifierImpl,
             EpisodeImpl
             > {
@@ -53,7 +53,7 @@ public final class EpisodeImpl implements Episode2 {
                 EpisodeIdentifiedImpl,
                 EpisodeIdentifierImpl,
                 EpisodeImpl
-                > implements EpisodeIdentifiedOpt2<
+                > implements EpisodeIdentifiedOpt<
                 EpisodeIdentifiedImpl,
                 EpisodeIdentifierImpl,
                 EpisodeImpl
@@ -167,15 +167,15 @@ public final class EpisodeImpl implements Episode2 {
 
     public static final class EpisodeIdentifierImpl
             extends IdentifierImpl
-            implements EpisodeIdentifier2 {
+            implements EpisodeIdentifier {
         public static final class EpisodeIdentifierOptImpl
                 extends IdentifierOptImpl<EpisodeIdentifierImpl>
-                implements EpisodeIdentifierOpt2<EpisodeIdentifierImpl> {
+                implements EpisodeIdentifierOpt<EpisodeIdentifierImpl> {
             public static final class EpisodeIdentifierOptListImpl
                     extends IdentifierOptImpl.IdentifierOptListImpl<
                     EpisodeIdentifierOptImpl,
                     EpisodeIdentifierImpl
-                    > implements EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+                    > implements EpisodeIdentifierOpt.EpisodeIdentifierOptList2<
                     EpisodeIdentifierOptImpl,
                     EpisodeIdentifierImpl
                     > {

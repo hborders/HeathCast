@@ -2,14 +2,14 @@ package com.github.hborders.heathcast.services;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.dao.PodcastSearch2;
+import com.github.hborders.heathcast.models.PodcastSearch;
 
 import java.util.Objects;
 
 public final class UpsertPodcastSearchException extends Exception {
-    public final PodcastSearch2 podcastSearch;
+    public final PodcastSearch podcastSearch;
 
-    public UpsertPodcastSearchException(PodcastSearch2 podcastSearch) {
+    public UpsertPodcastSearchException(PodcastSearch podcastSearch) {
         super("Failed to upsert PodcastSearch: " + podcastSearch);
         this.podcastSearch = podcastSearch;
     }

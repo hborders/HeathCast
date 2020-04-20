@@ -10,7 +10,10 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.Podcast;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -33,20 +36,20 @@ import static com.github.hborders.heathcast.dao.EpisodeTable.TABLE_EPISODE;
 
 final class PodcastTable<
         MarkerType,
-        PodcastType extends Podcast2, PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-        PodcastIdentifierType,
-        PodcastType
-        >,
-        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
+        PodcastType extends Podcast, PodcastIdentifiedType extends Podcast.PodcastIdentified<
+                PodcastIdentifierType,
+                PodcastType
+                >,
+        PodcastIdentifiedSetType extends Podcast.PodcastIdentified.PodcastIdentifiedSet2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<
-                PodcastIdentifierType
-                >,
-        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+        PodcastIdentifierType extends Podcast.PodcastIdentifier,
+        PodcastIdentifierOptType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt<
+                        PodcastIdentifierType
+                        >,
+        PodcastIdentifierOptListType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt.PodcastIdentifierOptList2<
                 PodcastIdentifierOptType,
                 PodcastIdentifierType
                 >
@@ -76,20 +79,20 @@ final class PodcastTable<
             cursor -> CursorUtil.getNonnullString(cursor, FEED_URL)
     );
 
-    private final Podcast2.PodcastFactory2<PodcastType> podcastFactory;
-    private final Identifier2.IdentifierFactory2<
+    private final Podcast.PodcastFactory2<PodcastType> podcastFactory;
+    private final Identifier.IdentifierFactory2<
             PodcastIdentifierType
             > podcastIdentifierFactory;
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             PodcastIdentifiedType,
             PodcastIdentifierType,
             PodcastType
             > podcastIdentifiedFactory;
-    private final Opt2.OptEmptyFactory<
+    private final Opt.OptEmptyFactory<
             PodcastIdentifierOptType,
             PodcastIdentifierType
             > podcastIdentifierOptEmptyFactory;
-    private final Opt2.OptNonEmptyFactory<
+    private final Opt.OptNonEmptyFactory<
             PodcastIdentifierOptType,
             PodcastIdentifierType
             > podcastIdentifierOptNonEmptyFactory;
@@ -104,20 +107,20 @@ final class PodcastTable<
 
     PodcastTable(
             DimDatabase<MarkerType> dimDatabase,
-            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
-            Identifier2.IdentifierFactory2<
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier.IdentifierFactory2<
                     PodcastIdentifierType
                     > podcastIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType
                     > podcastIdentifiedFactory,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                     PodcastIdentifierOptType,
                     PodcastIdentifierType
                     > podcastIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                     PodcastIdentifierOptType,
                     PodcastIdentifierType
                     > podcastIdentifierOptNonEmptyFactory,
@@ -290,18 +293,18 @@ final class PodcastTable<
     }
 
     static <
-            PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-                    PodcastIdentifierType,
-                    PodcastType
-                    >,
-            PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-            PodcastType extends Podcast2
+            PodcastIdentifiedType extends Podcast.PodcastIdentified<
+                                PodcastIdentifierType,
+                                PodcastType
+                                >,
+            PodcastIdentifierType extends Podcast.PodcastIdentifier,
+            PodcastType extends Podcast
             > PodcastIdentifiedType getPodcastIdentified(
-            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
-            Identifier2.IdentifierFactory2<
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier.IdentifierFactory2<
                     PodcastIdentifierType
                     > podcastIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType

@@ -3,15 +3,15 @@ package com.github.hborders.heathcast.features.model;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-public abstract class OptImpl<ValueType> implements Opt2<ValueType> {
+public abstract class OptImpl<ValueType> implements Opt<ValueType> {
     public abstract static class OptListImpl<
-            OptItemType extends Opt2<ValueType>,
+            OptItemType extends Opt<ValueType>,
             ValueType
             > extends ArrayList<OptItemType> {
         protected OptListImpl() {

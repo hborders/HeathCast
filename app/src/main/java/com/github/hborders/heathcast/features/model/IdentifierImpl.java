@@ -3,20 +3,20 @@ package com.github.hborders.heathcast.features.model;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
-import com.github.hborders.heathcast.core.Opt2;
-import com.github.hborders.heathcast.dao.Identifier2;
+import com.github.hborders.heathcast.core.Opt;
+import com.github.hborders.heathcast.models.Identifier;
 
 import java.util.Collection;
 import java.util.Objects;
 
 public abstract class IdentifierImpl
-        implements Identifier2 {
+        implements Identifier {
     public static abstract class IdentifierOptImpl<
             IdentifierType
             > extends OptImpl<IdentifierType> {
         public static abstract class IdentifierOptListImpl<
-                IdentifierOptType extends Opt2<IdentifierType>,
-                IdentifierType extends Identifier2
+                IdentifierOptType extends Opt<IdentifierType>,
+                IdentifierType extends Identifier
                 > extends OptListImpl<
                 IdentifierOptType,
                 IdentifierType

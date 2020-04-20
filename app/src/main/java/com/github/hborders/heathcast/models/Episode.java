@@ -1,8 +1,8 @@
-package com.github.hborders.heathcast.dao;
+package com.github.hborders.heathcast.models;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
 
 import java.net.URL;
 import java.time.Duration;
@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-public interface Episode2 {
-    interface EpisodeFactory2<EpisodeType extends Episode2> {
+public interface Episode {
+    interface EpisodeFactory2<EpisodeType extends Episode> {
         EpisodeType newEpisode(
                 @Nullable URL artworkURL,
                 @Nullable Duration duration,
@@ -22,74 +22,74 @@ public interface Episode2 {
         );
     }
 
-    interface EpisodeIdentified2<
-            EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-            EpisodeType extends Episode2
-            > extends Identified2<
+    interface EpisodeIdentified<
+            EpisodeIdentifierType extends EpisodeIdentifier,
+            EpisodeType extends Episode
+            > extends Identified<
             EpisodeIdentifierType,
             EpisodeType
-            >, Episode2 {
+            >, Episode {
         interface EpisodeIdentifiedList2<
-                EpisodeIdentifiedType extends EpisodeIdentified2<
+                EpisodeIdentifiedType extends EpisodeIdentified<
                         EpisodeIdentifierType,
                         EpisodeType
                         >,
-                EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-                EpisodeType extends Episode2
+                EpisodeIdentifierType extends EpisodeIdentifier,
+                EpisodeType extends Episode
                 > extends List<EpisodeIdentifiedType> {
         }
 
-        interface EpisodeIdentifiedOpt2<
-                EpisodeIdentifiedType extends EpisodeIdentified2<
+        interface EpisodeIdentifiedOpt<
+                EpisodeIdentifiedType extends EpisodeIdentified<
                         EpisodeIdentifierType,
                         EpisodeType
                         >,
-                EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-                EpisodeType extends Episode2
-                > extends Opt2<EpisodeIdentifiedType> {
+                EpisodeIdentifierType extends EpisodeIdentifier,
+                EpisodeType extends Episode
+                > extends Opt<EpisodeIdentifiedType> {
             interface EpisodeIdentifiedOptList2<
-                    EpisodeIdentifiedOptType extends EpisodeIdentifiedOpt2<
+                    EpisodeIdentifiedOptType extends EpisodeIdentifiedOpt<
                             EpisodeIdentifiedType,
                             EpisodeIdentifierType,
                             EpisodeType
                             >,
-                    EpisodeIdentifiedType extends EpisodeIdentified2<
+                    EpisodeIdentifiedType extends EpisodeIdentified<
                             EpisodeIdentifierType,
                             EpisodeType
                             >,
-                    EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-                    EpisodeType extends Episode2
+                    EpisodeIdentifierType extends EpisodeIdentifier,
+                    EpisodeType extends Episode
                     > extends List<EpisodeIdentifiedOptType> {
             }
         }
 
         interface EpisodeIdentifiedSet2<
-                EpisodeIdentifiedType extends EpisodeIdentified2<
+                EpisodeIdentifiedType extends EpisodeIdentified<
                         EpisodeIdentifierType,
                         EpisodeType
                         >,
-                EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2,
-                EpisodeType extends Episode2
+                EpisodeIdentifierType extends EpisodeIdentifier,
+                EpisodeType extends Episode
                 > extends Set<EpisodeIdentifiedType> {
         }
     }
 
-    interface EpisodeIdentifier2 extends Identifier2 {
-        interface EpisodeIdentifierOpt2<
-                EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2
-                > extends Opt2<EpisodeIdentifierType> {
+    interface EpisodeIdentifier extends Identifier {
+        interface EpisodeIdentifierOpt<
+                EpisodeIdentifierType extends EpisodeIdentifier
+                > extends Opt<EpisodeIdentifierType> {
             interface EpisodeIdentifierOptList2<
-                    EpisodeIdentifierOptType extends EpisodeIdentifierOpt2<
+                    EpisodeIdentifierOptType extends EpisodeIdentifierOpt<
                             EpisodeIdentifierType
                             >,
-                    EpisodeIdentifierType extends EpisodeIdentified2.EpisodeIdentifier2
+                    EpisodeIdentifierType extends EpisodeIdentifier
                     > extends List<EpisodeIdentifierOptType> {
             }
         }
     }
 
     interface EpisodeList2<
-            EpisodeType extends Episode2
+            EpisodeType extends Episode
             > extends List<EpisodeType> {
     }
 

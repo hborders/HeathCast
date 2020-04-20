@@ -3,9 +3,9 @@ package com.github.hborders.heathcast.features.model;
 import androidx.annotation.Nullable;
 
 import com.github.hborders.heathcast.core.ClassUtil;
-import com.github.hborders.heathcast.core.Opt2;
-import com.github.hborders.heathcast.dao.Identified2;
-import com.github.hborders.heathcast.dao.Identifier2;
+import com.github.hborders.heathcast.core.Opt;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,18 +13,18 @@ import java.util.HashSet;
 import java.util.Objects;
 
 public abstract class IdentifiedImpl<
-        IdentifierType extends Identifier2,
+        IdentifierType extends Identifier,
         ModelType
-        > implements Identified2<
+        > implements Identified<
         IdentifierType,
         ModelType
         > {
     public static abstract class IdentifiedListImpl<
-            IdentifiedType extends Identified2<
+            IdentifiedType extends Identified<
                     IdentifierType,
                     ModelType
                     >,
-            IdentifierType extends Identifier2,
+            IdentifierType extends Identifier,
             ModelType
             > extends ArrayList<IdentifiedType> {
         protected IdentifiedListImpl() {
@@ -40,20 +40,20 @@ public abstract class IdentifiedImpl<
     }
 
     public static abstract class IdentifiedOptImpl<
-            IdentifiedType extends Identified2<
+            IdentifiedType extends Identified<
                     IdentifierType,
                     ModelType
                     >,
-            IdentifierType extends Identifier2,
+            IdentifierType extends Identifier,
             ModelType
             > extends OptImpl<IdentifiedType> {
         public static abstract class IdentifiedOptListImpl<
-                IdentifiedOptType extends Opt2<IdentifiedType>,
-                IdentifiedType extends Identified2<
+                IdentifiedOptType extends Opt<IdentifiedType>,
+                IdentifiedType extends Identified<
                         IdentifierType,
                         ModelType
                         >,
-                IdentifierType extends Identifier2,
+                IdentifierType extends Identifier,
                 ModelType
                 > extends OptListImpl<
                 IdentifiedOptType,
@@ -80,11 +80,11 @@ public abstract class IdentifiedImpl<
     }
 
     public static abstract class IdentifiedSetImpl<
-            IdentifiedType extends Identified2<
+            IdentifiedType extends Identified<
                     IdentifierType,
                     ModelType
                     >,
-            IdentifierType extends Identifier2,
+            IdentifierType extends Identifier,
             ModelType
             > extends HashSet<IdentifiedType> {
         protected IdentifiedSetImpl() {

@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 import com.github.hborders.heathcast.android.DurationUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.URLUtil;
-import com.github.hborders.heathcast.dao.Episode2;
+import com.github.hborders.heathcast.models.Episode;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -25,8 +25,8 @@ import java.util.Objects;
 import static com.github.hborders.heathcast.core.StringUtil.isEmpty;
 
 final class XmlParser<
-        EpisodeListType extends Episode2.EpisodeList2<EpisodeType>,
-        EpisodeType extends Episode2
+        EpisodeListType extends Episode.EpisodeList2<EpisodeType>,
+        EpisodeType extends Episode
         > {
     private static final class Enclosure {
         @Nullable
@@ -79,7 +79,7 @@ final class XmlParser<
             EpisodeListType,
             EpisodeType
             > episodeListEmptyFactory;
-    private final Episode2.EpisodeFactory2<EpisodeType> episodeFactory;
+    private final Episode.EpisodeFactory2<EpisodeType> episodeFactory;
 
     XmlParser(
             CollectionFactory.Capacity<
@@ -90,7 +90,7 @@ final class XmlParser<
                     EpisodeListType,
                     EpisodeType
                     > episodeListEmptyFactory,
-            Episode2.EpisodeFactory2<EpisodeType> episodeFactory
+            Episode.EpisodeFactory2<EpisodeType> episodeFactory
     ) {
         this.episodeListCapacityFactory = episodeListCapacityFactory;
         this.episodeListEmptyFactory = episodeListEmptyFactory;

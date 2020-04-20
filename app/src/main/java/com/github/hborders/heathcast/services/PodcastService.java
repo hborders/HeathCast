@@ -7,12 +7,12 @@ import com.github.hborders.heathcast.core.Result;
 import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.core.URLUtil;
 import com.github.hborders.heathcast.dao.Database;
-import com.github.hborders.heathcast.dao.Episode2;
-import com.github.hborders.heathcast.dao.Identified2;
-import com.github.hborders.heathcast.dao.Identifier2;
-import com.github.hborders.heathcast.dao.Podcast2;
-import com.github.hborders.heathcast.dao.PodcastSearch2;
-import com.github.hborders.heathcast.dao.Subscription2;
+import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.PodcastSearch;
+import com.github.hborders.heathcast.models.Subscription;
 import com.github.hborders.heathcast.reactivexokhttp.ReactivexOkHttpCallAdapter;
 import com.google.gson.Gson;
 
@@ -37,89 +37,89 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public final class PodcastService<
-        EpisodeType extends Episode2,
-        EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
-                EpisodeIdentifierType,
-                EpisodeType
-                >,
-        EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
+        EpisodeType extends Episode,
+        EpisodeIdentifiedType extends Episode.EpisodeIdentified<
+                        EpisodeIdentifierType,
+                        EpisodeType
+                        >,
+        EpisodeIdentifiedListType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifiedSetType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedSet2<
+        EpisodeIdentifiedSetType extends Episode.EpisodeIdentified.EpisodeIdentifiedSet2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
-        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<EpisodeIdentifierType>,
-        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+        EpisodeIdentifierType extends Episode.EpisodeIdentifier,
+        EpisodeIdentifierOptType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt<EpisodeIdentifierType>,
+        EpisodeIdentifierOptListType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt.EpisodeIdentifierOptList2<
                 EpisodeIdentifierOptType,
                 EpisodeIdentifierType
                 >,
-        EpisodeListType extends Episode2.EpisodeList2<
+        EpisodeListType extends Episode.EpisodeList2<
                 EpisodeType
                 >,
-        PodcastType extends Podcast2,
-        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifiedListType extends Podcast2.PodcastIdentified2.PodcastIdentifiedList2<
+        PodcastType extends Podcast,
+        PodcastIdentifiedType extends Podcast.PodcastIdentified<
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        PodcastIdentifiedListType extends Podcast.PodcastIdentified.PodcastIdentifiedList2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifiedOptType extends Podcast2.PodcastIdentified2.PodcastIdentifiedOpt2<
+        PodcastIdentifiedOptType extends Podcast.PodcastIdentified.PodcastIdentifiedOpt<
+                        PodcastIdentifiedType,
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        PodcastIdentifiedSetType extends Podcast.PodcastIdentified.PodcastIdentifiedSet2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifiedSetType extends Podcast2.PodcastIdentified2.PodcastIdentifiedSet2<
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        PodcastIdentifierOptType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2<PodcastIdentifierType>,
-        PodcastIdentifierOptListType extends Podcast2.PodcastIdentifier2.PodcastIdentifierOpt2.PodcastIdentifierOptList2<
+        PodcastIdentifierType extends Podcast.PodcastIdentifier,
+        PodcastIdentifierOptType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt<PodcastIdentifierType>,
+        PodcastIdentifierOptListType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt.PodcastIdentifierOptList2<
                 PodcastIdentifierOptType,
                 PodcastIdentifierType
                 >,
-        PodcastListType extends Podcast2.PodcastList2<PodcastType>,
-        PodcastSearchType extends PodcastSearch2,
-        PodcastSearchIdentifiedType extends PodcastSearch2.PodcastSearchIdentified2<
-                PodcastSearchIdentifierType,
-                PodcastSearchType
-                >,
-        PodcastSearchIdentifiedListType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedList2<
+        PodcastListType extends Podcast.PodcastList2<PodcastType>,
+        PodcastSearchType extends PodcastSearch,
+        PodcastSearchIdentifiedType extends PodcastSearch.PodcastSearchIdentified<
+                        PodcastSearchIdentifierType,
+                        PodcastSearchType
+                        >,
+        PodcastSearchIdentifiedListType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedList2<
                 PodcastSearchIdentifiedType,
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
-        PodcastSearchIdentifiedOptType extends PodcastSearch2.PodcastSearchIdentified2.PodcastSearchIdentifiedOpt2<
-                PodcastSearchIdentifiedType,
-                PodcastSearchIdentifierType,
-                PodcastSearchType
-                >,
-        PodcastSearchIdentifierType extends PodcastSearch2.PodcastSearchIdentifier2,
-        PodcastSearchIdentifierOptType extends PodcastSearch2.PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
-                PodcastSearchIdentifierType
-                >,
-        SubscriptionType extends Subscription2<
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
-                SubscriptionIdentifierType,
-                SubscriptionType,
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        SubscriptionIdentifiedListType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedList2<
+        PodcastSearchIdentifiedOptType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedOpt<
+                        PodcastSearchIdentifiedType,
+                        PodcastSearchIdentifierType,
+                        PodcastSearchType
+                        >,
+        PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier,
+        PodcastSearchIdentifierOptType extends PodcastSearch.PodcastSearchIdentifier.PodcastSearchIdentifierOpt<
+                        PodcastSearchIdentifierType
+                        >,
+        SubscriptionType extends Subscription<
+                        PodcastIdentifiedType,
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        SubscriptionIdentifiedType extends Subscription.SubscriptionIdentified<
+                        SubscriptionIdentifierType,
+                        SubscriptionType,
+                        PodcastIdentifiedType,
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        SubscriptionIdentifiedListType extends Subscription.SubscriptionIdentified.SubscriptionIdentifiedList2<
                 SubscriptionIdentifiedType,
                 SubscriptionIdentifierType,
                 SubscriptionType,
@@ -127,7 +127,7 @@ public final class PodcastService<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2
+        SubscriptionIdentifierType extends Subscription.SubscriptionIdentifier
         > {
     private static class PodcastSearchResponse<PodcastListType> {
         private final PodcastListType podcasts;
@@ -157,7 +157,7 @@ public final class PodcastService<
         }
     }
 
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             EpisodeIdentifiedType,
             EpisodeIdentifierType,
             EpisodeType
@@ -166,8 +166,8 @@ public final class PodcastService<
             EpisodeIdentifiedListType,
             EpisodeIdentifiedType
             > episodeIdentifiedListEmptyFactory;
-    private final Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory;
-    private final Podcast2.PodcastFactory2<PodcastType> podcastFactory;
+    private final Identifier.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory;
+    private final Podcast.PodcastFactory2<PodcastType> podcastFactory;
     private final CollectionFactory.Empty<
             PodcastIdentifiedListType,
             PodcastIdentifiedType
@@ -215,8 +215,8 @@ public final class PodcastService<
     private final ReactivexOkHttpCallAdapter reactivexOkHttpCallAdapter;
 
     public PodcastService(
-            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
-            Identified2.IdentifiedFactory2<
+            Episode.EpisodeFactory2<EpisodeType> episodeFactory,
+            Identified.IdentifiedFactory2<
                     EpisodeIdentifiedType,
                     EpisodeIdentifierType,
                     EpisodeType
@@ -225,7 +225,7 @@ public final class PodcastService<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
                     > episodeIdentifiedListEmptyFactory,
-            Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
+            Identifier.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
             CollectionFactory.Capacity<
                     EpisodeListType,
                     EpisodeType
@@ -234,7 +234,7 @@ public final class PodcastService<
                     EpisodeListType,
                     EpisodeType
                     > episodeListEmptyFactory,
-            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
             CollectionFactory.Empty<
                     PodcastIdentifiedListType,
                     PodcastIdentifiedType
@@ -290,8 +290,8 @@ public final class PodcastService<
     }
 
     public PodcastService(
-            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
-            Identified2.IdentifiedFactory2<
+            Episode.EpisodeFactory2<EpisodeType> episodeFactory,
+            Identified.IdentifiedFactory2<
                     EpisodeIdentifiedType,
                     EpisodeIdentifierType,
                     EpisodeType
@@ -300,7 +300,7 @@ public final class PodcastService<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
                     > episodeIdentifiedListEmptyFactory,
-            Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
+            Identifier.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
             CollectionFactory.Capacity<
                     EpisodeListType,
                     EpisodeType
@@ -309,7 +309,7 @@ public final class PodcastService<
                     EpisodeListType,
                     EpisodeType
                     > episodeListEmptyFactory,
-            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
             CollectionFactory.Empty<
                     PodcastIdentifiedListType,
                     PodcastIdentifiedType
@@ -370,7 +370,7 @@ public final class PodcastService<
     }
 
     public PodcastService(
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     EpisodeIdentifiedType,
                     EpisodeIdentifierType,
                     EpisodeType
@@ -379,8 +379,8 @@ public final class PodcastService<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
                     > episodeIdentifiedListEmptyFactory,
-            Identifier2.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
-            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier.IdentifierFactory2<EpisodeIdentifierType> episodeIdentifierFactory,
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
             CollectionFactory.Empty<
                     PodcastIdentifiedListType,
                     PodcastIdentifiedType

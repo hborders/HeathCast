@@ -9,7 +9,11 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
+import com.github.hborders.heathcast.models.Episode;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.Podcast;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -37,31 +41,31 @@ import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 
 final class EpisodeTable<
         MarkerType,
-        EpisodeType extends Episode2,
-        EpisodeIdentifiedType extends Episode2.EpisodeIdentified2<
-                EpisodeIdentifierType,
-                EpisodeType
-                >,
-        EpisodeIdentifiedListType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedList2<
+        EpisodeType extends Episode,
+        EpisodeIdentifiedType extends Episode.EpisodeIdentified<
+                        EpisodeIdentifierType,
+                        EpisodeType
+                        >,
+        EpisodeIdentifiedListType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifiedSetType extends Episode2.EpisodeIdentified2.EpisodeIdentifiedSet2<
+        EpisodeIdentifiedSetType extends Episode.EpisodeIdentified.EpisodeIdentifiedSet2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
-        EpisodeIdentifierType extends Episode2.EpisodeIdentifier2,
-        EpisodeIdentifierOptType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2<
-                EpisodeIdentifierType
-                >,
-        EpisodeIdentifierOptListType extends Episode2.EpisodeIdentifier2.EpisodeIdentifierOpt2.EpisodeIdentifierOptList2<
+        EpisodeIdentifierType extends Episode.EpisodeIdentifier,
+        EpisodeIdentifierOptType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt<
+                        EpisodeIdentifierType
+                        >,
+        EpisodeIdentifierOptListType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt.EpisodeIdentifierOptList2<
                 EpisodeIdentifierOptType,
                 EpisodeIdentifierType
                 >,
-        EpisodeListType extends Episode2.EpisodeList2<EpisodeType>,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2
+        EpisodeListType extends Episode.EpisodeList2<EpisodeType>,
+        PodcastIdentifierType extends Podcast.PodcastIdentifier
         > extends Table<MarkerType> {
     static final String TABLE_EPISODE = "episode";
 
@@ -90,20 +94,20 @@ final class EpisodeTable<
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
 
-    private final Episode2.EpisodeFactory2<EpisodeType> episodeFactory2;
-    private final Identifier2.IdentifierFactory2<
+    private final Episode.EpisodeFactory2<EpisodeType> episodeFactory2;
+    private final Identifier.IdentifierFactory2<
             EpisodeIdentifierType
             > episodeIdentifierFactory;
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             EpisodeIdentifiedType,
             EpisodeIdentifierType,
             EpisodeType
             > episodeIdentifiedFactory;
-    private final Opt2.OptEmptyFactory<
+    private final Opt.OptEmptyFactory<
             EpisodeIdentifierOptType,
             EpisodeIdentifierType
             > episodeIdentifierOptEmptyFactory;
-    private final Opt2.OptNonEmptyFactory<
+    private final Opt.OptNonEmptyFactory<
             EpisodeIdentifierOptType,
             EpisodeIdentifierType
             > episodeIdentifierOptNonEmptyFactory;
@@ -122,20 +126,20 @@ final class EpisodeTable<
 
     EpisodeTable(
             DimDatabase<MarkerType> dimDatabase,
-            Episode2.EpisodeFactory2<EpisodeType> episodeFactory,
-            Identifier2.IdentifierFactory2<
+            Episode.EpisodeFactory2<EpisodeType> episodeFactory,
+            Identifier.IdentifierFactory2<
                     EpisodeIdentifierType
                     > episodeIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     EpisodeIdentifiedType,
                     EpisodeIdentifierType,
                     EpisodeType
                     > episodeIdentifiedFactory,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                     EpisodeIdentifierOptType,
                     EpisodeIdentifierType
                     > episodeIdentifierOptEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                     EpisodeIdentifierOptType,
                     EpisodeIdentifierType
                     > episodeIdentifierOptNonEmptyFactory,
@@ -458,7 +462,7 @@ final class EpisodeTable<
     }
 
     private static final class EpisodeTableUpsertAdapter<
-            PodcastIdentifierType extends Podcast2.PodcastIdentifier2
+            PodcastIdentifierType extends Podcast.PodcastIdentifier
             > implements UpsertAdapter<String> {
         private final PodcastIdentifierType podcastIdentifier;
 

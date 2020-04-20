@@ -1,7 +1,7 @@
 package com.github.hborders.heathcast.matchers;
 
-import com.github.hborders.heathcast.dao.Identified2;
-import com.github.hborders.heathcast.dao.Identifier2;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -11,11 +11,11 @@ import static org.hamcrest.Matchers.equalTo;
 
 public final class IdentifiedMatchers {
     public static final class IdentifiedIdentifierMatcher<
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
-            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
+            IdentifierType extends Identifier,
             ModelType
             > extends TypeSafeMatcher<IdentifiedType> {
         private final Matcher<IdentifierType> identifierMatcher;
@@ -38,11 +38,11 @@ public final class IdentifiedMatchers {
     }
 
     public static final class IdentifiedModelMatcher<
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
-            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
+            IdentifierType extends Identifier,
             ModelType
             > extends TypeSafeMatcher<IdentifiedType> {
         private final Matcher<ModelType> modelMatcher;
@@ -65,44 +65,44 @@ public final class IdentifiedMatchers {
     }
 
     public static <
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
-            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
+            IdentifierType extends Identifier,
             ModelType
             > Matcher<IdentifiedType> identifiedIdentifier(Matcher<IdentifierType> identifierMatcher) {
         return new IdentifiedIdentifierMatcher<>(identifierMatcher);
     }
 
     public static <
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
-            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
+            IdentifierType extends Identifier,
             ModelType
             > Matcher<IdentifiedType> identifiedIdentifier(IdentifierType identifier) {
         return identifiedIdentifier(equalTo(identifier));
     }
 
     public static <
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
-            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
+            IdentifierType extends Identifier,
             ModelType
             > Matcher<IdentifiedType> identifiedModel(Matcher<ModelType> modelMatcher) {
         return new IdentifiedModelMatcher<>(modelMatcher);
     }
 
     public static <
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
-            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
+            IdentifierType extends Identifier,
             ModelType
             > Matcher<IdentifiedType> identifiedModel(ModelType model) {
         return identifiedModel(equalTo(model));

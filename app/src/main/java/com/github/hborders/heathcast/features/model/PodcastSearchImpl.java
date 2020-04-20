@@ -2,19 +2,19 @@ package com.github.hborders.heathcast.features.model;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.dao.PodcastSearch2;
+import com.github.hborders.heathcast.models.PodcastSearch;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
-public final class PodcastSearchImpl implements PodcastSearch2 {
+public final class PodcastSearchImpl implements PodcastSearch {
     public static final class PodcastSearchIdentifiedImpl
             extends IdentifiedImpl<
             PodcastSearchIdentifierImpl,
             PodcastSearchImpl
             >
-            implements PodcastSearchIdentified2<
+            implements PodcastSearchIdentified<
             PodcastSearchIdentifierImpl,
             PodcastSearchImpl
             > {
@@ -51,7 +51,7 @@ public final class PodcastSearchImpl implements PodcastSearch2 {
                 PodcastSearchIdentifierImpl,
                 PodcastSearchImpl
                 >
-                implements PodcastSearchIdentifiedOpt2<
+                implements PodcastSearchIdentifiedOpt<
                 PodcastSearchIdentifiedImpl,
                 PodcastSearchIdentifierImpl,
                 PodcastSearchImpl
@@ -82,10 +82,10 @@ public final class PodcastSearchImpl implements PodcastSearch2 {
 
     public static final class PodcastSearchIdentifierImpl
             extends IdentifierImpl
-            implements PodcastSearchIdentifier2 {
+            implements PodcastSearchIdentifier {
         public static final class PodcastSearchIdentifierOptImpl
                 extends IdentifierOptImpl<PodcastSearchIdentifierImpl>
-                implements PodcastSearchIdentifier2.PodcastSearchIdentifierOpt2<
+                implements PodcastSearchIdentifierOpt<
                 PodcastSearchIdentifierImpl
                 > {
             public PodcastSearchIdentifierOptImpl() {

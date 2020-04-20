@@ -9,9 +9,11 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt2;
+import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.core.SortedSetUtil;
 import com.github.hborders.heathcast.core.Tuple;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.ArrayList;
@@ -41,11 +43,11 @@ abstract class Table<MarkerType> {
     }
 
     protected static <
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
-            IdentifierType extends Identifier2,
+            IdentifiedType extends Identified<
+                                            IdentifierType,
+                                            ModelType
+                                            >,
+            IdentifierType extends Identifier,
             ModelType
             > void putIdentifier2(
             ContentValues contentValues,
@@ -56,7 +58,7 @@ abstract class Table<MarkerType> {
     }
 
     protected static <
-            IdentifierType extends Identifier2,
+            IdentifierType extends Identifier,
             ModelType
             > void putIdentifier2(
             ContentValues contentValues,
@@ -67,13 +69,13 @@ abstract class Table<MarkerType> {
     }
 
     protected final <
-            IdentifierType extends Identifier2,
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
+            IdentifierType extends Identifier,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
             ModelType,
-            IdentifierOptType extends Opt2<IdentifierType>,
+            IdentifierOptType extends Opt<IdentifierType>,
             SecondaryKeyType
             > IdentifierOptType upsertModel2(
             UpsertAdapter<SecondaryKeyType> upsertAdapter,
@@ -86,10 +88,10 @@ abstract class Table<MarkerType> {
                     ModelType,
                     SecondaryKeyType>
                     modelSecondaryKeyGetter,
-            Identifier2.IdentifierFactory2<
+            Identifier.IdentifierFactory2<
                     IdentifierType
                     > identifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     IdentifiedType,
                     IdentifierType,
                     ModelType
@@ -102,11 +104,11 @@ abstract class Table<MarkerType> {
                     IdentifiedType,
                     Integer
                     > identifiedUpdater,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                                 IdentifierOptType,
                                 IdentifierType
                                 > optEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                                 IdentifierOptType,
                                 IdentifierType
                                 > optNonEmptyFactory
@@ -144,15 +146,15 @@ abstract class Table<MarkerType> {
     }
 
     protected final <
-            IdentifierType extends Identifier2,
-            IdentifiedType extends Identified2<
-                    IdentifierType,
-                    ModelType
-                    >,
+            IdentifierType extends Identifier,
+            IdentifiedType extends Identified<
+                                IdentifierType,
+                                ModelType
+                                >,
             ModelListType extends List<ModelType>,
             IdentifierOptListType extends List<IdentifierOptType>,
             ModelType,
-            IdentifierOptType extends Opt2<IdentifierType>,
+            IdentifierOptType extends Opt<IdentifierType>,
             SecondaryKeyType
             > IdentifierOptListType upsertModels2(
             UpsertAdapter<SecondaryKeyType> upsertAdapter,
@@ -165,10 +167,10 @@ abstract class Table<MarkerType> {
                     ModelType,
                     SecondaryKeyType
                     > modelSecondaryKeyGetter,
-            Identifier2.IdentifierFactory2<
+            Identifier.IdentifierFactory2<
                     IdentifierType
                     > identifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     IdentifiedType,
                     IdentifierType,
                     ModelType
@@ -181,11 +183,11 @@ abstract class Table<MarkerType> {
                     IdentifiedType,
                     Integer
                     > identifiedUpdater,
-            Opt2.OptEmptyFactory<
+            Opt.OptEmptyFactory<
                                 IdentifierOptType,
                                 IdentifierType
                                 > optEmptyFactory,
-            Opt2.OptNonEmptyFactory<
+            Opt.OptNonEmptyFactory<
                                 IdentifierOptType,
                                 IdentifierType
                                 > optNonEmptyFactory,
@@ -302,7 +304,7 @@ abstract class Table<MarkerType> {
     }
 
     protected static <
-            IdentifierType extends Identifier2
+            IdentifierType extends Identifier
             > String[] idStrings2(Collection<IdentifierType> identifiers) {
         final String[] idStrings = new String[identifiers.size()];
         int i = 0;

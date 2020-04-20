@@ -10,6 +10,10 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.models.Identified;
+import com.github.hborders.heathcast.models.Identifier;
+import com.github.hborders.heathcast.models.Podcast;
+import com.github.hborders.heathcast.models.Subscription;
 import com.stealthmountain.sqldim.DimDatabase;
 
 import java.util.Arrays;
@@ -23,25 +27,25 @@ import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST
 
 public final class SubscriptionTable<
         MarkerType,
-        PodcastType extends Podcast2,
-        PodcastIdentifiedType extends Podcast2.PodcastIdentified2<
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        PodcastIdentifierType extends Podcast2.PodcastIdentifier2,
-        SubscriptionType extends Subscription2<
+        PodcastType extends Podcast,
+        PodcastIdentifiedType extends Podcast.PodcastIdentified<
+                        PodcastIdentifierType,
+                        PodcastType
+                        >,
+        PodcastIdentifierType extends Podcast.PodcastIdentifier,
+        SubscriptionType extends Subscription<
+                                        PodcastIdentifiedType,
+                                        PodcastIdentifierType,
+                                        PodcastType
+                                        >,
+        SubscriptionIdentifiedType extends Subscription.SubscriptionIdentified<
+                        SubscriptionIdentifierType,
+                        SubscriptionType,
                         PodcastIdentifiedType,
                         PodcastIdentifierType,
                         PodcastType
                         >,
-        SubscriptionIdentifiedType extends Subscription2.SubscriptionIdentified2<
-                SubscriptionIdentifierType,
-                SubscriptionType,
-                PodcastIdentifiedType,
-                PodcastIdentifierType,
-                PodcastType
-                >,
-        SubscriptionIdentifiedListType extends Subscription2.SubscriptionIdentified2.SubscriptionIdentifiedList2<
+        SubscriptionIdentifiedListType extends Subscription.SubscriptionIdentified.SubscriptionIdentifiedList2<
                 SubscriptionIdentifiedType,
                 SubscriptionIdentifierType,
                 SubscriptionType,
@@ -49,7 +53,7 @@ public final class SubscriptionTable<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        SubscriptionIdentifierType extends Subscription2.SubscriptionIdentifier2
+        SubscriptionIdentifierType extends Subscription.SubscriptionIdentifier
         > extends Table<MarkerType> {
     static final String TABLE_SUBSCRIPTION = "subscription";
 
@@ -59,25 +63,25 @@ public final class SubscriptionTable<
 
     private static final String[] COLUMNS_ID = new String[]{ID};
 
-    private final Subscription2.SubscriptionFactory2<
+    private final Subscription.SubscriptionFactory2<
             SubscriptionType,
             PodcastIdentifiedType,
             PodcastIdentifierType,
             PodcastType
             > subscriptionFactory;
-    private final Identifier2.IdentifierFactory2<
+    private final Identifier.IdentifierFactory2<
             SubscriptionIdentifierType
             > subscriptionIdentifierFactory;
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             SubscriptionIdentifiedType,
             SubscriptionIdentifierType,
             SubscriptionType
             > subscriptionIdentifiedFactory;
-    private final Podcast2.PodcastFactory2<PodcastType> podcastFactory;
-    private final Identifier2.IdentifierFactory2<
+    private final Podcast.PodcastFactory2<PodcastType> podcastFactory;
+    private final Identifier.IdentifierFactory2<
             PodcastIdentifierType
             > podcastIdentifierFactory;
-    private final Identified2.IdentifiedFactory2<
+    private final Identified.IdentifiedFactory2<
             PodcastIdentifiedType,
             PodcastIdentifierType,
             PodcastType
@@ -89,25 +93,25 @@ public final class SubscriptionTable<
 
     SubscriptionTable(
             DimDatabase<MarkerType> dimDatabase,
-            Subscription2.SubscriptionFactory2<
+            Subscription.SubscriptionFactory2<
                     SubscriptionType,
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType
                     > subscriptionFactory,
-            Identifier2.IdentifierFactory2<
+            Identifier.IdentifierFactory2<
                     SubscriptionIdentifierType
                     > subscriptionIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifierType,
                     SubscriptionType
                     > subscriptionIdentifiedFactory,
-            Podcast2.PodcastFactory2<PodcastType> podcastFactory,
-            Identifier2.IdentifierFactory2<
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier.IdentifierFactory2<
                     PodcastIdentifierType
                     > podcastIdentifierFactory,
-            Identified2.IdentifiedFactory2<
+            Identified.IdentifiedFactory2<
                     PodcastIdentifiedType,
                     PodcastIdentifierType,
                     PodcastType

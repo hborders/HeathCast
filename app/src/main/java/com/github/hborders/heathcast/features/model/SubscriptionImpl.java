@@ -2,13 +2,13 @@ package com.github.hborders.heathcast.features.model;
 
 import androidx.annotation.Nullable;
 
-import com.github.hborders.heathcast.dao.Subscription2;
+import com.github.hborders.heathcast.models.Subscription;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
-public final class SubscriptionImpl implements Subscription2<
+public final class SubscriptionImpl implements Subscription<
         PodcastImpl.PodcastIdentifiedImpl,
         PodcastImpl.PodcastIdentifierImpl,
         PodcastImpl
@@ -17,7 +17,7 @@ public final class SubscriptionImpl implements Subscription2<
             extends IdentifiedImpl<
             SubscriptionIdentifierImpl,
             SubscriptionImpl
-            > implements SubscriptionIdentified2<
+            > implements SubscriptionIdentified<
             SubscriptionIdentifierImpl,
             SubscriptionImpl,
             PodcastImpl.PodcastIdentifiedImpl,
@@ -58,7 +58,7 @@ public final class SubscriptionImpl implements Subscription2<
                 SubscriptionIdentifiedImpl,
                 SubscriptionIdentifierImpl,
                 SubscriptionImpl
-                > implements SubscriptionIdentifiedOpt2<
+                > implements SubscriptionIdentifiedOpt<
                 SubscriptionIdentifiedImpl,
                 SubscriptionIdentifierImpl,
                 SubscriptionImpl,
@@ -92,10 +92,10 @@ public final class SubscriptionImpl implements Subscription2<
 
     public static final class SubscriptionIdentifierImpl
             extends IdentifierImpl
-            implements SubscriptionIdentifier2 {
+            implements SubscriptionIdentifier {
         public static final class SubscriptionIdentifierOptImpl
                 extends IdentifierOptImpl<SubscriptionIdentifierImpl>
-                implements SubscriptionIdentifier2.SubscriptionIdentifierOpt2<SubscriptionIdentifierImpl> {
+                implements SubscriptionIdentifierOpt<SubscriptionIdentifierImpl> {
             public SubscriptionIdentifierOptImpl() {
             }
 

@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.parcelables.UnparcelableHolder;
 
 import java.util.List;
@@ -14,13 +13,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 public final class FragmentUtil {
-    private FragmentUtil() {
-    }
-
-    public static <L> L requireFragmentListener(
+    public static <ListenerType> ListenerType requireFragmentListener(
             Fragment fragment,
             Context context,
-            Class<L> listenerClass
+            Class<ListenerType> listenerClass
     ) {
         if (listenerClass.isInstance(context)) {
             return Objects.requireNonNull(listenerClass.cast(context));
@@ -32,9 +28,9 @@ public final class FragmentUtil {
         }
     }
 
-    public static <L> L requireContextFragmentListener(
+    public static <ListenerType> ListenerType requireContextFragmentListener(
             Context context,
-            Class<L> listenerClass
+            Class<ListenerType> listenerClass
     ) {
         if (listenerClass.isInstance(context)) {
             return Objects.requireNonNull(listenerClass.cast(context));
@@ -43,9 +39,9 @@ public final class FragmentUtil {
         }
     }
 
-    public static <L> L requireParentFragmentFragmentListenerRecursive(
+    public static <ListenerType> ListenerType requireParentFragmentFragmentListenerRecursive(
             Fragment fragment,
-            Class<L> listenerClass
+            Class<ListenerType> listenerClass
     ) {
         return requireParentFragmentFragmentListenerRecursive(
                 fragment,
@@ -54,10 +50,10 @@ public final class FragmentUtil {
         );
     }
 
-    private static <L> L requireParentFragmentFragmentListenerRecursive(
+    private static <ListenerType> ListenerType requireParentFragmentFragmentListenerRecursive(
             Fragment originalFragment,
             Fragment recursingFragment,
-            Class<L> listenerClass
+            Class<ListenerType> listenerClass
     ) {
         final @Nullable Fragment parentFragment = recursingFragment.getParentFragment();
         if (parentFragment == null) {
@@ -77,8 +73,8 @@ public final class FragmentUtil {
 
     @Nullable
     public static <
-            UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType
             > UnparcelableType getUnparcelableArgument(
             Fragment fragment,
             Class<UnparcelableHolderType> unparcelableHolderClass,
@@ -92,8 +88,8 @@ public final class FragmentUtil {
     }
 
     public static <
-            UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType
             > Optional<UnparcelableType> getUnparcelableArgumentOptional(
             Fragment fragment,
             Class<UnparcelableHolderType> unparcelableHolderClass,
@@ -109,28 +105,8 @@ public final class FragmentUtil {
     }
 
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
-            UnparcelableOptType extends Opt<UnparcelableType>,
-            UnparcelableOptFactoryType extends Opt.Factory<UnparcelableOptType, UnparcelableType>
-            > Opt<UnparcelableType> getUnparcelableArgumentOpt(
-            Fragment fragment,
-            Class<UnparcelableHolderType> unparcelableHolderClass,
-            UnparcelableOptFactoryType unparcelableOptFactory,
-            String key
-    ) {
-        return unparcelableOptFactory.ofNullable(
-                getUnparcelableArgument(
-                        fragment,
-                        unparcelableHolderClass,
-                        key
-                )
-        );
-    }
-
-    public static <
-            UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>
+            UnparcelableType
             > UnparcelableType requireUnparcelableArgument(
             Fragment fragment,
             Class<UnparcelableHolderType> unparcelableHolderClass,
@@ -147,13 +123,16 @@ public final class FragmentUtil {
 
     @Nullable
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType,
             UnparceableListType extends List<UnparcelableType>
             > UnparceableListType getUnparcelableListArgument(
             Fragment fragment,
             Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
+            CollectionFactory.Capacity<
+                    UnparceableListType,
+                    UnparcelableType
+                    > capacityCollectionFactory,
             String key
     ) {
         return BundleUtil.getUnparcelableList(
@@ -165,13 +144,16 @@ public final class FragmentUtil {
     }
 
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
+            UnparcelableType,
             UnparceableListType extends List<UnparcelableType>
             > Optional<UnparceableListType> getUnparcelableListArgumentOptional(
             Fragment fragment,
             Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
+            CollectionFactory.Capacity<
+                    UnparceableListType,
+                    UnparcelableType
+                    > capacityCollectionFactory,
             String key
     ) {
         return Optional.ofNullable(
@@ -185,36 +167,16 @@ public final class FragmentUtil {
     }
 
     public static <
-            UnparcelableType,
             UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
-            UnparceableListType extends List<UnparcelableType>,
-            UnparcelableListOptType extends Opt<UnparceableListType>,
-            UnparcelableListOptFactoryType extends Opt.Factory<UnparcelableListOptType, UnparceableListType>
-            > UnparcelableListOptType getUnparcelableListArgumentOpt(
-            Fragment fragment,
-            Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
-            UnparcelableListOptFactoryType unparcelableListOptFactory,
-            String key
-    ) {
-        return unparcelableListOptFactory.ofNullable(
-                getUnparcelableListArgument(
-                        fragment,
-                        unparcelableHolderClass,
-                        capacityCollectionFactory,
-                        key
-                )
-        );
-    }
-
-    public static <
             UnparcelableType,
-            UnparcelableHolderType extends UnparcelableHolder<UnparcelableType>,
             UnparceableListType extends List<UnparcelableType>
             > UnparceableListType requireUnparcelableListArgument(
             Fragment fragment,
             Class<UnparcelableHolderType> unparcelableHolderClass,
-            CollectionFactory.Capacity<UnparceableListType, UnparcelableType> capacityCollectionFactory,
+            CollectionFactory.Capacity<
+                    UnparceableListType,
+                    UnparcelableType
+                    > capacityCollectionFactory,
             String key
     ) {
         return Objects.requireNonNull(
@@ -225,5 +187,8 @@ public final class FragmentUtil {
                         key
                 )
         );
+    }
+
+    private FragmentUtil() {
     }
 }
