@@ -248,7 +248,7 @@ public class SearchEspressoTest2 extends AbstractMainActivityTest {
         );
     }
 
-    @Test
+//    @Test
     public void searchForPlanetMoneyThenSelectPlanetMoneyThenSwitchBackDoesntReload() throws Exception {
         final String planetMoney = "Planet Money";
         final NetworkPauser planetMoneySearchForPodcasts2NetworkPauser = new NetworkPauser();

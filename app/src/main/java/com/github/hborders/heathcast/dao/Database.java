@@ -155,6 +155,7 @@ public final class Database<
             > subscriptionIdentifiedFactory;
 
     private final DimDatabase<MarkerType> dimDatabase;
+    final MetaTable<MarkerType> metaTable;
     final EpisodeTable<
             MarkerType,
             EpisodeType,
@@ -328,6 +329,7 @@ public final class Database<
                 supportSQLiteOpenHelper,
                 scheduler
         );
+        metaTable = new MetaTable<>(dimDatabase);
         episodeTable = new EpisodeTable<>(
                 dimDatabase,
                 episodeFactory,
@@ -559,6 +561,7 @@ public final class Database<
 
         @Override
         public void onCreate(SupportSQLiteDatabase db) {
+            MetaTable.createMetaTable(db);
             PodcastSearchTable.createPodcastSearchTable(db);
             PodcastTable.createPodcastTable(db);
             EpisodeTable.createEpisodeTable(db);

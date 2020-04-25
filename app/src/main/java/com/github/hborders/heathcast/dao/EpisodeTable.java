@@ -43,9 +43,9 @@ final class EpisodeTable<
         MarkerType,
         EpisodeType extends Episode,
         EpisodeIdentifiedType extends Episode.EpisodeIdentified<
-                        EpisodeIdentifierType,
-                        EpisodeType
-                        >,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
         EpisodeIdentifiedListType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
@@ -58,8 +58,8 @@ final class EpisodeTable<
                 >,
         EpisodeIdentifierType extends Episode.EpisodeIdentifier,
         EpisodeIdentifierOptType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt<
-                        EpisodeIdentifierType
-                        >,
+                EpisodeIdentifierType
+                >,
         EpisodeIdentifierOptListType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt.EpisodeIdentifierOptList2<
                 EpisodeIdentifierOptType,
                 EpisodeIdentifierType
@@ -93,6 +93,88 @@ final class EpisodeTable<
     static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
+
+    static void createEpisodeTable(SupportSQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
+                + ARTWORK_URL + " TEXT, "
+                + DURATION + " INTEGER, "
+                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                + PODCAST_ID + " INTEGER NOT NULL, "
+                + PUBLISH_TIME_MILLIS + " INTEGER, "
+                + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0, "
+                + SUMMARY + " TEXT, "
+                + TITLE + " TEXT NOT NULL, "
+                + URL + " TEXT NOT NULL, "
+                + "UNIQUE("
+                + "  " + PODCAST_ID + ", "
+                + "  " + URL + " "
+                + "), "
+                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE "
+                + ")"
+        );
+        db.execSQL(
+                "CREATE TRIGGER " + TABLE_EPISODE + "_sort_after_insert_trigger"
+                        + "  AFTER INSERT ON " + TABLE_EPISODE + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_EPISODE
+                        + "      SET " + SORT + " = (" +
+                        "          SELECT" +
+                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
+                        "          FROM " + TABLE_EPISODE
+                        + "      )"
+                        + "      WHERE " + ID + " = NEW." + ID + ";"
+                        + "    END"
+        );
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PODCAST_ID
+                + " ON " + TABLE_EPISODE + "(" + PODCAST_ID + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PUBLISH_TIME_MILLIS
+                + " ON " + TABLE_EPISODE + "(" + PUBLISH_TIME_MILLIS + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + SORT
+                + " ON " + TABLE_EPISODE + "(" + SORT + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + URL
+                + " ON " + TABLE_EPISODE + "(" + URL + ")");
+    }
+
+    private static final class EpisodeTableUpsertAdapter<
+            PodcastIdentifierType extends Podcast.PodcastIdentifier
+            > implements UpsertAdapter<String> {
+        private final PodcastIdentifierType podcastIdentifier;
+
+        public EpisodeTableUpsertAdapter(PodcastIdentifierType podcastIdentifier) {
+            this.podcastIdentifier = podcastIdentifier;
+        }
+
+        @Override
+        public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<String> secondaryKeys) {
+            final String selection =
+                    URL + inPlaceholderClause(secondaryKeys.size())
+                            + " AND " + PODCAST_ID + " = ? ";
+            final Object[] bindArgs = new Object[secondaryKeys.size() + 1];
+            secondaryKeys.toArray(bindArgs);
+            bindArgs[secondaryKeys.size()] = podcastIdentifier.getId();
+            return SupportSQLiteQueryBuilder
+                    .builder(TABLE_EPISODE)
+                    .columns(new String[]{
+                            ID,
+                            URL
+                    })
+                    .selection(
+                            selection,
+                            bindArgs
+                    )
+                    .create();
+        }
+
+        @Override
+        public long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return CursorUtil.getNonnullLong(primaryAndSecondaryKeyCursor, ID);
+        }
+
+        @Override
+        public String getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return CursorUtil.getNonnullString(primaryAndSecondaryKeyCursor, URL);
+        }
+    }
 
     private final Episode.EpisodeFactory2<EpisodeType> episodeFactory2;
     private final Identifier.IdentifierFactory2<
@@ -322,47 +404,6 @@ final class EpisodeTable<
                 .mapToOptional(this::getEpisodeIdentified);
     }
 
-    static void createEpisodeTable(SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
-                + ARTWORK_URL + " TEXT, "
-                + DURATION + " INTEGER, "
-                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                + PODCAST_ID + " INTEGER NOT NULL, "
-                + PUBLISH_TIME_MILLIS + " INTEGER, "
-                + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0, "
-                + SUMMARY + " TEXT, "
-                + TITLE + " TEXT NOT NULL, "
-                + URL + " TEXT NOT NULL, "
-                + "UNIQUE("
-                + "  " + PODCAST_ID + ", "
-                + "  " + URL + " "
-                + "), "
-                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE "
-                + ")"
-        );
-        db.execSQL(
-                "CREATE TRIGGER " + TABLE_EPISODE + "_sort_after_insert_trigger"
-                        + "  AFTER INSERT ON " + TABLE_EPISODE + " FOR EACH ROW "
-                        + "    BEGIN"
-                        + "      UPDATE " + TABLE_EPISODE
-                        + "      SET " + SORT + " = (" +
-                        "          SELECT" +
-                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
-                        "          FROM " + TABLE_EPISODE
-                        + "      )"
-                        + "      WHERE " + ID + " = NEW." + ID + ";"
-                        + "    END"
-        );
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PODCAST_ID
-                + " ON " + TABLE_EPISODE + "(" + PODCAST_ID + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PUBLISH_TIME_MILLIS
-                + " ON " + TABLE_EPISODE + "(" + PUBLISH_TIME_MILLIS + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + SORT
-                + " ON " + TABLE_EPISODE + "(" + SORT + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + URL
-                + " ON " + TABLE_EPISODE + "(" + URL + ")");
-    }
-
     EpisodeIdentifiedType getEpisodeIdentified(Cursor cursor) {
         return episodeIdentifiedFactory.newIdentified(
                 episodeIdentifierFactory.newIdentifier(
@@ -459,46 +500,5 @@ final class EpisodeTable<
         );
 
         return values;
-    }
-
-    private static final class EpisodeTableUpsertAdapter<
-            PodcastIdentifierType extends Podcast.PodcastIdentifier
-            > implements UpsertAdapter<String> {
-        private final PodcastIdentifierType podcastIdentifier;
-
-        public EpisodeTableUpsertAdapter(PodcastIdentifierType podcastIdentifier) {
-            this.podcastIdentifier = podcastIdentifier;
-        }
-
-        @Override
-        public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<String> secondaryKeys) {
-            final String selection =
-                    URL + inPlaceholderClause(secondaryKeys.size())
-                            + " AND " + PODCAST_ID + " = ? ";
-            final Object[] bindArgs = new Object[secondaryKeys.size() + 1];
-            secondaryKeys.toArray(bindArgs);
-            bindArgs[secondaryKeys.size()] = podcastIdentifier.getId();
-            return SupportSQLiteQueryBuilder
-                    .builder(TABLE_EPISODE)
-                    .columns(new String[]{
-                            ID,
-                            URL
-                    })
-                    .selection(
-                            selection,
-                            bindArgs
-                    )
-                    .create();
-        }
-
-        @Override
-        public long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor) {
-            return CursorUtil.getNonnullLong(primaryAndSecondaryKeyCursor, ID);
-        }
-
-        @Override
-        public String getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
-            return CursorUtil.getNonnullString(primaryAndSecondaryKeyCursor, URL);
-        }
     }
 }

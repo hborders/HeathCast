@@ -32,6 +32,21 @@ final class PodcastSearchResultTable<
             PODCAST_SEARCH_ID
     };
 
+    static void createPodcastSearchResultTable(SupportSQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_PODCAST_SEARCH_RESULT + " ("
+                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                + PODCAST_ID + " INTEGER NOT NULL, "
+                + PODCAST_SEARCH_ID + " INTEGER NOT NULL, "
+                + SORT + " INTEGER NOT NULL, "
+                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE, "
+                + CREATE_FOREIGN_KEY_PODCAST_SEARCH + " ON DELETE CASCADE"
+                + ")");
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH_RESULT + "__" + PODCAST_ID
+                + " ON " + TABLE_PODCAST_SEARCH_RESULT + "(" + PODCAST_ID + ")");
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH_RESULT + "__" + PODCAST_SEARCH_ID
+                + " ON " + TABLE_PODCAST_SEARCH_RESULT + "(" + PODCAST_SEARCH_ID + ")");
+    }
+
     PodcastSearchResultTable(DimDatabase<MarkerType> dimDatabase) {
         super(dimDatabase);
     }
@@ -68,20 +83,5 @@ final class PodcastSearchResultTable<
                 PODCAST_SEARCH_ID + " = ?",
                 Long.toString(podcastSearchIdentifier.getId())
         );
-    }
-
-    static void createPodcastSearchResultTable(SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_PODCAST_SEARCH_RESULT + " ("
-                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                + PODCAST_ID + " INTEGER NOT NULL, "
-                + PODCAST_SEARCH_ID + " INTEGER NOT NULL, "
-                + SORT + " INTEGER NOT NULL, "
-                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE, "
-                + CREATE_FOREIGN_KEY_PODCAST_SEARCH + " ON DELETE CASCADE"
-                + ")");
-        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH_RESULT + "__" + PODCAST_ID
-                + " ON " + TABLE_PODCAST_SEARCH_RESULT + "(" + PODCAST_ID + ")");
-        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH_RESULT + "__" + PODCAST_SEARCH_ID
-                + " ON " + TABLE_PODCAST_SEARCH_RESULT + "(" + PODCAST_SEARCH_ID + ")");
     }
 }

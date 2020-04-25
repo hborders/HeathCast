@@ -63,6 +63,32 @@ public final class SubscriptionTable<
 
     private static final String[] COLUMNS_ID = new String[]{ID};
 
+    static void createSubscriptionTable(SupportSQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_SUBSCRIPTION + " ("
+                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                + PODCAST_ID + " INTEGER NOT NULL UNIQUE, "
+                + SORT + " REAL NOT NULL UNIQUE DEFAULT 0, "
+                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE"
+                + ")");
+        db.execSQL(
+                "CREATE TRIGGER " + TABLE_SUBSCRIPTION + "_sort_after_insert_trigger"
+                        + "  AFTER INSERT ON " + TABLE_SUBSCRIPTION + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_SUBSCRIPTION
+                        + "      SET " + SORT + " = (" +
+                        "          SELECT" +
+                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
+                        "          FROM " + TABLE_SUBSCRIPTION
+                        + "      )"
+                        + "      WHERE " + ID + " = NEW." + ID + ";"
+                        + "    END"
+        );
+        db.execSQL("CREATE INDEX " + TABLE_SUBSCRIPTION + "__" + PODCAST_ID
+                + " ON " + TABLE_SUBSCRIPTION + "(" + PODCAST_ID + ")");
+        db.execSQL("CREATE INDEX " + TABLE_SUBSCRIPTION + "__" + SORT
+                + " ON " + TABLE_SUBSCRIPTION + "(" + SORT + ")");
+    }
+
     private final Subscription.SubscriptionFactory2<
             SubscriptionType,
             PodcastIdentifiedType,
@@ -295,32 +321,6 @@ public final class SubscriptionTable<
                 ),
                 query
         ).mapToOptional(this::getSubscriptionIdentifier);
-    }
-
-    static void createSubscriptionTable(SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_SUBSCRIPTION + " ("
-                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                + PODCAST_ID + " INTEGER NOT NULL UNIQUE, "
-                + SORT + " REAL NOT NULL UNIQUE DEFAULT 0, "
-                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE"
-                + ")");
-        db.execSQL(
-                "CREATE TRIGGER " + TABLE_SUBSCRIPTION + "_sort_after_insert_trigger"
-                        + "  AFTER INSERT ON " + TABLE_SUBSCRIPTION + " FOR EACH ROW "
-                        + "    BEGIN"
-                        + "      UPDATE " + TABLE_SUBSCRIPTION
-                        + "      SET " + SORT + " = (" +
-                        "          SELECT" +
-                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
-                        "          FROM " + TABLE_SUBSCRIPTION
-                        + "      )"
-                        + "      WHERE " + ID + " = NEW." + ID + ";"
-                        + "    END"
-        );
-        db.execSQL("CREATE INDEX " + TABLE_SUBSCRIPTION + "__" + PODCAST_ID
-                + " ON " + TABLE_SUBSCRIPTION + "(" + PODCAST_ID + ")");
-        db.execSQL("CREATE INDEX " + TABLE_SUBSCRIPTION + "__" + SORT
-                + " ON " + TABLE_SUBSCRIPTION + "(" + SORT + ")");
     }
 
     ContentValues getSubscriptionContentValues(PodcastIdentifierType podcastIdentifier) {

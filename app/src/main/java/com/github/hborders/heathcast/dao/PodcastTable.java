@@ -79,6 +79,75 @@ final class PodcastTable<
             cursor -> CursorUtil.getNonnullString(cursor, FEED_URL)
     );
 
+    static void createPodcastTable(SupportSQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_PODCAST + " ("
+                + ARTWORK_URL + " TEXT, "
+                + AUTHOR + " TEXT, "
+                + FEED_URL + " TEXT NOT NULL UNIQUE, "
+                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT NOT NULL "
+                + ")"
+        );
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST + "__" + FEED_URL
+                + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
+    }
+
+    PodcastIdentifiedType getPodcastIdentified(Cursor cursor) {
+        return getPodcastIdentified(
+                podcastFactory,
+                podcastIdentifierFactory,
+                podcastIdentifiedFactory,
+                cursor
+        );
+    }
+
+    static <
+            PodcastIdentifiedType extends Podcast.PodcastIdentified<
+                    PodcastIdentifierType,
+                    PodcastType
+                    >,
+            PodcastIdentifierType extends Podcast.PodcastIdentifier,
+            PodcastType extends Podcast
+            > PodcastIdentifiedType getPodcastIdentified(
+            Podcast.PodcastFactory2<PodcastType> podcastFactory,
+            Identifier.IdentifierFactory2<
+                    PodcastIdentifierType
+                    > podcastIdentifierFactory,
+            Identified.IdentifiedFactory2<
+                    PodcastIdentifiedType,
+                    PodcastIdentifierType,
+                    PodcastType
+                    > podcastIdentifiedFactory,
+            Cursor cursor
+    ) {
+        return podcastIdentifiedFactory.newIdentified(
+                podcastIdentifierFactory.newIdentifier(
+                        getNonnullInt(
+                                cursor,
+                                ID
+                        )
+                ),
+                podcastFactory.newPodcast(
+                        getNullableURLFromString(
+                                cursor,
+                                ARTWORK_URL
+                        ),
+                        getNullableString(
+                                cursor,
+                                AUTHOR
+                        ),
+                        getNonnullURLFromString(
+                                cursor,
+                                FEED_URL
+                        ),
+                        getNonnullString(
+                                cursor,
+                                NAME
+                        )
+                )
+        );
+    }
+
     private final Podcast.PodcastFactory2<PodcastType> podcastFactory;
     private final Identifier.IdentifierFactory2<
             PodcastIdentifierType
@@ -268,75 +337,6 @@ final class PodcastTable<
                         query
                 )
                 .mapToOptional(this::getPodcastIdentified);
-    }
-
-    static void createPodcastTable(SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_PODCAST + " ("
-                + ARTWORK_URL + " TEXT, "
-                + AUTHOR + " TEXT, "
-                + FEED_URL + " TEXT NOT NULL UNIQUE, "
-                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                + NAME + " TEXT NOT NULL "
-                + ")"
-        );
-        db.execSQL("CREATE INDEX " + TABLE_PODCAST + "__" + FEED_URL
-                + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
-    }
-
-    PodcastIdentifiedType getPodcastIdentified(Cursor cursor) {
-        return getPodcastIdentified(
-                podcastFactory,
-                podcastIdentifierFactory,
-                podcastIdentifiedFactory,
-                cursor
-        );
-    }
-
-    static <
-            PodcastIdentifiedType extends Podcast.PodcastIdentified<
-                                PodcastIdentifierType,
-                                PodcastType
-                                >,
-            PodcastIdentifierType extends Podcast.PodcastIdentifier,
-            PodcastType extends Podcast
-            > PodcastIdentifiedType getPodcastIdentified(
-            Podcast.PodcastFactory2<PodcastType> podcastFactory,
-            Identifier.IdentifierFactory2<
-                    PodcastIdentifierType
-                    > podcastIdentifierFactory,
-            Identified.IdentifiedFactory2<
-                    PodcastIdentifiedType,
-                    PodcastIdentifierType,
-                    PodcastType
-                    > podcastIdentifiedFactory,
-            Cursor cursor
-    ) {
-        return podcastIdentifiedFactory.newIdentified(
-                podcastIdentifierFactory.newIdentifier(
-                        getNonnullInt(
-                                cursor,
-                                ID
-                        )
-                ),
-                podcastFactory.newPodcast(
-                        getNullableURLFromString(
-                                cursor,
-                                ARTWORK_URL
-                        ),
-                        getNullableString(
-                                cursor,
-                                AUTHOR
-                        ),
-                        getNonnullURLFromString(
-                                cursor,
-                                FEED_URL
-                        ),
-                        getNonnullString(
-                                cursor,
-                                NAME
-                        )
-                )
-        );
     }
 
     ContentValues getPodcastContentValues(PodcastType podcast) {

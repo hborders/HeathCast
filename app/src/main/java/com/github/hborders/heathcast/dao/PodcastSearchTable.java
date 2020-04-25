@@ -67,6 +67,50 @@ final class PodcastSearchTable<
             cursor -> CursorUtil.getNonnullString(cursor, SEARCH)
     );
 
+    static void createPodcastSearchTable(SupportSQLiteDatabase db) {
+        db.execSQL(
+                "CREATE TABLE " + TABLE_PODCAST_SEARCH + " ("
+                        + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                        + SEARCH + " TEXT NOT NULL UNIQUE, "
+                        + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0"
+                        + ")"
+        );
+        db.execSQL(
+                "CREATE TRIGGER " + TABLE_PODCAST_SEARCH + "_sort_after_insert_trigger"
+                        + "  AFTER INSERT ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_PODCAST_SEARCH
+                        + "      SET " + SORT + " = (" +
+                        "          SELECT" +
+                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
+                        "          FROM " + TABLE_PODCAST_SEARCH
+                        + "      )"
+                        + "      WHERE " + ID + " = NEW." + ID + ";"
+                        + "    END"
+        );
+        db.execSQL(
+                "CREATE TRIGGER " + TABLE_PODCAST_SEARCH + "_sort_after_update_trigger"
+                        + "  AFTER UPDATE ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + TABLE_PODCAST_SEARCH
+                        + "      SET " + SORT + " = (" +
+                        "          SELECT" +
+                        "            MAX(" + SORT + ") + 1 " +
+                        "          FROM " + TABLE_PODCAST_SEARCH
+                        + "      )"
+                        + "      WHERE " + ID + " = OLD." + ID + " AND" +
+                        "          " + SORT + " != (" +
+                        "            SELECT MAX(" + SORT + ") " +
+                        "            FROM " + TABLE_PODCAST_SEARCH +
+                        "          );"
+                        + "    END"
+        );
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH + "__" + SEARCH
+                + " ON " + TABLE_PODCAST_SEARCH + "(" + SEARCH + ")");
+        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH + "__" + SORT
+                + " ON " + TABLE_PODCAST_SEARCH + "(" + SORT + ")");
+    }
+
     private final PodcastSearch.PodcastSearchFactory2<PodcastSearchType> podcastSearchFactory;
     private final Identifier.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory;
     private final Identified.IdentifiedFactory2<
@@ -236,50 +280,6 @@ final class PodcastSearchTable<
         return dimDatabase
                 .createQuery(TABLE_PODCAST_SEARCH, query)
                 .mapToOptional(this::getPodcastSearchIdentified);
-    }
-
-    static void createPodcastSearchTable(SupportSQLiteDatabase db) {
-        db.execSQL(
-                "CREATE TABLE " + TABLE_PODCAST_SEARCH + " ("
-                        + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                        + SEARCH + " TEXT NOT NULL UNIQUE, "
-                        + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0"
-                        + ")"
-        );
-        db.execSQL(
-                "CREATE TRIGGER " + TABLE_PODCAST_SEARCH + "_sort_after_insert_trigger"
-                        + "  AFTER INSERT ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
-                        + "    BEGIN"
-                        + "      UPDATE " + TABLE_PODCAST_SEARCH
-                        + "      SET " + SORT + " = (" +
-                        "          SELECT" +
-                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
-                        "          FROM " + TABLE_PODCAST_SEARCH
-                        + "      )"
-                        + "      WHERE " + ID + " = NEW." + ID + ";"
-                        + "    END"
-        );
-        db.execSQL(
-                "CREATE TRIGGER " + TABLE_PODCAST_SEARCH + "_sort_after_update_trigger"
-                        + "  AFTER UPDATE ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "
-                        + "    BEGIN"
-                        + "      UPDATE " + TABLE_PODCAST_SEARCH
-                        + "      SET " + SORT + " = (" +
-                        "          SELECT" +
-                        "            MAX(" + SORT + ") + 1 " +
-                        "          FROM " + TABLE_PODCAST_SEARCH
-                        + "      )"
-                        + "      WHERE " + ID + " = OLD." + ID + " AND" +
-                        "          " + SORT + " != (" +
-                        "            SELECT MAX(" + SORT + ") " +
-                        "            FROM " + TABLE_PODCAST_SEARCH +
-                        "          );"
-                        + "    END"
-        );
-        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH + "__" + SEARCH
-                + " ON " + TABLE_PODCAST_SEARCH + "(" + SEARCH + ")");
-        db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH + "__" + SORT
-                + " ON " + TABLE_PODCAST_SEARCH + "(" + SORT + ")");
     }
 
     PodcastSearchIdentifiedType getPodcastSearchIdentified(Cursor cursor) {
