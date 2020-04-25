@@ -6,8 +6,8 @@ import android.os.Looper;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Single;
-import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.subjects.CompletableSubject;
 
 public final class NetworkPauser {
     private final Object monitor = new Object();

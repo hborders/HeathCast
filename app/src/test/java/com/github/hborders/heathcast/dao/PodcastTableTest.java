@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

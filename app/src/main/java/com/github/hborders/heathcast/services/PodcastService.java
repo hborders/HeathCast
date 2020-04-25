@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -591,7 +591,8 @@ public final class PodcastService<
                                                     database.markPodcastSearchFailure(marker)
                                     )
                                     .onErrorReturnItem(EmptyServiceResponse.FAILED)
-                                    .toObservable().startWith(EmptyServiceResponse.LOADING);
+                                    .toObservable()
+                                    .startWithItem(EmptyServiceResponse.LOADING);
 
                     return Observable.combineLatest(
                             podcastSearchServiceResponseObservable,

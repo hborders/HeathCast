@@ -17,9 +17,9 @@ import com.github.hborders.heathcast.views.recyclerviews.PodcastRecyclerViewAdap
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.CompletableSubject;
 
 // Next, I should consume it in the MainFragment as well
 public final class PodcastListFragment extends RxListAsyncValueFragment<

@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
 import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;

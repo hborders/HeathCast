@@ -2,7 +2,7 @@ package com.github.hborders.heathcast.mvp;
 
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 public interface ModelObservableProvider<
         FragmentType extends RxFragment<

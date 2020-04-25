@@ -6,9 +6,9 @@ import com.github.hborders.heathcast.R;
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public final class MainFragment extends RxFragment<
         MainFragment,

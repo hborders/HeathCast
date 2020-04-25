@@ -19,7 +19,7 @@ import com.stealthmountain.sqldim.DimDatabase;
 import java.util.Arrays;
 import java.util.Optional;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
 import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;

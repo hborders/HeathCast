@@ -12,10 +12,10 @@ import com.github.hborders.heathcast.core.Function;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public abstract class RxValueFragment<
         FragmentType extends RxValueFragment<

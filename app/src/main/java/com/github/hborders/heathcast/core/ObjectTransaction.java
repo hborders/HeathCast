@@ -3,8 +3,8 @@ package com.github.hborders.heathcast.core;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import io.reactivex.Completable;
-import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.subjects.CompletableSubject;
 
 public abstract class ObjectTransaction<
         ObjectTransactionType extends ObjectTransaction<

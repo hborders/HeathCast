@@ -9,7 +9,7 @@ import com.github.hborders.heathcast.features.model.PodcastImpl;
 import com.github.hborders.heathcast.features.model.PodcastSearchImpl;
 import com.github.hborders.heathcast.features.model.SubscriptionImpl;
 
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public abstract class AbstractPodcastServiceTest extends AbstractDatabaseTest<Object> {
     public interface TestPodcastListServiceResponse extends PodcastListServiceResponse<

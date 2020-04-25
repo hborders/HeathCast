@@ -4,8 +4,8 @@ import android.content.Context;
 
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
 
 public final class PodcastListAttachment extends RxFragment.Attachment<
         PodcastListFragment,

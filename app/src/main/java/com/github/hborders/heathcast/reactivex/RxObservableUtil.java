@@ -4,8 +4,8 @@ import com.github.hborders.heathcast.core.Function;
 
 import java.util.Optional;
 
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
 
 public class RxObservableUtil {
     public static <T> Maybe<T> maybeFromOptional(

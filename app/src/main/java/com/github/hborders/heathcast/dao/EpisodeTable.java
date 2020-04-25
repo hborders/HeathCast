@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putDateAsLong;

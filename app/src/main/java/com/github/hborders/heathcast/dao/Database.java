@@ -28,8 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 
 public final class Database<
         MarkerType,

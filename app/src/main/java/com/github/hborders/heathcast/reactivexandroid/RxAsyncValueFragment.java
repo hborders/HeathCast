@@ -9,7 +9,7 @@ import com.github.hborders.heathcast.core.VoidFunction;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource;
 import com.github.hborders.heathcast.idlingresource.MutableIdlingResource.Deceleration;
 
-import io.reactivex.Completable;
+import io.reactivex.rxjava3.core.Completable;
 
 // Keep renderer types and ViewFacade types totally separate
 // Don't have them keep extending each other. That way, each

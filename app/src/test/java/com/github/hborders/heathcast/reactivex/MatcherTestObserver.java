@@ -6,7 +6,7 @@ import com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil;
 
 import org.hamcrest.Matcher;
 
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -28,13 +28,13 @@ public final class MatcherTestObserver<T> extends TestObserver<T> {
         if (values.isEmpty()) {
             return null;
         } else {
-            return values.get(valueCount() - 1);
+            return values.get(values.size() - 1);
         }
     }
 
     public final void assertLastValue(T expectedLastValue) {
         assertValueAt(
-                valueCount() - 1,
+                values.size() - 1,
                 expectedLastValue
         );
     }

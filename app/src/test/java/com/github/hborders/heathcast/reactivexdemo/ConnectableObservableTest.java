@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observables.ConnectableObservable;
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.observables.ConnectableObservable;
+import io.reactivex.rxjava3.observers.TestObserver;
 
 import static org.junit.Assert.assertEquals;
 
@@ -45,10 +45,6 @@ public class ConnectableObservableTest {
         testObserver1.assertValues("1");
         testObserver2.assertValues("1");
 
-        disposable1.dispose();
-
-        assertEquals(0, observableEmitters.size());
-
         final TestObserver<String> testObserver3 = new TestObserver<>();
         final TestObserver<String> testObserver4 = new TestObserver<>();
 
@@ -58,27 +54,40 @@ public class ConnectableObservableTest {
         testObserver3.assertValues("1");
         testObserver4.assertValues("1");
 
+        // after every "dispose", all state of the "replay" resets
+
+        disposable1.dispose();
+
         assertEquals(0, observableEmitters.size());
 
-        // after every "connect", all state of the "replay" resets
+        final TestObserver<String> testObserver5 = new TestObserver<>();
+        final TestObserver<String> testObserver6 = new TestObserver<>();
+
+        testObject.subscribe(testObserver5);
+        testObject.subscribe(testObserver6);
+
+        testObserver5.assertNoValues();
+        testObserver6.assertNoValues();
 
         final Disposable disposable2 = testObject.connect();
 
         assertEquals(1, observableEmitters.size());
 
-        final TestObserver<String> testObserver5 = new TestObserver<>();
-        testObject.subscribe(testObserver5);
+        final TestObserver<String> testObserver7 = new TestObserver<>();
+        testObject.subscribe(testObserver7);
 
-        testObserver5.assertNoValues();
+        testObserver7.assertNoValues();
 
         observableEmitters.get(0).onNext("2");
 
         testObserver5.assertValues("2");
-
-        final TestObserver<String> testObserver6 = new TestObserver<>();
-        testObject.subscribe(testObserver6);
-
         testObserver6.assertValues("2");
+        testObserver7.assertValues("2");
+
+        final TestObserver<String> testObserver8 = new TestObserver<>();
+        testObject.subscribe(testObserver8);
+
+        testObserver8.assertValues("2");
 
         testObserver1.assertValues("1");
         testObserver2.assertValues("1");

@@ -20,12 +20,12 @@ import com.github.hborders.heathcast.core.Tuple;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.CompletableSubject;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.subjects.CompletableSubject;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 public abstract class RxFragment<
         FragmentType extends RxFragment<

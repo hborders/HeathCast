@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.util.Objects;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
 import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;

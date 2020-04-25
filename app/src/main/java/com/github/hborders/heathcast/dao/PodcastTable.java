@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putURLAsString;

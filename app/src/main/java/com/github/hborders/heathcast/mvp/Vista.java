@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.github.hborders.heathcast.reactivexandroid.RxFragment;
 
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public interface Vista<
         FragmentType extends RxFragment<

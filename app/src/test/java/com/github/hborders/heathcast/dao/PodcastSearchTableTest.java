@@ -11,7 +11,7 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.Arrays;
 import java.util.Optional;
 
-import io.reactivex.observers.TestObserver;
+import io.reactivex.rxjava3.observers.TestObserver;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
