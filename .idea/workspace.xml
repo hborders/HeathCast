@@ -114,7 +114,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/MapToListVersionedOperator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/VersionedImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Versioned.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/matchers/VersionedMatchers.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/android/CursorUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/android/CursorUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/MetaTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/MetaTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/EpisodeImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/EpisodeImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Episode.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Episode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/AbstractDatabaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/AbstractDatabaseTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/EpisodeTableTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/EpisodeTableTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/reactivex/MatcherTestObserver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/reactivex/MatcherTestObserver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/AbstractPodcastServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/AbstractPodcastServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/PodcastServiceSearchTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/PodcastServiceSearchTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -291,7 +313,27 @@
       <recent name="com.github.hborders.heathcast.core" />
     </key>
   </component>
-  <component name="RunManager" selected="Android JUnit.Unit Tests">
+  <component name="RunManager" selected="Android JUnit.EpisodeTableTest.testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast">
+    <configuration name="DatabaseTest.testDeletePodcastDeletesEpisodes" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <module name="app" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.github.hborders.heathcast.dao.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.github.hborders.heathcast.dao" />
+      <option name="MAIN_CLASS_NAME" value="com.github.hborders.heathcast.dao.DatabaseTest" />
+      <option name="METHOD_NAME" value="testDeletePodcastDeletesEpisodes" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea -Djavax.net.ssl.trustStoreType=JKS" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <dir value="$PROJECT_DIR$/app/src/test/java" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="DatabaseTest.testEmptyReplacePodcastSearchResultsForExistingPodcastSearch" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
       <module name="app" />
       <extension name="coverage">
@@ -303,6 +345,25 @@
       <option name="PACKAGE_NAME" value="com.github.hborders.heathcast.dao" />
       <option name="MAIN_CLASS_NAME" value="com.github.hborders.heathcast.dao.DatabaseTest" />
       <option name="METHOD_NAME" value="testEmptyReplacePodcastSearchResultsForExistingPodcastSearch" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea -Djavax.net.ssl.trustStoreType=JKS" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EpisodeTableTest.testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <module name="app" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.github.hborders.heathcast.dao.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.github.hborders.heathcast.dao" />
+      <option name="MAIN_CLASS_NAME" value="com.github.hborders.heathcast.dao.EpisodeTableTest" />
+      <option name="METHOD_NAME" value="testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea -Djavax.net.ssl.trustStoreType=JKS" />
       <option name="PARAMETERS" value="" />
@@ -441,106 +502,10 @@
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="searchForPlanetMon...() (2)" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" temporary="true" nameIsGenerated="true">
-      <module name="app" />
-      <option name="TESTING_TYPE" value="3" />
-      <option name="METHOD_NAME" value="searchForPlanetMoneyThenForModernLoveShowsModernLove" />
-      <option name="CLASS_NAME" value="com.github.hborders.heathcast.SearchEspressoTest2" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
-      <option name="EXTRA_OPTIONS" value="" />
-      <option name="INCLUDE_GRADLE_EXTRA_OPTIONS" value="true" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
-      <option name="FORCE_STOP_RUNNING_APP" value="true" />
-      <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
-      <option name="DEBUGGER_TYPE" value="Auto" />
-      <Auto>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Auto>
-      <Hybrid>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Hybrid>
-      <Java />
-      <Native>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Native>
-      <Profilers>
-        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
-        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
-        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Sample Java Methods" />
-      </Profilers>
-      <method v="2">
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="searchForPlanetMon...()" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" nameIsGenerated="true">
       <module name="app" />
       <option name="TESTING_TYPE" value="3" />
       <option name="METHOD_NAME" value="searchForPlanetMoneyThenForRandomTextShowsNoResults" />
-      <option name="CLASS_NAME" value="com.github.hborders.heathcast.SearchEspressoTest2" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
-      <option name="EXTRA_OPTIONS" value="" />
-      <option name="INCLUDE_GRADLE_EXTRA_OPTIONS" value="true" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
-      <option name="FORCE_STOP_RUNNING_APP" value="true" />
-      <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
-      <option name="DEBUGGER_TYPE" value="Auto" />
-      <Auto>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Auto>
-      <Hybrid>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Hybrid>
-      <Java />
-      <Native>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Native>
-      <Profilers>
-        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
-        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
-        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Sample Java Methods" />
-      </Profilers>
-      <method v="2">
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="searchForRandomTex...()" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" temporary="true" nameIsGenerated="true">
-      <module name="app" />
-      <option name="TESTING_TYPE" value="3" />
-      <option name="METHOD_NAME" value="searchForRandomTextShowsLoadingThenNoResults" />
       <option name="CLASS_NAME" value="com.github.hborders.heathcast.SearchEspressoTest2" />
       <option name="PACKAGE_NAME" value="" />
       <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
@@ -590,19 +555,19 @@
       <item itemvalue="Android Instrumented Tests.searchForPlanetMon...()" />
       <item itemvalue="Android Instrumented Tests.SearchEspressoTest2" />
       <item itemvalue="Android Instrumented Tests.MutableIdlingResourc..." />
-      <item itemvalue="Android Instrumented Tests.searchForPlanetMon...() (2)" />
-      <item itemvalue="Android Instrumented Tests.searchForRandomTex...()" />
       <item itemvalue="Android JUnit.Unit Tests" />
       <item itemvalue="Android JUnit.XmlParserTest.parseEpisodeList" />
       <item itemvalue="Android JUnit.DatabaseTest.testEmptyReplacePodcastSearchResultsForExistingPodcastSearch" />
+      <item itemvalue="Android JUnit.DatabaseTest.testDeletePodcastDeletesEpisodes" />
+      <item itemvalue="Android JUnit.EpisodeTableTest.testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Android JUnit.EpisodeTableTest.testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast" />
+        <item itemvalue="Android JUnit.DatabaseTest.testDeletePodcastDeletesEpisodes" />
         <item itemvalue="Android JUnit.DatabaseTest.testEmptyReplacePodcastSearchResultsForExistingPodcastSearch" />
         <item itemvalue="Android JUnit.XmlParserTest.parseEpisodeList" />
         <item itemvalue="Android Instrumented Tests.MutableIdlingResourc..." />
-        <item itemvalue="Android Instrumented Tests.searchForRandomTex...()" />
-        <item itemvalue="Android Instrumented Tests.searchForPlanetMon...() (2)" />
       </list>
     </recent_temporary>
   </component>
@@ -651,10 +616,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="755" y="409" key="#com.intellij.ide.actions.DebugLogConfigureAction/0.23.1920.1100@0.23.1920.1100" timestamp="1583602217176" />
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1587353899140">
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser" timestamp="1587880825325">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1587353899140" />
+    <state x="241" y="288" width="906" height="569" key="#com.intellij.ide.util.MemberChooser/0.23.1920.1100@0.23.1920.1100" timestamp="1587880825325" />
     <state x="648" y="315" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1587094823090">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -679,10 +644,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="674" y="297" key="#com.intellij.refactoring.move.moveMembers.MoveMembersDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585458275115" />
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1587355804697">
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1587850791647">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587355804697" />
+    <state x="220" y="23" width="1366" height="1100" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587850791647" />
     <state x="698" y="326" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1587355681896">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -699,38 +664,38 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="DiffContextDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585626710364" />
-    <state width="1878" height="299" key="GridCell.Tab.0.bottom" timestamp="1587813135053">
+    <state width="1878" height="299" key="GridCell.Tab.0.bottom" timestamp="1587883821876">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587813135053" />
-    <state width="1878" height="299" key="GridCell.Tab.0.center" timestamp="1587813135052">
+    <state width="1878" height="299" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821876" />
+    <state width="1878" height="299" key="GridCell.Tab.0.center" timestamp="1587883821875">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587813135052" />
-    <state width="1878" height="299" key="GridCell.Tab.0.left" timestamp="1587813135052">
+    <state width="1878" height="299" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821875" />
+    <state width="1878" height="299" key="GridCell.Tab.0.left" timestamp="1587883821875">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587813135052" />
-    <state width="1878" height="299" key="GridCell.Tab.0.right" timestamp="1587813135053">
+    <state width="1878" height="299" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821875" />
+    <state width="1878" height="299" key="GridCell.Tab.0.right" timestamp="1587883821875">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587813135053" />
-    <state width="1878" height="372" key="GridCell.Tab.1.bottom" timestamp="1587100835697">
+    <state width="1878" height="299" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821875" />
+    <state width="1878" height="372" key="GridCell.Tab.1.bottom" timestamp="1587877145500">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587100835697" />
-    <state width="1878" height="372" key="GridCell.Tab.1.center" timestamp="1587100835696">
+    <state width="1878" height="372" key="GridCell.Tab.1.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587877145500" />
+    <state width="1878" height="372" key="GridCell.Tab.1.center" timestamp="1587877145500">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587100835696" />
-    <state width="1878" height="372" key="GridCell.Tab.1.left" timestamp="1587100835696">
+    <state width="1878" height="372" key="GridCell.Tab.1.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587877145500" />
+    <state width="1878" height="372" key="GridCell.Tab.1.left" timestamp="1587877145499">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587100835696" />
-    <state width="1878" height="372" key="GridCell.Tab.1.right" timestamp="1587100835697">
+    <state width="1878" height="372" key="GridCell.Tab.1.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587877145499" />
+    <state width="1878" height="372" key="GridCell.Tab.1.right" timestamp="1587877145500">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="372" key="GridCell.Tab.1.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587100835697" />
+    <state width="1878" height="372" key="GridCell.Tab.1.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587877145500" />
     <state x="533" y="274" width="854" height="592" key="RefactorJ.ExtractClass" timestamp="1584905476413">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -739,10 +704,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="461" y="212" key="SettingsEditor/0.23.1920.1100@0.23.1920.1100" timestamp="1585539563491" />
-    <state x="690" y="312" width="576" height="524" key="StructurePopup" timestamp="1587794942778">
+    <state x="690" y="312" width="576" height="524" key="StructurePopup" timestamp="1587845477626">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="690" y="312" width="576" height="524" key="StructurePopup/0.23.1920.1100@0.23.1920.1100" timestamp="1587794942778" />
+    <state x="690" y="312" width="576" height="524" key="StructurePopup/0.23.1920.1100@0.23.1920.1100" timestamp="1587845477626" />
     <state width="954" height="550" key="XDebugger.FullValuePopup" timestamp="1585635467374">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -755,10 +720,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="com.android.tools.idea.avdmanager.AvdListDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585894616159" />
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1587827274216">
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1587872213211">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587827274216" />
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1587872213211" />
     <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579558329648">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -767,22 +732,22 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="198" y="316" width="1572" height="562" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.23.1920.1100@0.23.1920.1100" timestamp="1587100823670" />
-    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1587794876197">
+    <state x="337" y="144" width="1046" height="677" key="find.popup" timestamp="1587883708548">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587794876197" />
-    <state width="708" height="83" key="javadoc.popup.new" timestamp="1587794884720">
+    <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587883708548" />
+    <state width="708" height="83" key="javadoc.popup.new" timestamp="1587883371940">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1587794884720" />
+    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1587883371940" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586839829465">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586839829465" />
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1587793567068">
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1587873755372">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587793567068" />
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587873755372" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

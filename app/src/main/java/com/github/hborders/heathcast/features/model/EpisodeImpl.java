@@ -32,6 +32,26 @@ public final class EpisodeImpl implements Episode {
                 EpisodeIdentifierImpl,
                 EpisodeImpl
                 > {
+            public static final class EpisodeIdentifiedListVersionedImpl
+                    extends VersionedImpl<
+                    EpisodeIdentifiedListImpl
+                    > implements EpisodeIdentifiedListVersioned<
+                    EpisodeIdentifiedListImpl,
+                    EpisodeIdentifiedImpl,
+                    EpisodeIdentifierImpl,
+                    EpisodeImpl
+                    > {
+                public EpisodeIdentifiedListVersionedImpl(
+                        EpisodeIdentifiedListImpl value,
+                        long version
+                ) {
+                    super(
+                            value,
+                            version
+                    );
+                }
+            }
+
             public EpisodeIdentifiedListImpl() {
             }
 

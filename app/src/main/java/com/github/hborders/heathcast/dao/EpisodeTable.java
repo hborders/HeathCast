@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Opt;
+import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -22,12 +23,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.functions.BiFunction;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putDateAsLong;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putDurationAsLong;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putURLAsString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNonnullInt;
+import static com.github.hborders.heathcast.android.CursorUtil.getNonnullLong;
 import static com.github.hborders.heathcast.android.CursorUtil.getNonnullString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNonnullURLFromString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableDateFromLong;
@@ -51,6 +54,12 @@ final class EpisodeTable<
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
+        EpisodeIdentifiedListVersionedType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2.EpisodeIdentifiedListVersioned<
+                EpisodeIdentifiedListType,
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
         EpisodeIdentifiedSetType extends Episode.EpisodeIdentified.EpisodeIdentifiedSet2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
@@ -69,45 +78,45 @@ final class EpisodeTable<
         > extends Table<MarkerType> {
     static final String TABLE_EPISODE = "episode";
 
-    private static final String ARTWORK_URL = "artwork_url";
-    private static final String DURATION = "duration";
-    private static final String ID = "_id";
-    private static final String PODCAST_ID = FOREIGN_KEY_PODCAST;
-    private static final String PUBLISH_TIME_MILLIS = "publish_times_millis";
-    private static final String SORT = "sort";
-    private static final String SUMMARY = "summary";
-    private static final String TITLE = "title";
-    private static final String URL = "url";
+    private static final String COLUMN_ARTWORK_URL = "artwork_url";
+    private static final String COLUMN_DURATION = "duration";
+    private static final String COLUMN_ID = "_id";
+    private static final String COLUMN_PODCAST_ID = FOREIGN_KEY_PODCAST;
+    private static final String COLUMN_PUBLISH_TIME_MILLIS = "publish_times_millis";
+    private static final String COLUMN_SORT = "sort";
+    private static final String COLUMN_SUMMARY = "summary";
+    private static final String COLUMN_TITLE = "title";
+    private static final String COLUMN_URL = "url";
 
     private static final String[] COLUMNS_ALL_BUT_PODCAST_ID = new String[]{
-            ARTWORK_URL,
-            DURATION,
-            ID,
-            PUBLISH_TIME_MILLIS,
-            SORT,
-            SUMMARY,
-            TITLE,
-            URL,
+            COLUMN_ARTWORK_URL,
+            COLUMN_DURATION,
+            COLUMN_ID,
+            COLUMN_PUBLISH_TIME_MILLIS,
+            COLUMN_SORT,
+            COLUMN_SUMMARY,
+            COLUMN_TITLE,
+            COLUMN_URL,
     };
 
     static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
     static final String CREATE_FOREIGN_KEY_EPISODE =
-            "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + ID + ")";
+            "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + COLUMN_ID + ")";
 
     static void createEpisodeTable(SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_EPISODE + " ("
-                + ARTWORK_URL + " TEXT, "
-                + DURATION + " INTEGER, "
-                + ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                + PODCAST_ID + " INTEGER NOT NULL, "
-                + PUBLISH_TIME_MILLIS + " INTEGER, "
-                + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0, "
-                + SUMMARY + " TEXT, "
-                + TITLE + " TEXT NOT NULL, "
-                + URL + " TEXT NOT NULL, "
+                + COLUMN_ARTWORK_URL + " TEXT, "
+                + COLUMN_DURATION + " INTEGER, "
+                + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_PODCAST_ID + " INTEGER NOT NULL, "
+                + COLUMN_PUBLISH_TIME_MILLIS + " INTEGER, "
+                + COLUMN_SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0, "
+                + COLUMN_SUMMARY + " TEXT, "
+                + COLUMN_TITLE + " TEXT NOT NULL, "
+                + COLUMN_URL + " TEXT NOT NULL, "
                 + "UNIQUE("
-                + "  " + PODCAST_ID + ", "
-                + "  " + URL + " "
+                + "  " + COLUMN_PODCAST_ID + ", "
+                + "  " + COLUMN_URL + " "
                 + "), "
                 + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE "
                 + ")"
@@ -117,22 +126,27 @@ final class EpisodeTable<
                         + "  AFTER INSERT ON " + TABLE_EPISODE + " FOR EACH ROW "
                         + "    BEGIN"
                         + "      UPDATE " + TABLE_EPISODE
-                        + "      SET " + SORT + " = (" +
+                        + "      SET " + COLUMN_SORT + " = (" +
                         "          SELECT" +
-                        "            IFNULL(MAX(" + SORT + "), 0) + 1 " +
+                        "            IFNULL(MAX(" + COLUMN_SORT + "), 0) + 1 " +
                         "          FROM " + TABLE_EPISODE
                         + "      )"
-                        + "      WHERE " + ID + " = NEW." + ID + ";"
+                        + "      WHERE " + COLUMN_ID + " = NEW." + COLUMN_ID + ";"
                         + "    END"
         );
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PODCAST_ID
-                + " ON " + TABLE_EPISODE + "(" + PODCAST_ID + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + PUBLISH_TIME_MILLIS
-                + " ON " + TABLE_EPISODE + "(" + PUBLISH_TIME_MILLIS + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + SORT
-                + " ON " + TABLE_EPISODE + "(" + SORT + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + URL
-                + " ON " + TABLE_EPISODE + "(" + URL + ")");
+        MetaTable.createUpdateVersionTriggers(
+                db,
+                TABLE_EPISODE,
+                MetaTable.ID_EPISODE_TABLE
+        );
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PODCAST_ID
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_PODCAST_ID + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PUBLISH_TIME_MILLIS
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_PUBLISH_TIME_MILLIS + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_SORT
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_SORT + ")");
+        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_URL
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_URL + ")");
     }
 
     private static final class EpisodeTableUpsertAdapter<
@@ -147,16 +161,16 @@ final class EpisodeTable<
         @Override
         public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<String> secondaryKeys) {
             final String selection =
-                    URL + inPlaceholderClause(secondaryKeys.size())
-                            + " AND " + PODCAST_ID + " = ? ";
+                    COLUMN_URL + inPlaceholderClause(secondaryKeys.size())
+                            + " AND " + COLUMN_PODCAST_ID + " = ? ";
             final Object[] bindArgs = new Object[secondaryKeys.size() + 1];
             secondaryKeys.toArray(bindArgs);
             bindArgs[secondaryKeys.size()] = podcastIdentifier.getId();
             return SupportSQLiteQueryBuilder
                     .builder(TABLE_EPISODE)
                     .columns(new String[]{
-                            ID,
-                            URL
+                            COLUMN_ID,
+                            COLUMN_URL
                     })
                     .selection(
                             selection,
@@ -167,12 +181,12 @@ final class EpisodeTable<
 
         @Override
         public long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor) {
-            return CursorUtil.getNonnullLong(primaryAndSecondaryKeyCursor, ID);
+            return getNonnullLong(primaryAndSecondaryKeyCursor, COLUMN_ID);
         }
 
         @Override
         public String getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
-            return CursorUtil.getNonnullString(primaryAndSecondaryKeyCursor, URL);
+            return CursorUtil.getNonnullString(primaryAndSecondaryKeyCursor, COLUMN_URL);
         }
     }
 
@@ -197,6 +211,11 @@ final class EpisodeTable<
             EpisodeIdentifiedListType,
             EpisodeIdentifiedType
             > episodeIdentifiedListCapacityFactory;
+    private final BiFunction<
+            EpisodeIdentifiedListType,
+            Long,
+            EpisodeIdentifiedListVersionedType
+            > episodeIdentifiedListVersionedFactory;
     private final CollectionFactory.Collection<
             EpisodeIdentifiedSetType,
             EpisodeIdentifiedType
@@ -229,6 +248,11 @@ final class EpisodeTable<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
                     > episodeIdentifiedListCapacityFactory,
+            BiFunction<
+                    EpisodeIdentifiedListType,
+                    Long,
+                    EpisodeIdentifiedListVersionedType
+                    > episodeIdentifiedListVersionedFactory,
             CollectionFactory.Collection<
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifiedType
@@ -246,6 +270,7 @@ final class EpisodeTable<
         this.episodeIdentifierOptEmptyFactory = episodeIdentifierOptEmptyFactory;
         this.episodeIdentifierOptNonEmptyFactory = episodeIdentifierOptNonEmptyFactory;
         this.episodeIdentifiedListCapacityFactory = episodeIdentifiedListCapacityFactory;
+        this.episodeIdentifiedListVersionedFactory = episodeIdentifiedListVersionedFactory;
         this.episodeIdentifiedSetCollectionFactory = episodeIdentifiedSetCollectionFactory;
         this.episodeIdentifierOptListCapacityFactory = episodeIdentifierOptListCapacityFactory;
     }
@@ -281,7 +306,7 @@ final class EpisodeTable<
                         podcastIdentifier,
                         episodeIdentified
                 ),
-                ID + " = ?",
+                COLUMN_ID + " = ?",
                 Long.toString(episodeIdentified.getIdentifier().getId())
         );
     }
@@ -320,7 +345,7 @@ final class EpisodeTable<
     int deleteEpisode(EpisodeIdentifierType episodeIdentifier) {
         return dimDatabase.delete(
                 TABLE_EPISODE,
-                ID + " = ?",
+                COLUMN_ID + " = ?",
                 Long.toString(episodeIdentifier.getId())
         );
     }
@@ -329,7 +354,7 @@ final class EpisodeTable<
         final String[] idStrings = idStrings2(episodeIdentifiers);
         return dimDatabase.delete(
                 TABLE_EPISODE,
-                ID + inPlaceholderClause(episodeIdentifiers.size()),
+                COLUMN_ID + inPlaceholderClause(episodeIdentifiers.size()),
                 idStrings
         );
     }
@@ -353,31 +378,54 @@ final class EpisodeTable<
                 .map(episodeIdentifiedSetCollectionFactory::newCollection);
     }
 
+    Observable<
+            Optional<EpisodeIdentifiedListVersionedType>
+            > observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(
+            PodcastIdentifierType podcastIdentifier
+    ) {
+        return dimDatabase.createQuery(
+                Arrays.asList(
+                        TABLE_PODCAST,
+                        TABLE_EPISODE
+                ),
+                "SELECT "
+                        + TABLE_EPISODE + "." + COLUMN_ARTWORK_URL + " AS " + COLUMN_ARTWORK_URL + ", "
+                        + TABLE_EPISODE + "." + COLUMN_DURATION + " AS " + COLUMN_DURATION + ", "
+                        + TABLE_EPISODE + "." + COLUMN_ID + " AS " + COLUMN_ID + ", "
+                        + TABLE_EPISODE + "." + COLUMN_PUBLISH_TIME_MILLIS + " AS " + COLUMN_PUBLISH_TIME_MILLIS + ", "
+                        + TABLE_EPISODE + "." + COLUMN_SORT + " AS " + COLUMN_SORT + ", "
+                        + TABLE_EPISODE + "." + COLUMN_SUMMARY + " AS " + COLUMN_SUMMARY + ", "
+                        + TABLE_EPISODE + "." + COLUMN_TITLE + " AS " + COLUMN_TITLE + ", "
+                        + TABLE_EPISODE + "." + COLUMN_URL + " AS " + COLUMN_URL + ", "
+                        + TABLE_EPISODE + "." + COLUMN_URL + " AS " + COLUMN_URL + ", "
+                        + MetaTable.TABLE_META + "." + MetaTable.COLUMN_VERSION + " AS " + MetaTable.COLUMN_VERSION + " "
+                        + "FROM " + TABLE_EPISODE + " "
+                        + "INNER JOIN " + MetaTable.TABLE_META + " "
+                        + "  ON " + MetaTable.TABLE_META + "." + MetaTable.COLUMN_ID + " "
+                        + "    = " + MetaTable.ID_EPISODE_TABLE + " "
+                        + "WHERE " + TABLE_EPISODE + "." + COLUMN_PODCAST_ID + " = ? "
+                        + "ORDER BY " + TABLE_EPISODE + "." + COLUMN_SORT,
+                podcastIdentifier.getId()
+        ).lift(
+                new MapToListVersionedOperator<>(
+                        episodeIdentifiedListCapacityFactory,
+                        this::getVersionAndEpisodeIdentified,
+                        this.episodeIdentifiedListVersionedFactory
+                )
+        );
+    }
+
     Observable<EpisodeIdentifiedListType> observeQueryForEpisodeIdentifiedsForPodcast(
             PodcastIdentifierType podcastIdentifier
     ) {
-        final SupportSQLiteQuery query =
-                SupportSQLiteQueryBuilder2
-                        .builder(TABLE_EPISODE)
-                        .selection(
-                                PODCAST_ID + " = ?",
-                                new Object[]{podcastIdentifier.getId()}
-                        )
-                        .orderBy(SORT)
-                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
-                        .create();
-
-        return dimDatabase
-                .createQuery(
-                        Arrays.asList(
-                                TABLE_PODCAST,
-                                TABLE_EPISODE
-                        ),
-                        query
-                )
-                .mapToSpecificList(
-                        this::getEpisodeIdentified,
-                        episodeIdentifiedListCapacityFactory::newCollection
+        return observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(podcastIdentifier)
+                .map(
+                        episodeIdentifiedListVersionedOptional ->
+                                episodeIdentifiedListVersionedOptional.map(
+                                        EpisodeIdentifiedListVersionedType::getValue
+                                ).orElse(
+                                        episodeIdentifiedListCapacityFactory.newCollection(0)
+                                )
                 );
     }
 
@@ -389,7 +437,7 @@ final class EpisodeTable<
                         .builder(TABLE_EPISODE)
                         .columns(COLUMNS_ALL_BUT_PODCAST_ID)
                         .selection(
-                                ID + "= ?",
+                                COLUMN_ID + "= ?",
                                 new Object[]{episodeIdentifier.getId()}
                         ).create();
 
@@ -404,38 +452,53 @@ final class EpisodeTable<
                 .mapToOptional(this::getEpisodeIdentified);
     }
 
+    private Tuple<
+            Long,
+            EpisodeIdentifiedType
+            > getVersionAndEpisodeIdentified(Cursor cursor) {
+        long version = getNonnullLong(
+                cursor,
+                MetaTable.COLUMN_VERSION
+        );
+        EpisodeIdentifiedType episodeIdentified = getEpisodeIdentified(cursor);
+        return new Tuple<>(
+                version,
+                episodeIdentified
+        );
+    }
+
     EpisodeIdentifiedType getEpisodeIdentified(Cursor cursor) {
         return episodeIdentifiedFactory.newIdentified(
                 episodeIdentifierFactory.newIdentifier(
                         getNonnullInt(
                                 cursor,
-                                ID
+                                COLUMN_ID
                         )
                 ),
                 episodeFactory2.newEpisode(
                         getNullableURLFromString(
                                 cursor,
-                                ARTWORK_URL
+                                COLUMN_ARTWORK_URL
                         ),
                         getNullableDurationFromLong(
                                 cursor,
-                                DURATION
+                                COLUMN_DURATION
                         ),
                         getNullableDateFromLong(
                                 cursor,
-                                PUBLISH_TIME_MILLIS
+                                COLUMN_PUBLISH_TIME_MILLIS
                         ),
                         getNullableString(
                                 cursor,
-                                SUMMARY
+                                COLUMN_SUMMARY
                         ),
                         getNonnullString(
                                 cursor,
-                                TITLE
+                                COLUMN_TITLE
                         ),
                         getNonnullURLFromString(
                                 cursor,
-                                URL
+                                COLUMN_URL
                         )
                 )
         );
@@ -449,35 +512,35 @@ final class EpisodeTable<
 
         putURLAsString(
                 values,
-                ARTWORK_URL,
+                COLUMN_ARTWORK_URL,
                 episode.getArtworkURL()
         );
         putDurationAsLong(
                 values,
-                DURATION,
+                COLUMN_DURATION,
                 episode.getDuration()
         );
         putIdentifier2(
                 values,
-                PODCAST_ID,
+                COLUMN_PODCAST_ID,
                 podcastIdentifier
         );
         putDateAsLong(
                 values,
-                PUBLISH_TIME_MILLIS,
+                COLUMN_PUBLISH_TIME_MILLIS,
                 episode.getPublishDate()
         );
         values.put(
-                SUMMARY,
+                COLUMN_SUMMARY,
                 episode.getSummary()
         );
         values.put(
-                TITLE,
+                COLUMN_TITLE,
                 episode.getTitle()
         );
         putURLAsString(
                 values,
-                URL,
+                COLUMN_URL,
                 episode.getURL()
         );
 
@@ -495,7 +558,7 @@ final class EpisodeTable<
 
         putIdentifier2(
                 values,
-                ID,
+                COLUMN_ID,
                 episodeIdentified
         );
 

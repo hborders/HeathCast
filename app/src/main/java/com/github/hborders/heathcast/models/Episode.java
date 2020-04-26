@@ -37,6 +37,20 @@ public interface Episode {
                 EpisodeIdentifierType extends EpisodeIdentifier,
                 EpisodeType extends Episode
                 > extends List<EpisodeIdentifiedType> {
+            interface EpisodeIdentifiedListVersioned<
+                    EpisodeIdentifiedListType extends EpisodeIdentifiedList2<
+                            EpisodeIdentifiedType,
+                            EpisodeIdentifierType,
+                            EpisodeType
+                            >,
+                    EpisodeIdentifiedType extends EpisodeIdentified<
+                            EpisodeIdentifierType,
+                            EpisodeType
+                            >,
+                    EpisodeIdentifierType extends EpisodeIdentifier,
+                    EpisodeType extends Episode
+                    > extends Versioned<EpisodeIdentifiedListType> {
+            }
         }
 
         interface EpisodeIdentifiedOpt<

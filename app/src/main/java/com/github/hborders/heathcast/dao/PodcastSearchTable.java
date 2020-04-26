@@ -75,6 +75,11 @@ final class PodcastSearchTable<
                         + SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0"
                         + ")"
         );
+        MetaTable.createUpdateVersionTriggers(
+                db,
+                TABLE_PODCAST_SEARCH,
+                MetaTable.ID_PODCAST_SEARCH_TABLE
+        );
         db.execSQL(
                 "CREATE TRIGGER " + TABLE_PODCAST_SEARCH + "_sort_after_insert_trigger"
                         + "  AFTER INSERT ON " + TABLE_PODCAST_SEARCH + " FOR EACH ROW "

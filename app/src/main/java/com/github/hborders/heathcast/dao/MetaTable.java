@@ -7,53 +7,101 @@ import com.stealthmountain.sqldim.DimDatabase;
 final class MetaTable<MarkerType> extends Table<MarkerType> {
     static final String TABLE_META = "meta";
 
-    static final int EPISODE_TABLE_ID = 1;
-    static final int PODCAST_TABLE_ID = 2;
-    static final int PODCAST_SEARCH_TABLE_ID = 3;
-    static final int PODCAST_SEARCH_RESULT_TABLE_ID = 4;
-    static final int SUBSCRIPTION_TABLE_ID = 5;
+    static final String COLUMN_ID = "_id";
+    static final String COLUMN_TABLE_NAME = "table_name";
+    static final String COLUMN_VERSION = "version";
 
-    private static final String ID = "_id";
-    private static final String TABLE_NAME = "table_name";
-    private static final String VERSION = "version";
+    static final int ID_EPISODE_TABLE = 1;
+    static final int ID_PODCAST_TABLE = 2;
+    static final int ID_PODCAST_SEARCH_TABLE = 3;
+    static final int ID_PODCAST_SEARCH_RESULT_TABLE = 4;
+    static final int ID_SUBSCRIPTION_TABLE = 5;
 
     static void createMetaTable(SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_META + " ("
-                + ID + " INTEGER NOT NULL PRIMARY KEY, " // not AUTOINCREMENT!
-                + TABLE_NAME + " TEXT NOT NULL, "
-                + VERSION + " INTEGER NOT NULL, "
+                + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY, " // not AUTOINCREMENT!
+                + COLUMN_TABLE_NAME + " TEXT NOT NULL, "
+                + COLUMN_VERSION + " INTEGER NOT NULL, "
                 + "UNIQUE("
-                + "  " + TABLE_NAME + " "
+                + "  " + COLUMN_TABLE_NAME + " "
                 + ") "
                 + ")"
         );
         // Earlier SQLite versions don't support a simple syntax for inserting multiple rows at once
         // https://stackoverflow.com/a/5009740/9636
         db.execSQL(" INSERT INTO " + TABLE_META + " ( "
-                + ID + ", " + TABLE_NAME + ", " + VERSION
+                + COLUMN_ID + ", " + COLUMN_TABLE_NAME + ", " + COLUMN_VERSION
                 + " ) VALUES ( "
-                + EPISODE_TABLE_ID + ", \"" + EpisodeTable.TABLE_EPISODE + "\", " + "1"
+                + ID_EPISODE_TABLE + ", \"" + EpisodeTable.TABLE_EPISODE + "\", " + "1"
                 + " ); "
                 + " INSERT INTO " + TABLE_META + " ( "
-                + ID + ", " + TABLE_NAME + ", " + VERSION
+                + COLUMN_ID + ", " + COLUMN_TABLE_NAME + ", " + COLUMN_VERSION
                 + " ) VALUES ( "
-                + PODCAST_TABLE_ID + ", \"" + PodcastTable.TABLE_PODCAST + "\", " + "1"
+                + ID_PODCAST_TABLE + ", \"" + PodcastTable.TABLE_PODCAST + "\", " + "1"
                 + " ); "
                 + " INSERT INTO " + TABLE_META + " ( "
-                + ID + ", " + TABLE_NAME + ", " + VERSION
+                + COLUMN_ID + ", " + COLUMN_TABLE_NAME + ", " + COLUMN_VERSION
                 + " ) VALUES ( "
-                + PODCAST_SEARCH_TABLE_ID + ", \"" + PodcastSearchTable.TABLE_PODCAST_SEARCH + "\", " + "1"
+                + ID_PODCAST_SEARCH_TABLE + ", \"" + PodcastSearchTable.TABLE_PODCAST_SEARCH + "\", " + "1"
                 + " ); "
                 + " INSERT INTO " + TABLE_META + " ( "
-                + ID + ", " + TABLE_NAME + ", " + VERSION
+                + COLUMN_ID + ", " + COLUMN_TABLE_NAME + ", " + COLUMN_VERSION
                 + " ) VALUES ( "
-                + PODCAST_SEARCH_RESULT_TABLE_ID + ", \"" + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "\", " + "1"
+                + ID_PODCAST_SEARCH_RESULT_TABLE + ", \"" + PodcastSearchResultTable.TABLE_PODCAST_SEARCH_RESULT + "\", " + "1"
                 + " ); "
                 + " INSERT INTO " + TABLE_META + " ( "
-                + ID + ", " + TABLE_NAME + ", " + VERSION
+                + COLUMN_ID + ", " + COLUMN_TABLE_NAME + ", " + COLUMN_VERSION
                 + " ) VALUES ( "
-                + SUBSCRIPTION_TABLE_ID + ", \"" + SubscriptionTable.TABLE_SUBSCRIPTION + "\", " + "1"
+                + ID_SUBSCRIPTION_TABLE + ", \"" + SubscriptionTable.TABLE_SUBSCRIPTION + "\", " + "1"
                 + " ); "
+        );
+    }
+
+    static void createUpdateVersionTriggers(
+            SupportSQLiteDatabase db,
+            String tableName,
+            int id
+    ) {
+        db.execSQL(
+                "CREATE TRIGGER " + tableName + "_version_after_insert_trigger"
+                        + "  AFTER INSERT ON " + tableName + " FOR EACH ROW "
+                        + " BEGIN"
+                        + " UPDATE " + TABLE_META
+                        + " SET " + COLUMN_VERSION + " = ("
+                        + "   SELECT MAX(" + COLUMN_VERSION + ") + 1 "
+                        + "   FROM " + TABLE_META
+                        + "   WHERE " + COLUMN_ID + " = " + id
+                        + " )"
+                        + " WHERE " + COLUMN_ID + " = " + id + ";"
+                        + " END"
+        );
+
+        db.execSQL(
+                "CREATE TRIGGER " + tableName + "_version_after_update_trigger"
+                        + "  AFTER UPDATE ON " + tableName + " FOR EACH ROW "
+                        + " BEGIN"
+                        + " UPDATE " + TABLE_META
+                        + " SET " + COLUMN_VERSION + " = ("
+                        + "   SELECT MAX(" + COLUMN_VERSION + ") + 1 "
+                        + "   FROM " + TABLE_META
+                        + "   WHERE " + COLUMN_ID + " = " + id
+                        + " )"
+                        + " WHERE " + COLUMN_ID + " = " + id + ";"
+                        + " END"
+        );
+
+        db.execSQL(
+                "CREATE TRIGGER " + tableName + "_version_after_delete_trigger"
+                        + "  AFTER DELETE ON " + tableName + " FOR EACH ROW "
+                        + " BEGIN"
+                        + " UPDATE " + TABLE_META
+                        + " SET " + COLUMN_VERSION + " = ("
+                        + "   SELECT MAX(" + COLUMN_VERSION + ") + 1 "
+                        + "   FROM " + TABLE_META
+                        + "   WHERE " + COLUMN_ID + " = " + id
+                        + " )"
+                        + " WHERE " + COLUMN_ID + " = " + id + ";"
+                        + " END"
         );
     }
 

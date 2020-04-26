@@ -30,15 +30,22 @@ import java.util.Optional;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.functions.BiFunction;
 
 public final class Database<
         MarkerType,
         EpisodeType extends Episode,
         EpisodeIdentifiedType extends Episode.EpisodeIdentified<
-                        EpisodeIdentifierType,
-                        EpisodeType
-                        >,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
         EpisodeIdentifiedListType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2<
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
+        EpisodeIdentifiedListVersionedType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2.EpisodeIdentifiedListVersioned<
+                EpisodeIdentifiedListType,
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
@@ -59,9 +66,9 @@ public final class Database<
                 >,
         PodcastType extends Podcast,
         PodcastIdentifiedType extends Podcast.PodcastIdentified<
-                        PodcastIdentifierType,
-                        PodcastType
-                        >,
+                PodcastIdentifierType,
+                PodcastType
+                >,
         PodcastIdentifiedListType extends Podcast.PodcastIdentified.PodcastIdentifiedList2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
@@ -80,35 +87,35 @@ public final class Database<
                 >,
         PodcastSearchType extends PodcastSearch,
         PodcastSearchIdentifiedType extends PodcastSearch.PodcastSearchIdentified<
-                        PodcastSearchIdentifierType,
-                        PodcastSearchType
-                        >,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
         PodcastSearchIdentifiedListType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedList2<
                 PodcastSearchIdentifiedType,
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
         PodcastSearchIdentifiedOptType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedOpt<
-                        PodcastSearchIdentifiedType,
-                        PodcastSearchIdentifierType,
-                        PodcastSearchType
-                        >,
+                PodcastSearchIdentifiedType,
+                PodcastSearchIdentifierType,
+                PodcastSearchType
+                >,
         PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier,
         PodcastSearchIdentifierOptType extends PodcastSearch.PodcastSearchIdentifier.PodcastSearchIdentifierOpt<
-                        PodcastSearchIdentifierType
-                        >,
+                PodcastSearchIdentifierType
+                >,
         SubscriptionType extends Subscription<
-                                PodcastIdentifiedType,
-                                PodcastIdentifierType,
-                                PodcastType
-                                >,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
         SubscriptionIdentifiedType extends Subscription.SubscriptionIdentified<
-                        SubscriptionIdentifierType,
-                        SubscriptionType,
-                        PodcastIdentifiedType,
-                        PodcastIdentifierType,
-                        PodcastType
-                        >,
+                SubscriptionIdentifierType,
+                SubscriptionType,
+                PodcastIdentifiedType,
+                PodcastIdentifierType,
+                PodcastType
+                >,
         SubscriptionIdentifiedListType extends Subscription.SubscriptionIdentified.SubscriptionIdentifiedList2<
                 SubscriptionIdentifiedType,
                 SubscriptionIdentifierType,
@@ -119,7 +126,6 @@ public final class Database<
                 >,
         SubscriptionIdentifierType extends Subscription.SubscriptionIdentifier
         > {
-
     private final Identified.IdentifiedFactory2<
             PodcastIdentifiedType,
             PodcastIdentifierType,
@@ -161,6 +167,7 @@ public final class Database<
             EpisodeType,
             EpisodeIdentifiedType,
             EpisodeIdentifiedListType,
+            EpisodeIdentifiedListVersionedType,
             EpisodeIdentifiedSetType,
             EpisodeIdentifierType,
             EpisodeIdentifierOptType,
@@ -226,6 +233,11 @@ public final class Database<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
                     > episodeIdentifiedListCapacityFactory,
+            BiFunction<
+                    EpisodeIdentifiedListType,
+                    Long,
+                    EpisodeIdentifiedListVersionedType
+                    > episodeIdentifiedListVersionedFactory,
             CollectionFactory.Collection<
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifiedType
@@ -338,6 +350,7 @@ public final class Database<
                 episodeIdentifierOptEmptyFactory,
                 episodeIdentifierOptNonEmptyFactory,
                 episodeIdentifiedListCapacityFactory,
+                episodeIdentifiedListVersionedFactory,
                 episodeIdentifiedSetCollectionFactory,
                 episodeIdentifierOptListCapacityFactory
         );
@@ -538,10 +551,21 @@ public final class Database<
         return subscriptionTable.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
+    public Observable<
+            Optional<EpisodeIdentifiedListVersionedType>
+            > observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(
+            PodcastIdentifierType podcastIdentifier
+    ) {
+        return episodeTable.observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(
+                podcastIdentifier
+        );
+    }
+
     public Observable<EpisodeIdentifiedListType> observeQueryForEpisodeIdentifiedsForPodcast(
             PodcastIdentifierType podcastIdentifier
     ) {
-        return episodeTable.observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier);
+        return episodeTable
+                .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentifier);
     }
 
     public boolean deletePodcast(PodcastIdentifierType podcastIdentifier) {

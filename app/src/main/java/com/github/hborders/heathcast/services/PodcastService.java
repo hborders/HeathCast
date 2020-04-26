@@ -47,6 +47,12 @@ public final class PodcastService<
                 EpisodeIdentifierType,
                 EpisodeType
                 >,
+        EpisodeIdentifiedListVersionedType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2.EpisodeIdentifiedListVersioned<
+                EpisodeIdentifiedListType,
+                EpisodeIdentifiedType,
+                EpisodeIdentifierType,
+                EpisodeType
+                >,
         EpisodeIdentifiedSetType extends Episode.EpisodeIdentified.EpisodeIdentifiedSet2<
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
@@ -186,6 +192,7 @@ public final class PodcastService<
             EpisodeType,
             EpisodeIdentifiedType,
             EpisodeIdentifiedListType,
+            EpisodeIdentifiedListVersionedType,
             EpisodeIdentifiedSetType,
             EpisodeIdentifierType,
             EpisodeIdentifierOptType,
@@ -248,6 +255,7 @@ public final class PodcastService<
                     EpisodeType,
                     EpisodeIdentifiedType,
                     EpisodeIdentifiedListType,
+                    EpisodeIdentifiedListVersionedType,
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifierType,
                     EpisodeIdentifierOptType,
@@ -323,6 +331,7 @@ public final class PodcastService<
                     EpisodeType,
                     EpisodeIdentifiedType,
                     EpisodeIdentifiedListType,
+                    EpisodeIdentifiedListVersionedType,
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifierType,
                     EpisodeIdentifierOptType,
@@ -394,6 +403,7 @@ public final class PodcastService<
                     EpisodeType,
                     EpisodeIdentifiedType,
                     EpisodeIdentifiedListType,
+                    EpisodeIdentifiedListVersionedType,
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifierType,
                     EpisodeIdentifierOptType,

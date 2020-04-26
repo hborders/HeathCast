@@ -88,6 +88,11 @@ final class PodcastTable<
                 + NAME + " TEXT NOT NULL "
                 + ")"
         );
+        MetaTable.createUpdateVersionTriggers(
+                db,
+                TABLE_PODCAST,
+                MetaTable.ID_PODCAST_TABLE
+        );
         db.execSQL("CREATE INDEX " + TABLE_PODCAST + "__" + FEED_URL
                 + " ON " + TABLE_PODCAST + "(" + FEED_URL + ")");
     }

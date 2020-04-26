@@ -30,6 +30,7 @@ public final class PodcastServiceSearchTest extends AbstractPodcastServiceTest {
             EpisodeImpl,
             EpisodeImpl.EpisodeIdentifiedImpl,
             EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
+            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl.EpisodeIdentifiedListVersionedImpl,
             EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
             EpisodeImpl.EpisodeIdentifierImpl,
             EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
