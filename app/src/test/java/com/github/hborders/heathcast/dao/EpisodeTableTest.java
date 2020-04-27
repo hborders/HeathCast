@@ -1221,151 +1221,365 @@ public class EpisodeTableTest extends AbstractDatabaseTest<Object> {
                 )
         );
 
-//        final EpisodeImpl episode2 = new EpisodeImpl(
-//                new URL("http://example.com/episode2/artwork"),
-//                Duration.ofSeconds(2),
-//                DateUtil.from(
-//                        2019,
-//                        2,
-//                        2
-//                ),
-//                "summary2",
-//                "title2",
-//                new URL("http://example.com/episode2")
-//        );
-//        @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier2 =
-//                getTestObject().insertEpisode(
-//                        podcastIdentifier,
-//                        episode2
-//                ).orElseNull();
-//        if (episodeIdentifier2 == null) {
-//            fail();
-//        }
-//
-//        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
-//                containsInOrder(
-//                        containsNothing(),
-//                        containsInOrder(
-//                                identifiedModel(episode11)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode11),
-//                                identifiedModel(episode2)
-//                        )
-//                )
-//        );
-//
-//        final EpisodeImpl episode3 = new EpisodeImpl(
-//                new URL("http://example.com/episode3/artwork"),
-//                Duration.ofSeconds(3),
-//                DateUtil.from(
-//                        2019,
-//                        3,
-//                        3
-//                ),
-//                "summary3",
-//                "title3",
-//                new URL("http://example.com/episode3")
-//        );
-//        @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier3 =
-//                getTestObject().insertEpisode(
-//                        podcastIdentifier,
-//                        episode3
-//                ).orElseNull();
-//        if (episodeIdentifier3 == null) {
-//            fail();
-//        }
-//
-//        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
-//                containsInOrder(
-//                        containsNothing(),
-//                        containsInOrder(
-//                                identifiedModel(episode11)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode11),
-//                                identifiedModel(episode2)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode11),
-//                                identifiedModel(episode2),
-//                                identifiedModel(episode3)
-//                        )
-//                )
-//        );
-//
-//        final EpisodeImpl episode12 = new EpisodeImpl(
-//                new URL("http://example.com/episode/artwork12"),
-//                Duration.ofSeconds(12),
-//                DateUtil.from(
-//                        2019,
-//                        12,
-//                        12
-//                ),
-//                "summary12",
-//                "title12",
-//                new URL("http://example.com/episode")
-//        );
-//
-//        getTestObject().updateEpisodeIdentified(
-//                podcastIdentifier,
-//                new EpisodeImpl.EpisodeIdentifiedImpl(
-//                        episodeIdentifier1,
-//                        episode12
-//                )
-//        );
-//
-//        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
-//                containsInOrder(
-//                        containsNothing(),
-//                        containsInOrder(
-//                                identifiedModel(episode11)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode11),
-//                                identifiedModel(episode2)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode11),
-//                                identifiedModel(episode2),
-//                                identifiedModel(episode3)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode12),
-//                                identifiedModel(episode2),
-//                                identifiedModel(episode3)
-//                        )
-//                )
-//        );
-//
-//        getTestObject().deleteEpisode(episodeIdentifier1);
-//
-//        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
-//                containsInOrder(
-//                        containsNothing(),
-//                        containsInOrder(
-//                                identifiedModel(episode11)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode11),
-//                                identifiedModel(episode2)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode11),
-//                                identifiedModel(episode2),
-//                                identifiedModel(episode3)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode12),
-//                                identifiedModel(episode2),
-//                                identifiedModel(episode3)
-//                        ),
-//                        containsInOrder(
-//                                identifiedModel(episode2),
-//                                identifiedModel(episode3)
-//                        )
-//                )
-//        );
+        final EpisodeImpl episode2 = new EpisodeImpl(
+                new URL("http://example.com/episode2/artwork"),
+                Duration.ofSeconds(2),
+                DateUtil.from(
+                        2019,
+                        2,
+                        2
+                ),
+                "summary2",
+                "title2",
+                new URL("http://example.com/episode2")
+        );
+        @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier2 =
+                getTestObject().insertEpisode(
+                        podcastIdentifier,
+                        episode2
+                ).orElseNull();
+        if (episodeIdentifier2 == null) {
+            fail();
+        }
+
+        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
+                containsInOrder(
+                        optionalIsNotPresent(),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        3 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        5 // updates twice because inserting has a sort-update trigger
+                                )
+                        )
+                )
+        );
+
+        final EpisodeImpl episode3 = new EpisodeImpl(
+                new URL("http://example.com/episode3/artwork"),
+                Duration.ofSeconds(3),
+                DateUtil.from(
+                        2019,
+                        3,
+                        3
+                ),
+                "summary3",
+                "title3",
+                new URL("http://example.com/episode3")
+        );
+        @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier3 =
+                getTestObject().insertEpisode(
+                        podcastIdentifier,
+                        episode3
+                ).orElseNull();
+        if (episodeIdentifier3 == null) {
+            fail();
+        }
+
+        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
+                containsInOrder(
+                        optionalIsNotPresent(),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        3 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        5 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        7 // updates twice because inserting has a sort-update trigger
+                                )
+                        )
+                )
+        );
+
+        final EpisodeImpl episode12 = new EpisodeImpl(
+                new URL("http://example.com/episode/artwork12"),
+                Duration.ofSeconds(12),
+                DateUtil.from(
+                        2019,
+                        12,
+                        12
+                ),
+                "summary12",
+                "title12",
+                new URL("http://example.com/episode")
+        );
+
+        getTestObject().updateEpisodeIdentified(
+                podcastIdentifier,
+                new EpisodeImpl.EpisodeIdentifiedImpl(
+                        episodeIdentifier1,
+                        episode12
+                )
+        );
+
+        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
+                containsInOrder(
+                        optionalIsNotPresent(),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        3 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        5 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        7 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode12),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        8
+                                )
+                        )
+                )
+        );
+
+        getTestObject().deleteEpisode(episodeIdentifier1);
+
+        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
+                containsInOrder(
+                        optionalIsNotPresent(),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        3 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        5 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        7 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode12),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        8
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        9
+                                )
+                        )
+                )
+        );
+
+        getTestObject().deleteEpisodes(
+                Arrays.asList(
+                        episodeIdentifier2,
+                        episodeIdentifier3
+                )
+        );
+
+        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
+                containsInOrder(
+                        optionalIsNotPresent(),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        3 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        5 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        7 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode12),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        8
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        9
+                                )
+                        ),
+                        optionalIsNotPresent()
+                )
+        );
+
+        final EpisodeImpl episode4 = new EpisodeImpl(
+                new URL("http://example.com/episode4/artwork"),
+                Duration.ofSeconds(4),
+                DateUtil.from(
+                        2019,
+                        4,
+                        4
+                ),
+                "summary4",
+                "title4",
+                new URL("http://example.com/episode4")
+        );
+        @Nullable final EpisodeImpl.EpisodeIdentifierImpl episodeIdentifier4 =
+                getTestObject().insertEpisode(
+                        podcastIdentifier,
+                        episode4
+                ).orElseNull();
+        if (episodeIdentifier4 == null) {
+            fail();
+        }
+
+        episodeIdentifiedListVersionedOptionalTestObserver.assertValueSequenceThat(
+                containsInOrder(
+                        optionalIsNotPresent(),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11)
+                                        ),
+                                        3 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2)
+                                        ),
+                                        5 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode11),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        7 // updates twice because inserting has a sort-update trigger
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode12),
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        8
+                                )
+                        ),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode2),
+                                                identifiedModel(episode3)
+                                        ),
+                                        9
+                                )
+                        ),
+                        optionalIsNotPresent(),
+                        optionalValue(
+                                versioned(
+                                        specificallyContainsInOrder(
+                                                identifiedModel(episode4)
+                                        ),
+                                        13 // 10 and 11 were deletions, 12 and 13 were the
+                                        // insertion because insertion updates twice because
+                                        // inserting has a sort-update trigger
+                                )
+                        )
+                )
+        );
     }
 
     @Test

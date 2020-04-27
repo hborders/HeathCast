@@ -114,29 +114,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/MapToListVersionedOperator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/VersionedImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Versioned.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/matchers/VersionedMatchers.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/android/CursorUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/android/CursorUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/MetaTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/MetaTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/EpisodeImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/model/EpisodeImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Episode.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/models/Episode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/AbstractDatabaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/AbstractDatabaseTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/EpisodeTableTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/EpisodeTableTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/reactivex/MatcherTestObserver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/reactivex/MatcherTestObserver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/AbstractPodcastServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/AbstractPodcastServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/PodcastServiceSearchTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/services/PodcastServiceSearchTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/PodcastTableTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/PodcastTableTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/matchers/IsIterableContainingInOrderUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/matchers/IsIterableContainingInOrderUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -313,7 +295,7 @@
       <recent name="com.github.hborders.heathcast.core" />
     </key>
   </component>
-  <component name="RunManager" selected="Android JUnit.EpisodeTableTest.testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast">
+  <component name="RunManager" selected="Android JUnit.DatabaseTest.testDeletePodcastDeletesEpisodes">
     <configuration name="DatabaseTest.testDeletePodcastDeletesEpisodes" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
       <module name="app" />
       <extension name="coverage">
@@ -563,8 +545,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Android JUnit.EpisodeTableTest.testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast" />
         <item itemvalue="Android JUnit.DatabaseTest.testDeletePodcastDeletesEpisodes" />
+        <item itemvalue="Android JUnit.EpisodeTableTest.testObserveQueryForEpisodeIdentifiedListVersionedOptionalForPodcast" />
         <item itemvalue="Android JUnit.DatabaseTest.testEmptyReplacePodcastSearchResultsForExistingPodcastSearch" />
         <item itemvalue="Android JUnit.XmlParserTest.parseEpisodeList" />
         <item itemvalue="Android Instrumented Tests.MutableIdlingResourc..." />
@@ -664,22 +646,22 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="DiffContextDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585626710364" />
-    <state width="1878" height="299" key="GridCell.Tab.0.bottom" timestamp="1587883821876">
+    <state width="1878" height="299" key="GridCell.Tab.0.bottom" timestamp="1587960421510">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821876" />
-    <state width="1878" height="299" key="GridCell.Tab.0.center" timestamp="1587883821875">
+    <state width="1878" height="299" key="GridCell.Tab.0.bottom/0.23.1920.1100@0.23.1920.1100" timestamp="1587960421510" />
+    <state width="1878" height="299" key="GridCell.Tab.0.center" timestamp="1587960421510">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821875" />
-    <state width="1878" height="299" key="GridCell.Tab.0.left" timestamp="1587883821875">
+    <state width="1878" height="299" key="GridCell.Tab.0.center/0.23.1920.1100@0.23.1920.1100" timestamp="1587960421510" />
+    <state width="1878" height="299" key="GridCell.Tab.0.left" timestamp="1587960421509">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821875" />
-    <state width="1878" height="299" key="GridCell.Tab.0.right" timestamp="1587883821875">
+    <state width="1878" height="299" key="GridCell.Tab.0.left/0.23.1920.1100@0.23.1920.1100" timestamp="1587960421509" />
+    <state width="1878" height="299" key="GridCell.Tab.0.right" timestamp="1587960421510">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="1878" height="299" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587883821875" />
+    <state width="1878" height="299" key="GridCell.Tab.0.right/0.23.1920.1100@0.23.1920.1100" timestamp="1587960421510" />
     <state width="1878" height="372" key="GridCell.Tab.1.bottom" timestamp="1587877145500">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -704,10 +686,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="461" y="212" key="SettingsEditor/0.23.1920.1100@0.23.1920.1100" timestamp="1585539563491" />
-    <state x="690" y="312" width="576" height="524" key="StructurePopup" timestamp="1587845477626">
+    <state x="690" y="312" width="576" height="524" key="StructurePopup" timestamp="1587962881033">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="690" y="312" width="576" height="524" key="StructurePopup/0.23.1920.1100@0.23.1920.1100" timestamp="1587845477626" />
+    <state x="690" y="312" width="576" height="524" key="StructurePopup/0.23.1920.1100@0.23.1920.1100" timestamp="1587962881033" />
     <state width="954" height="550" key="XDebugger.FullValuePopup" timestamp="1585635467374">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -736,18 +718,18 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587883708548" />
-    <state width="708" height="83" key="javadoc.popup.new" timestamp="1587883371940">
+    <state width="708" height="83" key="javadoc.popup.new" timestamp="1587960369182">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1587883371940" />
+    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1587960369182" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586839829465">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1586839829465" />
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1587873755372">
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup" timestamp="1587958311586">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587873755372" />
+    <state x="625" y="269" width="1060" height="743" key="search.everywhere.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587958311586" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

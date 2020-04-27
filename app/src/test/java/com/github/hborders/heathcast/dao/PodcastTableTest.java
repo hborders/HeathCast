@@ -24,7 +24,6 @@ import static org.junit.Assert.fail;
 
 @RunWith(RobolectricTestRunner.class)
 public final class PodcastTableTest extends AbstractDatabaseTest<Object> {
-
     private PodcastTable<
             Object,
             PodcastImpl,
