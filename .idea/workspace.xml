@@ -115,10 +115,18 @@
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/Database.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/MetaTable.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchResultTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastSearchTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/SubscriptionTable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/features/main/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/services/PodcastService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/AbstractDatabaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/AbstractDatabaseTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/DatabaseTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/EpisodeTableTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/EpisodeTableTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/PodcastTableTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/dao/PodcastTableTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/matchers/IsIterableContainingInOrderUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/java/com/github/hborders/heathcast/matchers/IsIterableContainingInOrderUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -295,7 +303,7 @@
       <recent name="com.github.hborders.heathcast.core" />
     </key>
   </component>
-  <component name="RunManager" selected="Android JUnit.DatabaseTest.testDeletePodcastDeletesEpisodes">
+  <component name="RunManager" selected="Android JUnit.Unit Tests">
     <configuration name="DatabaseTest.testDeletePodcastDeletesEpisodes" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
       <module name="app" />
       <extension name="coverage">
@@ -718,10 +726,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="337" y="144" width="1046" height="677" key="find.popup/0.23.1920.1100@0.23.1920.1100" timestamp="1587883708548" />
-    <state width="708" height="83" key="javadoc.popup.new" timestamp="1587960369182">
+    <state width="708" height="83" key="javadoc.popup.new" timestamp="1588043073325">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1587960369182" />
+    <state width="708" height="83" key="javadoc.popup.new/0.23.1920.1100@0.23.1920.1100" timestamp="1588043073325" />
     <state x="722" y="186" key="refactoring.ChangeSignatureDialog" timestamp="1586839829465">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>

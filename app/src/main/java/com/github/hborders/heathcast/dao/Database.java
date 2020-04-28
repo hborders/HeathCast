@@ -30,7 +30,6 @@ import java.util.Optional;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.functions.BiFunction;
 
 public final class Database<
         MarkerType,
@@ -40,12 +39,6 @@ public final class Database<
                 EpisodeType
                 >,
         EpisodeIdentifiedListType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2<
-                EpisodeIdentifiedType,
-                EpisodeIdentifierType,
-                EpisodeType
-                >,
-        EpisodeIdentifiedListVersionedType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2.EpisodeIdentifiedListVersioned<
-                EpisodeIdentifiedListType,
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
@@ -161,13 +154,11 @@ public final class Database<
             > subscriptionIdentifiedFactory;
 
     private final DimDatabase<MarkerType> dimDatabase;
-    final MetaTable<MarkerType> metaTable;
     final EpisodeTable<
             MarkerType,
             EpisodeType,
             EpisodeIdentifiedType,
             EpisodeIdentifiedListType,
-            EpisodeIdentifiedListVersionedType,
             EpisodeIdentifiedSetType,
             EpisodeIdentifierType,
             EpisodeIdentifierOptType,
@@ -233,11 +224,6 @@ public final class Database<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
                     > episodeIdentifiedListCapacityFactory,
-            BiFunction<
-                    EpisodeIdentifiedListType,
-                    Long,
-                    EpisodeIdentifiedListVersionedType
-                    > episodeIdentifiedListVersionedFactory,
             CollectionFactory.Collection<
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifiedType
@@ -341,7 +327,6 @@ public final class Database<
                 supportSQLiteOpenHelper,
                 scheduler
         );
-        metaTable = new MetaTable<>(dimDatabase);
         episodeTable = new EpisodeTable<>(
                 dimDatabase,
                 episodeFactory,
@@ -350,7 +335,6 @@ public final class Database<
                 episodeIdentifierOptEmptyFactory,
                 episodeIdentifierOptNonEmptyFactory,
                 episodeIdentifiedListCapacityFactory,
-                episodeIdentifiedListVersionedFactory,
                 episodeIdentifiedSetCollectionFactory,
                 episodeIdentifierOptListCapacityFactory
         );
@@ -551,16 +535,6 @@ public final class Database<
         return subscriptionTable.observeQueryForSubscriptionIdentifier(podcastIdentifier);
     }
 
-    public Observable<
-            Optional<EpisodeIdentifiedListVersionedType>
-            > observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(
-            PodcastIdentifierType podcastIdentifier
-    ) {
-        return episodeTable.observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(
-                podcastIdentifier
-        );
-    }
-
     public Observable<EpisodeIdentifiedListType> observeQueryForEpisodeIdentifiedsForPodcast(
             PodcastIdentifierType podcastIdentifier
     ) {
@@ -585,7 +559,6 @@ public final class Database<
 
         @Override
         public void onCreate(SupportSQLiteDatabase db) {
-            MetaTable.createMetaTable(db);
             PodcastSearchTable.createPodcastSearchTable(db);
             PodcastTable.createPodcastTable(db);
             EpisodeTable.createEpisodeTable(db);

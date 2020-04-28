@@ -26,11 +26,9 @@ import io.reactivex.rxjava3.observers.TestObserver;
 import static com.github.hborders.heathcast.matchers.IdentifiedMatchers.identifiedModel;
 import static com.github.hborders.heathcast.matchers.IsEmptySpecificIterable.specificallyEmpty;
 import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsInOrder;
+import static com.github.hborders.heathcast.matchers.IsIterableContainingInOrderUtil.containsNothing;
 import static com.github.hborders.heathcast.matchers.IsSpecificIterableContainingInOrder.specificallyContainsInOrder;
 import static com.github.hborders.heathcast.matchers.MarkedValueMatchers.markedValue;
-import static com.github.hborders.heathcast.matchers.OptionalMatcher.optionalIsNotPresent;
-import static com.github.hborders.heathcast.matchers.OptionalMatcher.optionalValue;
-import static com.github.hborders.heathcast.matchers.VersionedMatchers.versioned;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -177,7 +175,6 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             EpisodeImpl,
             EpisodeImpl.EpisodeIdentifiedImpl,
             EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
-            EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl.EpisodeIdentifiedListVersionedImpl,
             EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
             EpisodeImpl.EpisodeIdentifierImpl,
             EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
@@ -803,47 +800,35 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
         );
 
         final MatcherTestObserver<
-                Optional<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl.EpisodeIdentifiedListVersionedImpl>
-                > episodeIdentifiedListVersionedOptionalTestObserver1 = new MatcherTestObserver<>();
+                EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl
+                > episodeIdentifiedsTestObserver1 = new MatcherTestObserver<>();
         getTestObject()
-                .observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(podcastIdentified1.identifier)
-                .subscribe(episodeIdentifiedListVersionedOptionalTestObserver1);
+                .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentified1.identifier)
+                .subscribe(episodeIdentifiedsTestObserver1);
 
         final MatcherTestObserver<
-                Optional<EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl.EpisodeIdentifiedListVersionedImpl>
-                > episodeIdentifiedListVersionedOptionalTestObserver2 = new MatcherTestObserver<>();
+                EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl
+                > episodeIdentifiedsTestObserver2 = new MatcherTestObserver<>();
         getTestObject()
-                .observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(podcastIdentified2.identifier)
-                .subscribe(episodeIdentifiedListVersionedOptionalTestObserver2);
+                .observeQueryForEpisodeIdentifiedsForPodcast(podcastIdentified2.identifier)
+                .subscribe(episodeIdentifiedsTestObserver2);
 
-        episodeIdentifiedListVersionedOptionalTestObserver1.assertValueSequenceThat(
+        episodeIdentifiedsTestObserver1.assertValueSequenceThat(
                 containsInOrder(
-                        optionalValue(
-                                versioned(
-                                        containsInOrder(
-                                                identifiedModel(episode11),
-                                                identifiedModel(episode12),
-                                                identifiedModel(episode13)
-                                        ),
-                                        13 // 6 episodes have been inserted, each insertion
-                                        // causes 2 versions because of the sort-update insertion trigger
-                                )
+                        containsInOrder(
+                                identifiedModel(episode11),
+                                identifiedModel(episode12),
+                                identifiedModel(episode13)
                         )
                 )
         );
 
-        episodeIdentifiedListVersionedOptionalTestObserver2.assertValueSequenceThat(
+        episodeIdentifiedsTestObserver2.assertValueSequenceThat(
                 containsInOrder(
-                        optionalValue(
-                                versioned(
-                                        containsInOrder(
-                                                identifiedModel(episode21),
-                                                identifiedModel(episode22),
-                                                identifiedModel(episode23)
-                                        ),
-                                        13 // 6 episodes have been inserted, each insertion
-                                        // causes 2 versions because of the sort-update insertion trigger
-                                )
+                        containsInOrder(
+                                identifiedModel(episode21),
+                                identifiedModel(episode22),
+                                identifiedModel(episode23)
                         )
                 )
         );
@@ -854,46 +839,29 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
                 equalTo(true)
         );
 
-        episodeIdentifiedListVersionedOptionalTestObserver1.assertValueSequenceThat(
+        episodeIdentifiedsTestObserver1.assertValueSequenceThat(
                 containsInOrder(
-                        optionalValue(
-                                versioned(
-                                        containsInOrder(
-                                                identifiedModel(episode11),
-                                                identifiedModel(episode12),
-                                                identifiedModel(episode13)
-                                        ),
-                                        13 // 6 episodes have been inserted, each insertion
-                                        // causes 2 versions because of the sort-update insertion trigger
-                                )
+                        containsInOrder(
+                                identifiedModel(episode11),
+                                identifiedModel(episode12),
+                                identifiedModel(episode13)
                         ),
-                        optionalValue(
-                                versioned(
-                                        containsInOrder(
-                                                identifiedModel(episode11),
-                                                identifiedModel(episode12),
-                                                identifiedModel(episode13)
-                                        ),
-                                        16 // episode21, episode22, episode23 got deleted
-                                )
+                        containsInOrder(
+                                identifiedModel(episode11),
+                                identifiedModel(episode12),
+                                identifiedModel(episode13)
                         )
                 )
         );
 
-        episodeIdentifiedListVersionedOptionalTestObserver2.assertValueSequenceThat(
+        episodeIdentifiedsTestObserver2.assertValueSequenceThat(
                 containsInOrder(
-                        optionalValue(
-                                versioned(
-                                        containsInOrder(
-                                                identifiedModel(episode21),
-                                                identifiedModel(episode22),
-                                                identifiedModel(episode23)
-                                        ),
-                                        13 // 6 episodes have been inserted, each insertion
-                                        // causes 2 versions because of the sort-update insertion trigger
-                                )
+                        containsInOrder(
+                                identifiedModel(episode21),
+                                identifiedModel(episode22),
+                                identifiedModel(episode23)
                         ),
-                        optionalIsNotPresent()
+                        containsNothing()
                 )
         );
     }
@@ -932,37 +900,37 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             fail();
         }
 
-            final TestObserver<SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl> subscriptionTestObserver =
-                    new TestObserver<>();
-            getTestObject()
-                    .observeQueryForSubscriptions()
-                    .subscribe(subscriptionTestObserver);
+        final TestObserver<SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl> subscriptionTestObserver =
+                new TestObserver<>();
+        getTestObject()
+                .observeQueryForSubscriptions()
+                .subscribe(subscriptionTestObserver);
 
-            subscriptionTestObserver.assertValueSequence(
-                    Collections.singletonList(
-                            new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
-                                    subscriptionIdentified1,
-                                    subscriptionIdentified2,
-                                    subscriptionIdentified3
-                            )
-                    )
-            );
+        subscriptionTestObserver.assertValueSequence(
+                Collections.singletonList(
+                        new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
+                                subscriptionIdentified1,
+                                subscriptionIdentified2,
+                                subscriptionIdentified3
+                        )
+                )
+        );
 
-            getTestObject().deletePodcast(podcastIdentified1.identifier);
+        getTestObject().deletePodcast(podcastIdentified1.identifier);
 
-            subscriptionTestObserver.assertValueSequence(
-                    Arrays.asList(
-                            new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
-                                    subscriptionIdentified1,
-                                    subscriptionIdentified2,
-                                    subscriptionIdentified3
-                            ),
-                            new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
-                                    subscriptionIdentified2,
-                                    subscriptionIdentified3
-                            )
-                    )
-            );
+        subscriptionTestObserver.assertValueSequence(
+                Arrays.asList(
+                        new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
+                                subscriptionIdentified1,
+                                subscriptionIdentified2,
+                                subscriptionIdentified3
+                        ),
+                        new SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl(
+                                subscriptionIdentified2,
+                                subscriptionIdentified3
+                        )
+                )
+        );
 
     }
 

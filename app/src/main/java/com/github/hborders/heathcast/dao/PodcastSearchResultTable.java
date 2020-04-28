@@ -41,11 +41,6 @@ final class PodcastSearchResultTable<
                 + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE, "
                 + CREATE_FOREIGN_KEY_PODCAST_SEARCH + " ON DELETE CASCADE"
                 + ")");
-        MetaTable.createUpdateVersionTriggers(
-                db,
-                TABLE_PODCAST_SEARCH_RESULT,
-                MetaTable.ID_PODCAST_SEARCH_RESULT_TABLE
-        );
         db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH_RESULT + "__" + PODCAST_ID
                 + " ON " + TABLE_PODCAST_SEARCH_RESULT + "(" + PODCAST_ID + ")");
         db.execSQL("CREATE INDEX " + TABLE_PODCAST_SEARCH_RESULT + "__" + PODCAST_SEARCH_ID

@@ -10,7 +10,6 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
 import com.github.hborders.heathcast.core.Opt;
-import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -23,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.functions.BiFunction;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_ROLLBACK;
 import static com.github.hborders.heathcast.android.ContentValuesUtil.putDateAsLong;
@@ -50,12 +48,6 @@ final class EpisodeTable<
                 EpisodeType
                 >,
         EpisodeIdentifiedListType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2<
-                EpisodeIdentifiedType,
-                EpisodeIdentifierType,
-                EpisodeType
-                >,
-        EpisodeIdentifiedListVersionedType extends Episode.EpisodeIdentified.EpisodeIdentifiedList2.EpisodeIdentifiedListVersioned<
-                EpisodeIdentifiedListType,
                 EpisodeIdentifiedType,
                 EpisodeIdentifierType,
                 EpisodeType
@@ -134,11 +126,6 @@ final class EpisodeTable<
                         + "      WHERE " + COLUMN_ID + " = NEW." + COLUMN_ID + ";"
                         + "    END"
         );
-        MetaTable.createUpdateVersionTriggers(
-                db,
-                TABLE_EPISODE,
-                MetaTable.ID_EPISODE_TABLE
-        );
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PODCAST_ID
                 + " ON " + TABLE_EPISODE + "(" + COLUMN_PODCAST_ID + ")");
         db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PUBLISH_TIME_MILLIS
@@ -211,11 +198,6 @@ final class EpisodeTable<
             EpisodeIdentifiedListType,
             EpisodeIdentifiedType
             > episodeIdentifiedListCapacityFactory;
-    private final BiFunction<
-            EpisodeIdentifiedListType,
-            Long,
-            EpisodeIdentifiedListVersionedType
-            > episodeIdentifiedListVersionedFactory;
     private final CollectionFactory.Collection<
             EpisodeIdentifiedSetType,
             EpisodeIdentifiedType
@@ -248,11 +230,6 @@ final class EpisodeTable<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
                     > episodeIdentifiedListCapacityFactory,
-            BiFunction<
-                    EpisodeIdentifiedListType,
-                    Long,
-                    EpisodeIdentifiedListVersionedType
-                    > episodeIdentifiedListVersionedFactory,
             CollectionFactory.Collection<
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifiedType
@@ -270,7 +247,6 @@ final class EpisodeTable<
         this.episodeIdentifierOptEmptyFactory = episodeIdentifierOptEmptyFactory;
         this.episodeIdentifierOptNonEmptyFactory = episodeIdentifierOptNonEmptyFactory;
         this.episodeIdentifiedListCapacityFactory = episodeIdentifiedListCapacityFactory;
-        this.episodeIdentifiedListVersionedFactory = episodeIdentifiedListVersionedFactory;
         this.episodeIdentifiedSetCollectionFactory = episodeIdentifiedSetCollectionFactory;
         this.episodeIdentifierOptListCapacityFactory = episodeIdentifierOptListCapacityFactory;
     }
@@ -378,54 +354,31 @@ final class EpisodeTable<
                 .map(episodeIdentifiedSetCollectionFactory::newCollection);
     }
 
-    Observable<
-            Optional<EpisodeIdentifiedListVersionedType>
-            > observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(
-            PodcastIdentifierType podcastIdentifier
-    ) {
-        return dimDatabase.createQuery(
-                Arrays.asList(
-                        TABLE_PODCAST,
-                        TABLE_EPISODE
-                ),
-                "SELECT "
-                        + TABLE_EPISODE + "." + COLUMN_ARTWORK_URL + " AS " + COLUMN_ARTWORK_URL + ", "
-                        + TABLE_EPISODE + "." + COLUMN_DURATION + " AS " + COLUMN_DURATION + ", "
-                        + TABLE_EPISODE + "." + COLUMN_ID + " AS " + COLUMN_ID + ", "
-                        + TABLE_EPISODE + "." + COLUMN_PUBLISH_TIME_MILLIS + " AS " + COLUMN_PUBLISH_TIME_MILLIS + ", "
-                        + TABLE_EPISODE + "." + COLUMN_SORT + " AS " + COLUMN_SORT + ", "
-                        + TABLE_EPISODE + "." + COLUMN_SUMMARY + " AS " + COLUMN_SUMMARY + ", "
-                        + TABLE_EPISODE + "." + COLUMN_TITLE + " AS " + COLUMN_TITLE + ", "
-                        + TABLE_EPISODE + "." + COLUMN_URL + " AS " + COLUMN_URL + ", "
-                        + TABLE_EPISODE + "." + COLUMN_URL + " AS " + COLUMN_URL + ", "
-                        + MetaTable.TABLE_META + "." + MetaTable.COLUMN_VERSION + " AS " + MetaTable.COLUMN_VERSION + " "
-                        + "FROM " + TABLE_EPISODE + " "
-                        + "INNER JOIN " + MetaTable.TABLE_META + " "
-                        + "  ON " + MetaTable.TABLE_META + "." + MetaTable.COLUMN_ID + " "
-                        + "    = " + MetaTable.ID_EPISODE_TABLE + " "
-                        + "WHERE " + TABLE_EPISODE + "." + COLUMN_PODCAST_ID + " = ? "
-                        + "ORDER BY " + TABLE_EPISODE + "." + COLUMN_SORT,
-                podcastIdentifier.getId()
-        ).lift(
-                new MapToListVersionedOperator<>(
-                        episodeIdentifiedListCapacityFactory,
-                        this::getVersionAndEpisodeIdentified,
-                        this.episodeIdentifiedListVersionedFactory
-                )
-        );
-    }
-
     Observable<EpisodeIdentifiedListType> observeQueryForEpisodeIdentifiedsForPodcast(
             PodcastIdentifierType podcastIdentifier
     ) {
-        return observeQueryForEpisodeIdentifiedListVersionedOptionalForPodcast(podcastIdentifier)
-                .map(
-                        episodeIdentifiedListVersionedOptional ->
-                                episodeIdentifiedListVersionedOptional.map(
-                                        EpisodeIdentifiedListVersionedType::getValue
-                                ).orElse(
-                                        episodeIdentifiedListCapacityFactory.newCollection(0)
-                                )
+        final SupportSQLiteQuery query =
+                SupportSQLiteQueryBuilder2
+                        .builder(TABLE_EPISODE)
+                        .selection(
+                                COLUMN_PODCAST_ID + " = ?",
+                                new Object[]{podcastIdentifier.getId()}
+                        )
+                        .orderBy(COLUMN_SORT)
+                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
+                        .create();
+
+        return dimDatabase
+                .createQuery(
+                        Arrays.asList(
+                                TABLE_PODCAST,
+                                TABLE_EPISODE
+                        ),
+                        query
+                                         )
+                .mapToSpecificList(
+                        this::getEpisodeIdentified,
+                        episodeIdentifiedListCapacityFactory::newCollection
                 );
     }
 
@@ -450,21 +403,6 @@ final class EpisodeTable<
                         query
                 )
                 .mapToOptional(this::getEpisodeIdentified);
-    }
-
-    private Tuple<
-            Long,
-            EpisodeIdentifiedType
-            > getVersionAndEpisodeIdentified(Cursor cursor) {
-        long version = getNonnullLong(
-                cursor,
-                MetaTable.COLUMN_VERSION
-        );
-        EpisodeIdentifiedType episodeIdentified = getEpisodeIdentified(cursor);
-        return new Tuple<>(
-                version,
-                episodeIdentified
-        );
     }
 
     EpisodeIdentifiedType getEpisodeIdentified(Cursor cursor) {

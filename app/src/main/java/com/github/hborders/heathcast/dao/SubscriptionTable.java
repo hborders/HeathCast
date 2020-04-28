@@ -70,11 +70,6 @@ public final class SubscriptionTable<
                 + SORT + " REAL NOT NULL UNIQUE DEFAULT 0, "
                 + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE"
                 + ")");
-        MetaTable.createUpdateVersionTriggers(
-                db,
-                TABLE_SUBSCRIPTION,
-                MetaTable.ID_SUBSCRIPTION_TABLE
-        );
         db.execSQL(
                 "CREATE TRIGGER " + TABLE_SUBSCRIPTION + "_sort_after_insert_trigger"
                         + "  AFTER INSERT ON " + TABLE_SUBSCRIPTION + " FOR EACH ROW "
