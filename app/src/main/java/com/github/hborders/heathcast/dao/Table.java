@@ -9,7 +9,6 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.core.SortedSetUtil;
 import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.models.Identified;
@@ -24,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Function;
@@ -75,9 +75,8 @@ abstract class Table<MarkerType> {
                                 ModelType
                                 >,
             ModelType,
-            IdentifierOptType extends Opt<IdentifierType>,
             SecondaryKeyType
-            > IdentifierOptType upsertModel2(
+            > Optional<IdentifierType> upsertModel2(
             UpsertAdapter<SecondaryKeyType> upsertAdapter,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
@@ -98,27 +97,19 @@ abstract class Table<MarkerType> {
                     > identifiedFactory,
             Function<
                     ModelType,
-                    IdentifierOptType
+                    Optional<IdentifierType>
                     > modelInserter,
             Function<
                     IdentifiedType,
                     Integer
-                    > identifiedUpdater,
-            Opt.OptEmptyFactory<
-                                IdentifierOptType,
-                                IdentifierType
-                                > optEmptyFactory,
-            Opt.OptNonEmptyFactory<
-                                IdentifierOptType,
-                                IdentifierType
-                                > optNonEmptyFactory
+                    > identifiedUpdater
     ) {
         try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
             final SecondaryKeyType secondaryKey = modelSecondaryKeyGetter.apply(model);
 
             final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
                     upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
-            @Nullable final IdentifierOptType upsertedIdentifierOpt;
+            @Nullable final Optional<IdentifierType> upsertedIdentifierOptional;
             try (final Cursor primaryAndSecondaryKeyCursor = dimDatabase.query(primaryAndSecondaryKeyQuery)) {
                 if (primaryAndSecondaryKeyCursor.moveToNext()) {
                     final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
@@ -129,19 +120,19 @@ abstract class Table<MarkerType> {
                     );
                     int rowCount = identifiedUpdater.apply(updatingIdentified);
                     if (rowCount == 1) {
-                        upsertedIdentifierOpt = optNonEmptyFactory.newOpt(upsertingIdentifier);
+                        upsertedIdentifierOptional = Optional.of(upsertingIdentifier);
                     } else {
-                        upsertedIdentifierOpt = optEmptyFactory.newOpt();
+                        upsertedIdentifierOptional = Optional.empty();
                     }
                 } else {
-                    upsertedIdentifierOpt = modelInserter
+                    upsertedIdentifierOptional = modelInserter
                             .apply(model);
                 }
             }
 
             transaction.markSuccessful();
 
-            return upsertedIdentifierOpt;
+            return upsertedIdentifierOptional;
         }
     }
 
@@ -152,11 +143,9 @@ abstract class Table<MarkerType> {
                                 ModelType
                                 >,
             ModelListType extends List<ModelType>,
-            IdentifierOptListType extends List<IdentifierOptType>,
             ModelType,
-            IdentifierOptType extends Opt<IdentifierType>,
             SecondaryKeyType
-            > IdentifierOptListType upsertModels2(
+            > List<Optional<IdentifierType>> upsertModels2(
             UpsertAdapter<SecondaryKeyType> upsertAdapter,
             // secondaryKeyClass exists to force S not to be Serializable or some other
             // unexpected superclass of unrelated Model and Cursor property classes.
@@ -177,27 +166,19 @@ abstract class Table<MarkerType> {
                     > identifiedFactory,
             Function<
                     ModelType,
-                    IdentifierOptType
+                    Optional<IdentifierType>
                     > modelInserter,
             Function<
                     IdentifiedType,
                     Integer
                     > identifiedUpdater,
-            Opt.OptEmptyFactory<
-                                IdentifierOptType,
-                                IdentifierType
-                                > optEmptyFactory,
-            Opt.OptNonEmptyFactory<
-                                IdentifierOptType,
-                                IdentifierType
-                                > optNonEmptyFactory,
             CollectionFactory.Capacity<
-                    IdentifierOptListType,
-                    IdentifierOptType
-                    > capacityCollectionFactory
+                    List<Optional<IdentifierType>>,
+                    Optional<IdentifierType>
+                    > identifierOptionalListCapacityFactory
     ) {
         if (models.isEmpty()) {
-            return capacityCollectionFactory.newCollection(0);
+            return identifierOptionalListCapacityFactory.newCollection(0);
         } else {
             try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
                 final SortedSetUtil<Tuple<Integer, ModelType>> indexedModelSortedSetUtil =
@@ -252,9 +233,9 @@ abstract class Table<MarkerType> {
                 }
 
                 final int capacity = models.size();
-                final IdentifierOptListType upsertedIdentifierOpts = capacityCollectionFactory.newCollection(capacity);
+                final List<Optional<IdentifierType>> upsertedIdentifierOptionals = identifierOptionalListCapacityFactory.newCollection(capacity);
                 for (int i = 0; i < capacity; i++) {
-                    upsertedIdentifierOpts.add(optEmptyFactory.newOpt());
+                    upsertedIdentifierOptionals.add(Optional.empty());
                 }
                 for (final SecondaryKeyType secondaryKey : insertingSecondaryKeys) {
                     @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
@@ -263,11 +244,11 @@ abstract class Table<MarkerType> {
                         throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
                     } else {
                         final ModelType model = indexedModelSet.iterator().next().second;
-                        final IdentifierOptType identifierOpt =
+                        final Optional<IdentifierType> identifierOpt =
                                 modelInserter.apply(model);
                         if (identifierOpt.isPresent()) {
                             for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
-                                upsertedIdentifierOpts.set(
+                                upsertedIdentifierOptionals.set(
                                         indexedModel.first,
                                         identifierOpt
                                 );
@@ -287,9 +268,9 @@ abstract class Table<MarkerType> {
                             throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
                         } else {
                             for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
-                                upsertedIdentifierOpts.set(
+                                upsertedIdentifierOptionals.set(
                                         indexedModel.first,
-                                        optNonEmptyFactory.newOpt(updatingIdentified.getIdentifier())
+                                        Optional.of(updatingIdentified.getIdentifier())
                                 );
                             }
                         }
@@ -298,7 +279,7 @@ abstract class Table<MarkerType> {
 
                 transaction.markSuccessful();
 
-                return upsertedIdentifierOpts;
+                return upsertedIdentifierOptionals;
             }
         }
     }

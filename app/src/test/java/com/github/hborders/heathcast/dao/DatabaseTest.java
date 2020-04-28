@@ -177,22 +177,16 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
             EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedListImpl,
             EpisodeImpl.EpisodeIdentifiedImpl.EpisodeIdentifiedSetImpl,
             EpisodeImpl.EpisodeIdentifierImpl,
-            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl,
-            EpisodeImpl.EpisodeIdentifierImpl.EpisodeIdentifierOptImpl.EpisodeIdentifierOptListImpl,
             EpisodeImpl.EpisodeListImpl,
             PodcastImpl,
             PodcastImpl.PodcastIdentifiedImpl,
             PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedListImpl,
             PodcastImpl.PodcastIdentifiedImpl.PodcastIdentifiedSetImpl,
             PodcastImpl.PodcastIdentifierImpl,
-            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl,
-            PodcastImpl.PodcastIdentifierImpl.PodcastIdentifierOptImpl.PodcastIdentifierOptListImpl,
             PodcastSearchImpl,
             PodcastSearchImpl.PodcastSearchIdentifiedImpl,
             PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedListImpl,
-            PodcastSearchImpl.PodcastSearchIdentifiedImpl.PodcastSearchIdentifiedOptImpl,
             PodcastSearchImpl.PodcastSearchIdentifierImpl,
-            PodcastSearchImpl.PodcastSearchIdentifierImpl.PodcastSearchIdentifierOptImpl,
             SubscriptionImpl,
             SubscriptionImpl.SubscriptionIdentifiedImpl,
             SubscriptionImpl.SubscriptionIdentifiedImpl.SubscriptionIdentifiedListImpl,
@@ -204,7 +198,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testEmptyReplacePodcastSearchResultsForNewPodcastSearch() {
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search")).orElse(null);
         if (podcastSearchIdentified == null) {
             fail();
         }
@@ -249,7 +243,7 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testEmptyReplacePodcastSearchResultsForExistingPodcastSearch() {
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search")).orElse(null);
         if (podcastSearchIdentified == null) {
             fail();
         }
@@ -317,9 +311,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testOuterReplacePodcastSearchResultsForFirstPodcastSearch() {
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElse(null);
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElse(null);
         if (podcastSearchIdentified1 == null) {
             fail();
         }
@@ -374,9 +368,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testOuterReplacePodcastSearchResultsUpdatesExistingPodcastSearchResults() {
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElse(null);
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElse(null);
         if (podcastSearchIdentified1 == null) {
             fail();
         }
@@ -465,9 +459,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testOuterReplacePodcastSearchResultsCanIncludePodcastsFromOtherSearchResults() {
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElse(null);
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElse(null);
         if (podcastSearchIdentified1 == null) {
             fail();
         }
@@ -582,9 +576,9 @@ public class DatabaseTest extends AbstractDatabaseTest<Object> {
     @Test
     public void testDeletePodcastSearchKeepsOtherSearchResultsWithSamePodcasts() {
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified1 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search1")).orElse(null);
         @Nullable final PodcastSearchImpl.PodcastSearchIdentifiedImpl podcastSearchIdentified2 =
-                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElseNull();
+                getTestObject().upsertPodcastSearch(new PodcastSearchImpl("Search2")).orElse(null);
         if (podcastSearchIdentified1 == null) {
             fail();
         }

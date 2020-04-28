@@ -9,15 +9,16 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.stealthmountain.sqldim.DimDatabase;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -36,8 +37,6 @@ import static com.github.hborders.heathcast.android.CursorUtil.getNullableDurati
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableString;
 import static com.github.hborders.heathcast.android.CursorUtil.getNullableURLFromString;
 import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
-import static com.github.hborders.heathcast.dao.PodcastTable.CREATE_FOREIGN_KEY_PODCAST;
-import static com.github.hborders.heathcast.dao.PodcastTable.FOREIGN_KEY_PODCAST;
 import static com.github.hborders.heathcast.dao.PodcastTable.TABLE_PODCAST;
 
 final class EpisodeTable<
@@ -58,29 +57,23 @@ final class EpisodeTable<
                 EpisodeType
                 >,
         EpisodeIdentifierType extends Episode.EpisodeIdentifier,
-        EpisodeIdentifierOptType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt<
-                EpisodeIdentifierType
-                >,
-        EpisodeIdentifierOptListType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt.EpisodeIdentifierOptList2<
-                EpisodeIdentifierOptType,
-                EpisodeIdentifierType
-                >,
         EpisodeListType extends Episode.EpisodeList2<EpisodeType>,
         PodcastIdentifierType extends Podcast.PodcastIdentifier
         > extends Table<MarkerType> {
     static final String TABLE_EPISODE = "episode";
+    static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
 
     private static final String COLUMN_ARTWORK_URL = "artwork_url";
     private static final String COLUMN_DURATION = "duration";
     private static final String COLUMN_ID = "_id";
-    private static final String COLUMN_PODCAST_ID = FOREIGN_KEY_PODCAST;
+    private static final String COLUMN_PODCAST_EPISODE_ID = PodcastEpisodeTable.FOREIGN_KEY_PODCAST_EPISODE;
     private static final String COLUMN_PUBLISH_TIME_MILLIS = "publish_times_millis";
     private static final String COLUMN_SORT = "sort";
     private static final String COLUMN_SUMMARY = "summary";
     private static final String COLUMN_TITLE = "title";
     private static final String COLUMN_URL = "url";
 
-    private static final String[] COLUMNS_ALL_BUT_PODCAST_ID = new String[]{
+    private static final String[] COLUMNS_ALL_BUT_PODCAST_EPISODE_ID = new String[]{
             COLUMN_ARTWORK_URL,
             COLUMN_DURATION,
             COLUMN_ID,
@@ -91,7 +84,6 @@ final class EpisodeTable<
             COLUMN_URL,
     };
 
-    static final String FOREIGN_KEY_EPISODE = TABLE_EPISODE + "_id";
     static final String CREATE_FOREIGN_KEY_EPISODE =
             "FOREIGN KEY(" + FOREIGN_KEY_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + COLUMN_ID + ")";
 
@@ -100,17 +92,17 @@ final class EpisodeTable<
                 + COLUMN_ARTWORK_URL + " TEXT, "
                 + COLUMN_DURATION + " INTEGER, "
                 + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-                + COLUMN_PODCAST_ID + " INTEGER NOT NULL, "
+                + COLUMN_PODCAST_EPISODE_ID + " INTEGER NOT NULL, "
                 + COLUMN_PUBLISH_TIME_MILLIS + " INTEGER, "
                 + COLUMN_SORT + " INTEGER NOT NULL UNIQUE DEFAULT 0, "
                 + COLUMN_SUMMARY + " TEXT, "
                 + COLUMN_TITLE + " TEXT NOT NULL, "
                 + COLUMN_URL + " TEXT NOT NULL, "
                 + "UNIQUE("
-                + "  " + COLUMN_PODCAST_ID + ", "
+                + "  " + COLUMN_PODCAST_EPISODE_ID + ", "
                 + "  " + COLUMN_URL + " "
                 + "), "
-                + CREATE_FOREIGN_KEY_PODCAST + " ON DELETE CASCADE "
+                + PodcastEpisodeTable.CREATE_FOREIGN_KEY_PODCAST_EPISODE + " ON DELETE CASCADE "
                 + ")"
         );
         db.execSQL(
@@ -118,22 +110,57 @@ final class EpisodeTable<
                         + "  AFTER INSERT ON " + TABLE_EPISODE + " FOR EACH ROW "
                         + "    BEGIN"
                         + "      UPDATE " + TABLE_EPISODE
-                        + "      SET " + COLUMN_SORT + " = (" +
-                        "          SELECT" +
-                        "            IFNULL(MAX(" + COLUMN_SORT + "), 0) + 1 " +
-                        "          FROM " + TABLE_EPISODE
+                        + "      SET " + COLUMN_SORT + " = ("
+                        + "        SELECT"
+                        + "          IFNULL(MAX(" + COLUMN_SORT + "), 0) + 1"
+                        + "        FROM " + TABLE_EPISODE
                         + "      )"
                         + "      WHERE " + COLUMN_ID + " = NEW." + COLUMN_ID + ";"
                         + "    END"
         );
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PODCAST_ID
-                + " ON " + TABLE_EPISODE + "(" + COLUMN_PODCAST_ID + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PUBLISH_TIME_MILLIS
-                + " ON " + TABLE_EPISODE + "(" + COLUMN_PUBLISH_TIME_MILLIS + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_SORT
-                + " ON " + TABLE_EPISODE + "(" + COLUMN_SORT + ")");
-        db.execSQL("CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_URL
-                + " ON " + TABLE_EPISODE + "(" + COLUMN_URL + ")");
+        // Don't need an insert trigger because all inserts trigger an update above
+        db.execSQL(
+                "CREATE TRIGGER " + TABLE_EPISODE + "_update_podcast_episode_version_after_update_trigger"
+                        + "  AFTER UPDATE ON " + TABLE_EPISODE + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
+                        + "      SET " + PodcastEpisodeTable.COLUMN_VERSION + " = ("
+                        + "        SELECT"
+                        + "          IFNULL(MAX(" + PodcastEpisodeTable.COLUMN_VERSION + "), 0) + 1"
+                        + "        FROM " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
+                        + "      )"
+                        + "      WHERE " + PodcastEpisodeTable.COLUMN_ID + " = NEW." + COLUMN_PODCAST_EPISODE_ID + ";"
+                        + "    END"
+        );
+        db.execSQL(
+                "CREATE TRIGGER " + TABLE_EPISODE + "_update_podcast_episode_version_after_delete_trigger"
+                        + "  AFTER DELETE ON " + TABLE_EPISODE + " FOR EACH ROW "
+                        + "    BEGIN"
+                        + "      UPDATE " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
+                        + "      SET " + PodcastEpisodeTable.COLUMN_VERSION + " = ("
+                        + "        SELECT"
+                        + "          IFNULL(MAX(" + PodcastEpisodeTable.COLUMN_VERSION + "), 0) + 1"
+                        + "        FROM " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
+                        + "      )"
+                        + "      WHERE " + PodcastEpisodeTable.COLUMN_ID + " = OLD." + COLUMN_PODCAST_EPISODE_ID + ";"
+                        + "    END"
+        );
+        db.execSQL(
+                "CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PODCAST_EPISODE_ID
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_PODCAST_EPISODE_ID + ")"
+        );
+        db.execSQL(
+                "CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_PUBLISH_TIME_MILLIS
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_PUBLISH_TIME_MILLIS + ")"
+        );
+        db.execSQL(
+                "CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_SORT
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_SORT + ")"
+        );
+        db.execSQL(
+                "CREATE INDEX " + TABLE_EPISODE + "__" + COLUMN_URL
+                + " ON " + TABLE_EPISODE + "(" + COLUMN_URL + ")"
+        );
     }
 
     private static final class EpisodeTableUpsertAdapter<
@@ -149,7 +176,7 @@ final class EpisodeTable<
         public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<String> secondaryKeys) {
             final String selection =
                     COLUMN_URL + inPlaceholderClause(secondaryKeys.size())
-                            + " AND " + COLUMN_PODCAST_ID + " = ? ";
+                            + " AND " + COLUMN_PODCAST_EPISODE_ID + " = ? ";
             final Object[] bindArgs = new Object[secondaryKeys.size() + 1];
             secondaryKeys.toArray(bindArgs);
             bindArgs[secondaryKeys.size()] = podcastIdentifier.getId();
@@ -186,14 +213,6 @@ final class EpisodeTable<
             EpisodeIdentifierType,
             EpisodeType
             > episodeIdentifiedFactory;
-    private final Opt.OptEmptyFactory<
-            EpisodeIdentifierOptType,
-            EpisodeIdentifierType
-            > episodeIdentifierOptEmptyFactory;
-    private final Opt.OptNonEmptyFactory<
-            EpisodeIdentifierOptType,
-            EpisodeIdentifierType
-            > episodeIdentifierOptNonEmptyFactory;
     private final CollectionFactory.Capacity<
             EpisodeIdentifiedListType,
             EpisodeIdentifiedType
@@ -202,10 +221,6 @@ final class EpisodeTable<
             EpisodeIdentifiedSetType,
             EpisodeIdentifiedType
             > episodeIdentifiedSetCollectionFactory;
-    private final CollectionFactory.Capacity<
-            EpisodeIdentifierOptListType,
-            EpisodeIdentifierOptType
-            > episodeIdentifierOptListCapacityFactory;
 
     EpisodeTable(
             DimDatabase<MarkerType> dimDatabase,
@@ -218,14 +233,6 @@ final class EpisodeTable<
                     EpisodeIdentifierType,
                     EpisodeType
                     > episodeIdentifiedFactory,
-            Opt.OptEmptyFactory<
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierType
-                    > episodeIdentifierOptEmptyFactory,
-            Opt.OptNonEmptyFactory<
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierType
-                    > episodeIdentifierOptNonEmptyFactory,
             CollectionFactory.Capacity<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedType
@@ -233,25 +240,18 @@ final class EpisodeTable<
             CollectionFactory.Collection<
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifiedType
-                    > episodeIdentifiedSetCollectionFactory,
-            CollectionFactory.Capacity<
-                    EpisodeIdentifierOptListType,
-                    EpisodeIdentifierOptType
-                    > episodeIdentifierOptListCapacityFactory
+                    > episodeIdentifiedSetCollectionFactory
     ) {
         super(dimDatabase);
 
         this.episodeFactory2 = episodeFactory;
         this.episodeIdentifierFactory = episodeIdentifierFactory;
         this.episodeIdentifiedFactory = episodeIdentifiedFactory;
-        this.episodeIdentifierOptEmptyFactory = episodeIdentifierOptEmptyFactory;
-        this.episodeIdentifierOptNonEmptyFactory = episodeIdentifierOptNonEmptyFactory;
         this.episodeIdentifiedListCapacityFactory = episodeIdentifiedListCapacityFactory;
         this.episodeIdentifiedSetCollectionFactory = episodeIdentifiedSetCollectionFactory;
-        this.episodeIdentifierOptListCapacityFactory = episodeIdentifierOptListCapacityFactory;
     }
 
-    EpisodeIdentifierOptType insertEpisode(
+    Optional<EpisodeIdentifierType> insertEpisode(
             PodcastIdentifierType podcastIdentifier,
             EpisodeType episode
     ) {
@@ -264,9 +264,9 @@ final class EpisodeTable<
                 )
         );
         if (id == -1) {
-            return episodeIdentifierOptEmptyFactory.newOpt();
+            return Optional.empty();
         } else {
-            return episodeIdentifierOptNonEmptyFactory.newOpt(
+            return Optional.of(
                     episodeIdentifierFactory.newIdentifier(id)
             );
         }
@@ -287,7 +287,7 @@ final class EpisodeTable<
         );
     }
 
-    EpisodeIdentifierOptListType upsertEpisodes(
+    List<Optional<EpisodeIdentifierType>> upsertEpisodes(
             PodcastIdentifierType podcastIdentifier,
             EpisodeListType episodes
     ) {
@@ -312,9 +312,7 @@ final class EpisodeTable<
                                 podcastIdentifier,
                                 episodeIdentified
                         ),
-                episodeIdentifierOptEmptyFactory,
-                episodeIdentifierOptNonEmptyFactory,
-                episodeIdentifierOptListCapacityFactory
+                ArrayList::new
         );
     }
 
@@ -339,7 +337,7 @@ final class EpisodeTable<
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_EPISODE)
-                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
+                        .columns(COLUMNS_ALL_BUT_PODCAST_EPISODE_ID)
                         .create();
 
         return dimDatabase
@@ -361,11 +359,11 @@ final class EpisodeTable<
                 SupportSQLiteQueryBuilder2
                         .builder(TABLE_EPISODE)
                         .selection(
-                                COLUMN_PODCAST_ID + " = ?",
+                                COLUMN_PODCAST_EPISODE_ID + " = ?",
                                 new Object[]{podcastIdentifier.getId()}
                         )
                         .orderBy(COLUMN_SORT)
-                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
+                        .columns(COLUMNS_ALL_BUT_PODCAST_EPISODE_ID)
                         .create();
 
         return dimDatabase
@@ -388,7 +386,7 @@ final class EpisodeTable<
         final SupportSQLiteQuery query =
                 SupportSQLiteQueryBuilder
                         .builder(TABLE_EPISODE)
-                        .columns(COLUMNS_ALL_BUT_PODCAST_ID)
+                        .columns(COLUMNS_ALL_BUT_PODCAST_EPISODE_ID)
                         .selection(
                                 COLUMN_ID + "= ?",
                                 new Object[]{episodeIdentifier.getId()}
@@ -460,7 +458,7 @@ final class EpisodeTable<
         );
         putIdentifier2(
                 values,
-                COLUMN_PODCAST_ID,
+                COLUMN_PODCAST_EPISODE_ID,
                 podcastIdentifier
         );
         putDateAsLong(

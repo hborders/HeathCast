@@ -59,11 +59,6 @@ public final class PodcastService<
                 EpisodeType
                 >,
         EpisodeIdentifierType extends Episode.EpisodeIdentifier,
-        EpisodeIdentifierOptType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt<EpisodeIdentifierType>,
-        EpisodeIdentifierOptListType extends Episode.EpisodeIdentifier.EpisodeIdentifierOpt.EpisodeIdentifierOptList2<
-                EpisodeIdentifierOptType,
-                EpisodeIdentifierType
-                >,
         EpisodeListType extends Episode.EpisodeList2<
                 EpisodeType
                 >,
@@ -77,22 +72,12 @@ public final class PodcastService<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifiedOptType extends Podcast.PodcastIdentified.PodcastIdentifiedOpt<
-                        PodcastIdentifiedType,
-                        PodcastIdentifierType,
-                        PodcastType
-                        >,
         PodcastIdentifiedSetType extends Podcast.PodcastIdentified.PodcastIdentifiedSet2<
                 PodcastIdentifiedType,
                 PodcastIdentifierType,
                 PodcastType
                 >,
         PodcastIdentifierType extends Podcast.PodcastIdentifier,
-        PodcastIdentifierOptType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt<PodcastIdentifierType>,
-        PodcastIdentifierOptListType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt.PodcastIdentifierOptList2<
-                PodcastIdentifierOptType,
-                PodcastIdentifierType
-                >,
         PodcastListType extends Podcast.PodcastList2<PodcastType>,
         PodcastSearchType extends PodcastSearch,
         PodcastSearchIdentifiedType extends PodcastSearch.PodcastSearchIdentified<
@@ -104,15 +89,7 @@ public final class PodcastService<
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
-        PodcastSearchIdentifiedOptType extends PodcastSearch.PodcastSearchIdentified.PodcastSearchIdentifiedOpt<
-                        PodcastSearchIdentifiedType,
-                        PodcastSearchIdentifierType,
-                        PodcastSearchType
-                        >,
         PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier,
-        PodcastSearchIdentifierOptType extends PodcastSearch.PodcastSearchIdentifier.PodcastSearchIdentifierOpt<
-                        PodcastSearchIdentifierType
-                        >,
         SubscriptionType extends Subscription<
                         PodcastIdentifiedType,
                         PodcastIdentifierType,
@@ -194,22 +171,16 @@ public final class PodcastService<
             EpisodeIdentifiedListType,
             EpisodeIdentifiedSetType,
             EpisodeIdentifierType,
-            EpisodeIdentifierOptType,
-            EpisodeIdentifierOptListType,
             EpisodeListType,
             PodcastType,
             PodcastIdentifiedType,
             PodcastIdentifiedListType,
             PodcastIdentifiedSetType,
             PodcastIdentifierType,
-            PodcastIdentifierOptType,
-            PodcastIdentifierOptListType,
             PodcastSearchType,
             PodcastSearchIdentifiedType,
             PodcastSearchIdentifiedListType,
-            PodcastSearchIdentifiedOptType,
             PodcastSearchIdentifierType,
-            PodcastSearchIdentifierOptType,
             SubscriptionType,
             SubscriptionIdentifiedType,
             SubscriptionIdentifiedListType,
@@ -256,22 +227,16 @@ public final class PodcastService<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifierType,
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierOptListType,
                     EpisodeListType,
                     PodcastType,
                     PodcastIdentifiedType,
                     PodcastIdentifiedListType,
                     PodcastIdentifiedSetType,
                     PodcastIdentifierType,
-                    PodcastIdentifierOptType,
-                    PodcastIdentifierOptListType,
                     PodcastSearchType,
                     PodcastSearchIdentifiedType,
                     PodcastSearchIdentifiedListType,
-                    PodcastSearchIdentifiedOptType,
                     PodcastSearchIdentifierType,
-                    PodcastSearchIdentifierOptType,
                     SubscriptionType,
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifiedListType,
@@ -331,22 +296,16 @@ public final class PodcastService<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifierType,
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierOptListType,
                     EpisodeListType,
                     PodcastType,
                     PodcastIdentifiedType,
                     PodcastIdentifiedListType,
                     PodcastIdentifiedSetType,
                     PodcastIdentifierType,
-                    PodcastIdentifierOptType,
-                    PodcastIdentifierOptListType,
                     PodcastSearchType,
                     PodcastSearchIdentifiedType,
                     PodcastSearchIdentifiedListType,
-                    PodcastSearchIdentifiedOptType,
                     PodcastSearchIdentifierType,
-                    PodcastSearchIdentifierOptType,
                     SubscriptionType,
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifiedListType,
@@ -402,22 +361,16 @@ public final class PodcastService<
                     EpisodeIdentifiedListType,
                     EpisodeIdentifiedSetType,
                     EpisodeIdentifierType,
-                    EpisodeIdentifierOptType,
-                    EpisodeIdentifierOptListType,
                     EpisodeListType,
                     PodcastType,
                     PodcastIdentifiedType,
                     PodcastIdentifiedListType,
                     PodcastIdentifiedSetType,
                     PodcastIdentifierType,
-                    PodcastIdentifierOptType,
-                    PodcastIdentifierOptListType,
                     PodcastSearchType,
                     PodcastSearchIdentifiedType,
                     PodcastSearchIdentifiedListType,
-                    PodcastSearchIdentifiedOptType,
                     PodcastSearchIdentifierType,
-                    PodcastSearchIdentifierOptType,
                     SubscriptionType,
                     SubscriptionIdentifiedType,
                     SubscriptionIdentifiedListType,
@@ -538,7 +491,7 @@ public final class PodcastService<
             @Nullable NetworkPauser networkPauser,
             PodcastSearchType podcastSearch
     ) {
-        final PodcastSearchIdentifiedOptType podcastSearchIdentifiedOpt =
+        final Optional<PodcastSearchIdentifiedType> podcastSearchIdentifiedOptional =
                 database.upsertPodcastSearch(podcastSearch);
 
         final class SawMarkerAndPodcastIdentifiedList extends Tuple<Boolean, PodcastIdentifiedListType> {
@@ -553,7 +506,7 @@ public final class PodcastService<
             }
         }
 
-        return podcastSearchIdentifiedOpt.toOptional().map(
+        return podcastSearchIdentifiedOptional.map(
                 podcastSearchIdentified -> {
                     final Object marker = new Object();
                     final Observable<SawMarkerAndPodcastIdentifiedList> sawMarkerAndPodcastIdentifiedListObservable =

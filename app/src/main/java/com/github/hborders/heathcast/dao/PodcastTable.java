@@ -10,12 +10,12 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.Podcast;
 import com.stealthmountain.sqldim.DimDatabase;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,7 +36,8 @@ import static com.github.hborders.heathcast.dao.EpisodeTable.TABLE_EPISODE;
 
 final class PodcastTable<
         MarkerType,
-        PodcastType extends Podcast, PodcastIdentifiedType extends Podcast.PodcastIdentified<
+        PodcastType extends Podcast,
+        PodcastIdentifiedType extends Podcast.PodcastIdentified<
                 PodcastIdentifierType,
                 PodcastType
                 >,
@@ -45,14 +46,7 @@ final class PodcastTable<
                 PodcastIdentifierType,
                 PodcastType
                 >,
-        PodcastIdentifierType extends Podcast.PodcastIdentifier,
-        PodcastIdentifierOptType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt<
-                        PodcastIdentifierType
-                        >,
-        PodcastIdentifierOptListType extends Podcast.PodcastIdentifier.PodcastIdentifierOpt.PodcastIdentifierOptList2<
-                PodcastIdentifierOptType,
-                PodcastIdentifierType
-                >
+        PodcastIdentifierType extends Podcast.PodcastIdentifier
         > extends Table<MarkerType> {
     static final String TABLE_PODCAST = "podcast";
 
@@ -157,22 +151,10 @@ final class PodcastTable<
             PodcastIdentifierType,
             PodcastType
             > podcastIdentifiedFactory;
-    private final Opt.OptEmptyFactory<
-            PodcastIdentifierOptType,
-            PodcastIdentifierType
-            > podcastIdentifierOptEmptyFactory;
-    private final Opt.OptNonEmptyFactory<
-            PodcastIdentifierOptType,
-            PodcastIdentifierType
-            > podcastIdentifierOptNonEmptyFactory;
     private final CollectionFactory.Collection<
             PodcastIdentifiedSetType,
             PodcastIdentifiedType
             > podcastIdentifiedSetCollectionFactory;
-    private final CollectionFactory.Capacity<
-            PodcastIdentifierOptListType,
-            PodcastIdentifierOptType
-            > podcastIdentifierOptListCapacityFactory;
 
     PodcastTable(
             DimDatabase<MarkerType> dimDatabase,
@@ -185,44 +167,29 @@ final class PodcastTable<
                     PodcastIdentifierType,
                     PodcastType
                     > podcastIdentifiedFactory,
-            Opt.OptEmptyFactory<
-                    PodcastIdentifierOptType,
-                    PodcastIdentifierType
-                    > podcastIdentifierOptEmptyFactory,
-            Opt.OptNonEmptyFactory<
-                    PodcastIdentifierOptType,
-                    PodcastIdentifierType
-                    > podcastIdentifierOptNonEmptyFactory,
             CollectionFactory.Collection<
                     PodcastIdentifiedSetType,
                     PodcastIdentifiedType
-                    > podcastIdentifiedSetCollectionFactory,
-            CollectionFactory.Capacity<
-                    PodcastIdentifierOptListType,
-                    PodcastIdentifierOptType
-                    > podcastIdentifierOptListCapacityFactory
+                    > podcastIdentifiedSetCollectionFactory
     ) {
         super(dimDatabase);
 
         this.podcastFactory = podcastFactory;
         this.podcastIdentifierFactory = podcastIdentifierFactory;
         this.podcastIdentifiedFactory = podcastIdentifiedFactory;
-        this.podcastIdentifierOptEmptyFactory = podcastIdentifierOptEmptyFactory;
-        this.podcastIdentifierOptNonEmptyFactory = podcastIdentifierOptNonEmptyFactory;
         this.podcastIdentifiedSetCollectionFactory = podcastIdentifiedSetCollectionFactory;
-        this.podcastIdentifierOptListCapacityFactory = podcastIdentifierOptListCapacityFactory;
     }
 
-    PodcastIdentifierOptType insertPodcast(PodcastType podcast) {
+    Optional<PodcastIdentifierType> insertPodcast(PodcastType podcast) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST,
                 CONFLICT_ROLLBACK,
                 getPodcastContentValues(podcast)
         );
         if (id == -1) {
-            return podcastIdentifierOptEmptyFactory.newOpt();
+            return Optional.empty();
         } else {
-            return podcastIdentifierOptNonEmptyFactory.newOpt(
+            return Optional.of(
                     podcastIdentifierFactory.newIdentifier(id)
             );
         }
@@ -238,7 +205,7 @@ final class PodcastTable<
         );
     }
 
-    PodcastIdentifierOptType upsertPodcast(PodcastType podcast) {
+    Optional<PodcastIdentifierType> upsertPodcast(PodcastType podcast) {
         return upsertModel2(
                 upsertAdapter,
                 String.class,
@@ -247,13 +214,11 @@ final class PodcastTable<
                 podcastIdentifierFactory,
                 podcastIdentifiedFactory,
                 this::insertPodcast,
-                this::updatePodcastIdentified,
-                podcastIdentifierOptEmptyFactory,
-                podcastIdentifierOptNonEmptyFactory
+                this::updatePodcastIdentified
         );
     }
 
-    PodcastIdentifierOptListType upsertPodcasts(List<PodcastType> podcasts) {
+    List<Optional<PodcastIdentifierType>> upsertPodcasts(List<PodcastType> podcasts) {
         return upsertModels2(
                 upsertAdapter,
                 String.class,
@@ -263,9 +228,7 @@ final class PodcastTable<
                 podcastIdentifiedFactory,
                 this::insertPodcast,
                 this::updatePodcastIdentified,
-                podcastIdentifierOptEmptyFactory,
-                podcastIdentifierOptNonEmptyFactory,
-                podcastIdentifierOptListCapacityFactory
+                ArrayList::new
         );
     }
 

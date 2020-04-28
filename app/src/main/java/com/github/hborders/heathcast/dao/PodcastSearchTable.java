@@ -10,7 +10,6 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.github.hborders.heathcast.android.CursorUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
-import com.github.hborders.heathcast.core.Opt;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
 import com.github.hborders.heathcast.models.PodcastSearch;
@@ -38,10 +37,7 @@ final class PodcastSearchTable<
                 PodcastSearchIdentifierType,
                 PodcastSearchType
                 >,
-        PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier,
-        PodcastSearchIdentifierOptType extends PodcastSearch.PodcastSearchIdentifier.PodcastSearchIdentifierOpt<
-                        PodcastSearchIdentifierType
-                        >
+        PodcastSearchIdentifierType extends PodcastSearch.PodcastSearchIdentifier
         > extends Table<MarkerType> {
     static final String TABLE_PODCAST_SEARCH = "podcast_search";
 
@@ -122,14 +118,6 @@ final class PodcastSearchTable<
             PodcastSearchIdentifiedListType,
             PodcastSearchIdentifiedType
             > podcastSearchIdentifiedListCapacityFactory;
-    private final Opt.OptEmptyFactory<
-            PodcastSearchIdentifierOptType,
-            PodcastSearchIdentifierType
-            > podcastSearchIdentifierOptEmptyFactory;
-    private final Opt.OptNonEmptyFactory<
-            PodcastSearchIdentifierOptType,
-            PodcastSearchIdentifierType
-            > podcastSearchIdentifierOptNonEmptyFactory;
 
     PodcastSearchTable(
             DimDatabase<MarkerType> dimDatabase,
@@ -143,15 +131,7 @@ final class PodcastSearchTable<
             CollectionFactory.Capacity<
                     PodcastSearchIdentifiedListType,
                     PodcastSearchIdentifiedType
-                    > podcastSearchIdentifiedListCapacityFactory,
-            Opt.OptEmptyFactory<
-                    PodcastSearchIdentifierOptType,
-                    PodcastSearchIdentifierType
-                    > podcastSearchIdentifierOptEmptyFactory,
-            Opt.OptNonEmptyFactory<
-                    PodcastSearchIdentifierOptType,
-                    PodcastSearchIdentifierType
-                    > podcastSearchIdentifierOptNonEmptyFactory
+                    > podcastSearchIdentifiedListCapacityFactory
     ) {
         super(dimDatabase);
 
@@ -159,11 +139,9 @@ final class PodcastSearchTable<
         this.podcastSearchIdentifierFactory = podcastSearchIdentifierFactory;
         this.podcastSearchIdentifiedFactory = podcastSearchIdentifiedFactory;
         this.podcastSearchIdentifiedListCapacityFactory = podcastSearchIdentifiedListCapacityFactory;
-        this.podcastSearchIdentifierOptEmptyFactory = podcastSearchIdentifierOptEmptyFactory;
-        this.podcastSearchIdentifierOptNonEmptyFactory = podcastSearchIdentifierOptNonEmptyFactory;
     }
 
-    PodcastSearchIdentifierOptType upsertPodcastSearch(PodcastSearchType podcastSearch) {
+    Optional<PodcastSearchIdentifierType> upsertPodcastSearch(PodcastSearchType podcastSearch) {
         return upsertModel2(
                 upsertAdapter,
                 String.class,
@@ -172,22 +150,20 @@ final class PodcastSearchTable<
                 podcastSearchIdentifierFactory,
                 podcastSearchIdentifiedFactory,
                 this::insertPodcastSearch,
-                this::updatePodcastSearchIdentified,
-                podcastSearchIdentifierOptEmptyFactory,
-                podcastSearchIdentifierOptNonEmptyFactory
+                this::updatePodcastSearchIdentified
         );
     }
 
-    private PodcastSearchIdentifierOptType insertPodcastSearch(PodcastSearchType podcastSearch) {
+    private Optional<PodcastSearchIdentifierType> insertPodcastSearch(PodcastSearchType podcastSearch) {
         final long id = dimDatabase.insert(
                 TABLE_PODCAST_SEARCH,
                 CONFLICT_ABORT,
                 getPodcastSearchContentValues(podcastSearch)
         );
         if (id == -1) {
-            return podcastSearchIdentifierOptEmptyFactory.newOpt();
+            return Optional.empty();
         } else {
-            return podcastSearchIdentifierOptNonEmptyFactory.newOpt(
+            return Optional.of(
                     podcastSearchIdentifierFactory.newIdentifier(id)
             );
         }
