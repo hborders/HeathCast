@@ -66,7 +66,7 @@ final class EpisodeTable<
     private static final String COLUMN_ARTWORK_URL = "artwork_url";
     private static final String COLUMN_DURATION = "duration";
     private static final String COLUMN_ID = "_id";
-    private static final String COLUMN_PODCAST_EPISODE_ID = PodcastEpisodeTable.FOREIGN_KEY_PODCAST_EPISODE;
+    private static final String COLUMN_PODCAST_EPISODE_ID = PodcastEpisodeListHeaderTable.FOREIGN_KEY_PODCAST_EPISODE_LIST;
     private static final String COLUMN_PUBLISH_TIME_MILLIS = "publish_times_millis";
     private static final String COLUMN_SORT = "sort";
     private static final String COLUMN_SUMMARY = "summary";
@@ -102,7 +102,7 @@ final class EpisodeTable<
                 + "  " + COLUMN_PODCAST_EPISODE_ID + ", "
                 + "  " + COLUMN_URL + " "
                 + "), "
-                + PodcastEpisodeTable.CREATE_FOREIGN_KEY_PODCAST_EPISODE + " ON DELETE CASCADE "
+                + PodcastEpisodeListHeaderTable.CREATE_FOREIGN_KEY_PODCAST_EPISODE_LIST_HEADER + " ON DELETE CASCADE "
                 + ")"
         );
         db.execSQL(
@@ -123,26 +123,26 @@ final class EpisodeTable<
                 "CREATE TRIGGER " + TABLE_EPISODE + "_update_podcast_episode_version_after_update_trigger"
                         + "  AFTER UPDATE ON " + TABLE_EPISODE + " FOR EACH ROW "
                         + "    BEGIN"
-                        + "      UPDATE " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
-                        + "      SET " + PodcastEpisodeTable.COLUMN_VERSION + " = ("
+                        + "      UPDATE " + PodcastEpisodeListHeaderTable.TABLE_PODCAST_EPISODE_LIST_HEADER
+                        + "      SET " + PodcastEpisodeListHeaderTable.COLUMN_VERSION + " = ("
                         + "        SELECT"
-                        + "          IFNULL(MAX(" + PodcastEpisodeTable.COLUMN_VERSION + "), 0) + 1"
-                        + "        FROM " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
+                        + "          IFNULL(MAX(" + PodcastEpisodeListHeaderTable.COLUMN_VERSION + "), 0) + 1"
+                        + "        FROM " + PodcastEpisodeListHeaderTable.TABLE_PODCAST_EPISODE_LIST_HEADER
                         + "      )"
-                        + "      WHERE " + PodcastEpisodeTable.COLUMN_ID + " = NEW." + COLUMN_PODCAST_EPISODE_ID + ";"
+                        + "      WHERE " + PodcastEpisodeListHeaderTable.COLUMN_ID + " = NEW." + COLUMN_PODCAST_EPISODE_ID + ";"
                         + "    END"
         );
         db.execSQL(
                 "CREATE TRIGGER " + TABLE_EPISODE + "_update_podcast_episode_version_after_delete_trigger"
                         + "  AFTER DELETE ON " + TABLE_EPISODE + " FOR EACH ROW "
                         + "    BEGIN"
-                        + "      UPDATE " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
-                        + "      SET " + PodcastEpisodeTable.COLUMN_VERSION + " = ("
+                        + "      UPDATE " + PodcastEpisodeListHeaderTable.TABLE_PODCAST_EPISODE_LIST_HEADER
+                        + "      SET " + PodcastEpisodeListHeaderTable.COLUMN_VERSION + " = ("
                         + "        SELECT"
-                        + "          IFNULL(MAX(" + PodcastEpisodeTable.COLUMN_VERSION + "), 0) + 1"
-                        + "        FROM " + PodcastEpisodeTable.TABLE_PODCAST_EPISODE
+                        + "          IFNULL(MAX(" + PodcastEpisodeListHeaderTable.COLUMN_VERSION + "), 0) + 1"
+                        + "        FROM " + PodcastEpisodeListHeaderTable.TABLE_PODCAST_EPISODE_LIST_HEADER
                         + "      )"
-                        + "      WHERE " + PodcastEpisodeTable.COLUMN_ID + " = OLD." + COLUMN_PODCAST_EPISODE_ID + ";"
+                        + "      WHERE " + PodcastEpisodeListHeaderTable.COLUMN_ID + " = OLD." + COLUMN_PODCAST_EPISODE_ID + ";"
                         + "    END"
         );
         db.execSQL(
