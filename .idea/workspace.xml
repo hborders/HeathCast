@@ -114,10 +114,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8f969073-83cf-4bf3-b1ab-8d58eedf3683" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastEpisodeListHeaderTable.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/EpisodeTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hborders/heathcast/dao/PodcastEpisodeTable.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -210,6 +208,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DEBUGGABLE_DEVICE" value="Espresso_Pixel_3a_API_29 [emulator-5554]" />
     <property name="DEBUGGABLE_PROCESS" value="com.github.hborders.heathcast" />
     <property name="DEBUGGER_ID" value="Java" />
@@ -637,6 +636,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="53" y="269" width="1775" height="579" key="#xdebugger.evaluate/0.23.1920.1100@0.23.1920.1100" timestamp="1585634964133" />
+    <state x="548" y="335" key="AndroidCreateResourceDirectoryDialog" timestamp="1588313251670">
+      <screen x="0" y="23" width="1920" height="1100" />
+    </state>
+    <state x="548" y="335" key="AndroidCreateResourceDirectoryDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1588313251670" />
     <state x="823" y="345" key="AndroidProcessChooserDialog" timestamp="1587094617269">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
@@ -701,14 +704,10 @@
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
     <state x="100" y="123" width="1720" height="900" key="com.android.tools.idea.avdmanager.AvdListDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1585894616159" />
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1588134577475">
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog" timestamp="1588303012767">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>
-    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1588134577475" />
-    <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579558329648">
-      <screen x="0" y="23" width="1920" height="1100" />
-    </state>
-    <state x="749" y="497" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1920.1100@0.23.1920.1100" timestamp="1579558329648" />
+    <state x="839" y="592" key="com.intellij.ide.util.TipDialog/0.23.1920.1100@0.23.1920.1100" timestamp="1588303012767" />
     <state x="198" y="316" width="1572" height="562" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1587100823670">
       <screen x="0" y="23" width="1920" height="1100" />
     </state>

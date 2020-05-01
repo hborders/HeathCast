@@ -67,7 +67,7 @@ final class EpisodeTable<
     private static final String COLUMN_DURATION = "duration";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_PODCAST_EPISODE_ID = PodcastEpisodeListHeaderTable.FOREIGN_KEY_PODCAST_EPISODE_LIST;
-    private static final String COLUMN_PUBLISH_TIME_MILLIS = "publish_times_millis";
+    private static final String COLUMN_PUBLISH_TIME_MILLIS = "publish_time_millis";
     private static final String COLUMN_SORT = "sort";
     private static final String COLUMN_SUMMARY = "summary";
     private static final String COLUMN_TITLE = "title";
