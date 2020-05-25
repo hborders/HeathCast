@@ -17,9 +17,8 @@ public final class CursorUtil {
     @Nullable
     public static Integer getNullableInteger(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        final int columnIndex = cursor.getColumnIndexOrThrow(columnName);
         if (cursor.isNull(columnIndex)) {
             return null;
         }
@@ -29,11 +28,10 @@ public final class CursorUtil {
 
     public static int getNonnullInt(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        final int columnIndex = cursor.getColumnIndexOrThrow(columnName);
         if (cursor.isNull(columnIndex)) {
-            throw new NullPointerException(columnName);
+            throw new NullPointerException("Null value at column: " + columnIndex);
         }
         return cursor.getInt(columnIndex);
     }
@@ -41,9 +39,8 @@ public final class CursorUtil {
     @Nullable
     public static Long getNullableLong(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        final int columnIndex = cursor.getColumnIndexOrThrow(columnName);
         if (cursor.isNull(columnIndex)) {
             return null;
         }
@@ -52,11 +49,10 @@ public final class CursorUtil {
 
     public static long getNonnullLong(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        final int columnIndex = cursor.getColumnIndexOrThrow(columnName);
         if (cursor.isNull(columnIndex)) {
-            throw new NullPointerException(columnName);
+            throw new NullPointerException("Null value at column: " + columnIndex);
         }
         return cursor.getLong(columnIndex);
     }
@@ -64,21 +60,24 @@ public final class CursorUtil {
     @Nullable
     public static String getNullableString(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        return cursor.getString(cursor.getColumnIndexOrThrow(columnName));
+        if (cursor.isNull(columnIndex)) {
+            return null;
+        }
+        return cursor.getString(columnIndex);
     }
 
     public static String getNonnullString(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        @Nullable final String value = getNullableString(
-                cursor,
-                columnName
-        );
+        if (cursor.isNull(columnIndex)) {
+            throw new NullPointerException("Null value at column: " + columnIndex);
+        }
+        @Nullable final String value = cursor.getString(columnIndex);
         if (value == null) {
-            throw new NullPointerException(columnName);
+            throw new NullPointerException("Null value at column: " + columnIndex);
         }
 
         return value;
@@ -87,25 +86,25 @@ public final class CursorUtil {
     @Nullable
     public static URL getNullableURLFromString(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
         @Nullable final String string = getNullableString(
                 cursor,
-                columnName
+                columnIndex
         );
         return URLUtil.fromString(string);
     }
 
     public static URL getNonnullURLFromString(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
         @Nullable final URL value = getNullableURLFromString(
                 cursor,
-                columnName
+                columnIndex
         );
         if (value == null) {
-            throw new NullPointerException(columnName);
+            throw new NullPointerException("Null value at column: " + columnIndex);
         }
 
         return value;
@@ -114,9 +113,8 @@ public final class CursorUtil {
     @Nullable
     public static Duration getNullableDurationFromLong(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        final int columnIndex = cursor.getColumnIndexOrThrow(columnName);
         if (cursor.isNull(columnIndex)) {
             return null;
         }
@@ -126,14 +124,14 @@ public final class CursorUtil {
 
     public static Duration getNonnullDurationFromLong(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
         @Nullable final Duration value = getNullableDurationFromLong(
                 cursor,
-                columnName
+                columnIndex
         );
         if (value == null) {
-            throw new NullPointerException(columnName);
+            throw new NullPointerException("Null value at column: " + columnIndex);
         }
 
         return value;
@@ -142,9 +140,8 @@ public final class CursorUtil {
     @Nullable
     public static Date getNullableDateFromLong(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
-        final int columnIndex = cursor.getColumnIndexOrThrow(columnName);
         if (cursor.isNull(columnIndex)) {
             return null;
         }
@@ -154,14 +151,14 @@ public final class CursorUtil {
 
     public static Date getNonnullDateFromLong(
             Cursor cursor,
-            String columnName
+            int columnIndex
     ) {
         @Nullable final Date date = getNullableDateFromLong(
                 cursor,
-                columnName
+                columnIndex
         );
         if (date == null) {
-            throw new NullPointerException(columnName);
+            throw new NullPointerException("Null value at column: " + columnIndex);
         }
         return date;
     }

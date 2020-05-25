@@ -1,6 +1,8 @@
 package com.github.hborders.heathcast.dao;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 
 import androidx.annotation.Nullable;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -8,11 +10,19 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory;
+import androidx.sqlite.db.SupportSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
+import com.github.hborders.heathcast.R;
+import com.github.hborders.heathcast.android.CursorUtil;
+import com.github.hborders.heathcast.android.ResourcesUtil;
 import com.github.hborders.heathcast.core.CollectionFactory;
+import com.github.hborders.heathcast.core.Function2;
 import com.github.hborders.heathcast.core.ListUtil;
 import com.github.hborders.heathcast.core.Result;
+import com.github.hborders.heathcast.core.SortedSetUtil;
+import com.github.hborders.heathcast.core.Tuple;
 import com.github.hborders.heathcast.models.Episode;
 import com.github.hborders.heathcast.models.Identified;
 import com.github.hborders.heathcast.models.Identifier;
@@ -23,12 +33,28 @@ import com.stealthmountain.sqldim.DimDatabase;
 import com.stealthmountain.sqldim.SqlDim;
 import com.stealthmountain.sqldim.SqlDim.MarkedQuery.MarkedValue;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
+
+import static android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT;
+import static com.github.hborders.heathcast.android.SqlUtil.inPlaceholderClause;
+import static com.github.hborders.heathcast.core.ListUtil.indexedStream;
 
 public final class Database<
         MarkerType,
@@ -100,6 +126,151 @@ public final class Database<
                 >,
         SubscriptionIdentifierType extends Subscription.SubscriptionIdentifier
         > {
+    static final class Schema extends Callback {
+        private Context context;
+
+        Schema(Context context) {
+            super(1);
+
+            this.context = context;
+        }
+
+        @Override
+        public void onCreate(SupportSQLiteDatabase db) {
+            final String sql;
+            try {
+                sql = ResourcesUtil.readRawUtf8Resource(
+                        context.getResources(),
+                        R.raw.heathcast
+                );
+            } catch (IOException rethrown) {
+                throw new IllegalStateException(rethrown);
+            }
+
+            db.execSQL(sql);
+        }
+
+        public void onConfigure(SupportSQLiteDatabase db) {
+            db.setForeignKeyConstraintsEnabled(true);
+        }
+
+        @Override
+        public void onUpgrade(
+                SupportSQLiteDatabase db,
+                int oldVersion,
+                int newVersion
+        ) {
+            throw new AssertionError();
+        }
+    }
+
+    private static <
+            IdentifierType extends Identifier
+            > String[] idStrings2(Collection<IdentifierType> identifiers) {
+        final String[] idStrings = new String[identifiers.size()];
+        int i = 0;
+        for (IdentifierType identifier : identifiers) {
+            idStrings[i] = Long.toString(identifier.getId());
+            i++;
+        }
+
+        return idStrings;
+    }
+
+    private interface UpsertAdapter<SecondaryKeyType> {
+        SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<SecondaryKeyType> secondaryKeys);
+
+        long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor);
+
+        SecondaryKeyType getSecondaryKey(Cursor primaryAndSecondaryKeyCursor);
+    }
+
+    private static class SingleColumnSecondaryKeyUpsertAdapter<SecondaryKeyType> implements UpsertAdapter<SecondaryKeyType> {
+        private final String tableName;
+        private final String primaryKeyColumnName;
+        private final String secondaryKeyColumnName;
+        private final Function2<Cursor, Integer, SecondaryKeyType> cursorSecondaryKeyGetter;
+
+        public SingleColumnSecondaryKeyUpsertAdapter(
+                String tableName,
+                String primaryKeyColumnName,
+                String secondaryKeyColumnName,
+                Function2<Cursor, Integer, SecondaryKeyType> cursorSecondaryKeyGetter
+        ) {
+            this.tableName = tableName;
+            this.primaryKeyColumnName = primaryKeyColumnName;
+            this.secondaryKeyColumnName = secondaryKeyColumnName;
+            this.cursorSecondaryKeyGetter = cursorSecondaryKeyGetter;
+        }
+
+        @Override
+        public SupportSQLiteQuery createPrimaryKeyAndSecondaryKeyQuery(Set<SecondaryKeyType> secondaryKeys) {
+            final String selection =
+                    secondaryKeyColumnName + inPlaceholderClause(secondaryKeys.size());
+            return SupportSQLiteQueryBuilder
+                    .builder(tableName)
+                    .columns(
+                            new String[]{
+                                    primaryKeyColumnName,
+                                    secondaryKeyColumnName
+                            }
+                    )
+                    .selection(
+                            selection,
+                            secondaryKeys.toArray()
+                    )
+                    .create();
+        }
+
+        @Override
+        public long getPrimaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return CursorUtil.getNonnullLong(
+                    primaryAndSecondaryKeyCursor,
+                    0
+            );
+        }
+
+        @Override
+        public SecondaryKeyType getSecondaryKey(Cursor primaryAndSecondaryKeyCursor) {
+            return cursorSecondaryKeyGetter.apply(
+                    primaryAndSecondaryKeyCursor,
+                    1
+            );
+        }
+    }
+
+    private static final UpsertAdapter<String> upsertAdapter = new SingleColumnSecondaryKeyUpsertAdapter<>(
+            "podcast_search",
+            "_id",
+            "search",
+            CursorUtil::getNonnullString
+    );
+
+    private static <
+            IdentifiedType extends Identified<
+                    IdentifierType,
+                    ModelType
+                    >,
+            IdentifierType extends Identifier,
+            ModelType
+            > void putIdentifier2(
+            ContentValues contentValues,
+            String key,
+            IdentifiedType identified
+    ) {
+        putIdentifier2(contentValues, key, identified.getIdentifier());
+    }
+
+    private static <
+            IdentifierType extends Identifier
+            > void putIdentifier2(
+            ContentValues contentValues,
+            String key,
+            IdentifierType identifier
+    ) {
+        contentValues.put(key, identifier.getId());
+    }
+
     private final Identified.IdentifiedFactory2<
             PodcastIdentifiedType,
             PodcastIdentifierType,
@@ -114,6 +285,7 @@ public final class Database<
             PodcastSearchIdentifierType,
             PodcastSearchType
             > podcastSearchIdentifiedFactory;
+    private final Identifier.IdentifierFactory2<PodcastSearchIdentifierType> podcastSearchIdentifierFactory;
     private final Subscription.SubscriptionFactory2<
             SubscriptionType,
             PodcastIdentifiedType,
@@ -127,45 +299,6 @@ public final class Database<
             > subscriptionIdentifiedFactory;
 
     private final DimDatabase<MarkerType> dimDatabase;
-    final EpisodeTable<
-            MarkerType,
-            EpisodeType,
-            EpisodeIdentifiedType,
-            EpisodeIdentifiedListType,
-            EpisodeIdentifiedSetType,
-            EpisodeIdentifierType,
-            EpisodeListType,
-            PodcastIdentifierType
-            > episodeTable;
-    final PodcastTable<
-            MarkerType,
-            PodcastType,
-            PodcastIdentifiedType,
-            PodcastIdentifiedSetType,
-            PodcastIdentifierType
-            > podcastTable;
-    final PodcastSearchTable<
-            MarkerType,
-            PodcastSearchType,
-            PodcastSearchIdentifiedType,
-            PodcastSearchIdentifiedListType,
-            PodcastSearchIdentifierType
-            > podcastSearchTable;
-    private final PodcastSearchResultTable<
-            MarkerType,
-            PodcastIdentifierType,
-            PodcastSearchIdentifierType
-            > podcastSearchResultTable;
-    final SubscriptionTable<
-            MarkerType,
-            PodcastType,
-            PodcastIdentifiedType,
-            PodcastIdentifierType,
-            SubscriptionType,
-            SubscriptionIdentifiedType,
-            SubscriptionIdentifiedListType,
-            SubscriptionIdentifierType
-            > subscriptionTable;
 
     public Database(
             Context context,
@@ -238,12 +371,13 @@ public final class Database<
         this.podcastIdentifiedFactory = podcastIdentifiedFactory;
         this.podcastIdentifiedListCapacityFactory = podcastIdentifiedListCapacityFactory;
         this.podcastSearchIdentifiedFactory = podcastSearchIdentifiedFactory;
+        this.podcastSearchIdentifierFactory = podcastSearchIdentifierFactory;
         this.subscriptionFactory = subscriptionFactory;
         this.subscriptionIdentifiedFactory = subscriptionIdentifiedFactory;
 
         final Configuration configuration = Configuration
                 .builder(context)
-                .callback(new Schema())
+                .callback(new Schema(context))
                 .name(name)
                 .build();
         final Factory factory = new FrameworkSQLiteOpenHelperFactory();
@@ -253,46 +387,19 @@ public final class Database<
                 supportSQLiteOpenHelper,
                 scheduler
         );
-        episodeTable = new EpisodeTable<>(
-                dimDatabase,
-                episodeFactory,
-                episodeIdentifierFactory,
-                episodeIdentifiedFactory,
-                episodeIdentifiedListCapacityFactory,
-                episodeIdentifiedSetCollectionFactory
-        );
-        podcastTable = new PodcastTable<>(
-                dimDatabase,
-                podcastFactory,
-                podcastIdentifierFactory,
-                podcastIdentifiedFactory,
-                podcastIdentifiedSetCollectionFactory
-        );
-        podcastSearchTable = new PodcastSearchTable<>(
-                dimDatabase,
-                podcastSearchFactory,
-                podcastSearchIdentifierFactory,
-                podcastSearchIdentifiedFactory,
-                podcastSearchIdentifiedListCapacityFactory
-        );
-        podcastSearchResultTable = new PodcastSearchResultTable<>(
-                dimDatabase
-        );
-        subscriptionTable = new SubscriptionTable<>(
-                dimDatabase,
-                subscriptionFactory,
-                subscriptionIdentifierFactory,
-                subscriptionIdentifiedFactory,
-                podcastFactory,
-                podcastIdentifierFactory,
-                podcastIdentifiedFactory,
-                subscriptionIdentifiedListCapacityFactory
-        );
     }
 
     public Optional<PodcastSearchIdentifiedType> upsertPodcastSearch(PodcastSearchType podcastSearch) {
-        return podcastSearchTable
-                .upsertPodcastSearch(podcastSearch)
+        return upsertModel2(
+                upsertAdapter,
+                String.class,
+                podcastSearch,
+                PodcastSearch::getSearch,
+                podcastSearchIdentifierFactory,
+                podcastSearchIdentifiedFactory,
+                this::insertPodcastSearch,
+                this::updatePodcastSearchIdentified
+        )
                 .map(
                         podcastSearchIdentifier -> podcastSearchIdentifiedFactory.newIdentified(
                                 podcastSearchIdentifier,
@@ -467,31 +574,266 @@ public final class Database<
         return deleteCount > 0;
     }
 
-    static final class Schema extends Callback {
-        Schema() {
-            super(1);
+    private Optional<PodcastSearchIdentifierType> insertPodcastSearch(PodcastSearchType podcastSearch) {
+        final long id = dimDatabase.insert(
+                "podcast_search",
+                CONFLICT_ABORT,
+                getPodcastSearchContentValues(podcastSearch)
+        );
+        if (id == -1) {
+            return Optional.empty();
+        } else {
+            return Optional.of(
+                    podcastSearchIdentifierFactory.newIdentifier(id)
+            );
         }
+    }
 
-        @Override
-        public void onCreate(SupportSQLiteDatabase db) {
-            PodcastSearchTable.createPodcastSearchTable(db);
-            PodcastTable.createPodcastTable(db);
-            EpisodeTable.createEpisodeTable(db);
-            PodcastSearchResultTable.createPodcastSearchResultTable(db);
-            SubscriptionTable.createSubscriptionTable(db);
+    private int updatePodcastSearchIdentified(
+            PodcastSearchIdentifiedType podcastSearchIdentified) {
+        return dimDatabase.update(
+                "podcast_search",
+                CONFLICT_ABORT,
+                getPodcastSearchIdentifiedContentValues(podcastSearchIdentified),
+                "_id = ?",
+                Long.toString(podcastSearchIdentified.getIdentifier().getId())
+        );
+    }
+
+    private ContentValues getPodcastSearchContentValues(PodcastSearchType podcastSearch) {
+        final ContentValues values = new ContentValues(3);
+        values.put(
+                "search",
+                podcastSearch.getSearch()
+        );
+        return values;
+    }
+
+    private ContentValues getPodcastSearchIdentifiedContentValues(PodcastSearchIdentifiedType podcastSearchIdentified) {
+        final ContentValues values = getPodcastSearchContentValues(podcastSearchIdentified.getModel());
+
+        putIdentifier2(
+                values,
+                "_id",
+                podcastSearchIdentified
+        );
+
+        return values;
+    }
+
+    private <
+            IdentifierType extends Identifier,
+            IdentifiedType extends Identified<
+                    IdentifierType,
+                    ModelType
+                    >,
+            ModelType,
+            SecondaryKeyType
+            > Optional<IdentifierType> upsertModel2(
+            UpsertAdapter<SecondaryKeyType> upsertAdapter,
+            // secondaryKeyClass exists to force S not to be Serializable or some other
+            // unexpected superclass of unrelated Model and Cursor property classes.
+            // however, we don't actually need the parameter, so we suppress unused.
+            @SuppressWarnings("unused") Class<SecondaryKeyType> secondaryKeyClass,
+            ModelType model,
+            Function<
+                    ModelType,
+                    SecondaryKeyType>
+                    modelSecondaryKeyGetter,
+            Identifier.IdentifierFactory2<
+                    IdentifierType
+                    > identifierFactory,
+            Identified.IdentifiedFactory2<
+                    IdentifiedType,
+                    IdentifierType,
+                    ModelType
+                    > identifiedFactory,
+            Function<
+                    ModelType,
+                    Optional<IdentifierType>
+                    > modelInserter,
+            Function<
+                    IdentifiedType,
+                    Integer
+                    > identifiedUpdater
+    ) {
+        try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
+            final SecondaryKeyType secondaryKey = modelSecondaryKeyGetter.apply(model);
+
+            final SupportSQLiteQuery primaryAndSecondaryKeyQuery =
+                    upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(Collections.singleton(secondaryKey));
+            @Nullable final Optional<IdentifierType> upsertedIdentifierOptional;
+            try (final Cursor primaryAndSecondaryKeyCursor = dimDatabase.query(primaryAndSecondaryKeyQuery)) {
+                if (primaryAndSecondaryKeyCursor.moveToNext()) {
+                    final long primaryKey = upsertAdapter.getPrimaryKey(primaryAndSecondaryKeyCursor);
+                    final IdentifierType upsertingIdentifier = identifierFactory.newIdentifier(primaryKey);
+                    final IdentifiedType updatingIdentified = identifiedFactory.newIdentified(
+                            upsertingIdentifier,
+                            model
+                    );
+                    int rowCount = identifiedUpdater.apply(updatingIdentified);
+                    if (rowCount == 1) {
+                        upsertedIdentifierOptional = Optional.of(upsertingIdentifier);
+                    } else {
+                        upsertedIdentifierOptional = Optional.empty();
+                    }
+                } else {
+                    upsertedIdentifierOptional = modelInserter
+                            .apply(model);
+                }
+            }
+
+            transaction.markSuccessful();
+
+            return upsertedIdentifierOptional;
         }
+    }
 
-        public void onConfigure(SupportSQLiteDatabase db) {
-            db.execSQL("PRAGMA foreign_keys=ON");
-        }
+    private <
+            IdentifierType extends Identifier,
+            IdentifiedType extends Identified<
+                    IdentifierType,
+                    ModelType
+                    >,
+            ModelListType extends List<ModelType>,
+            ModelType,
+            SecondaryKeyType
+            > List<Optional<IdentifierType>> upsertModels2(
+            UpsertAdapter<SecondaryKeyType> upsertAdapter,
+            // secondaryKeyClass exists to force S not to be Serializable or some other
+            // unexpected superclass of unrelated Model and Cursor property classes.
+            // however, we don't actually need the parameter, so we suppress unused.
+            @SuppressWarnings("unused") Class<SecondaryKeyType> secondaryKeyClass,
+            ModelListType models,
+            Function<
+                    ModelType,
+                    SecondaryKeyType
+                    > modelSecondaryKeyGetter,
+            Identifier.IdentifierFactory2<
+                    IdentifierType
+                    > identifierFactory,
+            Identified.IdentifiedFactory2<
+                    IdentifiedType,
+                    IdentifierType,
+                    ModelType
+                    > identifiedFactory,
+            Function<
+                    ModelType,
+                    Optional<IdentifierType>
+                    > modelInserter,
+            Function<
+                    IdentifiedType,
+                    Integer
+                    > identifiedUpdater,
+            CollectionFactory.Capacity<
+                    List<Optional<IdentifierType>>,
+                    Optional<IdentifierType>
+                    > identifierOptionalListCapacityFactory
+    ) {
+        if (models.isEmpty()) {
+            return identifierOptionalListCapacityFactory.newCollection(0);
+        } else {
+            try (final DimDatabase.Transaction<MarkerType> transaction = dimDatabase.newTransaction()) {
+                final SortedSetUtil<Tuple<Integer, ModelType>> indexedModelSortedSetUtil =
+                        new SortedSetUtil<>(
+                                Comparator.comparing(
+                                        indexedModel ->
+                                                indexedModel.first
+                                )
+                        );
+                final Map<SecondaryKeyType, SortedSet<Tuple<Integer, ModelType>>> indexedModelSetsBySecondaryKey =
+                        indexedStream(models)
+                                .collect(
+                                        Collectors.toMap(
+                                                modelSecondaryKeyGetter.compose(Tuple::getSecond),
+                                                indexedModelSortedSetUtil::singletonSortedSet,
+                                                indexedModelSortedSetUtil::union,
+                                                // LinkedHashMap is important here to ensure that
+                                                // we iterate through inserted elements in the same
+                                                // order as we receive them in the models List.
+                                                LinkedHashMap::new
+                                        )
+                                );
 
-        @Override
-        public void onUpgrade(
-                SupportSQLiteDatabase db,
-                int oldVersion,
-                int newVersion
-        ) {
-            throw new AssertionError();
+                final SupportSQLiteQuery primaryKeyAndSecondaryKeyQuery =
+                        upsertAdapter.createPrimaryKeyAndSecondaryKeyQuery(indexedModelSetsBySecondaryKey.keySet());
+                // Again, LinkedHashSet is important here to ensure that we iterate through inserted
+                // elements in the same order as we receive them in the models list.
+                // the above LinkedHashMap preserves that order in its keySet, and LinkedHashSet
+                // preserves that order as well.
+                final LinkedHashSet<SecondaryKeyType> insertingSecondaryKeys = new LinkedHashSet<>(indexedModelSetsBySecondaryKey.keySet());
+                final List<IdentifiedType> updatingIdentifieds = new ArrayList<>(models.size());
+                try (final Cursor primaryKeyAndSecondaryKeyCursor = dimDatabase.query(primaryKeyAndSecondaryKeyQuery)) {
+                    while (primaryKeyAndSecondaryKeyCursor.moveToNext()) {
+                        final long primaryKey = upsertAdapter.getPrimaryKey(primaryKeyAndSecondaryKeyCursor);
+                        final SecondaryKeyType secondaryKey = upsertAdapter.getSecondaryKey(primaryKeyAndSecondaryKeyCursor);
+                        @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
+                                indexedModelSetsBySecondaryKey.get(secondaryKey);
+                        if (indexedModelSet == null) {
+                            throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
+                        } else {
+                            final ModelType model = indexedModelSet.iterator().next().second;
+                            insertingSecondaryKeys.remove(secondaryKey);
+
+                            final IdentifierType updatingIdentifier = identifierFactory.newIdentifier(primaryKey);
+                            final IdentifiedType updatingIdentified = identifiedFactory.newIdentified(
+                                    updatingIdentifier,
+                                    model
+                            );
+                            updatingIdentifieds.add(updatingIdentified);
+                        }
+                    }
+                }
+
+                final int capacity = models.size();
+                final List<Optional<IdentifierType>> upsertedIdentifierOptionals = identifierOptionalListCapacityFactory.newCollection(capacity);
+                for (int i = 0; i < capacity; i++) {
+                    upsertedIdentifierOptionals.add(Optional.empty());
+                }
+                for (final SecondaryKeyType secondaryKey : insertingSecondaryKeys) {
+                    @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
+                            indexedModelSetsBySecondaryKey.get(secondaryKey);
+                    if (indexedModelSet == null) {
+                        throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
+                    } else {
+                        final ModelType model = indexedModelSet.iterator().next().second;
+                        final Optional<IdentifierType> identifierOpt =
+                                modelInserter.apply(model);
+                        if (identifierOpt.isPresent()) {
+                            for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
+                                upsertedIdentifierOptionals.set(
+                                        indexedModel.first,
+                                        identifierOpt
+                                );
+                            }
+                        }
+                    }
+                }
+
+                for (final IdentifiedType updatingIdentified : updatingIdentifieds) {
+                    final int rowCount = identifiedUpdater.apply(updatingIdentified);
+                    if (rowCount == 1) {
+                        final SecondaryKeyType secondaryKey =
+                                modelSecondaryKeyGetter.apply(updatingIdentified.getModel());
+                        @Nullable final Set<Tuple<Integer, ModelType>> indexedModelSet =
+                                indexedModelSetsBySecondaryKey.get(secondaryKey);
+                        if (indexedModelSet == null) {
+                            throw new IllegalStateException("Found unexpected secondary key: " + secondaryKey);
+                        } else {
+                            for (final Tuple<Integer, ModelType> indexedModel : indexedModelSet) {
+                                upsertedIdentifierOptionals.set(
+                                        indexedModel.first,
+                                        Optional.of(updatingIdentified.getIdentifier())
+                                );
+                            }
+                        }
+                    }
+                }
+
+                transaction.markSuccessful();
+
+                return upsertedIdentifierOptionals;
+            }
         }
     }
 }

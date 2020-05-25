@@ -1,4 +1,10 @@
+--
+-- File generated with SQLiteStudio v3.2.1 on Sun May 24 22:23:42 2020
+--
+-- Text encoding used: UTF-8
+--
 PRAGMA foreign_keys = off;
+BEGIN TRANSACTION;
 
 -- Table: episode
 CREATE TABLE episode (
@@ -55,18 +61,28 @@ CREATE TABLE search (
 
 -- Table: search_podcast_result
 CREATE TABLE search_podcast_result (
-    _id        INTEGER PRIMARY KEY AUTOINCREMENT
-                       NOT NULL,
-    podcast_id INTEGER REFERENCES podcast (_id) ON DELETE CASCADE
-                       NOT NULL,
-    search_id  INTEGER REFERENCES search (_id) ON DELETE CASCADE
-                       NOT NULL,
-    sort       INTEGER NOT NULL,
+    _id                                  INTEGER PRIMARY KEY AUTOINCREMENT
+                                                 NOT NULL,
+    podcast_id                           INTEGER REFERENCES podcast (_id) ON DELETE CASCADE
+                                                 NOT NULL,
+    sort                                 INTEGER NOT NULL,
+    search_podcast_result_list_header_id INTEGER REFERENCES search_podcast_result_list_header (version) ON DELETE CASCADE
+                                                 NOT NULL,
     UNIQUE (
         podcast_id,
-        search_id,
         sort
     )
+);
+
+
+-- Table: search_podcast_result_list_header
+CREATE TABLE search_podcast_result_list_header (
+    _id       INTEGER PRIMARY KEY AUTOINCREMENT
+                      NOT NULL,
+    version   INTEGER NOT NULL
+                      DEFAULT (0),
+    search_id INTEGER REFERENCES search (_id) ON DELETE CASCADE
+                      NOT NULL
 );
 
 
@@ -91,84 +107,6 @@ CREATE TABLE subscription_list_header (
                     NOT NULL,
     version INTEGER NOT NULL
                     DEFAULT (0) 
-);
-
-
--- Index: episode__podcast_episode_list_header_id_index
-CREATE INDEX episode__podcast_episode_list_header_id_index ON episode (
-    podcast_episode_list_header_id
-);
-
-
--- Index: episode__publish_time_millis_index
-CREATE INDEX episode__publish_time_millis_index ON episode (
-    publish_time_millis
-);
-
-
--- Index: episode__sort_index
-CREATE INDEX episode__sort_index ON episode (
-    sort
-);
-
-
--- Index: episode__url_index
-CREATE INDEX episode__url_index ON episode (
-    url
-);
-
-
--- Index: podcast__feed_url_index
-CREATE UNIQUE INDEX podcast__feed_url_index ON podcast (
-    feed_url
-);
-
-
--- Index: podcast_episode_list_header__podcast_id_index
-CREATE UNIQUE INDEX podcast_episode_list_header__podcast_id_index ON podcast_episode_list_header (
-    podcast_id
-);
-
-
--- Index: search__search_index
-CREATE UNIQUE INDEX search__search_index ON search (
-    search
-);
-
-
--- Index: search__sort_index
-CREATE UNIQUE INDEX search__sort_index ON search (
-    sort
-);
-
-
--- Index: search_podcast_result__podcast_id_index
-CREATE INDEX search_podcast_result__podcast_id_index ON search_podcast_result (
-    podcast_id
-);
-
-
--- Index: search_podcast_result__search_id_index
-CREATE INDEX search_podcast_result__search_id_index ON search_podcast_result (
-    search_id
-);
-
-
--- Index: search_podcast_result__sort_index
-CREATE INDEX search_podcast_result__sort_index ON search_podcast_result (
-    sort
-);
-
-
--- Index: subscription__podcast_id_index
-CREATE UNIQUE INDEX subscription__podcast_id_index ON subscription (
-    podcast_id
-);
-
-
--- Index: subscription__sort_index
-CREATE UNIQUE INDEX subscription__sort_index ON subscription (
-    sort
 );
 
 
@@ -265,4 +203,6 @@ BEGIN
      WHERE _id = OLD.subscription_list_header_id;
 END;
 
+
+COMMIT TRANSACTION;
 PRAGMA foreign_keys = on;
